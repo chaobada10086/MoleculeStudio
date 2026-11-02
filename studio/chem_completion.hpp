@@ -1,0 +1,313 @@
+#pragma once
+#include <algorithm>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
+#include "nickname_catalog.hpp"
+#include "custom_groups_data.hpp"
+// Group-label completion.
+//
+// Two independent jobs, both driven from Settings > 基团补齐:
+//   1. SPELLING: "tbu" -> "t-Bu", "no2" -> "NO2". The dictionary is the built-in
+//      abbreviation catalog plus the user's own entries; every entry can be
+//      switched off individually.
+//   2. TYPOGRAPHY: the completed label is laid out as a chemical formula --
+//      atom counts are subscripts, isotopes and charges are superscripts, and a
+//      radical mark (*) rides with the charge: Fe3+ -> Fe3+, SO42- -> SO4^2-,
+//      Ph+* -> Ph^+ with a radical dot.
+namespace chemcompletion {
+inline std::wstring settingsPath(){wchar_t exe[32768]={};GetModuleFileNameW(nullptr,exe,32768);std::wstring p=exe;return p.substr(0,p.find_last_of(L"\\/"))+L"\\interface.ini";}
+inline bool& enabled(){static bool value=GetPrivateProfileIntW(L"Text",L"CompleteGroupLabels",1,settingsPath().c_str())!=0;return value;}
+inline bool saveEnabled(bool value){if(!WritePrivateProfileStringW(L"Text",L"CompleteGroupLabels",value?L"1":L"0",settingsPath().c_str()))return false;enabled()=value;return true;}
+inline bool& formulaLayout(){static bool value=GetPrivateProfileIntW(L"GroupCompletion",L"FormulaLayout",1,settingsPath().c_str())!=0;return value;}
+inline bool saveFormulaLayout(bool value){if(!WritePrivateProfileStringW(L"GroupCompletion",L"FormulaLayout",value?L"1":L"0",settingsPath().c_str()))return false;formulaLayout()=value;return true;}
+inline std::string readKey(const wchar_t* name){
+    wchar_t buffer[32768]={};GetPrivateProfileStringW(L"GroupCompletion",name,L"",buffer,32768,settingsPath().c_str());
+    int size=WideCharToMultiByte(CP_UTF8,0,buffer,-1,nullptr,0,nullptr,nullptr);if(size<=1)return std::string();
+    std::string out(size_t(size-1),'\0');WideCharToMultiByte(CP_UTF8,0,buffer,-1,&out[0],size,nullptr,nullptr);return out;
+}
+inline bool writeKey(const wchar_t* name,const std::string& value){
+    if(value.empty())return WritePrivateProfileStringW(L"GroupCompletion",name,nullptr,settingsPath().c_str())!=0;
+    int size=MultiByteToWideChar(CP_UTF8,0,value.c_str(),-1,nullptr,0);if(size<=1)return false;
+    std::wstring wide(size_t(size),0);MultiByteToWideChar(CP_UTF8,0,value.c_str(),-1,&wide[0],size);
+    return WritePrivateProfileStringW(L"GroupCompletion",name,wide.c_str(),settingsPath().c_str())!=0;
+}
+inline std::string key(const std::string& value){std::string result;for(unsigned char c:value){if(c=='-')continue;if(c>=128||c<=32)return std::string();result+=char(c>='A'&&c<='Z'?c+32:c);}return result;}
+inline bool protectedKey(const std::string& value){
+    // Element symbols and their case collisions (Co / CO, Ac, Pr, etc.) must
+    // remain exactly as typed. The dictionary cannot infer chemical intent.
+    static const std::string elements="|h|he|li|be|b|c|n|o|f|ne|na|mg|al|si|p|s|cl|ar|k|ca|sc|ti|v|cr|mn|fe|co|ni|cu|zn|ga|ge|as|se|br|kr|rb|sr|y|zr|nb|mo|tc|ru|rh|pd|ag|cd|in|sn|sb|te|i|xe|cs|ba|la|ce|pr|nd|pm|sm|eu|gd|tb|dy|ho|er|tm|yb|lu|hf|ta|w|re|os|ir|pt|au|hg|tl|pb|bi|po|at|rn|fr|ra|ac|th|pa|u|np|pu|am|cm|bk|cf|es|fm|md|no|lr|rf|db|sg|bh|hs|mt|ds|rg|cn|nh|fl|mc|lv|ts|og|";
+    return value.empty()||elements.find("|"+value+"|")!=std::string::npos;
+}
+// ---- user state -----------------------------------------------------------
+struct State {
+    std::set<std::string> disabled;                   // lower-case dictionary keys
+    std::map<std::string,std::string> custom;         // key -> canonical spelling
+    unsigned revision=1;
+};
+inline void loadState(State& state){
+    state.disabled.clear();state.custom.clear();
+    std::string raw=readKey(L"Disabled");
+    for(size_t at=0;at<raw.size();){size_t end=raw.find('|',at);if(end==std::string::npos)end=raw.size();if(end>at)state.disabled.insert(raw.substr(at,end-at));at=end+1;}
+    raw=readKey(L"Custom");
+    for(size_t at=0;at<raw.size();){size_t end=raw.find('|',at);if(end==std::string::npos)end=raw.size();std::string item=raw.substr(at,end-at);size_t eq=item.find('=');if(eq!=std::string::npos&&eq>0&&eq+1<item.size())state.custom[item.substr(0,eq)]=item.substr(eq+1);at=end+1;}
+}
+inline State& state(){static State value=[](){State loaded;loadState(loaded);return loaded;}();return value;}
+inline bool persist(State& draft){
+    std::string disabled;for(const auto& name:draft.disabled)disabled+=name+"|";
+    std::string custom;for(const auto& entry:draft.custom)custom+=entry.first+"="+entry.second+"|";
+    if(!writeKey(L"Disabled",disabled)||!writeKey(L"Custom",custom))return false;
+    unsigned revision=state().revision+1;loadState(state());state().revision=revision;
+    return true;
+}
+// ---- dictionary -----------------------------------------------------------
+inline const std::map<std::string,std::string>& index(){
+    static std::map<std::string,std::string> values;static unsigned built=0;
+    if(built!=state().revision){
+        values.clear();
+        for(const auto& entry:nickdata::nicknames){
+            auto k=key(entry.name);if(protectedKey(k))continue;
+            auto it=values.find(k);
+            if(it==values.end())values[k]=entry.name;
+            else if(it->second!=entry.name)it->second.clear();
+        }
+        // Explicit, reviewed typography choices: aliases in the historical catalog
+        // are not necessarily equivalent, so ambiguous entries above stay unset.
+        for(const char* canonical:{"t-Bu","s-Bu","i-Bu","n-Bu","i-Pr","n-Pr"})if(nickdata::find(canonical))values[key(canonical)]=canonical;
+        if(nickdata::find("t-Bu")){values["tertbu"]="t-Bu";values["tertbutyl"]="t-Bu";}
+        if(nickdata::find("s-Bu")){values["secbu"]="s-Bu";values["secbutyl"]="s-Bu";}
+        for(const auto& entry:state().custom){values[entry.first]=entry.second;values[key(entry.second)]=entry.second;}
+        customgroups::load();for(const auto& entry:customgroups::entries())values[key(entry.name)]=entry.name;
+        for(const auto& entry:state().disabled)values.erase(entry);
+        built=state().revision;
+    }
+    return values;
+}
+// ---- formula spelling -----------------------------------------------------
+inline const char* const* elementSymbols(size_t* count){
+    static const char* const symbols[]={"H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr"};
+    static const size_t size=sizeof(symbols)/sizeof(symbols[0]);
+    if(count)*count=size;
+    return symbols;
+}
+inline bool isElementSymbol(const std::string& text){
+    size_t count=0;const char* const* symbols=elementSymbols(&count);
+    for(size_t i=0;i<count;++i)if(text==symbols[i])return true;
+    return false;
+}
+struct FormulaReading {bool ok=false;int tokens=0;std::string text;};
+// twoLetter reads "Co"/"Cu" as one element; the other reading takes every
+// letter as its own symbol (CO2, CS2, NH4+).
+inline bool readFormula(const std::string& text,bool twoLetter,FormulaReading* reading){
+    FormulaReading result;
+    size_t at=0,length=text.size();
+    while(at<length){
+        char c=text[at];
+        if(c>='0'&&c<='9'){
+            size_t stop=at;while(stop<length&&text[stop]>='0'&&text[stop]<='9')++stop;
+            result.text+=text.substr(at,stop-at);at=stop;continue;
+        }
+        if(c=='('||c==')'||c=='['||c==']'||c=='+'||c=='-'||c=='*'||c=='.'){result.text+=c;++at;continue;}
+        if(!((c>='A'&&c<='Z')||(c>='a'&&c<='z')))return false;
+        std::string symbol(1,char(c>='a'?c-32:c));
+        if(twoLetter&&at+1<length&&text[at+1]>='a'&&text[at+1]<='z'&&isElementSymbol(symbol+text[at+1])){
+            result.text+=symbol+text[at+1];++result.tokens;at+=2;continue;
+        }
+        if(!isElementSymbol(symbol))return false;
+        result.text+=symbol;++result.tokens;++at;
+    }
+    result.ok=true;if(reading)*reading=result;return true;
+}
+// Formulas whose case-insensitive spelling is chemically ambiguous but standard.
+// Deliberately small: it covers the formulas a label or caption is likely to
+// carry; everything else follows the unique-reading rule below.
+inline const std::map<std::string,std::string>& commonFormulas(){
+    static const std::map<std::string,std::string> values={
+        {"co3","CO3"},{"co32-","CO32-"},{"hco3-","HCO3-"},{"no3-","NO3-"},{"clo-","ClO-"},{"clo2-","ClO2-"},{"clo3-","ClO3-"},{"clo4-","ClO4-"},{"hso4-","HSO4-"},{"hso3-","HSO3-"},{"h2po4-","H2PO4-"},{"hpo42-","HPO42-"},{"cro42-","CrO42-"},{"cr2o72-","Cr2O72-"},{"mno4-","MnO4-"},{"cn-","CN-"},{"ocn-","OCN-"},{"scn-","SCN-"},{"h2o","H2O"},{"h2o2","H2O2"},{"co","CO"},{"co2","CO2"},{"cs2","CS2"},
+        {"so2","SO2"},{"so3","SO3"},{"so4","SO4"},{"so42-","SO42-"},{"so32-","SO32-"},{"so3h","SO3H"},
+        {"no","NO"},{"no2","NO2"},{"no3","NO3"},{"n2o","N2O"},{"n2o4","N2O4"},{"no2-","NO2-"},
+        {"nh3","NH3"},{"nh4+","NH4+"},{"nh2-","NH2-"},{"oh-","OH-"},{"h3o+","H3O+"},
+        {"h2s","H2S"},{"hcl","HCl"},{"hbr","HBr"},{"hi","HI"},{"hf","HF"},{"hcn","HCN"},
+        {"h2so4","H2SO4"},{"h2so3","H2SO3"},{"hno3","HNO3"},{"hno2","HNO2"},{"h3po4","H3PO4"},{"h2co3","H2CO3"},
+        {"ch4","CH4"},{"c2h6","C2H6"},{"c2h4","C2H4"},{"c2h2","C2H2"},{"c6h6","C6H6"},{"c6h12o6","C6H12O6"},
+        {"ch3oh","CH3OH"},{"c2h5oh","C2H5OH"},{"ch3cooh","CH3COOH"},{"ch3cho","CH3CHO"},{"ch3cn","CH3CN"},
+        {"ch3coo-","CH3COO-"},{"ch3coona","CH3COONa"},{"ch3cl","CH3Cl"},{"ch2cl2","CH2Cl2"},{"chcl3","CHCl3"},{"ccl4","CCl4"},
+        {"naoh","NaOH"},{"koh","KOH"},{"nacl","NaCl"},{"kcl","KCl"},{"nh4cl","NH4Cl"},{"cacl2","CaCl2"},{"mgcl2","MgCl2"},
+        {"caco3","CaCO3"},{"na2co3","Na2CO3"},{"nahco3","NaHCO3"},{"na2so4","Na2SO4"},{"k2so4","K2SO4"},
+        {"kmno4","KMnO4"},{"k2cr2o7","K2Cr2O7"},{"cuso4","CuSO4"},{"feso4","FeSO4"},{"fe2o3","Fe2O3"},{"fe3o4","Fe3O4"},
+        {"al2o3","Al2O3"},{"sio2","SiO2"},{"p2o5","P2O5"},{"mgo","MgO"},{"cao","CaO"},{"zno","ZnO"},
+        {"agno3","AgNO3"},{"baso4","BaSO4"},{"zncl2","ZnCl2"},{"fecl3","FeCl3"},{"cucl2","CuCl2"},{"alcl3","AlCl3"},
+        {"o2","O2"},{"n2","N2"},{"h2","H2"},{"cl2","Cl2"},{"br2","Br2"},{"i2","I2"},{"o3","O3"},
+        {"fe2+","Fe2+"},{"fe3+","Fe3+"},{"cu+","Cu+"},{"cu2+","Cu2+"},{"zn2+","Zn2+"},{"mg2+","Mg2+"},
+        {"ca2+","Ca2+"},{"na+","Na+"},{"k+","K+"},{"al3+","Al3+"},{"ag+","Ag+"},{"pb2+","Pb2+"},
+        {"hg2+","Hg2+"},{"sn2+","Sn2+"},{"cd2+","Cd2+"},{"co2+","Co2+"},{"ni2+","Ni2+"},{"mn2+","Mn2+"},
+        {"cr3+","Cr3+"},{"ba2+","Ba2+"},{"li+","Li+"},{"po4","PO4"},{"po43-","PO43-"},{"p2o5","P2O5"}
+    };
+    return values;
+}
+// Recognizes a whole label as element/count/bracket/charge tokens and reports the
+// spelling that should be drawn. When two readings are chemically possible the
+// typed letters are kept and only the typography pass touches them.
+inline bool formulaSpelling(const std::string& label,std::string* spelling){
+    if(label.empty()||label.size()>96)return false;
+    for(unsigned char c:label)if(c>=128||c<32)return false;
+    // Accept a terminal radical/charge pair in either typing order.
+    if(label.size()>2){
+        auto tail=label.substr(label.size()-2);
+        if(tail==".+"||tail==".-"||tail=="+."||tail=="-."){
+            std::string base;
+            if(formulaSpelling(label.substr(0,label.size()-2),&base)){
+                if(spelling)*spelling=base+tail;return true;
+            }
+        }
+    }
+    // A radical mark (*), an explicit charge caret (^) or a hydrate dot means the
+    // label carries typography markers; its letters are left exactly as typed.
+    if(label.find('*')!=std::string::npos||label.find('^')!=std::string::npos||label.find('.')!=std::string::npos)return false;
+    bool shaped=false;for(char c:label)if((c>='0'&&c<='9')||c=='('||c==')'||c=='+'||c=='-')shaped=true;
+    if(!shaped)return false;   // a bare word or a lone element symbol is not a formula
+    std::string lower;for(unsigned char c:label)lower+=char(c>='A'&&c<='Z'?c+32:c);
+    // A switched-off abbreviation must stay switched off even when the formula
+    // table also knows it (NO2 is both a group and a formula).
+    if(state().disabled.count(lower))return false;
+    auto common=commonFormulas().find(lower);
+    if(common!=commonFormulas().end()){if(spelling)*spelling=common->second;return true;}
+    FormulaReading split,merged;
+    bool haveSplit=readFormula(label,false,&split);
+    bool haveMerged=readFormula(label,true,&merged);
+    if(!haveSplit&&!haveMerged)return false;
+    if(haveSplit&&haveMerged&&split.text==merged.text){if(spelling)*spelling=merged.text;return true;}
+    if(haveSplit&&!haveMerged){if(spelling)*spelling=split.text;return true;}
+    if(!haveSplit&&haveMerged){if(spelling)*spelling=merged.text;return true;}
+    if(spelling)*spelling=label;   // ambiguous: keep exactly what was typed
+    return true;
+}
+inline std::string canonicalFormula(const std::string& label){std::string spelling;return formulaSpelling(label,&spelling)?spelling:label;}
+inline std::string normalize(const std::string& label,bool on){if(!on||label.size()>96)return label;auto k=key(label);if(protectedKey(k))return label;auto it=index().find(k);if(it!=index().end()&&!it->second.empty())return it->second;return canonicalFormula(label);}
+inline std::string normalize(const std::string& label){return normalize(label,enabled());}
+// A caption (text object) is completed only when the WHOLE caption is one
+// chemical token; sentences and labels with spaces are never re-cased.
+inline std::string chemicalToken(const std::string& text,bool force=false){
+    if((!force&&!enabled())||text.empty()||text.size()>64)return std::string();
+    for(unsigned char c:text)if(c>=128||c<32||c==' ')return std::string();
+    auto k=key(text);
+    if(!k.empty()&&!protectedKey(k)){auto it=index().find(k);if(it!=index().end()&&!it->second.empty())return it->second;}
+    std::string spelling;
+    if(formulaSpelling(text,&spelling))return spelling;
+    // Radical/caret markers are typography, not spelling: recognise them so the
+    // caption still gets its superscript dot, but keep every letter as typed.
+    if(text.find('*')!=std::string::npos||text.find('^')!=std::string::npos)return text;
+    return std::string();
+}
+// ---- catalogue for the settings list ---------------------------------------
+struct Entry {std::string name,key;bool enabled=true;bool custom=false;};
+inline std::vector<Entry> list(){
+    std::vector<Entry> result;std::set<std::string> seen;std::set<std::string> listed;
+    for(const auto& entry:nickdata::nicknames){
+        auto k=key(entry.name);if(protectedKey(k))continue;
+        if(!seen.insert(k).second)continue;
+        auto it=index().find(k);bool usable=it!=index().end()&&!it->second.empty()&&it->second==entry.name;
+        bool inDictionary=state().disabled.count(k)!=0||state().custom.count(k)!=0;
+        if(!usable&&!inDictionary)continue;   // ambiguous alias: never completed on its own
+        Entry item;item.key=k;
+        auto custom=state().custom.find(k);
+        item.name=custom!=state().custom.end()?custom->second:entry.name;
+        item.enabled=custom!=state().custom.end()||state().disabled.count(k)==0;
+        item.custom=custom!=state().custom.end();
+        listed.insert(k);result.push_back(item);
+    }
+    for(const auto& entry:state().custom){
+        if(listed.count(entry.first))continue;
+        Entry item;item.name=entry.second;item.key=entry.first;item.enabled=state().disabled.count(entry.first)==0;item.custom=true;
+        result.push_back(item);
+    }
+    customgroups::load();for(const auto& g:customgroups::entries()){Entry item;item.name=g.name;item.key=key(g.name);item.custom=true;item.enabled=state().disabled.count(item.key)==0;result.push_back(item);}
+    std::sort(result.begin(),result.end(),[](const Entry& a,const Entry& b){return a.name<b.name;});
+    return result;
+}
+inline bool setEnabled(const std::string& name,bool on){
+    State draft=state();auto k=key(name);if(k.empty())return false;
+    if(on)draft.disabled.erase(k);else draft.disabled.insert(k);
+    return persist(draft);
+}
+inline bool addCustom(const std::string& alias,const std::string& canonical){
+    auto k=key(alias);if(k.empty()||protectedKey(k)||canonical.empty()||canonical.size()>48)return false;
+    for(unsigned char c:canonical)if(c<32||c>126)return false;
+    if(customgroups::find(alias))return false;State draft=state();draft.disabled.erase(k);draft.custom[k]=canonical;return persist(draft);
+}
+inline bool removeCustom(const std::string& name){
+    State draft=state();auto k=key(name);if(draft.custom.find(k)==draft.custom.end())return false;
+    draft.custom.erase(k);draft.disabled.insert(k);return persist(draft);
+}
+inline void resetEntries(){State draft;draft.custom.clear();persist(draft);}
+// ---- formula typography ----------------------------------------------------
+// A segment is a piece of the label with its baseline offset: -1 subscript,
+// 0 baseline, +1 superscript. Charges and isotopes are superscripts, atom
+// counts are subscripts, and the radical dot joins the charge.
+struct Segment {std::string text;int script;};
+inline std::string savedFormat(const std::string& name){static std::map<std::string,std::string> cache;static unsigned revision=0;if(revision!=state().revision){cache.clear();revision=state().revision;}auto k=key(name);auto it=cache.find(k);if(it!=cache.end())return it->second;std::wstring field=L"Format_"+std::wstring(k.begin(),k.end());return cache[k]=readKey(field.c_str());}
+inline bool saveFormat(const std::string& name,const std::string& format){auto k=key(name);std::wstring field=L"Format_"+std::wstring(k.begin(),k.end());if(!writeKey(field.c_str(),format))return false;++state().revision;return true;}
+inline bool isDigit(char c){return c>='0'&&c<='9';}
+inline bool isLetter(char c){return (c>='A'&&c<='Z')||(c>='a'&&c<='z');}
+inline bool isElementStart(char c){return c>='A'&&c<='Z';}
+inline bool singleElement(const std::string& text){
+    static const char* symbols[]={"H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr"};
+    for(const char* symbol:symbols)if(text==symbol)return true;
+    return false;
+}
+inline std::vector<Segment> segments(const std::string& label,bool force=false){
+    std::vector<Segment> out;
+    if(!force&&!formulaLayout())return out;
+    if(label.empty()||label.size()>96)return out;
+    for(unsigned char c:label)if(c<32||c>126)return out;   // foreign glyphs: leave untouched
+    auto custom=savedFormat(label);if(custom.size()==label.size()){for(size_t i=0;i<label.size();++i)out.push_back({label.substr(i,1),(custom[i]-'0')%4==1?-1:(custom[i]-'0')%4==2?1:0});return out;}
+    std::string text=label,magnitude,sign,radical;
+    if(text.size()>2){auto tail=text.substr(text.size()-2);
+        if(tail==".+"||tail==".-"||tail=="+."||tail=="-."){
+            char charge=tail[0]=='.'?tail[1]:tail[0];text=text.substr(0,text.size()-2)+charge;radical="\xE2\x80\xA2";
+        }
+    }
+    // A radical mark is typable as a trailing '*' (labels are ASCII here).
+    while(!text.empty()&&text.back()=='*'){text.pop_back();radical="\xE2\x80\xA2";}
+    size_t caret=text.find('^');
+    if(caret!=std::string::npos){sign=text.substr(caret+1);text=text.substr(0,caret);
+        size_t digits=0;while(digits<sign.size()&&isDigit(sign[digits]))++digits;
+        if(digits){magnitude=sign.substr(0,digits);sign=sign.substr(digits);}
+    }else{
+        size_t at=text.size();
+        while(at>0&&(text[at-1]=='+'||text[at-1]=='-'))--at;
+        if(at<text.size()&&at>0&&(isLetter(text[at-1])||isDigit(text[at-1])||text[at-1]==')'||text[at-1]==']')){
+            sign=text.substr(at);text=text.substr(0,at);
+            size_t digits=text.size();while(digits>0&&isDigit(text[digits-1]))--digits;
+            std::string run=text.substr(digits);
+            if(!run.empty()){
+                // A bare element keeps the whole number as its charge (Fe3+,
+                // Ca2+); in a formula the last digit is the charge and the rest
+                // is the preceding atom count (SO42-, Cr2O72-).
+                if(singleElement(text.substr(0,digits))){magnitude=run;text=text.substr(0,digits);}
+                else if(run.size()>1){magnitude=run.substr(run.size()-1);text=text.substr(0,digits)+run.substr(0,run.size()-1);}
+            }
+        }
+    }
+    // Atom counts: digits after a letter, ')' or ']' are subscripts; a leading
+    // isotope prefix (digits before an element) is a superscript; locants after
+    // a hyphen or dot stay on the baseline (1-Naph, 2,4-diCl).
+    for(size_t i=0;i<text.size();){
+        if(isDigit(text[i])){
+            size_t j=i;while(j<text.size()&&isDigit(text[j]))++j;
+            std::string run=text.substr(i,j-i);
+            int script=0;
+            if(i==0){if(j<text.size()&&isElementStart(text[j]))script=1;}
+            else if(isLetter(text[i-1])||text[i-1]==')'||text[i-1]==']')script=-1;
+            out.push_back({run,script});i=j;continue;
+        }
+        size_t j=i+1;while(j<text.size()&&!isDigit(text[j]))++j;
+        out.push_back({text.substr(i,j-i),0});i=j;
+    }
+    std::string tail=radical+magnitude+sign;
+    if(!tail.empty())out.push_back({tail,1});
+    return out;
+}
+inline std::string merged(const std::vector<Segment>& segments){std::string out;for(const auto& segment:segments)out+=segment.text;return out;}
+}  // namespace chemcompletion

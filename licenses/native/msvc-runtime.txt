@@ -1,0 +1,12 @@
+# Microsoft Visual C++ Redistributable runtime 14.40.33810.0
+SPDX-License-Identifier: NOASSERTION
+Upstream: https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist
+Bundled at: python/msvcp140.dll, python/vcruntime140.dll, python/vcruntime140_1.dll
+Note: Proprietary Microsoft redistributable, not open source. Redistribution of these DLLs alongside the application is permitted by the Visual Studio licence terms, but the Apache-2.0 licence does NOT cover them.
+Note: Keep them in a clearly separated directory and list them in the release notes.
+
+STATUS: no licence text applies to this component.
+  Proprietary Microsoft redistributable, not open source. Redistribution of these DLLs alongside the application is permitted by the Visual Studio licence terms, but the Apache-2.0 licence does NOT cover them.
+  Keep them in a clearly separated directory and list them in the release notes.
+
+This file is a placeholder so that the component is still listed in licenses/index.json and in THIRD_PARTY_NOTICES.md.

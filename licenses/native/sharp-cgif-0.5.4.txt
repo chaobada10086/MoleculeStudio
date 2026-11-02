@@ -1,0 +1,44 @@
+# cgif 0.5.4
+SPDX-License-Identifier: MIT
+Upstream: https://github.com/dloebl/cgif
+Bundled at: dsh_core/dsh/node_modules/@img/sharp-win32-x64/lib/libvips-42.dll
+Status: license material supplied and reviewed on 2026-10-30.
+Note: Embedded dependency of the upstream libvips build. Complete supplied source, original notices and build recipes are included.
+
+==============================================================================
+Source: third-party-sources/cgif-0.5.4.tar.gz#cgif-0.5.4/AUTHORS
+SHA-256 of text: 76ed8a61cb7e254cab424641ebbb4069d08bf820dfe00f6f7ab5485057ca003d
+==============================================================================
+cgif has been initially developed and is being maintained by:
+- Daniel Löbl
+- Matthias Löbl
+
+We thank the following people for valuable contributions:
+- Lovell Fuller
+- Kleis Auke Wolthuizen
+
+==============================================================================
+Source: third-party-sources/cgif-0.5.4.tar.gz#cgif-0.5.4/LICENSE
+SHA-256 of text: 7264dede477abab4ac3fe8236beb8153845c04ccd33b18f281085087e219fc6d
+==============================================================================
+MIT License
+
+Copyright (c) 2021-2023, Daniel Löbl <dloebl.2000@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

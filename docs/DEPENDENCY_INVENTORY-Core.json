@@ -1,0 +1,460 @@
+[
+  {
+    "name": "cloudpickle",
+    "version": "3.1.2",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/cloudpickle-3.1.2.dist-info",
+    "homepage": "https://github.com/cloudpipe/cloudpickle"
+  },
+  {
+    "name": "filelock",
+    "version": "4.2.4",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/filelock-4.2.4.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "fsspec",
+    "version": "2026.9.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/fsspec-2026.9.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "Jinja2",
+    "version": "3.1.6",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/jinja2-3.1.6.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "joblib",
+    "version": "1.6.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/joblib-1.6.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "MarkupSafe",
+    "version": "3.0.4",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/markupsafe-3.0.4.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "networkx",
+    "version": "3.7",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/networkx-3.7.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "license_expression": "Apache-2.0 OR BSD-2-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE",
+      "LICENSE.APACHE",
+      "LICENSE.BSD"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/packaging-26.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pyarrow",
+    "version": "19.0.1",
+    "license_expression": null,
+    "license": "Apache Software License",
+    "license_files": [
+      "../LICENSE.txt",
+      "../NOTICE.txt"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/pyarrow-19.0.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "scikit-learn",
+    "version": "1.6.1",
+    "license_expression": null,
+    "license": "BSD 3-Clause License\n         \n         Copyright (c) 2007-2024 The scikit-learn developers.\n         All rights reserved.\n         \n         Redistribution and use in source and binary forms, with or without\n         modification, are permitted provided that the following conditions are met:\n      ",
+    "license_files": [],
+    "location": "chemistry_runtime/nmr-ml-site/scikit_learn-1.6.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "scipy",
+    "version": "1.15.3",
+    "license_expression": null,
+    "license": "Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.\n         All rights reserved.\n         \n         Redistribution and use in source and binary forms, with or without\n         modification, are permitted provided that the following conditions\n         are met:\n         \n         1.",
+    "license_files": [],
+    "location": "chemistry_runtime/nmr-ml-site/scipy-1.15.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "sympy",
+    "version": "1.13.1",
+    "license_expression": null,
+    "license": "BSD",
+    "license_files": [
+      "LICENSE",
+      "AUTHORS"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/sympy-1.13.1.dist-info",
+    "homepage": "https://sympy.org"
+  },
+  {
+    "name": "threadpoolctl",
+    "version": "3.7.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/threadpoolctl-3.7.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "torch",
+    "version": "2.5.1+cpu",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE",
+      "NOTICE"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/torch-2.5.1+cpu.dist-info",
+    "homepage": "https://pytorch.org/"
+  },
+  {
+    "name": "tqdm",
+    "version": "4.67.1",
+    "license_expression": null,
+    "license": "MPL-2.0 AND MIT",
+    "license_files": [
+      "LICENCE"
+    ],
+    "location": "chemistry_runtime/nmr-ml-site/tqdm-4.67.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "nispo",
+    "version": "0.1.7",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "location": "chemistry_runtime/python-site/nispo-0.1.7.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "colorama",
+    "version": "0.4.6",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "python/Lib/site-packages/colorama-0.4.6.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "flatbuffers",
+    "version": "25.12.19",
+    "license_expression": null,
+    "license": "Apache 2.0",
+    "license_files": [],
+    "location": "python/Lib/site-packages/flatbuffers-25.12.19.dist-info",
+    "homepage": "https://google.github.io/flatbuffers/"
+  },
+  {
+    "name": "numpy",
+    "version": "2.3.5",
+    "license_expression": null,
+    "license": "Copyright (c) 2005-2025, NumPy Developers.\n         All rights reserved.\n         \n         Redistribution and use in source and binary forms, with or without\n         modification, are permitted provided that the following conditions are\n         met:\n         \n             * Redistributions of sou",
+    "license_files": [],
+    "location": "python/Lib/site-packages/numpy-2.3.5.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "numpy",
+    "version": "2.5.4",
+    "license_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt",
+      "numpy/_core/include/numpy/libdivide/LICENSE.txt",
+      "numpy/_core/src/common/pythoncapi-compat/COPYING",
+      "numpy/_core/src/highway/LICENSE",
+      "numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+      "numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+      "numpy/_core/src/umath/svml/LICENSE",
+      "numpy/fft/pocketfft/LICENSE.md",
+      "numpy/linalg/lapack_lite/LICENSE.txt",
+      "numpy/ma/LICENSE",
+      "numpy/random/LICENSE.md",
+      "numpy/random/src/distributions/LICENSE.md",
+      "numpy/random/src/mt19937/LICENSE.md",
+      "numpy/random/src/pcg64/LICENSE.md",
+      "numpy/random/src/philox/LICENSE.md",
+      "numpy/random/src/sfc64/LICENSE.md",
+      "numpy/random/src/splitmix64/LICENSE.md"
+    ],
+    "location": "python/Lib/site-packages/numpy-2.5.4.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "onnxruntime",
+    "version": "1.31.0",
+    "license_expression": null,
+    "license": "MIT License",
+    "license_files": [],
+    "location": "python/Lib/site-packages/onnxruntime-1.31.0.dist-info",
+    "homepage": "https://onnxruntime.ai"
+  },
+  {
+    "name": "opencv-python",
+    "version": "5.0.0.93",
+    "license_expression": null,
+    "license": "Apache 2.0",
+    "license_files": [
+      "LICENSE-3RD-PARTY.txt",
+      "LICENSE.txt"
+    ],
+    "location": "python/Lib/site-packages/opencv_python-5.0.0.93.dist-info",
+    "homepage": "https://github.com/opencv/opencv-python"
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "license_expression": "Apache-2.0 OR BSD-2-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE",
+      "LICENSE.APACHE",
+      "LICENSE.BSD"
+    ],
+    "location": "python/Lib/site-packages/packaging-26.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pandas",
+    "version": "3.0.1",
+    "license_expression": null,
+    "license": "BSD 3-Clause License\n         \n         Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team\n         All rights reserved.\n         \n         Copyright (c) 2011-2026, Open source contributors.\n         \n         Redistribution and use in source and b",
+    "license_files": [],
+    "location": "python/Lib/site-packages/pandas-3.0.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pillow",
+    "version": "12.3.0",
+    "license_expression": "MIT-CMU",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/pillow-12.3.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pillow",
+    "version": "13.0.0",
+    "license_expression": "MIT-CMU",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/pillow-13.0.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "protobuf",
+    "version": "7.36.2",
+    "license_expression": null,
+    "license": "3-Clause BSD License",
+    "license_files": [],
+    "location": "python/Lib/site-packages/protobuf-7.36.2.dist-info",
+    "homepage": "https://developers.google.com/protocol-buffers/"
+  },
+  {
+    "name": "pyclipper",
+    "version": "1.4.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/pyclipper-1.4.0.dist-info",
+    "homepage": "https://github.com/fonttools/pyclipper"
+  },
+  {
+    "name": "pypdf",
+    "version": "6.21.2",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/pypdf-6.21.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pypdfium2",
+    "version": "5.14.0",
+    "license_expression": null,
+    "license": "BSD-3-Clause, Apache-2.0, dependency licenses",
+    "license_files": [
+      "LICENSES/Apache-2.0.txt",
+      "LICENSES/BSD-3-Clause.txt",
+      "LICENSES/CC-BY-4.0.txt",
+      "data/windows_x64/BUILD_LICENSES/abseil.txt",
+      "data/windows_x64/BUILD_LICENSES/agg23.txt",
+      "data/windows_x64/BUILD_LICENSES/fast_float.txt",
+      "data/windows_x64/BUILD_LICENSES/freetype.txt",
+      "data/windows_x64/BUILD_LICENSES/icu.txt",
+      "data/windows_x64/BUILD_LICENSES/lcms.txt",
+      "data/windows_x64/BUILD_LICENSES/libjpeg_turbo.ijg",
+      "data/windows_x64/BUILD_LICENSES/libjpeg_turbo.md",
+      "data/windows_x64/BUILD_LICENSES/libopenjpeg.txt",
+      "data/windows_x64/BUILD_LICENSES/libpng.txt",
+      "data/windows_x64/BUILD_LICENSES/llvm-libc.txt",
+      "data/windows_x64/BUILD_LICENSES/pdfium-binaries.txt",
+      "data/windows_x64/BUILD_LICENSES/pdfium.txt",
+      "data/windows_x64/BUILD_LICENSES/simdutf.txt",
+      "data/windows_x64/BUILD_LICENSES/zlib.txt"
+    ],
+    "location": "python/Lib/site-packages/pypdfium2-5.14.0.dist-info",
+    "homepage": "https://github.com/pypdfium2-team/pypdfium2"
+  },
+  {
+    "name": "python-dateutil",
+    "version": "2.9.0.post0",
+    "license_expression": null,
+    "license": "Dual License",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/python_dateutil-2.9.0.post0.dist-info",
+    "homepage": "https://github.com/dateutil/dateutil"
+  },
+  {
+    "name": "PyYAML",
+    "version": "6.0.3",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/pyyaml-6.0.3.dist-info",
+    "homepage": "https://pyyaml.org/"
+  },
+  {
+    "name": "rapidocr-onnxruntime",
+    "version": "1.4.4",
+    "license_expression": null,
+    "license": "Apache-2.0",
+    "license_files": [],
+    "location": "python/Lib/site-packages/rapidocr_onnxruntime-1.4.4.dist-info",
+    "homepage": "https://github.com/RapidAI/RapidOCR"
+  },
+  {
+    "name": "rdkit",
+    "version": "2024.9.6",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "python/Lib/site-packages/rdkit-2024.9.6.dist-info",
+    "homepage": "https://github.com/kuelumbus/rdkit-pypi"
+  },
+  {
+    "name": "shapely",
+    "version": "2.2.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt",
+      "LICENSE_GEOS",
+      "LICENSE_win32"
+    ],
+    "location": "python/Lib/site-packages/shapely-2.2.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "six",
+    "version": "1.17.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/six-1.17.0.dist-info",
+    "homepage": "https://github.com/benjaminp/six"
+  },
+  {
+    "name": "tqdm",
+    "version": "4.70.1",
+    "license_expression": null,
+    "license": "MPL-2.0 AND MIT",
+    "license_files": [
+      "LICENCE"
+    ],
+    "location": "python/Lib/site-packages/tqdm-4.70.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "typing_extensions",
+    "version": "4.16.0",
+    "license_expression": "PSF-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "python/Lib/site-packages/typing_extensions-4.16.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "tzdata",
+    "version": "2026.5",
+    "license_expression": null,
+    "license": "Apache-2.0",
+    "license_files": [
+      "LICENSE",
+      "licenses/LICENSE_APACHE"
+    ],
+    "location": "python/Lib/site-packages/tzdata-2026.5.dist-info",
+    "homepage": "https://github.com/python/tzdata"
+  }
+]

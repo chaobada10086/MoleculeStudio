@@ -1,0 +1,12 @@
+# SQLite 3.53.1
+SPDX-License-Identifier: blessing
+Upstream: https://www.sqlite.org/
+Bundled at: python/DLLs/sqlite3.dll
+Note: SQLite is in the public domain (https://www.sqlite.org/copyright.html); no notice obligation.
+Note: Used by CPython's sqlite3 module.
+
+STATUS: no licence text applies to this component.
+  SQLite is in the public domain (https://www.sqlite.org/copyright.html); no notice obligation.
+  Used by CPython's sqlite3 module.
+
+This file is a placeholder so that the component is still listed in licenses/index.json and in THIRD_PARTY_NOTICES.md.

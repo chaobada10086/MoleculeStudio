@@ -1,0 +1,63 @@
+# Build products and distributable dependencies
+/out/
+/build/
+/dist/
+/releases/
+/staging/
+*.o
+*.obj
+*.exe
+*.dll
+*.pdb
+*.zip
+*.7z
+*.tar.gz
+*.pth
+*.pt
+*.onnx
+node_modules/
+python/
+chemistry_runtime/
+ocsr_runtime/
+AI 套件/
+# Secrets and local configuration (examples remain tracked)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+ai_config*
+interface.ini
+drawing.ini
+chemistry_backend.ini
+auth.json
+credentials.json
+.npmrc
+.pypirc
+# User data and generated records
+custom_templates/
+custom_groups.xml
+ChemistryJobs/
+OCSRCache/
+recognition_records/
+AIJobs/
+AIChat/
+home/
+sessions/
+*.log
+*.jsonl
+*.jsonl.zstd
+# Python and editor caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.vscode/
+.idea/
+*.bak
+*.before*
+*.tmp
+Thumbs.db
+.DS_Store

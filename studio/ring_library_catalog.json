@@ -1,0 +1,2439 @@
+[
+  {
+    "key": "pentalene",
+    "title": "戊搭烯",
+    "english": "pentalene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "pentalene",
+        "title": "标准结构",
+        "smiles": "C1=CC2=CC=CC2=C1",
+        "formula": "C8H6",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "indene",
+    "title": "茚",
+    "english": "indene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "indene",
+        "title": "标准结构",
+        "smiles": "C1=Cc2ccccc2C1",
+        "formula": "C9H8",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "naphthalene",
+    "title": "萘",
+    "english": "naphthalene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "naphthalene",
+        "title": "标准结构",
+        "smiles": "c1ccc2ccccc2c1",
+        "formula": "C10H8",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "azulene",
+    "title": "薁",
+    "english": "azulene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "azulene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cccc-2cc1",
+        "formula": "C10H8",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "heptalene",
+    "title": "庚搭烯",
+    "english": "heptalene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "heptalene",
+        "title": "标准结构",
+        "smiles": "C1=CC=C2C=CC=CC=C2C=C1",
+        "formula": "C12H10",
+        "atoms": 12,
+        "bonds": 13,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "biphenylene",
+    "title": "联苯烯",
+    "english": "biphenylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "biphenylene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)-c1ccccc1-2",
+        "formula": "C12H8",
+        "atoms": 12,
+        "bonds": 14,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "as-indacene",
+    "title": "不对称 Indacene",
+    "english": "as-indacene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "as-indacene",
+        "title": "标准结构",
+        "smiles": "C1=Cc2c3c(ccc2=C1)=CC=C3",
+        "formula": "C12H8",
+        "atoms": 12,
+        "bonds": 14,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "s-indacene",
+    "title": "对称 Indacene",
+    "english": "s-indacene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "s-indacene",
+        "title": "标准结构",
+        "smiles": "C1=Cc2cc3c(cc2=C1)C=CC=3",
+        "formula": "C12H8",
+        "atoms": 12,
+        "bonds": 14,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "acenaphthylene",
+    "title": "苊烯",
+    "english": "acenaphthylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "acenaphthylene",
+        "title": "标准结构",
+        "smiles": "C1=Cc2cccc3cccc1c23",
+        "formula": "C12H8",
+        "atoms": 12,
+        "bonds": 14,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "fluorene",
+    "title": "芴",
+    "english": "fluorene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "fluorene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)Cc1ccccc1-2",
+        "formula": "C13H10",
+        "atoms": 13,
+        "bonds": 15,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "1H-phenalene",
+    "title": "菲烯",
+    "english": "Phenalene",
+    "aliases": "phenalen 菲烯 3a1H 3a¹H 9bH",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "1H-phenalene",
+        "title": "1H 形式",
+        "smiles": "C1=Cc2cccc3cccc(c23)C1",
+        "formula": "C13H10",
+        "atoms": 13,
+        "bonds": 15,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      },
+      {
+        "name": "3a1H-phenalene",
+        "title": "3a¹H 形式",
+        "smiles": "C1=CC2=CC=CC3=CC=CC(=C1)C23",
+        "formula": "C13H10",
+        "atoms": 13,
+        "bonds": 15,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": "https://iupac.qmul.ac.uk/BlueBook/PDF/P5.pdf",
+        "parsed_name": "9bH-phenalene"
+      }
+    ]
+  },
+  {
+    "key": "phenanthrene",
+    "title": "菲",
+    "english": "phenanthrene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "phenanthrene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)ccc1ccccc12",
+        "formula": "C14H10",
+        "atoms": 14,
+        "bonds": 16,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "anthracene",
+    "title": "蒽",
+    "english": "anthracene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "anthracene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3ccccc3cc2c1",
+        "formula": "C14H10",
+        "atoms": 14,
+        "bonds": 16,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "fluoranthene",
+    "title": "荧蒽",
+    "english": "fluoranthene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "fluoranthene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)-c1cccc3cccc-2c13",
+        "formula": "C16H10",
+        "atoms": 16,
+        "bonds": 19,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "acephenanthrylene",
+    "title": "Acephenanthrylene",
+    "english": "acephenanthrylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "acephenanthrylene",
+        "title": "标准结构",
+        "smiles": "C1=Cc2cc3ccccc3c3cccc1c23",
+        "formula": "C16H10",
+        "atoms": 16,
+        "bonds": 19,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "aceanthrylene",
+    "title": "Aceanthrylene",
+    "english": "aceanthrylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "aceanthrylene",
+        "title": "标准结构",
+        "smiles": "C1=Cc2c3ccccc3cc3cccc1c23",
+        "formula": "C16H10",
+        "atoms": 16,
+        "bonds": 19,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "triphenylene",
+    "title": "苯并菲",
+    "english": "triphenylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "triphenylene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)c1ccccc1c1ccccc21",
+        "formula": "C18H12",
+        "atoms": 18,
+        "bonds": 21,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyrene",
+    "title": "芘",
+    "english": "pyrene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "pyrene",
+        "title": "标准结构",
+        "smiles": "c1cc2ccc3cccc4ccc(c1)c2c34",
+        "formula": "C16H10",
+        "atoms": 16,
+        "bonds": 19,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "chrysene",
+    "title": "䓛",
+    "english": "chrysene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "chrysene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)ccc1c3ccccc3ccc21",
+        "formula": "C18H12",
+        "atoms": 18,
+        "bonds": 21,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "tetracene",
+    "title": "并四苯",
+    "english": "tetracene",
+    "aliases": " naphthacene",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "tetracene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3cc4ccccc4cc3cc2c1",
+        "formula": "C18H12",
+        "atoms": 18,
+        "bonds": 21,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pleiadene",
+    "title": "Pleiadene",
+    "english": "pleiadene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "pleiadene",
+        "title": "标准结构",
+        "smiles": "C1=c2ccccc2=Cc2cccc3cccc1c23",
+        "formula": "C18H12",
+        "atoms": 18,
+        "bonds": 21,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "picene",
+    "title": "Picene",
+    "english": "picene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "picene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)ccc1c2ccc2c3ccccc3ccc21",
+        "formula": "C22H14",
+        "atoms": 22,
+        "bonds": 26,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "perylene",
+    "title": "苝",
+    "english": "perylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "perylene",
+        "title": "标准结构",
+        "smiles": "c1cc2cccc3c4cccc5cccc(c(c1)c23)c54",
+        "formula": "C20H12",
+        "atoms": 20,
+        "bonds": 24,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pentaphene",
+    "title": "Pentaphene",
+    "english": "pentaphene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "pentaphene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3c(ccc4cc5ccccc5cc43)cc2c1",
+        "formula": "C22H14",
+        "atoms": 22,
+        "bonds": 26,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pentacene",
+    "title": "并五苯",
+    "english": "pentacene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "pentacene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3cc4cc5ccccc5cc4cc3cc2c1",
+        "formula": "C22H14",
+        "atoms": 22,
+        "bonds": 26,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "tetraphenylene",
+    "title": "Tetraphenylene",
+    "english": "tetraphenylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "tetraphenylene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)-c1ccccc1-c1ccccc1-c1ccccc1-2",
+        "formula": "C24H16",
+        "atoms": 24,
+        "bonds": 28,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "hexaphene",
+    "title": "Hexaphene",
+    "english": "hexaphene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "hexaphene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3cc4c(ccc5cc6ccccc6cc54)cc3cc2c1",
+        "formula": "C26H16",
+        "atoms": 26,
+        "bonds": 31,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "hexacene",
+    "title": "并六苯",
+    "english": "hexacene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "hexacene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3cc4cc5cc6ccccc6cc5cc4cc3cc2c1",
+        "formula": "C26H16",
+        "atoms": 26,
+        "bonds": 31,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "rubicene",
+    "title": "Rubicene",
+    "english": "rubicene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "rubicene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)c1cccc3c4c5ccccc5c5cccc(c2c13)c54",
+        "formula": "C26H14",
+        "atoms": 26,
+        "bonds": 32,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "coronene",
+    "title": "蔻",
+    "english": "coronene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "coronene",
+        "title": "标准结构",
+        "smiles": "c1cc2ccc3ccc4ccc5ccc6ccc1c1c2c3c4c5c61",
+        "formula": "C24H12",
+        "atoms": 24,
+        "bonds": 30,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "trinaphthylene",
+    "title": "Trinaphthylene",
+    "english": "trinaphthylene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "trinaphthylene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3c(cc2c1)c1cc2ccccc2cc1c1cc2ccccc2cc31",
+        "formula": "C30H18",
+        "atoms": 30,
+        "bonds": 36,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "heptaphene",
+    "title": "Heptaphene",
+    "english": "heptaphene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "heptaphene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3cc4c(ccc5cc6cc7ccccc7cc6cc54)cc3cc2c1",
+        "formula": "C30H18",
+        "atoms": 30,
+        "bonds": 36,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "heptacene",
+    "title": "并七苯",
+    "english": "heptacene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "heptacene",
+        "title": "标准结构",
+        "smiles": "c1ccc2cc3cc4cc5cc6cc7ccccc7cc6cc5cc4cc3cc2c1",
+        "formula": "C30H18",
+        "atoms": 30,
+        "bonds": 36,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyranthrene",
+    "title": "Pyranthrene",
+    "english": "pyranthrene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "pyranthrene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)cc1ccc3cc4c5ccccc5cc5ccc6cc2c1c3c6c54",
+        "formula": "C30H16",
+        "atoms": 30,
+        "bonds": 37,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "ovalene",
+    "title": "Ovalene",
+    "english": "ovalene",
+    "aliases": "",
+    "category": "标准稠环",
+    "variants": [
+      {
+        "name": "ovalene",
+        "title": "标准结构",
+        "smiles": "c1cc2ccc3cc4ccc5ccc6ccc7cc8ccc1c1c2c3c2c4c5c6c7c2c81",
+        "formula": "C32H14",
+        "atoms": 32,
+        "bonds": 41,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[1.1.1]pentane",
+    "title": "双环[1.1.1]戊烷",
+    "english": "bicyclo[1.1.1]pentane",
+    "aliases": "BCP",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[1.1.1]pentane",
+        "title": "标准结构",
+        "smiles": "C1C2CC1C2",
+        "formula": "C5H8",
+        "atoms": 5,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[2.1.1]hexane",
+    "title": "双环[2.1.1]己烷",
+    "english": "bicyclo[2.1.1]hexane",
+    "aliases": "BCH",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[2.1.1]hexane",
+        "title": "标准结构",
+        "smiles": "C1CC2CC1C2",
+        "formula": "C6H10",
+        "atoms": 6,
+        "bonds": 7,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[2.2.1]heptane",
+    "title": "降冰片烷",
+    "english": "bicyclo[2.2.1]heptane",
+    "aliases": "Norbornane",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[2.2.1]heptane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCC1C2",
+        "formula": "C7H12",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[2.2.1]hept-2-ene",
+    "title": "降冰片烯",
+    "english": "bicyclo[2.2.1]hept-2-ene",
+    "aliases": "Norbornene",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[2.2.1]hept-2-ene",
+        "title": "标准结构",
+        "smiles": "C1=CC2CCC1C2",
+        "formula": "C7H10",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[2.2.1]hepta-2,5-diene",
+    "title": "降冰片二烯",
+    "english": "bicyclo[2.2.1]hepta-2,5-diene",
+    "aliases": "Norbornadiene",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[2.2.1]hepta-2,5-diene",
+        "title": "标准结构",
+        "smiles": "C1=CC2C=CC1C2",
+        "formula": "C7H8",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[2.2.2]octane",
+    "title": "双环[2.2.2]辛烷",
+    "english": "bicyclo[2.2.2]octane",
+    "aliases": "BCO",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[2.2.2]octane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCC1CC2",
+        "formula": "C8H14",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[3.1.1]heptane",
+    "title": "双环[3.1.1]庚烷",
+    "english": "bicyclo[3.1.1]heptane",
+    "aliases": "",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[3.1.1]heptane",
+        "title": "标准结构",
+        "smiles": "C1CC2CC(C1)C2",
+        "formula": "C7H12",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[3.2.1]octane",
+    "title": "双环[3.2.1]辛烷",
+    "english": "bicyclo[3.2.1]octane",
+    "aliases": "",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[3.2.1]octane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCC(C1)C2",
+        "formula": "C8H14",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[3.2.2]nonane",
+    "title": "双环[3.2.2]壬烷",
+    "english": "bicyclo[3.2.2]nonane",
+    "aliases": "",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[3.2.2]nonane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCC(C1)CC2",
+        "formula": "C9H16",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[3.3.1]nonane",
+    "title": "双环[3.3.1]壬烷",
+    "english": "bicyclo[3.3.1]nonane",
+    "aliases": "",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[3.3.1]nonane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCCC(C1)C2",
+        "formula": "C9H16",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[4.2.1]nonane",
+    "title": "双环[4.2.1]壬烷",
+    "english": "bicyclo[4.2.1]nonane",
+    "aliases": "",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[4.2.1]nonane",
+        "title": "标准结构",
+        "smiles": "C1CCC2CCC(C1)C2",
+        "formula": "C9H16",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[4.2.2]decane",
+    "title": "双环[4.2.2]癸烷",
+    "english": "bicyclo[4.2.2]decane",
+    "aliases": "",
+    "category": "桥环碳骨架",
+    "variants": [
+      {
+        "name": "bicyclo[4.2.2]decane",
+        "title": "标准结构",
+        "smiles": "C1CCC2CCC(C1)CC2",
+        "formula": "C10H18",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "quinuclidine",
+    "title": "奎宁环",
+    "english": "quinuclidine",
+    "aliases": "1-azabicyclo[2.2.2]octane",
+    "category": "含杂原子桥环",
+    "variants": [
+      {
+        "name": "quinuclidine",
+        "title": "标准结构",
+        "smiles": "C1CN2CCC1CC2",
+        "formula": "C7H13N",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "nortropane",
+    "title": "去甲托品烷",
+    "english": "nortropane",
+    "aliases": "8-azabicyclo[3.2.1]octane",
+    "category": "含杂原子桥环",
+    "variants": [
+      {
+        "name": "nortropane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCC(C1)N2",
+        "formula": "C7H13N",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": "",
+        "parsed_name": "8-azabicyclo[3.2.1]octane"
+      }
+    ]
+  },
+  {
+    "key": "tropane",
+    "title": "托品烷",
+    "english": "tropane",
+    "aliases": "",
+    "category": "含杂原子桥环",
+    "variants": [
+      {
+        "name": "tropane",
+        "title": "标准结构",
+        "smiles": "CN1[C@@H]2CCC[C@H]1CC2",
+        "formula": "C8H15N",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "1,4-diazabicyclo[2.2.2]octane",
+    "title": "DABCO",
+    "english": "1,4-diazabicyclo[2.2.2]octane",
+    "aliases": "三乙烯二胺",
+    "category": "含杂原子桥环",
+    "variants": [
+      {
+        "name": "1,4-diazabicyclo[2.2.2]octane",
+        "title": "标准结构",
+        "smiles": "C1CN2CCN1CC2",
+        "formula": "C6H12N2",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "7-azabicyclo[2.2.1]heptane",
+    "title": "7-氮杂双环[2.2.1]庚烷",
+    "english": "7-azabicyclo[2.2.1]heptane",
+    "aliases": "",
+    "category": "含杂原子桥环",
+    "variants": [
+      {
+        "name": "7-azabicyclo[2.2.1]heptane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCC1N2",
+        "formula": "C6H11N",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "7-oxabicyclo[2.2.1]heptane",
+    "title": "7-氧杂双环[2.2.1]庚烷",
+    "english": "7-oxabicyclo[2.2.1]heptane",
+    "aliases": "",
+    "category": "含杂原子桥环",
+    "variants": [
+      {
+        "name": "7-oxabicyclo[2.2.1]heptane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCC1O2",
+        "formula": "C6H10O",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "adamantane",
+    "title": "金刚烷",
+    "english": "adamantane",
+    "aliases": "",
+    "category": "笼状与特殊多环",
+    "variants": [
+      {
+        "name": "adamantane",
+        "title": "标准结构",
+        "smiles": "C1C2CC3CC1CC(C2)C3",
+        "formula": "C10H16",
+        "atoms": 10,
+        "bonds": 12,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "diamantane",
+    "title": "双金刚烷",
+    "english": "diamantane",
+    "aliases": "",
+    "category": "笼状与特殊多环",
+    "variants": [
+      {
+        "name": "diamantane",
+        "title": "标准结构",
+        "smiles": "C1C2CC3C4CC5CC(C14)C(C2)C3C5",
+        "formula": "C14H20",
+        "atoms": 14,
+        "bonds": 18,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": "https://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:38223",
+        "parsed_name": "pentacyclo[7.3.1.1^4,12.0^2,7.0^6,11]tetradecane"
+      }
+    ]
+  },
+  {
+    "key": "cubane",
+    "title": "立方烷",
+    "english": "cubane",
+    "aliases": "",
+    "category": "笼状与特殊多环",
+    "variants": [
+      {
+        "name": "cubane",
+        "title": "标准结构",
+        "smiles": "C12C3C4C1C1C2C3C41",
+        "formula": "C8H8",
+        "atoms": 8,
+        "bonds": 12,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "triptycene",
+    "title": "三蝶烯",
+    "english": "triptycene",
+    "aliases": "",
+    "category": "笼状与特殊多环",
+    "variants": [
+      {
+        "name": "triptycene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)C1c3ccccc3C2c2ccccc21",
+        "formula": "C20H14",
+        "atoms": 20,
+        "bonds": 24,
+        "source": "PubChem CID 92764",
+        "reference": "https://pubchem.ncbi.nlm.nih.gov/compound/Triptycene"
+      }
+    ]
+  },
+  {
+    "key": "[1.1.1]propellane",
+    "title": "[1.1.1]Propellane",
+    "english": "[1.1.1]propellane",
+    "aliases": "",
+    "category": "笼状与特殊多环",
+    "variants": [
+      {
+        "name": "[1.1.1]propellane",
+        "title": "标准结构",
+        "smiles": "C1C23CC12C3",
+        "formula": "C5H6",
+        "atoms": 5,
+        "bonds": 7,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": "https://www.beilstein-journals.org/bjoc/content/supplementary/1860-5397-15-114-S1.pdf",
+        "parsed_name": "tricyclo[1.1.1.0^1,3]pentane"
+      }
+    ]
+  },
+  {
+    "key": "spiro[2.2]pentane",
+    "title": "螺[2.2]戊烷",
+    "english": "spiro[2.2]pentane",
+    "aliases": "",
+    "category": "螺环",
+    "variants": [
+      {
+        "name": "spiro[2.2]pentane",
+        "title": "标准结构",
+        "smiles": "C1CC12CC2",
+        "formula": "C5H8",
+        "atoms": 5,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "spiro[2.3]hexane",
+    "title": "螺[2.3]己烷",
+    "english": "spiro[2.3]hexane",
+    "aliases": "",
+    "category": "螺环",
+    "variants": [
+      {
+        "name": "spiro[2.3]hexane",
+        "title": "标准结构",
+        "smiles": "C1CC2(C1)CC2",
+        "formula": "C6H10",
+        "atoms": 6,
+        "bonds": 7,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "spiro[3.3]heptane",
+    "title": "螺[3.3]庚烷",
+    "english": "spiro[3.3]heptane",
+    "aliases": "",
+    "category": "螺环",
+    "variants": [
+      {
+        "name": "spiro[3.3]heptane",
+        "title": "标准结构",
+        "smiles": "C1CC2(C1)CCC2",
+        "formula": "C7H12",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "spiro[3.4]octane",
+    "title": "螺[3.4]辛烷",
+    "english": "spiro[3.4]octane",
+    "aliases": "",
+    "category": "螺环",
+    "variants": [
+      {
+        "name": "spiro[3.4]octane",
+        "title": "标准结构",
+        "smiles": "C1CCC2(C1)CCC2",
+        "formula": "C8H14",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "spiro[4.4]nonane",
+    "title": "螺[4.4]壬烷",
+    "english": "spiro[4.4]nonane",
+    "aliases": "",
+    "category": "螺环",
+    "variants": [
+      {
+        "name": "spiro[4.4]nonane",
+        "title": "标准结构",
+        "smiles": "C1CCC2(C1)CCCC2",
+        "formula": "C9H16",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "spiro[4.5]decane",
+    "title": "螺[4.5]癸烷",
+    "english": "spiro[4.5]decane",
+    "aliases": "",
+    "category": "螺环",
+    "variants": [
+      {
+        "name": "spiro[4.5]decane",
+        "title": "标准结构",
+        "smiles": "C1CCC2(CC1)CCCC2",
+        "formula": "C10H18",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "indane",
+    "title": "茚满",
+    "english": "indane",
+    "aliases": "",
+    "category": "饱和及部分饱和稠环",
+    "variants": [
+      {
+        "name": "indane",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)CCC2",
+        "formula": "C9H10",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "tetralin",
+    "title": "四氢萘",
+    "english": "tetralin",
+    "aliases": "1,2,3,4-tetrahydronaphthalene",
+    "category": "饱和及部分饱和稠环",
+    "variants": [
+      {
+        "name": "tetralin",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)CCCC2",
+        "formula": "C10H12",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "cis-decalin",
+    "title": "十氢萘",
+    "english": "Decalin",
+    "aliases": "Decalin cis trans 顺式 反式",
+    "category": "饱和及部分饱和稠环",
+    "variants": [
+      {
+        "name": "cis-decalin",
+        "title": "顺式 cis",
+        "smiles": "C1CC[C@H]2CCCC[C@H]2C1",
+        "formula": "C10H18",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      },
+      {
+        "name": "trans-decalin",
+        "title": "反式 trans",
+        "smiles": "C1CC[C@H]2CCCC[C@@H]2C1",
+        "formula": "C10H18",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[3.3.0]octane",
+    "title": "双环[3.3.0]辛烷",
+    "english": "bicyclo[3.3.0]octane",
+    "aliases": "",
+    "category": "饱和及部分饱和稠环",
+    "variants": [
+      {
+        "name": "bicyclo[3.3.0]octane",
+        "title": "标准结构",
+        "smiles": "C1CC2CCCC2C1",
+        "formula": "C8H14",
+        "atoms": 8,
+        "bonds": 9,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "bicyclo[4.3.0]nonane",
+    "title": "双环[4.3.0]壬烷",
+    "english": "bicyclo[4.3.0]nonane",
+    "aliases": "",
+    "category": "饱和及部分饱和稠环",
+    "variants": [
+      {
+        "name": "bicyclo[4.3.0]nonane",
+        "title": "标准结构",
+        "smiles": "C1CCC2CCCC2C1",
+        "formula": "C9H16",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "gonane",
+    "title": "甾烷四环骨架",
+    "english": "gonane",
+    "aliases": "",
+    "category": "饱和及部分饱和稠环",
+    "variants": [
+      {
+        "name": "gonane",
+        "title": "标准结构",
+        "smiles": "C1CC[C@H]2C(C1)CC[C@H]1[C@@H]3CCC[C@H]3CC[C@@H]12",
+        "formula": "C17H28",
+        "atoms": 17,
+        "bonds": 20,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "indole",
+    "title": "吲哚",
+    "english": "indole",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "indole",
+        "title": "标准结构",
+        "smiles": "c1ccc2[nH]ccc2c1",
+        "formula": "C8H7N",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "isoindole",
+    "title": "异吲哚",
+    "english": "isoindole",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "isoindole",
+        "title": "标准结构",
+        "smiles": "c1ccc2c[nH]cc2c1",
+        "formula": "C8H7N",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "indazole",
+    "title": "吲唑",
+    "english": "indazole",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "indazole",
+        "title": "标准结构",
+        "smiles": "c1ccc2[nH]ncc2c1",
+        "formula": "C7H6N2",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "benzimidazole",
+    "title": "苯并咪唑",
+    "english": "benzimidazole",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "benzimidazole",
+        "title": "标准结构",
+        "smiles": "c1ccc2[nH]cnc2c1",
+        "formula": "C7H6N2",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "quinoline",
+    "title": "喹啉",
+    "english": "quinoline",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "quinoline",
+        "title": "标准结构",
+        "smiles": "c1ccc2ncccc2c1",
+        "formula": "C9H7N",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "isoquinoline",
+    "title": "异喹啉",
+    "english": "isoquinoline",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "isoquinoline",
+        "title": "标准结构",
+        "smiles": "c1ccc2cnccc2c1",
+        "formula": "C9H7N",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "quinazoline",
+    "title": "喹唑啉",
+    "english": "quinazoline",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "quinazoline",
+        "title": "标准结构",
+        "smiles": "c1ccc2ncncc2c1",
+        "formula": "C8H6N2",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "quinoxaline",
+    "title": "喹喔啉",
+    "english": "quinoxaline",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "quinoxaline",
+        "title": "标准结构",
+        "smiles": "c1ccc2nccnc2c1",
+        "formula": "C8H6N2",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "cinnoline",
+    "title": "噌啉",
+    "english": "cinnoline",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "cinnoline",
+        "title": "标准结构",
+        "smiles": "c1ccc2nnccc2c1",
+        "formula": "C8H6N2",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "phthalazine",
+    "title": "酞嗪",
+    "english": "phthalazine",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "phthalazine",
+        "title": "标准结构",
+        "smiles": "c1ccc2cnncc2c1",
+        "formula": "C8H6N2",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "purine",
+    "title": "嘌呤",
+    "english": "purine",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "purine",
+        "title": "标准结构",
+        "smiles": "c1ncc2[nH]cnc2n1",
+        "formula": "C5H4N4",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pteridine",
+    "title": "蝶啶",
+    "english": "pteridine",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "pteridine",
+        "title": "标准结构",
+        "smiles": "c1cnc2ncncc2n1",
+        "formula": "C6H4N4",
+        "atoms": 10,
+        "bonds": 11,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "carbazole",
+    "title": "咔唑",
+    "english": "carbazole",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "carbazole",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)[nH]c1ccccc12",
+        "formula": "C12H9N",
+        "atoms": 13,
+        "bonds": 15,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "acridine",
+    "title": "吖啶",
+    "english": "acridine",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "acridine",
+        "title": "标准结构",
+        "smiles": "c1ccc2nc3ccccc3cc2c1",
+        "formula": "C13H9N",
+        "atoms": 14,
+        "bonds": 16,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "benzofuran",
+    "title": "苯并呋喃",
+    "english": "benzofuran",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "benzofuran",
+        "title": "标准结构",
+        "smiles": "c1ccc2occc2c1",
+        "formula": "C8H6O",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "dibenzofuran",
+    "title": "二苯并呋喃",
+    "english": "dibenzofuran",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "dibenzofuran",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)oc1ccccc12",
+        "formula": "C12H8O",
+        "atoms": 13,
+        "bonds": 15,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "benzothiophene",
+    "title": "苯并噻吩",
+    "english": "benzothiophene",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "benzothiophene",
+        "title": "标准结构",
+        "smiles": "c1ccc2sccc2c1",
+        "formula": "C8H6S",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "dibenzothiophene",
+    "title": "二苯并噻吩",
+    "english": "dibenzothiophene",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "dibenzothiophene",
+        "title": "标准结构",
+        "smiles": "c1ccc2c(c1)sc1ccccc12",
+        "formula": "C12H8S",
+        "atoms": 13,
+        "bonds": 15,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "benzoxazole",
+    "title": "苯并噁唑",
+    "english": "benzoxazole",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "benzoxazole",
+        "title": "标准结构",
+        "smiles": "c1ccc2ocnc2c1",
+        "formula": "C7H5NO",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "benzothiazole",
+    "title": "苯并噻唑",
+    "english": "benzothiazole",
+    "aliases": "",
+    "category": "常用稠杂环",
+    "variants": [
+      {
+        "name": "benzothiazole",
+        "title": "标准结构",
+        "smiles": "c1ccc2scnc2c1",
+        "formula": "C7H5NS",
+        "atoms": 9,
+        "bonds": 10,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyrrole",
+    "title": "吡咯",
+    "english": "pyrrole",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "pyrrole",
+        "title": "标准结构",
+        "smiles": "c1cc[nH]c1",
+        "formula": "C4H5N",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "furan",
+    "title": "呋喃",
+    "english": "furan",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "furan",
+        "title": "标准结构",
+        "smiles": "c1ccoc1",
+        "formula": "C4H4O",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "thiophene",
+    "title": "噻吩",
+    "english": "thiophene",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "thiophene",
+        "title": "标准结构",
+        "smiles": "c1ccsc1",
+        "formula": "C4H4S",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "imidazole",
+    "title": "咪唑",
+    "english": "imidazole",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "imidazole",
+        "title": "标准结构",
+        "smiles": "c1c[nH]cn1",
+        "formula": "C3H4N2",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyrazole",
+    "title": "吡唑",
+    "english": "pyrazole",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "pyrazole",
+        "title": "标准结构",
+        "smiles": "c1cn[nH]c1",
+        "formula": "C3H4N2",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "oxazole",
+    "title": "噁唑",
+    "english": "oxazole",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "oxazole",
+        "title": "标准结构",
+        "smiles": "c1cocn1",
+        "formula": "C3H3NO",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "thiazole",
+    "title": "噻唑",
+    "english": "thiazole",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "thiazole",
+        "title": "标准结构",
+        "smiles": "c1cscn1",
+        "formula": "C3H3NS",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyridine",
+    "title": "吡啶",
+    "english": "pyridine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "pyridine",
+        "title": "标准结构",
+        "smiles": "c1ccncc1",
+        "formula": "C5H5N",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyrimidine",
+    "title": "嘧啶",
+    "english": "pyrimidine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "pyrimidine",
+        "title": "标准结构",
+        "smiles": "c1cncnc1",
+        "formula": "C4H4N2",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyrazine",
+    "title": "吡嗪",
+    "english": "pyrazine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "pyrazine",
+        "title": "标准结构",
+        "smiles": "c1cnccn1",
+        "formula": "C4H4N2",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "azetidine",
+    "title": "氮杂环丁烷",
+    "english": "azetidine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "azetidine",
+        "title": "标准结构",
+        "smiles": "C1CNC1",
+        "formula": "C3H7N",
+        "atoms": 4,
+        "bonds": 4,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "oxetane",
+    "title": "氧杂环丁烷",
+    "english": "oxetane",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "oxetane",
+        "title": "标准结构",
+        "smiles": "C1COC1",
+        "formula": "C3H6O",
+        "atoms": 4,
+        "bonds": 4,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "pyrrolidine",
+    "title": "吡咯烷",
+    "english": "pyrrolidine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "pyrrolidine",
+        "title": "标准结构",
+        "smiles": "C1CCNC1",
+        "formula": "C4H9N",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "piperidine",
+    "title": "哌啶",
+    "english": "piperidine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "piperidine",
+        "title": "标准结构",
+        "smiles": "C1CCNCC1",
+        "formula": "C5H11N",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "piperazine",
+    "title": "哌嗪",
+    "english": "piperazine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "piperazine",
+        "title": "标准结构",
+        "smiles": "C1CNCCN1",
+        "formula": "C4H10N2",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "morpholine",
+    "title": "吗啉",
+    "english": "morpholine",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "morpholine",
+        "title": "标准结构",
+        "smiles": "C1COCCN1",
+        "formula": "C4H9NO",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "tetrahydrofuran",
+    "title": "四氢呋喃",
+    "english": "tetrahydrofuran",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "tetrahydrofuran",
+        "title": "标准结构",
+        "smiles": "C1CCOC1",
+        "formula": "C4H8O",
+        "atoms": 5,
+        "bonds": 5,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "tetrahydropyran",
+    "title": "四氢吡喃",
+    "english": "tetrahydropyran",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "tetrahydropyran",
+        "title": "标准结构",
+        "smiles": "C1CCOCC1",
+        "formula": "C5H10O",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "1,4-dioxane",
+    "title": "1,4-二氧六环",
+    "english": "1,4-dioxane",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "1,4-dioxane",
+        "title": "标准结构",
+        "smiles": "C1COCCO1",
+        "formula": "C4H8O2",
+        "atoms": 6,
+        "bonds": 6,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "azepane",
+    "title": "氮杂环庚烷",
+    "english": "azepane",
+    "aliases": "",
+    "category": "常用单杂环",
+    "variants": [
+      {
+        "name": "azepane",
+        "title": "标准结构",
+        "smiles": "C1CCCNCC1",
+        "formula": "C6H13N",
+        "atoms": 7,
+        "bonds": 7,
+        "source": "OPSIN 2.9.0 name parser",
+        "reference": ""
+      }
+    ]
+  },
+  {
+    "key": "12-crown-4",
+    "title": "12-冠-4",
+    "english": "12-crown-4",
+    "aliases": "12-crown-4",
+    "category": "冠醚",
+    "variants": [
+      {
+        "name": "12-crown-4",
+        "title": "折线结构",
+        "smiles": "C1COCCOCCOCCO1",
+        "formula": "C8H16O4",
+        "atoms": 12,
+        "bonds": 12
+      }
+    ]
+  },
+  {
+    "key": "15-crown-5",
+    "title": "15-冠-5",
+    "english": "15-crown-5",
+    "aliases": "15-crown-5",
+    "category": "冠醚",
+    "variants": [
+      {
+        "name": "15-crown-5",
+        "title": "折线结构",
+        "smiles": "C1COCCOCCOCCOCCO1",
+        "formula": "C10H20O5",
+        "atoms": 15,
+        "bonds": 15
+      }
+    ]
+  },
+  {
+    "key": "18-crown-6",
+    "title": "18-冠-6",
+    "english": "18-crown-6",
+    "aliases": "18-crown-6",
+    "category": "冠醚",
+    "variants": [
+      {
+        "name": "18-crown-6",
+        "title": "折线结构",
+        "smiles": "C1COCCOCCOCCOCCOCCO1",
+        "formula": "C12H24O6",
+        "atoms": 18,
+        "bonds": 18
+      }
+    ]
+  },
+  {
+    "key": "21-crown-7",
+    "title": "21-冠-7",
+    "english": "21-crown-7",
+    "aliases": "21-crown-7",
+    "category": "冠醚",
+    "variants": [
+      {
+        "name": "21-crown-7",
+        "title": "折线结构",
+        "smiles": "C1COCCOCCOCCOCCOCCOCCO1",
+        "formula": "C14H28O7",
+        "atoms": 21,
+        "bonds": 21
+      }
+    ]
+  },
+  {
+    "key": "24-crown-8",
+    "title": "24-冠-8",
+    "english": "24-crown-8",
+    "aliases": "24-crown-8",
+    "category": "冠醚",
+    "variants": [
+      {
+        "name": "24-crown-8",
+        "title": "折线结构",
+        "smiles": "C1COCCOCCOCCOCCOCCOCCOCCO1",
+        "formula": "C16H32O8",
+        "atoms": 24,
+        "bonds": 24
+      }
+    ]
+  },
+  {
+    "key": "cyclononane",
+    "title": "环九烷",
+    "english": "cyclononane",
+    "aliases": "cyclononane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclononane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCC1",
+        "formula": "C9H18",
+        "atoms": 9,
+        "bonds": 9
+      }
+    ]
+  },
+  {
+    "key": "cyclodecane",
+    "title": "环十烷",
+    "english": "cyclodecane",
+    "aliases": "cyclodecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclodecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCC1",
+        "formula": "C10H20",
+        "atoms": 10,
+        "bonds": 10
+      }
+    ]
+  },
+  {
+    "key": "cycloundecane",
+    "title": "环十一烷",
+    "english": "cycloundecane",
+    "aliases": "cycloundecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cycloundecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCC1",
+        "formula": "C11H22",
+        "atoms": 11,
+        "bonds": 11
+      }
+    ]
+  },
+  {
+    "key": "cyclododecane",
+    "title": "环十二烷",
+    "english": "cyclododecane",
+    "aliases": "cyclododecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclododecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCC1",
+        "formula": "C12H24",
+        "atoms": 12,
+        "bonds": 12
+      }
+    ]
+  },
+  {
+    "key": "cyclotridecane",
+    "title": "环十三烷",
+    "english": "cyclotridecane",
+    "aliases": "cyclotridecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclotridecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCC1",
+        "formula": "C13H26",
+        "atoms": 13,
+        "bonds": 13
+      }
+    ]
+  },
+  {
+    "key": "cyclotetradecane",
+    "title": "环十四烷",
+    "english": "cyclotetradecane",
+    "aliases": "cyclotetradecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclotetradecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCC1",
+        "formula": "C14H28",
+        "atoms": 14,
+        "bonds": 14
+      }
+    ]
+  },
+  {
+    "key": "cyclopentadecane",
+    "title": "环十五烷",
+    "english": "cyclopentadecane",
+    "aliases": "cyclopentadecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclopentadecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCC1",
+        "formula": "C15H30",
+        "atoms": 15,
+        "bonds": 15
+      }
+    ]
+  },
+  {
+    "key": "cyclohexadecane",
+    "title": "环十六烷",
+    "english": "cyclohexadecane",
+    "aliases": "cyclohexadecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclohexadecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCCC1",
+        "formula": "C16H32",
+        "atoms": 16,
+        "bonds": 16
+      }
+    ]
+  },
+  {
+    "key": "cycloheptadecane",
+    "title": "环十七烷",
+    "english": "cycloheptadecane",
+    "aliases": "cycloheptadecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cycloheptadecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCCCC1",
+        "formula": "C17H34",
+        "atoms": 17,
+        "bonds": 17
+      }
+    ]
+  },
+  {
+    "key": "cyclooctadecane",
+    "title": "环十八烷",
+    "english": "cyclooctadecane",
+    "aliases": "cyclooctadecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclooctadecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCCCCC1",
+        "formula": "C18H36",
+        "atoms": 18,
+        "bonds": 18
+      }
+    ]
+  },
+  {
+    "key": "cyclononadecane",
+    "title": "环十九烷",
+    "english": "cyclononadecane",
+    "aliases": "cyclononadecane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclononadecane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCCCCCC1",
+        "formula": "C19H38",
+        "atoms": 19,
+        "bonds": 19
+      }
+    ]
+  },
+  {
+    "key": "cycloicosane",
+    "title": "环二十烷",
+    "english": "cycloicosane",
+    "aliases": "cycloicosane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cycloicosane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCCCCCCC1",
+        "formula": "C20H40",
+        "atoms": 20,
+        "bonds": 20
+      }
+    ]
+  },
+  {
+    "key": "cyclotetracosane",
+    "title": "环二十四烷",
+    "english": "cyclotetracosane",
+    "aliases": "cyclotetracosane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclotetracosane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCCCCCCCCCCC1",
+        "formula": "C24H48",
+        "atoms": 24,
+        "bonds": 24
+      }
+    ]
+  },
+  {
+    "key": "cyclotriacontane",
+    "title": "环三十烷",
+    "english": "cyclotriacontane",
+    "aliases": "cyclotriacontane",
+    "category": "大环烷烃",
+    "variants": [
+      {
+        "name": "cyclotriacontane",
+        "title": "平面结构",
+        "smiles": "C1CCCCCCCCCCCCCCCCCCCCCCCCCCCCC1",
+        "formula": "C30H60",
+        "atoms": 30,
+        "bonds": 30
+      }
+    ]
+  }
+]

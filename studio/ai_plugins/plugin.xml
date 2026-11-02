@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin name="绘图增强插件" version="1.5.2" module="ai_plugins" entry="install_plugin" path="ai_plugins" />

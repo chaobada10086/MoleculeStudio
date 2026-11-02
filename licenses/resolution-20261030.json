@@ -1,0 +1,340 @@
+{
+  "original_stubs": 39,
+  "remaining_stubs": 0,
+  "resolved": [
+    {
+      "id": "native:bzip2@bundled with CPython",
+      "spdx": "bzip2-1.0.6",
+      "license_file": "licenses/native/bzip2.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/python/cpython-source-deps/bzip2-1.0.8/LICENSE"
+      ]
+    },
+    {
+      "id": "native:Expat@2.8.3",
+      "spdx": "MIT",
+      "license_file": "licenses/native/expat.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/libexpat/libexpat/R_2_8_3/expat/COPYING"
+      ]
+    },
+    {
+      "id": "native:libffi@bundled with CPython",
+      "spdx": "MIT",
+      "license_file": "licenses/native/libffi.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/libffi/libffi/v3.4.4/LICENSE"
+      ]
+    },
+    {
+      "id": "native:liblzma (XZ Utils)@bundled with CPython",
+      "spdx": "LicenseRef-XZ-5.2.5-Public-Domain",
+      "license_file": "licenses/native/liblzma.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/tukaani-project/xz/v5.2.5/COPYING"
+      ]
+    },
+    {
+      "id": "native:libmpdec@2.5.1",
+      "spdx": "BSD-2-Clause",
+      "license_file": "licenses/native/libmpdec.txt",
+      "sources": [
+        "https://www.bytereef.org/software/mpdecimal/releases/mpdecimal-2.5.1.tar.gz#mpdecimal-2.5.1/LICENSE.txt"
+      ]
+    },
+    {
+      "id": "native:Node.js@24.21.0",
+      "spdx": "MIT",
+      "license_file": "licenses/native/nodejs.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/nodejs/node/v24.21.0/LICENSE"
+      ]
+    },
+    {
+      "id": "native:Tcl/Tk@8.6.12",
+      "spdx": "TCL",
+      "license_file": "licenses/native/tcl-tk.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/tcltk/tcl/core-8-6-12/license.terms",
+        "https://raw.githubusercontent.com/tcltk/tk/core-8-6-12/license.terms"
+      ]
+    },
+    {
+      "id": "native:tinyxml2@statically linked, version not exposed",
+      "spdx": "Zlib",
+      "license_file": "licenses/native/tinyxml2.txt",
+      "sources": [
+        "source:re_round62_viewer/engine/third_party/tinyxml2/tinyxml2.h"
+      ]
+    },
+    {
+      "id": "native:zlib@1.3.2",
+      "spdx": "Zlib",
+      "license_file": "licenses/native/zlib.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/madler/zlib/v1.3.2/LICENSE"
+      ]
+    },
+    {
+      "id": "python:flatbuffers@25.12.19",
+      "spdx": "Apache-2.0",
+      "license_file": "licenses/python/flatbuffers-25.12.19.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/google/flatbuffers/v25.12.19/LICENSE"
+      ]
+    },
+    {
+      "id": "python:onnxruntime@1.31.0",
+      "spdx": "MIT",
+      "license_file": "licenses/python/onnxruntime-1.31.0.txt",
+      "sources": [
+        "portable:python/Lib/site-packages/onnxruntime/LICENSE",
+        "portable:python/Lib/site-packages/onnxruntime/ThirdPartyNotices.txt"
+      ]
+    },
+    {
+      "id": "python:rapidocr-onnxruntime@1.4.4",
+      "spdx": "Apache-2.0",
+      "license_file": "licenses/python/rapidocr-onnxruntime-1.4.4.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/RapidAI/RapidOCR/v1.4.4/LICENSE"
+      ]
+    },
+    {
+      "id": "jar:automaton@1.12-4",
+      "spdx": "BSD-3-Clause",
+      "license_file": "licenses/jar/automaton-1.12-4.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/cs-au-dk/dk.brics.automaton/master/COPYING"
+      ]
+    },
+    {
+      "id": "jar:isorelax@20090621",
+      "spdx": "MIT",
+      "license_file": "licenses/jar/isorelax-20090621.txt",
+      "sources": [
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/SchemaProvider.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/AttributesDecl.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/IslandVerifier.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/IslandSchemaReader.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/impl/DispatcherImpl.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/impl/IgnoredSchema.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/Dispatcher.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/IslandSchema.java",
+        "https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/ElementDecl.java"
+      ]
+    },
+    {
+      "id": "jar:jna-inchi (native platform artifacts)@1.3.1",
+      "spdx": "LGPL-2.1-or-later",
+      "license_file": "licenses/jar/jna-inchi-native-platform-artifacts-1.3.1.txt",
+      "sources": [
+        "https://github.com/dan2097/jna-inchi/blob/jna-inchi-1.3.1/LICENSE"
+      ]
+    },
+    {
+      "id": "jar:jna-inchi-api@1.3.1",
+      "spdx": "LGPL-2.1-or-later",
+      "license_file": "licenses/jar/jna-inchi-api-1.3.1.txt",
+      "sources": [
+        "https://github.com/dan2097/jna-inchi/blob/jna-inchi-1.3.1/LICENSE"
+      ]
+    },
+    {
+      "id": "jar:jna-inchi-core@1.3.1",
+      "spdx": "LGPL-2.1-or-later",
+      "license_file": "licenses/jar/jna-inchi-core-1.3.1.txt",
+      "sources": [
+        "https://github.com/dan2097/jna-inchi/blob/jna-inchi-1.3.1/LICENSE"
+      ]
+    },
+    {
+      "id": "jar:stax2-api@4.2.2",
+      "spdx": "BSD-2-Clause",
+      "license_file": "licenses/jar/stax2-api-4.2.2.txt",
+      "sources": [
+        "Maven stax2-jar: META-INF/LICENSE"
+      ]
+    },
+    {
+      "id": "jar:xsdlib@2022.7",
+      "spdx": "BSD-3-Clause",
+      "license_file": "licenses/jar/xsdlib-2022.7.txt",
+      "sources": [
+        "https://repo.maven.apache.org/maven2/net/java/dev/msv/xsdlib/2022.7/xsdlib-2022.7-sources.jar#com/sun/msv/datatype/SerializationContext.java",
+        "https://repo.maven.apache.org/maven2/net/java/dev/msv/xsdlib/2022.7/xsdlib-2022.7-sources.jar#com/sun/msv/datatype/regexp/Token.java",
+        "https://repo.maven.apache.org/maven2/net/java/dev/msv/xsdlib/2022.7/xsdlib-2022.7-sources.jar#com/sun/msv/datatype/regexp/ParserForXMLSchema.java",
+        "https://repo.maven.apache.org/maven2/net/java/dev/msv/xsdlib/2022.7/xsdlib-2022.7-sources.jar#com/sun/msv/datatype/regexp/RangeToken.java"
+      ]
+    },
+    {
+      "id": "npm:@aws-sdk/credential-provider-http@3.972.76",
+      "spdx": "Apache-2.0",
+      "license_file": "licenses/npm/aws-sdk-credential-provider-http-3.972.76.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/aws/aws-sdk-js-v3/main/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@aws-sdk/credential-provider-login@3.972.81",
+      "spdx": "Apache-2.0",
+      "license_file": "licenses/npm/aws-sdk-credential-provider-login-3.972.81.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/aws/aws-sdk-js-v3/main/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@aws-sdk/nested-clients@3.997.48",
+      "spdx": "Apache-2.0",
+      "license_file": "licenses/npm/aws-sdk-nested-clients-3.997.48.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/aws/aws-sdk-js-v3/main/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@earendil-works/pi-ai@1.1.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/earendil-works-pi-ai-1.1.0.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/earendil-works/pi/v1.1.0/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@earendil-works/pi-telemetry@1.3.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/earendil-works-pi-telemetry-1.3.0.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/earendil-works/pi/v1.3.0/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@koromix/koffi-win32-x64@3.1.1",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/koromix-koffi-win32-x64-3.1.1.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/Koromix/koffi/master/LICENSE.txt"
+      ]
+    },
+    {
+      "id": "npm:@local/demo-mcp@1.0.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/local-demo-mcp-1.0.0.txt",
+      "sources": [
+        "portable:AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-preset/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@local/my-decoration@1.0.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/local-my-decoration-1.0.0.txt",
+      "sources": [
+        "portable:AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-preset/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@xterm/addon-serialize@0.14.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/xterm-addon-serialize-0.14.0.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/xtermjs/xterm.js/f447274f430fd22513f6adbf9862d19524471c04/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:@xterm/headless@6.0.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/xterm-headless-6.0.0.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/xtermjs/xterm.js/f447274f430fd22513f6adbf9862d19524471c04/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:benchmark@1.0.0",
+      "spdx": "BSD-3-Clause",
+      "license_file": "licenses/npm/benchmark-1.0.0.txt",
+      "sources": [
+        "portable:AI 套件/dsh_core/dsh/node_modules/fast-uri/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:brotli@1.3.3",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/brotli-1.3.3.txt",
+      "sources": [
+        "https://registry.npmjs.org/brotli/1.3.3",
+        "git+https://github.com/devongovett/brotli.js.git#e36051345f6d27a56e5f39ea70d2f789b8574046/README.md",
+        "https://spdx.org/licenses/MIT.html",
+        "copyright lines in bundled npm source"
+      ]
+    },
+    {
+      "id": "npm:data-uri-to-buffer@4.0.1",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/data-uri-to-buffer-4.0.1.txt",
+      "sources": [
+        "https://github.com/TooTallNate/node-data-uri-to-buffer/blob/85cd8c854aefbf1bb636789d80364cfac8ea1583/README.md#license"
+      ]
+    },
+    {
+      "id": "npm:dfa@1.2.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/dfa-1.2.0.txt",
+      "sources": [
+        "https://registry.npmjs.org/dfa/1.2.0",
+        "git+ssh://git@github.com/devongovett/dfa.git#3f5e603e5082caedabefefdf53e8a6ca3111e966/README.md",
+        "https://spdx.org/licenses/MIT.html"
+      ]
+    },
+    {
+      "id": "npm:fontkit@2.0.4",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/fontkit-2.0.4.txt",
+      "sources": [
+        "https://registry.npmjs.org/fontkit/2.0.4",
+        "git://github.com/foliojs/fontkit.git#fbf3b9ef21eebd219eb73e666faed573af0fba09/README.md",
+        "https://spdx.org/licenses/MIT.html"
+      ]
+    },
+    {
+      "id": "npm:proxy-agent-negotiate@1.1.0",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/proxy-agent-negotiate-1.1.0.txt",
+      "sources": [
+        "https://registry.npmjs.org/proxy-agent-negotiate/1.1.0",
+        "https://spdx.org/licenses/MIT.html"
+      ]
+    },
+    {
+      "id": "npm:saxes@6.0.0",
+      "spdx": "ISC",
+      "license_file": "licenses/npm/saxes-6.0.0.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/lddubeau/saxes/211fa0ebec9b628affc09219199639887174bfc3/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:sherpa-onnx-node@1.13.8",
+      "spdx": "Apache-2.0",
+      "license_file": "licenses/npm/sherpa-onnx-node-1.13.8.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/csukuangfj/sherpa-onnx/11afbd009a7f8c08f4bcf2fc1b265d0df4670fbf/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:sherpa-onnx-win-x64@1.13.8",
+      "spdx": "Apache-2.0",
+      "license_file": "licenses/npm/sherpa-onnx-win-x64-1.13.8.txt",
+      "sources": [
+        "https://raw.githubusercontent.com/csukuangfj/sherpa-onnx/11afbd009a7f8c08f4bcf2fc1b265d0df4670fbf/LICENSE"
+      ]
+    },
+    {
+      "id": "npm:standardwebhooks@1.1.1",
+      "spdx": "MIT",
+      "license_file": "licenses/npm/standardwebhooks-1.1.1.txt",
+      "sources": [
+        "https://github.com/standard-webhooks/standard-webhooks/blob/b4d2c14fc5b4ccff3ff271e3b087dff812254c59/libraries/LICENSE"
+      ]
+    }
+  ],
+  "additional_native_embedded_components": 27
+}

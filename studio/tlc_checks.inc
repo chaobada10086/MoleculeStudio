@@ -1,0 +1,29 @@
+if(GetFileAttributesW(W(dir+"/tlc-check").c_str())!=INVALID_FILE_ATTRIBUTES){
+    using namespace r62::experimental;
+    s.dirty=false;execute(Button("","新建","","@new"));
+    auto savedPrefs=studio_tlc::preferences();auto& prefs=studio_tlc::preferences();prefs=studio_tlc::Preferences();prefs.lanes=4;prefs.spots=2;prefs.diameter=5;
+    s.graphicsColor=0x000000FFu;s.graphicsWidth=1.19;s.activateCommand("chooseTLCPlateTool");
+    s.gesture(PointerPhase::Down,Vec2(-70,-100),0);s.gesture(PointerPhase::Move,Vec2(70,100),0);
+    bool previewBackground=false;auto preview=s.overlay();for(const auto& p:preview.scene().primitives())if(p.style.fill.enabled&&p.bounds.max.x-p.bounds.min.x>100&&p.bounds.max.y-p.bounds.min.y>100){require(p.style.fill.rgba==0xFFFFFFFFu,"TLC drag preview background remains white with black pen");previewBackground=true;}require(previewBackground,"TLC preview has visible board");
+    s.gesture(PointerPhase::Up,Vec2(70,100),0);require(s.doc.symbols().size()==1,"one native TLC board");ObjectId plate=ObjectId(s.doc.symbols().size()-1);PlateFigure figure;PlateFrame frame;
+    require(readFigureAndFrame(s.doc,plate,&figure,&frame,0).ok()&&figure.lanes.size()==4&&figure.spots.size()==8,"tool creates configured lanes and spots");
+    auto checkPaint=[&](Session& session,uint32_t background){bool bg=false,dot=false;for(const auto& p:session.scene.primitives())if(isFigureObject(session.doc,p.source)&&p.style.fill.enabled){double w=p.bounds.max.x-p.bounds.min.x,h=p.bounds.max.y-p.bounds.min.y;if(w>100&&h>100){require(p.style.fill.rgba==background,"plate fill independent of current pen color");bg=true;}else if(p.z==16&&w>4&&w<8&&h>4&&h<8){require(p.style.fill.rgba==0x303030FFu,"spot retains separate dark fill");dot=true;}}require(bg&&dot,"plate background and round spots both visible");};
+    checkPaint(s,0xFFFFFFFFu);s.selected.clear();s.activateCommand("chooseSelectionTool_Marquee");switchTab(1);ribbonCompact=false;ribbonVisible=true;layout();s.fit();screenshot(dir+"/tlc-visible.png");
+    // Reproduce the user's old light gray plate carrying a black pen override.
+    figure.plateFillRGBA=0xF2F2F2FFu;require(writeFigure(s.doc,plate,figure).ok(),"legacy gray fixture");s.refresh();checkPaint(s,0xF2F2F2FFu);
+    s.doc.extensions(figureRef(plate)).set("studio.color.override",std::to_string(0x1B756DFFu));s.refresh();checkPaint(s,0xF2F2F2FFu);
+    auto original=s.doc.digest();auto changed=prefs;changed.lanes=6;changed.spots=3;auto firstSpot=figure.spots.front();auto candidate=studio_tlc::configure(figure,frame,changed);
+    require(candidate.spots.size()==18&&candidate.lanes.size()==6&&candidate.spots[0].id==firstSpot.id&&candidate.spots[0].v==firstSpot.v,"count change keeps surviving spot identities and heights");
+    require(s.submit(Command("薄层板点样设置",kInvalidateStructure|kInvalidateGeometry,[plate,candidate](CommandContext& c){auto e=writeFigure(c.document,plate,candidate);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"点样").ok(),"apply counts");auto after=s.doc.digest();require(s.undo().ok()&&s.doc.digest()==original,"count edit single undo");require(s.undo(true).ok()&&s.doc.digest()==after,"count edit exact redo");
+    auto reduced=changed;reduced.lanes=2;reduced.spots=1;auto smaller=studio_tlc::configure(candidate,frame,reduced);require(smaller.lanes.size()==2&&smaller.spots.size()==2&&validateFigure(smaller).ok(),"decreasing counts leaves valid references");
+    auto display=changed;display.guides=true;auto shown=studio_tlc::configure(candidate,frame,display,false);require(shown.spots.size()==candidate.spots.size()&&shown.spots[1].u==candidate.spots[1].u&&shown.spots[1].v==candidate.spots[1].v,"display-only edits preserve spot positions");
+    s.selected.clear();auto saved=s.save(dir+"/tlc.r62doc",false);require(saved.ok(),saved.message.c_str());saved=s.save(dir+"/tlc.cdxml",true);require(saved.ok(),saved.message.c_str());
+    for(const char* suffix:{"r62doc","cdxml"}){Session reopened;require(reopened.open(dir+"/tlc."+suffix).ok(),"TLC reopen");require(reopened.doc.symbols().size()==1,"saved TLC remains one editable board");PlateFigure actual;PlateFrame position;require(readFigureAndFrame(reopened.doc,0,&actual,&position,0).ok()&&actual.spots.size()==18&&actual.lanes.size()==6,"counts survive reopen");require((std::string(suffix)=="cdxml"||core::length(position.centre-frame.centre)<1e-8)&&core::length(position.axisU-frame.axisU)<1e-8&&core::length(position.axisV-frame.axisV)<1e-8,"frame survives reopen");require(actual.spots[0].id==candidate.spots[0].id&&actual.spots[0].v==candidate.spots[0].v,"saved spot identity and position");checkPaint(reopened,0xF2F2F2FFu);}
+    // A click adds a spot to the nearest sample column, including when guides
+    // are hidden. It must never accidentally place a second board.
+    auto point=frame.pointAt(candidate.lanes[1].u,.47);s.activateCommand("chooseTLCPlateTool");s.gesture(PointerPhase::Down,point,0);s.gesture(PointerPhase::Up,point,0);PlateFigure clicked;require(readFigure(s.doc,plate,&clicked,0).ok()&&clicked.spots.size()==19&&clicked.spots.back().laneId==candidate.lanes[1].id&&s.doc.symbols().size()==1,"single click adds assigned spot inside existing board");
+    require(std::abs(clicked.spots.back().radiusU*frame.halfWidth()-clicked.spots.back().radiusV*frame.halfHeight())<1e-8,"click-added spots stay round on a rectangular board");
+    #include "tlc_independent_checks.inc"
+    s.activateCommand("chooseSelectionTool_Marquee");s.selected.clear();s.fit();screenshot(dir+"/tlc-adjusted.png");s.dirty=false;studio_tlc::preferences()=savedPrefs;
+    std::ofstream(dir+"/tlc-checks.json")<<"{\"white_drag_preview\":true,\"legacy_gray_background\":true,\"independent_spot_color\":true,\"adjustable_counts\":true,\"dialog_controls\":true,\"undo_redo\":true,\"native_and_cdxml_roundtrip\":true,\"click_add_spot\":true}";
+}

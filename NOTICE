@@ -1,0 +1,37 @@
+MoleculeStudio 0.95
+Copyright (c) 2026 MoleculeStudio contributors
+
+Project-authored source is licensed under the Apache License, Version 2.0.
+See LICENSE and licenses/apache-2.0.txt. Third-party works retain their own
+copyrights and licenses; they are not relicensed as project-authored code.
+
+The reviewed inventory is THIRD_PARTY_NOTICES.md and licenses/index.json.
+Full notices and license texts are in licenses/ and the original bundled
+component directories. SOURCES.txt and SOURCE_AVAILABILITY.json identify
+the exact source archives and build recipes provided as a separate companion download alongside the portable ZIP.
+No unfilled source URL or future written source offer is used.
+
+MoleculeStudio combines a Win32 editor, Python chemistry backend, Java
+chemistry tools and an embedded Node.js/DeepSeek Harness runtime. Key
+dependencies include RDKit 2024.9.6 (BSD), OPSIN 2.9.0 (MIT), JNA InChI
+1.3.1 (LGPL), InChI 1.07.2 (MIT), CPython, Eclipse Temurin, LibreOffice Kit,
+sharp/libvips, OpenCV and its separate FFmpeg plugin. Read the component
+license files for exact versions, terms and original attribution.
+
+The editor is compiled using MinGW GCC. GCC runtime libraries retain GPLv3
+with the GCC Runtime Library Exception 3.1. That exception permits eligible
+independent modules to be distributed under the project's chosen terms.
+Microsoft runtime DLLs remain proprietary redistributables under their own
+terms; they are not covered by Apache-2.0.
+
+MoleculeStudio is independent and is not affiliated with or endorsed by
+Revvity/ChemDraw, DeepSeek, Microsoft, Oracle, Eclipse Adoptium or The
+Document Foundation. Product and protocol names describe compatibility or
+origin. No trademark rights are granted. See TRADEMARKS.md.
+
+The application uses its own CDX/CDXML and clipboard/OLE adapters. It does
+not invoke or bundle the ChemDraw desktop application. Third-party format
+support is separately attributed. Historical provenance is retained in
+PROVENANCE.md; this release does not assert independent clean-room certification.
+
+2026-11-02 distribution update: source layout is studio/ and engine/. Third-party source archives are inside the three runtime packages; see SOURCE_AVAILABILITY.json and docs/RELEASE.md.

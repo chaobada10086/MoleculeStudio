@@ -1,0 +1,1311 @@
+[
+  {
+    "name": "pip",
+    "version": "26.2.1",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "AUTHORS.txt",
+      "LICENSE.txt",
+      "src/pip/_vendor/cachecontrol/LICENSE.txt",
+      "src/pip/_vendor/certifi/LICENSE",
+      "src/pip/_vendor/distlib/LICENSE.txt",
+      "src/pip/_vendor/distro/LICENSE",
+      "src/pip/_vendor/idna/LICENSE.md",
+      "src/pip/_vendor/msgpack/COPYING",
+      "src/pip/_vendor/packaging/LICENSE",
+      "src/pip/_vendor/packaging/LICENSE.APACHE",
+      "src/pip/_vendor/packaging/LICENSE.BSD",
+      "src/pip/_vendor/pkg_resources/LICENSE",
+      "src/pip/_vendor/platformdirs/LICENSE",
+      "src/pip/_vendor/pygments/LICENSE",
+      "src/pip/_vendor/pyproject_hooks/LICENSE",
+      "src/pip/_vendor/requests/LICENSE",
+      "src/pip/_vendor/resolvelib/LICENSE",
+      "src/pip/_vendor/rich/LICENSE",
+      "src/pip/_vendor/tomli/LICENSE",
+      "src/pip/_vendor/tomli_w/LICENSE",
+      "src/pip/_vendor/truststore/LICENSE",
+      "src/pip/_vendor/urllib3/LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/pip-26.2.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "setuptools",
+    "version": "84.0.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools-84.0.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "autocommand",
+    "version": "2.2.2",
+    "license_expression": null,
+    "license": "LGPLv3",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/autocommand-2.2.2.dist-info",
+    "homepage": "https://github.com/Lucretiel/autocommand"
+  },
+  {
+    "name": "backports.tarfile",
+    "version": "1.2.0",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/backports.tarfile-1.2.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "importlib_metadata",
+    "version": "8.7.1",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "jaraco.text",
+    "version": "4.0.0",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/jaraco.text-4.0.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "jaraco.context",
+    "version": "6.1.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/jaraco_context-6.1.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "jaraco.functools",
+    "version": "4.4.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/jaraco_functools-4.4.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "more-itertools",
+    "version": "10.8.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/more_itertools-10.8.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "packaging",
+    "version": "26.0",
+    "license_expression": "Apache-2.0 OR BSD-2-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE",
+      "LICENSE.APACHE",
+      "LICENSE.BSD"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/packaging-26.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "platformdirs",
+    "version": "4.4.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/platformdirs-4.4.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "tomli",
+    "version": "2.4.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/tomli-2.4.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "wheel",
+    "version": "0.46.3",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/wheel-0.46.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "zipp",
+    "version": "3.23.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/python/cpython-3.10-windows-x86_64-none/Lib/site-packages/setuptools/_vendor/zipp-3.23.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "absl-py",
+    "version": "2.5.1",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "AUTHORS",
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/absl_py-2.5.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "albumentations",
+    "version": "1.1.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/albumentations-1.1.0.dist-info",
+    "homepage": "https://github.com/albumentations-team/albumentations"
+  },
+  {
+    "name": "anyio",
+    "version": "4.15.1",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/anyio-4.15.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "beautifulsoup4",
+    "version": "4.15.0",
+    "license_expression": null,
+    "license": "MIT License",
+    "license_files": [
+      "AUTHORS",
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/beautifulsoup4-4.15.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "blinker",
+    "version": "1.9.0",
+    "license_expression": null,
+    "license": "",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/blinker-1.9.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "certifi",
+    "version": "2026.10.23",
+    "license_expression": null,
+    "license": "MPL-2.0",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/certifi-2026.10.23.dist-info",
+    "homepage": "https://github.com/certifi/python-certifi"
+  },
+  {
+    "name": "charset-normalizer",
+    "version": "3.5.2",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/charset_normalizer-3.5.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "click",
+    "version": "8.5.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/click-8.5.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "cloudpickle",
+    "version": "3.1.2",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/cloudpickle-3.1.2.dist-info",
+    "homepage": "https://github.com/cloudpipe/cloudpickle"
+  },
+  {
+    "name": "colorama",
+    "version": "0.4.6",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/colorama-0.4.6.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "ConfigArgParse",
+    "version": "1.9.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/configargparse-1.9.0.dist-info",
+    "homepage": "https://github.com/bw2/ConfigArgParse"
+  },
+  {
+    "name": "contourpy",
+    "version": "1.3.2",
+    "license_expression": null,
+    "license": "BSD 3-Clause License\n         \n         Copyright (c) 2021-2025, ContourPy Developers.\n         All rights reserved.\n         \n         Redistribution and use in source and binary forms, with or without\n         modification, are permitted provided that the following conditions are met:\n         \n  ",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/contourpy-1.3.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "cycler",
+    "version": "0.12.1",
+    "license_expression": null,
+    "license": "Copyright (c) 2015, matplotlib project\n        All rights reserved.\n        \n        Redistribution and use in source and binary forms, with or without\n        modification, are permitted provided that the following conditions are met:\n        \n        * Redistributions of source code must retain th",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/cycler-0.12.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "exceptiongroup",
+    "version": "1.3.1",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/exceptiongroup-1.3.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "fastcore",
+    "version": "2.2.35",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/fastcore-2.2.35.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "fastprogress",
+    "version": "1.1.6",
+    "license_expression": null,
+    "license": "Apache-2.0",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/fastprogress-1.1.6.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "filelock",
+    "version": "4.1.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/filelock-4.1.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "Flask",
+    "version": "3.1.3",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/flask-3.1.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "fonttools",
+    "version": "4.65.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE",
+      "LICENSE.external"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/fonttools-4.65.0.dist-info",
+    "homepage": "http://github.com/fonttools/fonttools"
+  },
+  {
+    "name": "fsspec",
+    "version": "2026.9.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/fsspec-2026.9.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "gensim",
+    "version": "4.4.0",
+    "license_expression": null,
+    "license": "LGPL-2.1-only",
+    "license_files": [
+      "COPYING"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/gensim-4.4.0.dist-info",
+    "homepage": "https://radimrehurek.com/gensim/"
+  },
+  {
+    "name": "grpcio",
+    "version": "1.85.0",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/grpcio-1.85.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "h11",
+    "version": "0.16.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/h11-0.16.0.dist-info",
+    "homepage": "https://github.com/python-hyper/h11"
+  },
+  {
+    "name": "hf-xet",
+    "version": "1.7.1",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/hf_xet-1.7.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "httpcore2",
+    "version": "2.14.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/httpcore2-2.14.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "httptools",
+    "version": "0.9.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE",
+      "vendor/http-parser/LICENSE-MIT",
+      "vendor/llhttp/LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/httptools-0.9.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "httpx2",
+    "version": "2.14.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/httpx2-2.14.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "huggingface_hub",
+    "version": "2.4.0",
+    "license_expression": null,
+    "license": "Apache-2.0",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/huggingface_hub-2.4.0.dist-info",
+    "homepage": "https://github.com/huggingface/huggingface_hub"
+  },
+  {
+    "name": "idna",
+    "version": "3.20",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/idna-3.20.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "ImageIO",
+    "version": "2.38.0",
+    "license_expression": "BSD-2-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/imageio-2.38.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "itsdangerous",
+    "version": "2.2.0",
+    "license_expression": null,
+    "license": "",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/itsdangerous-2.2.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "Jinja2",
+    "version": "3.1.6",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/jinja2-3.1.6.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "joblib",
+    "version": "1.6.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/joblib-1.6.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "kiwisolver",
+    "version": "1.5.1",
+    "license_expression": null,
+    "license": "=========================\r\n         The Kiwi licensing terms\r\n        =========================\r\n        Kiwi is licensed under the terms of the Modified BSD License (also known as\r\n        New or Revised BSD), as follows:\r\n        \r\n        Copyright (c) 2013-2026, Nucleic Development Team\r\n       ",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/kiwisolver-1.5.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "lazy-loader",
+    "version": "0.6",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/lazy_loader-0.6.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "Markdown",
+    "version": "3.10.3",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/markdown-3.10.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "MarkupSafe",
+    "version": "3.0.4",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/markupsafe-3.0.4.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "matplotlib",
+    "version": "3.9.2",
+    "license_expression": null,
+    "license": "License agreement for matplotlib versions 1.3.0 and later\n        =========================================================\n        \n        1. This LICENSE AGREEMENT is between the Matplotlib Development Team\n        (\"MDT\"), and the Individual or Organization (\"Licensee\") accessing and\n        oth",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/matplotlib-3.9.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "MolScribe",
+    "version": "1.1.1",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/molscribe-1.1.1.dist-info",
+    "homepage": "https://github.com/thomas0809/MolScribe"
+  },
+  {
+    "name": "mpmath",
+    "version": "1.3.0",
+    "license_expression": null,
+    "license": "BSD",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/mpmath-1.3.0.dist-info",
+    "homepage": "http://mpmath.org/"
+  },
+  {
+    "name": "networkx",
+    "version": "3.4.2",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/networkx-3.4.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "numpy",
+    "version": "1.26.4",
+    "license_expression": null,
+    "license": "Copyright (c) 2005-2023, NumPy Developers.\n        All rights reserved.\n        \n        Redistribution and use in source and binary forms, with or without\n        modification, are permitted provided that the following conditions are\n        met:\n        \n            * Redistributions of source cod",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/numpy-1.26.4.dist-info",
+    "homepage": "https://numpy.org"
+  },
+  {
+    "name": "oauthlib",
+    "version": "4.0.0",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/oauthlib-4.0.0.dist-info",
+    "homepage": "https://github.com/oauthlib/oauthlib"
+  },
+  {
+    "name": "opencv-python-headless",
+    "version": "4.5.5.64",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE-3RD-PARTY.txt",
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/opencv_python_headless-4.5.5.64.dist-info",
+    "homepage": "https://github.com/skvark/opencv-python"
+  },
+  {
+    "name": "OpenNMT-py",
+    "version": "2.2.0",
+    "license_expression": null,
+    "license": "UNKNOWN",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/OpenNMT_py-2.2.0.dist-info",
+    "homepage": "UNKNOWN"
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "license_expression": "Apache-2.0 OR BSD-2-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE",
+      "LICENSE.APACHE",
+      "LICENSE.BSD"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/packaging-26.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pandas",
+    "version": "2.2.3",
+    "license_expression": null,
+    "license": "BSD 3-Clause License\n        \n        Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team\n        All rights reserved.\n        \n        Copyright (c) 2011-2023, Open source contributors.\n        \n        Redistribution and use in source and binary f",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/pandas-2.2.3.dist-info",
+    "homepage": "https://pandas.pydata.org"
+  },
+  {
+    "name": "pillow",
+    "version": "12.3.0",
+    "license_expression": "MIT-CMU",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/pillow-12.3.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "protobuf",
+    "version": "7.36.2",
+    "license_expression": null,
+    "license": "3-Clause BSD License",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/protobuf-7.36.2.dist-info",
+    "homepage": "https://developers.google.com/protocol-buffers/"
+  },
+  {
+    "name": "pyparsing",
+    "version": "3.3.3",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/pyparsing-3.3.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pypdfium2",
+    "version": "5.14.0",
+    "license_expression": null,
+    "license": "BSD-3-Clause, Apache-2.0, dependency licenses",
+    "license_files": [
+      "LICENSES/Apache-2.0.txt",
+      "LICENSES/BSD-3-Clause.txt",
+      "LICENSES/CC-BY-4.0.txt",
+      "data/windows_x64/BUILD_LICENSES/abseil.txt",
+      "data/windows_x64/BUILD_LICENSES/agg23.txt",
+      "data/windows_x64/BUILD_LICENSES/fast_float.txt",
+      "data/windows_x64/BUILD_LICENSES/freetype.txt",
+      "data/windows_x64/BUILD_LICENSES/icu.txt",
+      "data/windows_x64/BUILD_LICENSES/lcms.txt",
+      "data/windows_x64/BUILD_LICENSES/libjpeg_turbo.ijg",
+      "data/windows_x64/BUILD_LICENSES/libjpeg_turbo.md",
+      "data/windows_x64/BUILD_LICENSES/libopenjpeg.txt",
+      "data/windows_x64/BUILD_LICENSES/libpng.txt",
+      "data/windows_x64/BUILD_LICENSES/llvm-libc.txt",
+      "data/windows_x64/BUILD_LICENSES/pdfium-binaries.txt",
+      "data/windows_x64/BUILD_LICENSES/pdfium.txt",
+      "data/windows_x64/BUILD_LICENSES/simdutf.txt",
+      "data/windows_x64/BUILD_LICENSES/zlib.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/pypdfium2-5.14.0.dist-info",
+    "homepage": "https://github.com/pypdfium2-team/pypdfium2"
+  },
+  {
+    "name": "python-dateutil",
+    "version": "3.0.0",
+    "license_expression": null,
+    "license": "Dual License",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/python_dateutil-3.0.0.dist-info",
+    "homepage": "https://github.com/dateutil/dateutil"
+  },
+  {
+    "name": "python-dotenv",
+    "version": "1.2.4",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/python_dotenv-1.2.4.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "python-fasthtml",
+    "version": "0.14.17",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/python_fasthtml-0.14.17.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "python-multipart",
+    "version": "0.0.32",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/python_multipart-0.0.32.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "pytz",
+    "version": "2026.6",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/pytz-2026.6.dist-info",
+    "homepage": "http://pythonhosted.org/pytz"
+  },
+  {
+    "name": "PyYAML",
+    "version": "6.0.3",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/pyyaml-6.0.3.dist-info",
+    "homepage": "https://pyyaml.org/"
+  },
+  {
+    "name": "qudida",
+    "version": "0.0.4",
+    "license_expression": null,
+    "license": "UNKNOWN",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/qudida-0.0.4.dist-info",
+    "homepage": "https://github.com/arsenyinfo/qudida"
+  },
+  {
+    "name": "rdkit",
+    "version": "2024.9.6",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/rdkit-2024.9.6.dist-info",
+    "homepage": "https://github.com/kuelumbus/rdkit-pypi"
+  },
+  {
+    "name": "requests",
+    "version": "2.34.2",
+    "license_expression": null,
+    "license": "Apache-2.0",
+    "license_files": [
+      "LICENSE",
+      "NOTICE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/requests-2.34.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "scikit-image",
+    "version": "0.24.0",
+    "license_expression": null,
+    "license": "Files: *\n        Copyright: 2009-2022 the scikit-image team\n        License: BSD-3-Clause\n        \n        Files: doc/source/themes/scikit-image/layout.html\n        Copyright: 2007-2010 the Sphinx team\n        License: BSD-3-Clause\n        \n        Files: skimage/feature/_canny.py\n               ski",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/scikit_image-0.24.0.dist-info",
+    "homepage": "https://scikit-image.org"
+  },
+  {
+    "name": "scikit-learn",
+    "version": "1.7.2",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "COPYING"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/scikit_learn-1.7.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "scipy",
+    "version": "1.13.1",
+    "license_expression": null,
+    "license": "Copyright (c) 2001-2002 Enthought, Inc. 2003-2024, SciPy Developers.\n        All rights reserved.\n        \n        Redistribution and use in source and binary forms, with or without\n        modification, are permitted provided that the following conditions\n        are met:\n        \n        1. Redist",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/scipy-1.13.1.dist-info",
+    "homepage": "https://scipy.org/"
+  },
+  {
+    "name": "sentencepiece",
+    "version": "0.2.2",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/sentencepiece-0.2.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "setuptools",
+    "version": "84.2.1",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools-84.2.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "six",
+    "version": "1.17.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/six-1.17.0.dist-info",
+    "homepage": "https://github.com/benjaminp/six"
+  },
+  {
+    "name": "smart_open",
+    "version": "9.0.1",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/smart_open-9.0.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "SmilesPE",
+    "version": "0.0.3",
+    "license_expression": null,
+    "license": "Apache Software License 2.0",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/SmilesPE-0.0.3.dist-info",
+    "homepage": "https://github.com/XinhaoLi74/SmilesPE"
+  },
+  {
+    "name": "soupsieve",
+    "version": "2.10",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/soupsieve-2.10.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "starlette",
+    "version": "1.7.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/starlette-1.7.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "sympy",
+    "version": "1.13.1",
+    "license_expression": null,
+    "license": "BSD",
+    "license_files": [
+      "LICENSE",
+      "AUTHORS"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/sympy-1.13.1.dist-info",
+    "homepage": "https://sympy.org"
+  },
+  {
+    "name": "tensorboard",
+    "version": "2.21.0",
+    "license_expression": null,
+    "license": "Apache 2.0",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/tensorboard-2.21.0.dist-info",
+    "homepage": "https://github.com/tensorflow/tensorboard"
+  },
+  {
+    "name": "tensorboard-data-server",
+    "version": "0.7.2",
+    "license_expression": null,
+    "license": "Apache 2.0",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/tensorboard_data_server-0.7.2.dist-info",
+    "homepage": "https://github.com/tensorflow/tensorboard/tree/master/tensorboard/data/server"
+  },
+  {
+    "name": "threadpoolctl",
+    "version": "3.7.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/threadpoolctl-3.7.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "tifffile",
+    "version": "2025.5.10",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/tifffile-2025.5.10.dist-info",
+    "homepage": "https://www.cgohlke.com"
+  },
+  {
+    "name": "timm",
+    "version": "0.4.12",
+    "license_expression": null,
+    "license": "UNKNOWN",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/timm-0.4.12.dist-info",
+    "homepage": "https://github.com/rwightman/pytorch-image-models"
+  },
+  {
+    "name": "tomli",
+    "version": "2.5.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/tomli-2.5.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "torch",
+    "version": "2.5.1+cpu",
+    "license_expression": null,
+    "license": "BSD-3-Clause",
+    "license_files": [
+      "LICENSE",
+      "NOTICE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/torch-2.5.1+cpu.dist-info",
+    "homepage": "https://pytorch.org/"
+  },
+  {
+    "name": "torchtext",
+    "version": "0.5.0",
+    "license_expression": null,
+    "license": "BSD",
+    "license_files": [],
+    "location": "ocsr_runtime/venv/Lib/site-packages/torchtext-0.5.0.dist-info",
+    "homepage": "https://github.com/pytorch/text"
+  },
+  {
+    "name": "torchvision",
+    "version": "0.20.1+cpu",
+    "license_expression": null,
+    "license": "BSD",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/torchvision-0.20.1+cpu.dist-info",
+    "homepage": "https://github.com/pytorch/vision"
+  },
+  {
+    "name": "tqdm",
+    "version": "4.70.1",
+    "license_expression": null,
+    "license": "MPL-2.0 AND MIT",
+    "license_files": [
+      "LICENCE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/tqdm-4.70.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "truststore",
+    "version": "0.10.5",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/truststore-0.10.5.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "typing_extensions",
+    "version": "4.16.0",
+    "license_expression": "PSF-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/typing_extensions-4.16.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "tzdata",
+    "version": "2026.6",
+    "license_expression": null,
+    "license": "Apache-2.0",
+    "license_files": [
+      "LICENSE",
+      "licenses/LICENSE_APACHE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/tzdata-2026.6.dist-info",
+    "homepage": "https://github.com/python/tzdata"
+  },
+  {
+    "name": "urllib3",
+    "version": "2.8.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/urllib3-2.8.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "uvicorn",
+    "version": "0.54.0",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.md"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/uvicorn-0.54.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "waitress",
+    "version": "3.0.2",
+    "license_expression": null,
+    "license": "ZPL 2.1",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/waitress-3.0.2.dist-info",
+    "homepage": "https://github.com/Pylons/waitress"
+  },
+  {
+    "name": "watchfiles",
+    "version": "1.3.0",
+    "license_expression": null,
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/watchfiles-1.3.0.dist-info",
+    "homepage": "https://github.com/samuelcolvin/watchfiles"
+  },
+  {
+    "name": "websockets",
+    "version": "16.1.1",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/websockets-16.1.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "Werkzeug",
+    "version": "3.1.9",
+    "license_expression": "BSD-3-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/werkzeug-3.1.9.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "wrapt",
+    "version": "2.5.2",
+    "license_expression": "BSD-2-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/wrapt-2.5.2.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "autocommand",
+    "version": "2.2.2",
+    "license_expression": null,
+    "license": "LGPLv3",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/autocommand-2.2.2.dist-info",
+    "homepage": "https://github.com/Lucretiel/autocommand"
+  },
+  {
+    "name": "backports.tarfile",
+    "version": "1.2.0",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/backports.tarfile-1.2.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "importlib_metadata",
+    "version": "8.7.1",
+    "license_expression": "Apache-2.0",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/importlib_metadata-8.7.1.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "jaraco.text",
+    "version": "4.0.0",
+    "license_expression": null,
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/jaraco.text-4.0.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "jaraco.context",
+    "version": "6.1.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/jaraco_context-6.1.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "jaraco.functools",
+    "version": "4.4.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/jaraco_functools-4.4.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "more-itertools",
+    "version": "10.8.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/more_itertools-10.8.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "license_expression": "Apache-2.0 OR BSD-2-Clause",
+    "license": "",
+    "license_files": [
+      "LICENSE",
+      "LICENSE.APACHE",
+      "LICENSE.BSD"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/packaging-26.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "platformdirs",
+    "version": "4.4.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/platformdirs-4.4.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "tomli",
+    "version": "2.4.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/tomli-2.4.0.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "wheel",
+    "version": "0.46.3",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE.txt"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/wheel-0.46.3.dist-info",
+    "homepage": null
+  },
+  {
+    "name": "zipp",
+    "version": "3.23.0",
+    "license_expression": "MIT",
+    "license": "",
+    "license_files": [
+      "LICENSE"
+    ],
+    "location": "ocsr_runtime/venv/Lib/site-packages/setuptools/_vendor/zipp-3.23.0.dist-info",
+    "homepage": null
+  }
+]

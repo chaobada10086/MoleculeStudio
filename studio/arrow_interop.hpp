@@ -1,0 +1,29 @@
+// Included inside studioio after the document and XML APIs are available.
+inline Error readArrows(const std::string& bytes,Document& doc){
+    std::string normalized=bytes;persistence::repairUnreferencedArrowIds(normalized);tinyxml2::XMLDocument xml;if(xml.Parse(normalized.c_str())!=tinyxml2::XML_SUCCESS)return Error();auto root=xml.RootElement();if(!root)return Error();std::set<int> imported;
+    std::function<Error(tinyxml2::XMLElement*)> visit=[&](tinyxml2::XMLElement* parent){for(auto node=parent->FirstChildElement();node;node=node->NextSiblingElement()){
+        if((std::string(node->Name())=="arrow"||(std::string(node->Name())=="graphic"&&node->Attribute("MoleculeStudioArrow")))&&node->Attribute("Tail3D")&&node->Attribute("Head3D")){
+            auto point=[&](const char* name){Vec2 p;std::istringstream in(node->Attribute(name));in>>p.x>>p.y;return p;};Vec2 begin=point("Tail3D"),end=point("Head3D");if(core::length(end-begin)<1e-8)continue;
+            double width=node->DoubleAttribute("LineWidth",doc.defaultLineWidth());if(!(width>0))width=.6;arrows::ArrowParams p=arrows::resolvePreset(0,begin,end,width);bool decoded=false;if(auto custom=node->Attribute("MoleculeStudioArrow"))p=arrows::decodeArrowParams(custom,&decoded);if(!decoded){p=arrows::resolvePreset(0,begin,end,width);auto attr=[&](const char* key){auto v=node->Attribute(key);return std::string(v?v:"");};std::string head=attr("ArrowheadHead"),tail=attr("ArrowheadTail"),type=attr("ArrowheadType");p.head.atEnd=!head.empty()&&head!="None";p.head.atBegin=!tail.empty()&&tail!="None";p.head.shape=type=="Hollow"?arrows::ArrowHeadShape::Hollow:type=="Angle"?arrows::ArrowHeadShape::Angled:arrows::ArrowHeadShape::Solid;p.head.sides=head=="HalfLeft"?arrows::HeadSides::Left:head=="HalfRight"?arrows::HeadSides::Right:arrows::HeadSides::Both;p.head.length=node->DoubleAttribute("HeadSize",2250)*width/100;p.head.width=node->DoubleAttribute("ArrowheadWidth",563)*width*2/100;if(node->Attribute("ArrowShaftSpacing")){p.shafts=arrows::ShaftCount::Two;p.presetId=30;p.separation=node->DoubleAttribute("ArrowShaftSpacing")*width/100;double ratio=node->DoubleAttribute("ArrowEquilibriumRatio",100);p.splitRatio=100/(100+ratio);p.originalSplitRatio=p.splitRatio;if(type=="Angle"&&((head=="Full"&&!p.head.atBegin)||(tail=="Full"&&!p.head.atEnd))){p.shafts=arrows::ShaftCount::Double;p.presetId=40;p.head.shape=arrows::ArrowHeadShape::HalfArrow;p.head.sides=arrows::HeadSides::Both;p.separation*=2;p.head.width=p.separation;}}
+                if(attr("LineType").find("Dashed")!=std::string::npos)p.line=arrows::ArrowLine::Dashed;std::string noGo=attr("NoGo");if(!noGo.empty()&&noGo!="None"){p.head.shape=noGo=="Hash"?arrows::ArrowHeadShape::Hash:arrows::ArrowHeadShape::Cross;p.head.sides=arrows::HeadSides::None;p.head.atEnd=p.head.atBegin=false;}
+                if(node->Attribute("AngularSize")){double angle=node->DoubleAttribute("AngularSize");if(std::abs(angle)>1e-7){p.family=arrows::ArrowFamily::Arc;p.sweep=arrows::ArcSweep::Free;p.arcSagitta=core::length(end-begin)*.5*std::tan(angle*3.141592653589793/720);}}
+            }p.begin=begin;p.end=end;int source=node->IntAttribute("id");ObjectId id=kInvalidObjectId;if(std::string(node->Name())=="graphic")for(auto& r:doc.arrows().records())if(r.isAlive()&&r.sourceId==source){id=r.id;break;}if(id!=kInvalidObjectId){auto e=arrows::writeArrow(doc,id,p,doc.defaultLineWidth());if(!e.ok())return e;}else{AnnotationRecord record;auto e=arrows::toAnnotationRecord(p,doc.defaultLineWidth(),&record);if(!e.ok())return e;record.sourceId=source;e=doc.addAnnotation(ObjectKind::Arrow,record,&id);if(!e.ok())return e;doc.extensions(ObjectRef(ObjectKind::Arrow,id)).set(arrows::kArrowParamsKey,arrows::encodeArrowParams(p));}{auto& bag=doc.extensions(ObjectRef(ObjectKind::Arrow,id));auto v=doc.documentExtensions().findValue("studio.palette."+std::string(node->Attribute("color")?node->Attribute("color"):"0"));if(v)bag.set("studio.color",*v);if(node->Attribute("AngularSize")&&!node->Attribute("MoleculeStudioArrow")){tinyxml2::XMLPrinter xml;node->Accept(&xml);bag.set("studio.cdxml.graphic",xml.CStr());}if(auto z=node->Attribute("Z"))bag.set("studio.z",z);}imported.insert(source);
+        }auto e=visit(node);if(!e.ok())return e;
+    }return Error();};auto e=visit(root);if(!e.ok())return e;
+    // Native ChemDraw pairs a modern arrow with a superseded legacy graphic.
+    // Replace that fallback instead of showing both or replaying stale raw XML.
+    std::function<void(tinyxml2::XMLElement*)> legacy=[&](tinyxml2::XMLElement* parent){for(auto n=parent->FirstChildElement();n;n=n->NextSiblingElement()){if(n->Attribute("SupersededBy")&&imported.count(n->IntAttribute("SupersededBy"))){int id=n->IntAttribute("id");std::vector<ObjectId> dead;for(auto& r:doc.arrows().records())if(r.isAlive()&&r.sourceId==id)dead.push_back(r.id);for(auto a:dead)doc.removeObject(ObjectRef(ObjectKind::Arrow,a));}legacy(n);}};legacy(root);
+    auto entries=doc.documentExtensions().entries();for(auto& entry:entries)if(entry.key.compare(0,8,"pst.raw.")==0){
+        // The first page arrow can carry a leading </fragment> in its preserved
+        // slice. Parsing that slice as a standalone XML document fails, leaving
+        // both the raw arrow and the promoted arrow to be exported with one ID.
+        // Retain the structural prefix, and remove only the promoted arrow.
+        size_t at=entry.value.find("<arrow");if(at==std::string::npos)continue;
+        tinyxml2::XMLDocument raw;if(raw.Parse(entry.value.c_str()+at)!=tinyxml2::XML_SUCCESS)continue;
+        auto r=raw.RootElement();if(r&&!r->NextSiblingElement()&&std::string(r->Name())=="arrow"&&imported.count(r->IntAttribute("id"))){
+            if(at)doc.documentExtensions().set(entry.key,entry.value.substr(0,at),entry.sourceId);
+            else doc.documentExtensions().erase(entry.key,entry.sourceId);
+        }
+    }
+    return Error();
+}

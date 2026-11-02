@@ -1,0 +1,1750 @@
+{
+  "1-Naph": {
+    "confidence": "high",
+    "note": "1-naphthyl (alpha)",
+    "smiles": "[*]c1cccc2ccccc12"
+  },
+  "2-4DCZ": {
+    "confidence": "medium",
+    "note": "2,4-dichlorobenzyloxycarbonyl (2,4-diCl-Z)",
+    "smiles": "[*]C(=O)OCc1ccc(Cl)cc1Cl"
+  },
+  "2-6DCZ": {
+    "confidence": "medium",
+    "note": "2,6-dichlorobenzyloxycarbonyl (2,6-diCl-Z)",
+    "smiles": "[*]C(=O)OCc1c(Cl)cccc1Cl"
+  },
+  "2-Naph": {
+    "confidence": "high",
+    "note": "2-naphthyl (beta)",
+    "smiles": "[*]c1ccc2ccccc2c1"
+  },
+  "2CZ": {
+    "confidence": "medium",
+    "note": "2-chlorobenzyloxycarbonyl (2-Cl-Z)",
+    "smiles": "[*]C(=O)OCc1ccccc1Cl"
+  },
+  "2OHEt": {
+    "confidence": "high",
+    "note": "2-hydroxyethyl",
+    "smiles": "OCC[*]"
+  },
+  "2OHPh": {
+    "confidence": "high",
+    "note": "2-hydroxyphenyl",
+    "smiles": "[*]c1ccccc1O"
+  },
+  "3Py": {
+    "confidence": "high",
+    "note": "pyridin-3-yl",
+    "smiles": "[*]c1cccnc1"
+  },
+  "4CZ": {
+    "confidence": "medium",
+    "note": "4-chlorobenzyloxycarbonyl (4-Cl-Z)",
+    "smiles": "[*]C(=O)OCc1ccc(Cl)cc1"
+  },
+  "4Py": {
+    "confidence": "high",
+    "note": "pyridin-4-yl",
+    "smiles": "[*]c1ccncc1"
+  },
+  "Aad": {
+    "confidence": "high",
+    "note": "L-2-aminoadipic acid residue",
+    "smiles": "N[C@@H](CCCC(=O)O)C(=O)[*]"
+  },
+  "Abu": {
+    "confidence": "high",
+    "note": "L-2-aminobutyric acid",
+    "smiles": "CC[C@H](N)C(=O)[*]"
+  },
+  "Abz": {
+    "confidence": "medium",
+    "note": "2-aminobenzoyl (anthraniloyl)",
+    "smiles": "Nc1ccccc1C(=O)[*]"
+  },
+  "Ac": {
+    "confidence": "high",
+    "note": "acetyl",
+    "smiles": "CC(=O)[*]"
+  },
+  "AcNH": {
+    "confidence": "high",
+    "note": "acetylamino",
+    "smiles": "CC(=O)N[*]"
+  },
+  "AcO": {
+    "confidence": "high",
+    "note": "acetoxy (attached through O)",
+    "smiles": "CC(=O)O[*]"
+  },
+  "Acm": {
+    "confidence": "high",
+    "note": "acetamidomethyl (Cys protection)",
+    "smiles": "CC(=O)NC[*]"
+  },
+  "Ad": {
+    "confidence": "high",
+    "note": "1-adamantyl",
+    "smiles": "[*]C12CC3CC(CC(C3)C1)C2"
+  },
+  "Adoc": {
+    "confidence": "medium",
+    "note": "1-adamantyloxycarbonyl",
+    "smiles": "[*]C(=O)OC12CC3CC(CC(C3)C1)C2"
+  },
+  "Ahx": {
+    "confidence": "high",
+    "note": "6-aminohexanoyl",
+    "smiles": "NCCCCCC(=O)[*]"
+  },
+  "Aib": {
+    "confidence": "high",
+    "note": "2-aminoisobutyric acid (Aib)",
+    "smiles": "CC(C)(N)C(=O)[*]"
+  },
+  "Ala": {
+    "confidence": "high",
+    "note": "L-alanine residue",
+    "smiles": "N[C@@H](C)C(=O)[*]"
+  },
+  "All": {
+    "confidence": "high",
+    "note": "allyl",
+    "smiles": "C=CC[*]"
+  },
+  "Alloc": {
+    "confidence": "high",
+    "note": "allyloxycarbonyl",
+    "smiles": "C=CCOC(=O)[*]"
+  },
+  "Allyl": {
+    "confidence": "high",
+    "note": "allyl",
+    "smiles": "C=CC[*]"
+  },
+  "Arg": {
+    "confidence": "high",
+    "note": "L-arginine residue",
+    "smiles": "N[C@@H](CCCNC(=N)N)C(=O)[*]"
+  },
+  "Asn": {
+    "confidence": "high",
+    "note": "L-asparagine",
+    "smiles": "N[C@@H](CC(N)=O)C(=O)[*]"
+  },
+  "Asp": {
+    "confidence": "high",
+    "note": "L-aspartic acid residue",
+    "smiles": "N[C@@H](CC(=O)O)C(=O)[*]"
+  },
+  "Aze": {
+    "confidence": "high",
+    "note": "L-azetidine-2-carboxylic acid",
+    "smiles": "O=C([*])[C@@H]1CCN1"
+  },
+  "BOM": {
+    "confidence": "high",
+    "note": "benzyloxymethyl",
+    "smiles": "c1ccccc1COC[*]"
+  },
+  "BTC": {
+    "confidence": "medium",
+    "note": "triphosgene, bis(trichloromethyl) carbonate",
+    "smiles": "ClC(Cl)(Cl)OC(=O)OC(Cl)(Cl)Cl",
+    "standalone": true
+  },
+  "Benzoyl": {
+    "confidence": "high",
+    "note": "benzoyl",
+    "smiles": "c1ccccc1C(=O)[*]"
+  },
+  "Benzyl": {
+    "confidence": "high",
+    "note": "benzyl",
+    "smiles": "[*]Cc1ccccc1"
+  },
+  "Bn": {
+    "confidence": "high",
+    "note": "benzyl",
+    "smiles": "[*]Cc1ccccc1"
+  },
+  "Boc": {
+    "confidence": "high",
+    "note": "tert-butoxycarbonyl",
+    "smiles": "CC(C)(C)OC(=O)[*]"
+  },
+  "Bpoc": {
+    "confidence": "high",
+    "note": "2-(biphenyl-4-yl)propan-2-yloxycarbonyl",
+    "smiles": "[*]C(=O)OC(C)(C)c1ccc(-c2ccccc2)cc1"
+  },
+  "Bt": {
+    "confidence": "high",
+    "note": "benzotriazol-1-yl",
+    "smiles": "[*]n1nnc2ccccc12"
+  },
+  "Bu": {
+    "confidence": "high",
+    "note": "n-butyl",
+    "smiles": "CCCC[*]"
+  },
+  "Bz": {
+    "confidence": "high",
+    "note": "benzoyl",
+    "smiles": "O=C([*])c1ccccc1"
+  },
+  "BzOM": {
+    "confidence": "medium",
+    "note": "benzoyloxymethyl",
+    "smiles": "c1ccccc1C(=O)OC[*]"
+  },
+  "Bzl": {
+    "confidence": "high",
+    "note": "benzyl",
+    "smiles": "[*]Cc1ccccc1"
+  },
+  "C(=O)Me": {
+    "confidence": "high",
+    "note": "acetyl, written as C(=O)Me",
+    "smiles": "CC(=O)[*]"
+  },
+  "C(=O)NH2": {
+    "confidence": "high",
+    "note": "carbamoyl",
+    "smiles": "NC(=O)[*]"
+  },
+  "C(O)Me": {
+    "confidence": "medium",
+    "note": "1-hydroxyethyl (-CH(OH)CH3)",
+    "smiles": "CC(O)[*]"
+  },
+  "C(O)NH2": {
+    "confidence": "high",
+    "note": "carbamoyl",
+    "smiles": "NC(=O)[*]"
+  },
+  "C10H21": {
+    "confidence": "high",
+    "note": "n-alkyl (C10H21)",
+    "smiles": "CCCCCCCCCC[*]"
+  },
+  "C11H23": {
+    "confidence": "high",
+    "note": "n-alkyl (C11H23)",
+    "smiles": "CCCCCCCCCCC[*]"
+  },
+  "C12H25": {
+    "confidence": "high",
+    "note": "n-alkyl (C12H25)",
+    "smiles": "CCCCCCCCCCCC[*]"
+  },
+  "C13H27": {
+    "confidence": "high",
+    "note": "n-alkyl (C13H27)",
+    "smiles": "CCCCCCCCCCCCC[*]"
+  },
+  "C14H29": {
+    "confidence": "high",
+    "note": "n-alkyl (C14H29)",
+    "smiles": "CCCCCCCCCCCCCC[*]"
+  },
+  "C15H31": {
+    "confidence": "high",
+    "note": "n-alkyl (C15H31)",
+    "smiles": "CCCCCCCCCCCCCCC[*]"
+  },
+  "C16H33": {
+    "confidence": "high",
+    "note": "n-alkyl (C16H33)",
+    "smiles": "CCCCCCCCCCCCCCCC[*]"
+  },
+  "C17H35": {
+    "confidence": "high",
+    "note": "n-alkyl (C17H35)",
+    "smiles": "CCCCCCCCCCCCCCCCC[*]"
+  },
+  "C18H37": {
+    "confidence": "high",
+    "note": "n-alkyl (C18H37)",
+    "smiles": "CCCCCCCCCCCCCCCCCC[*]"
+  },
+  "C19H39": {
+    "confidence": "high",
+    "note": "n-alkyl (C19H39)",
+    "smiles": "CCCCCCCCCCCCCCCCCCC[*]"
+  },
+  "C20H41": {
+    "confidence": "high",
+    "note": "n-alkyl (C20H41)",
+    "smiles": "CCCCCCCCCCCCCCCCCCCC[*]"
+  },
+  "C2H5": {
+    "confidence": "high",
+    "note": "n-alkyl (C2H5)",
+    "smiles": "CC[*]"
+  },
+  "C3H7": {
+    "confidence": "high",
+    "note": "n-alkyl (C3H7)",
+    "smiles": "CCC[*]"
+  },
+  "C4H9": {
+    "confidence": "high",
+    "note": "n-alkyl (C4H9)",
+    "smiles": "CCCC[*]"
+  },
+  "C5H11": {
+    "confidence": "high",
+    "note": "n-alkyl (C5H11)",
+    "smiles": "CCCCC[*]"
+  },
+  "C6H13": {
+    "confidence": "high",
+    "note": "n-alkyl (C6H13)",
+    "smiles": "CCCCCC[*]"
+  },
+  "C6H5": {
+    "confidence": "high",
+    "note": "phenyl",
+    "smiles": "[*]c1ccccc1"
+  },
+  "C7H15": {
+    "confidence": "medium",
+    "note": "n-heptyl, linear isomer assumed",
+    "smiles": "CCCCCCC[*]"
+  },
+  "C8H17": {
+    "confidence": "medium",
+    "note": "n-octyl, linear isomer assumed",
+    "smiles": "CCCCCCCC[*]"
+  },
+  "C9H19": {
+    "confidence": "medium",
+    "note": "n-nonyl, linear isomer assumed",
+    "smiles": "CCCCCCCCC[*]"
+  },
+  "CH2NH2": {
+    "confidence": "high",
+    "note": "aminomethyl",
+    "smiles": "NCC[*]"
+  },
+  "CH2OH": {
+    "confidence": "high",
+    "note": "hydroxymethyl",
+    "smiles": "OC[*]"
+  },
+  "CHO": {
+    "confidence": "high",
+    "note": "formyl",
+    "smiles": "O=C[*]"
+  },
+  "CN": {
+    "confidence": "high",
+    "note": "cyano",
+    "smiles": "N#C[*]"
+  },
+  "CO2Et": {
+    "confidence": "high",
+    "note": "ethoxycarbonyl",
+    "smiles": "CCOC(=O)[*]"
+  },
+  "CO2H": {
+    "confidence": "high",
+    "note": "carboxy",
+    "smiles": "OC(=O)[*]"
+  },
+  "CO2Me": {
+    "confidence": "high",
+    "note": "methoxycarbonyl",
+    "smiles": "COC(=O)[*]"
+  },
+  "COBr": {
+    "confidence": "high",
+    "note": "bromoformyl (acyl bromide)",
+    "smiles": "BrC(=O)[*]"
+  },
+  "COCl": {
+    "confidence": "high",
+    "note": "chlorocarbonyl",
+    "smiles": "O=C(Cl)[*]"
+  },
+  "CON3": {
+    "confidence": "high",
+    "note": "acyl azide (charge separation required by the azide)",
+    "smiles": "[N-]=[N+]=NC(=O)[*]"
+  },
+  "CONH2": {
+    "confidence": "high",
+    "note": "carbamoyl",
+    "smiles": "NC(=O)[*]"
+  },
+  "CONHMe": {
+    "confidence": "high",
+    "note": "N-methylcarbamoyl",
+    "smiles": "CNC(=O)[*]"
+  },
+  "CONMe2": {
+    "confidence": "high",
+    "note": "N,N-dimethylcarbamoyl",
+    "smiles": "CN(C)C(=O)[*]"
+  },
+  "COOCH3": {
+    "confidence": "high",
+    "note": "methoxycarbonyl",
+    "smiles": "COC(=O)[*]"
+  },
+  "COOEt": {
+    "confidence": "high",
+    "note": "ethoxycarbonyl",
+    "smiles": "CCOC(=O)[*]"
+  },
+  "COOH": {
+    "confidence": "high",
+    "note": "carboxy",
+    "smiles": "OC(=O)[*]"
+  },
+  "COOMe": {
+    "confidence": "high",
+    "note": "methoxycarbonyl",
+    "smiles": "COC(=O)[*]"
+  },
+  "Cap": {
+    "confidence": "medium",
+    "note": "caproyl (n-hexanoyl)",
+    "smiles": "CCCCCC(=O)[*]"
+  },
+  "Cbz": {
+    "confidence": "high",
+    "note": "benzyloxycarbonyl",
+    "smiles": "[*]C(=O)OCc1ccccc1"
+  },
+  "Cha": {
+    "confidence": "high",
+    "note": "L-cyclohexylalanine",
+    "smiles": "N[C@@H](CC1CCCCC1)C(=O)[*]"
+  },
+  "Cit": {
+    "confidence": "high",
+    "note": "L-citrulline residue",
+    "smiles": "N[C@@H](CCCNC(N)=O)C(=O)[*]"
+  },
+  "Cpm": {
+    "confidence": "medium",
+    "note": "cyclopropylmethyl",
+    "smiles": "[*]CC1CC1"
+  },
+  "Cy": {
+    "confidence": "high",
+    "note": "cyclohexyl",
+    "smiles": "C1CCCCC1[*]"
+  },
+  "Cys": {
+    "confidence": "high",
+    "note": "L-cysteine",
+    "smiles": "N[C@@H](CS)C(=O)[*]"
+  },
+  "DEAE": {
+    "confidence": "high",
+    "note": "2-(diethylamino)ethyl",
+    "smiles": "CCN(CC)CC[*]"
+  },
+  "DEIPS": {
+    "confidence": "high",
+    "note": "diethylisopropylsilyl",
+    "smiles": "CC[Si](CC)(C(C)C)[*]"
+  },
+  "DMB": {
+    "confidence": "high",
+    "note": "2,4-dimethoxybenzyl",
+    "smiles": "COc1ccc(C[*])c(OC)c1"
+  },
+  "DMIPS": {
+    "confidence": "high",
+    "note": "dimethylisopropylsilyl",
+    "smiles": "C[Si](C)(C(C)C)[*]"
+  },
+  "DMPS": {
+    "confidence": "medium",
+    "note": "dimethylphenylsilyl",
+    "smiles": "C[Si](C)(c1ccccc1)[*]"
+  },
+  "DMTr": {
+    "confidence": "high",
+    "note": "4,4'-dimethoxytrityl",
+    "smiles": "[*]C(c1ccccc1)(c1ccc(OC)cc1)c1ccc(OC)cc1"
+  },
+  "DNP": {
+    "confidence": "high",
+    "note": "2,4-dinitrophenyl",
+    "smiles": "[*]c1ccc([N+](=O)[O-])cc1[N+](=O)[O-]"
+  },
+  "DNS": {
+    "confidence": "high",
+    "note": "5-(dimethylamino)naphthalene-1-sulfonyl (dansyl)",
+    "smiles": "[*]S(=O)(=O)c1cccc2c(N(C)C)cccc12"
+  },
+  "DPIPS": {
+    "confidence": "medium",
+    "note": "diisopropylsilyl",
+    "smiles": "[*][SiH](C(C)C)C(C)C"
+  },
+  "DTBMS": {
+    "confidence": "medium",
+    "note": "di-tert-butylmethylsilyl",
+    "smiles": "[*][Si](C)(C(C)(C)C)C(C)(C)C"
+  },
+  "DTBS": {
+    "confidence": "medium",
+    "note": "di-tert-butylsilyl (Si-H retained)",
+    "smiles": "[*][SiH](C(C)(C)C)C(C)(C)C"
+  },
+  "Dab": {
+    "confidence": "high",
+    "note": "L-2,4-diaminobutyric acid residue",
+    "smiles": "N[C@@H](CCN)C(=O)[*]"
+  },
+  "Dap": {
+    "confidence": "high",
+    "note": "L-2,3-diaminopropionic acid residue",
+    "smiles": "N[C@@H](CN)C(=O)[*]"
+  },
+  "Ddz": {
+    "confidence": "high",
+    "note": "2-(3,5-dimethoxyphenyl)propan-2-yloxycarbonyl",
+    "smiles": "[*]C(=O)OC(C)(C)c1cc(OC)cc(OC)c1"
+  },
+  "Dec": {
+    "confidence": "high",
+    "note": "n-decyl",
+    "smiles": "CCCCCCCCCC[*]"
+  },
+  "Dha": {
+    "confidence": "high",
+    "note": "dehydroalanine",
+    "smiles": "C=C(N)C(=O)[*]"
+  },
+  "Dpm": {
+    "confidence": "high",
+    "note": "diphenylmethyl (benzhydryl)",
+    "smiles": "c1ccccc1C(c1ccccc1)[*]"
+  },
+  "Dpr": {
+    "confidence": "high",
+    "note": "L-2,3-diaminopropionic acid",
+    "smiles": "N[C@@H](CN)C(=O)[*]"
+  },
+  "Edc": {
+    "confidence": "medium",
+    "note": "1-ethyl-3-(3-dimethylaminopropyl)carbodiimide",
+    "smiles": "CCN=C=NCCCN(C)C",
+    "standalone": true
+  },
+  "Et": {
+    "confidence": "high",
+    "note": "ethyl",
+    "smiles": "CC[*]"
+  },
+  "Fmoc": {
+    "confidence": "high",
+    "note": "9-fluorenylmethoxycarbonyl",
+    "smiles": "O=C(OCC1c2ccccc2c2ccccc21)[*]"
+  },
+  "For": {
+    "confidence": "high",
+    "note": "formyl",
+    "smiles": "O=C[*]"
+  },
+  "Gla": {
+    "confidence": "medium",
+    "note": "gamma-carboxy-L-glutamic acid (C-gamma stereochemistry unspecified)",
+    "smiles": "O=C([*])[C@@H](N)C(C(=O)O)CC(=O)O"
+  },
+  "Gln": {
+    "confidence": "high",
+    "note": "L-glutamine",
+    "smiles": "N[C@@H](CCC(N)=O)C(=O)[*]"
+  },
+  "Glp": {
+    "confidence": "high",
+    "note": "L-pyroglutamyl (5-oxo-L-prolyl) residue",
+    "smiles": "[*]C(=O)[C@@H]1CCC(=O)N1"
+  },
+  "Glu": {
+    "confidence": "high",
+    "note": "L-glutamic acid residue",
+    "smiles": "N[C@@H](CCC(=O)O)C(=O)[*]"
+  },
+  "Gly": {
+    "confidence": "high",
+    "note": "glycine residue",
+    "smiles": "NCC(=O)[*]"
+  },
+  "Har": {
+    "confidence": "medium",
+    "note": "L-homoarginine",
+    "smiles": "N[C@@H](CCCCNC(N)=N)C(=O)[*]"
+  },
+  "Hcy": {
+    "confidence": "high",
+    "note": "L-homocysteine residue",
+    "smiles": "N[C@@H](CCS)C(=O)[*]"
+  },
+  "Hex": {
+    "confidence": "high",
+    "note": "n-hexyl",
+    "smiles": "CCCCCC[*]"
+  },
+  "Hippuryl": {
+    "confidence": "high",
+    "note": "hippuryl (N-benzoylglycyl)",
+    "smiles": "O=C(NCC(=O)[*])c1ccccc1"
+  },
+  "His": {
+    "confidence": "high",
+    "note": "L-histidine",
+    "smiles": "N[C@@H](Cc1c[nH]cn1)C(=O)[*]"
+  },
+  "Hiv": {
+    "confidence": "medium",
+    "note": "2-hydroxyisovaleryl",
+    "smiles": "CC(C)C(O)C(=O)[*]"
+  },
+  "Hph": {
+    "confidence": "medium",
+    "note": "L-homophenylalanine",
+    "smiles": "N[C@@H](CCCc1ccccc1)C(=O)[*]"
+  },
+  "Hse": {
+    "confidence": "high",
+    "note": "L-homoserine residue",
+    "smiles": "N[C@@H](CCO)C(=O)[*]"
+  },
+  "Hyl": {
+    "confidence": "medium",
+    "note": "L-5-hydroxylysine (2S,5R) residue",
+    "smiles": "N[C@@H](CC[C@@H](O)CN)C(=O)[*]"
+  },
+  "Hyp": {
+    "confidence": "medium",
+    "note": "trans-4-hydroxy-L-proline",
+    "smiles": "O=C([*])[C@@H]1C[C@@H](O)CN1"
+  },
+  "Ile": {
+    "confidence": "high",
+    "note": "L-isoleucine",
+    "smiles": "CC[C@H](C)[C@H](N)C(=O)[*]"
+  },
+  "Im": {
+    "confidence": "medium",
+    "note": "imidazol-1-yl",
+    "smiles": "[*]n1ccnc1"
+  },
+  "Iva": {
+    "confidence": "high",
+    "note": "isovaleryl (3-methylbutanoyl)",
+    "smiles": "CC(C)CC(=O)[*]"
+  },
+  "Lac": {
+    "confidence": "medium",
+    "note": "lactyl (2-hydroxypropanoyl)",
+    "smiles": "CC(O)C(=O)[*]"
+  },
+  "Leu": {
+    "confidence": "high",
+    "note": "L-leucine residue",
+    "smiles": "N[C@@H](CC(C)C)C(=O)[*]"
+  },
+  "Lys": {
+    "confidence": "high",
+    "note": "L-lysine",
+    "smiles": "N[C@@H](CCCCN)C(=O)[*]"
+  },
+  "MEM": {
+    "confidence": "high",
+    "note": "2-methoxyethoxymethyl",
+    "smiles": "COCCOC[*]"
+  },
+  "MMTr": {
+    "confidence": "medium",
+    "note": "4-methoxytrityl",
+    "smiles": "COc1ccc(C(c2ccccc2)(c2ccccc2)[*])cc1"
+  },
+  "MOM": {
+    "confidence": "high",
+    "note": "methoxymethyl",
+    "smiles": "COC[*]"
+  },
+  "MPM": {
+    "confidence": "high",
+    "note": "4-methoxybenzyl",
+    "smiles": "COc1ccc(C[*])cc1"
+  },
+  "MTM": {
+    "confidence": "high",
+    "note": "methylthiomethyl",
+    "smiles": "CSC[*]"
+  },
+  "Me": {
+    "confidence": "high",
+    "note": "methyl",
+    "smiles": "C[*]"
+  },
+  "MeAla": {
+    "confidence": "medium",
+    "note": "N-methyl-L-alanine residue",
+    "smiles": "CN[C@@H](C)C(=O)[*]"
+  },
+  "Mes": {
+    "confidence": "high",
+    "note": "mesityl (2,4,6-trimethylphenyl)",
+    "smiles": "[*]c1c(C)cc(C)cc1C"
+  },
+  "Met": {
+    "confidence": "high",
+    "note": "L-methionine",
+    "smiles": "CSCC[C@H](N)C(=O)[*]"
+  },
+  "Mmt": {
+    "confidence": "high",
+    "note": "4-methoxytrityl (monomethoxytrityl)",
+    "smiles": "[*]C(c1ccccc1)(c1ccccc1)c1ccc(OC)cc1"
+  },
+  "Moz": {
+    "confidence": "medium",
+    "note": "4-methoxybenzyloxycarbonyl",
+    "smiles": "COc1ccc(COC(=O)[*])cc1"
+  },
+  "Mpa": {
+    "confidence": "high",
+    "note": "3-mercaptopropionyl",
+    "smiles": "SCC(=O)[*]"
+  },
+  "Ms": {
+    "confidence": "high",
+    "note": "methanesulfonyl",
+    "smiles": "CS(=O)(=O)[*]"
+  },
+  "Msc": {
+    "confidence": "medium",
+    "note": "2-(methylsulfonyl)ethyloxycarbonyl",
+    "smiles": "CS(=O)(=O)CCOC(=O)[*]"
+  },
+  "Mtt": {
+    "confidence": "medium",
+    "note": "4-methyltrityl",
+    "smiles": "Cc1ccc(C(c2ccccc2)(c2ccccc2)[*])cc1"
+  },
+  "Myr": {
+    "confidence": "high",
+    "note": "myristoyl (n-tetradecanoyl)",
+    "smiles": "CCCCCCCCCCCCCC(=O)[*]"
+  },
+  "N3": {
+    "confidence": "high",
+    "note": "azide",
+    "smiles": "[N-]=[N+]=N[*]"
+  },
+  "NEt2": {
+    "confidence": "high",
+    "note": "diethylamino",
+    "smiles": "CCN(CC)[*]"
+  },
+  "NHAc": {
+    "confidence": "high",
+    "note": "acetamido",
+    "smiles": "CC(=O)N[*]"
+  },
+  "NHBoc": {
+    "confidence": "high",
+    "note": "tert-butoxycarbonylamino",
+    "smiles": "[*]NC(=O)OC(C)(C)C"
+  },
+  "NHCbz": {
+    "confidence": "high",
+    "note": "benzyloxycarbonylamino",
+    "smiles": "[*]NC(=O)OCc1ccccc1"
+  },
+  "NHFmoc": {
+    "confidence": "high",
+    "note": "Fmoc-amino (NHFmoc)",
+    "smiles": "O=C(N[*])OCC1c2ccccc2c2ccccc21"
+  },
+  "NHNH2": {
+    "confidence": "high",
+    "note": "hydrazino",
+    "smiles": "NN[*]"
+  },
+  "NMe2": {
+    "confidence": "high",
+    "note": "dimethylamino",
+    "smiles": "CN(C)[*]"
+  },
+  "Nal": {
+    "confidence": "high",
+    "note": "L-3-(1-naphthyl)alanine residue",
+    "smiles": "N[C@@H](Cc1cccc2ccccc12)C(=O)[*]"
+  },
+  "Nle": {
+    "confidence": "high",
+    "note": "L-norleucine residue",
+    "smiles": "N[C@@H](CCCC)C(=O)[*]"
+  },
+  "Np": {
+    "confidence": "medium",
+    "note": "1-naphthyl",
+    "smiles": "[*]c1cccc2ccccc12"
+  },
+  "Nps": {
+    "confidence": "medium",
+    "note": "2-nitrophenylsulfenyl",
+    "smiles": "[O-][N+](=O)c1ccccc1S[*]"
+  },
+  "Nva": {
+    "confidence": "high",
+    "note": "L-norvaline",
+    "smiles": "CCC[C@H](N)C(=O)[*]"
+  },
+  "OAc": {
+    "confidence": "high",
+    "note": "acetoxy",
+    "smiles": "CC(=O)O[*]"
+  },
+  "OBn": {
+    "confidence": "high",
+    "note": "benzyloxy",
+    "smiles": "c1ccccc1CO[*]"
+  },
+  "OBz": {
+    "confidence": "high",
+    "note": "benzoyloxy",
+    "smiles": "O=C(O[*])c1ccccc1"
+  },
+  "OEt": {
+    "confidence": "high",
+    "note": "ethoxy",
+    "smiles": "CCO[*]"
+  },
+  "OMe": {
+    "confidence": "high",
+    "note": "methoxy",
+    "smiles": "CO[*]"
+  },
+  "OMs": {
+    "confidence": "high",
+    "note": "mesyloxy",
+    "smiles": "CS(=O)(=O)O[*]"
+  },
+  "OTf": {
+    "confidence": "high",
+    "note": "trifluoromethanesulfonyloxy (triflate)",
+    "smiles": "FC(F)(F)S(=O)(=O)O[*]"
+  },
+  "OTs": {
+    "confidence": "high",
+    "note": "tosyloxy",
+    "smiles": "Cc1ccc(S(=O)(=O)O[*])cc1"
+  },
+  "Oct": {
+    "confidence": "high",
+    "note": "n-octyl",
+    "smiles": "CCCCCCCC[*]"
+  },
+  "Oic": {
+    "confidence": "medium",
+    "note": "L-octahydroindole-2-carboxyl residue; ring-fusion stereocentres unspecified",
+    "smiles": "[*]C(=O)[C@@H]1CC2CCCCC2N1"
+  },
+  "Ole": {
+    "confidence": "medium",
+    "note": "oleoyl, Z (cis) double bond",
+    "smiles": "CCCCCCCC/C=C\\CCCCCCCC(=O)[*]"
+  },
+  "Orn": {
+    "confidence": "high",
+    "note": "L-ornithine residue",
+    "smiles": "N[C@@H](CCCN)C(=O)[*]"
+  },
+  "PMB": {
+    "confidence": "high",
+    "note": "4-methoxybenzyl",
+    "smiles": "COc1ccc(C[*])cc1"
+  },
+  "PNB": {
+    "confidence": "high",
+    "note": "4-nitrobenzyl",
+    "smiles": "[O-][N+](=O)c1ccc(C[*])cc1"
+  },
+  "PO3H2": {
+    "confidence": "high",
+    "note": "phosphono",
+    "smiles": "[*]P(=O)(O)O"
+  },
+  "Pbf": {
+    "confidence": "medium",
+    "note": "2,2,4,6,7-pentamethyldihydrobenzofuran-5-sulfonyl",
+    "smiles": "CC1(C)Cc2c(C)c(S(=O)(=O)[*])c(C)c(C)c2O1"
+  },
+  "Pcp": {
+    "confidence": "medium",
+    "note": "pentachlorophenyl",
+    "smiles": "[*]c1c(Cl)c(Cl)c(Cl)c(Cl)c1Cl"
+  },
+  "Pen": {
+    "confidence": "high",
+    "note": "L-penicillamine residue",
+    "smiles": "N[C@@H](C(C)(C)S)C(=O)[*]"
+  },
+  "Pfp": {
+    "confidence": "high",
+    "note": "pentafluorophenyl",
+    "smiles": "[*]c1c(F)c(F)c(F)c(F)c1F"
+  },
+  "Ph": {
+    "confidence": "high",
+    "note": "phenyl",
+    "smiles": "[*]c1ccccc1"
+  },
+  "Phe": {
+    "confidence": "high",
+    "note": "L-phenylalanine",
+    "smiles": "N[C@@H](Cc1ccccc1)C(=O)[*]"
+  },
+  "Phenyl": {
+    "confidence": "high",
+    "note": "phenyl",
+    "smiles": "[*]c1ccccc1"
+  },
+  "Phg": {
+    "confidence": "high",
+    "note": "L-phenylglycine",
+    "smiles": "N[C@@H](c1ccccc1)C(=O)[*]"
+  },
+  "Pht": {
+    "confidence": "high",
+    "note": "phthaloyl",
+    "smiles": "[*]N1C(=O)c2ccccc2C1=O"
+  },
+  "Pip": {
+    "confidence": "medium",
+    "note": "piperidin-1-yl",
+    "smiles": "[*]N1CCCCC1"
+  },
+  "Piv": {
+    "confidence": "high",
+    "note": "pivaloyl",
+    "smiles": "CC(C)(C)C(=O)[*]"
+  },
+  "Pmc": {
+    "confidence": "medium",
+    "note": "2,2,5,7,8-pentamethylchroman-6-sulfonyl",
+    "smiles": "CC1(C)CCc2c(C)c(S(=O)(=O)[*])c(C)c(C)c2O1"
+  },
+  "Pr": {
+    "confidence": "high",
+    "note": "n-propyl",
+    "smiles": "CCC[*]"
+  },
+  "Pro": {
+    "confidence": "high",
+    "note": "L-proline",
+    "smiles": "O=C([*])[C@@H]1CCCN1"
+  },
+  "Pv": {
+    "confidence": "high",
+    "note": "pivaloyl",
+    "smiles": "CC(C)(C)C(=O)[*]"
+  },
+  "SEM": {
+    "confidence": "high",
+    "note": "2-(trimethylsilyl)ethoxymethyl",
+    "smiles": "C[Si](C)(C)CCOC[*]"
+  },
+  "SES": {
+    "confidence": "high",
+    "note": "2-(trimethylsilyl)ethanesulfonyl",
+    "smiles": "C[Si](C)(C)CCS(=O)(=O)[*]"
+  },
+  "SEt": {
+    "confidence": "high",
+    "note": "ethylthio",
+    "smiles": "CCS[*]"
+  },
+  "SMe": {
+    "confidence": "high",
+    "note": "methylthio",
+    "smiles": "CS[*]"
+  },
+  "SO2Me": {
+    "confidence": "high",
+    "note": "methylsulfonyl",
+    "smiles": "CS(=O)(=O)[*]"
+  },
+  "SO2NH2": {
+    "confidence": "high",
+    "note": "sulfamoyl",
+    "smiles": "NS(=O)(=O)[*]"
+  },
+  "SO3H": {
+    "confidence": "high",
+    "note": "sulfo",
+    "smiles": "[*]S(=O)(=O)O"
+  },
+  "SPy": {
+    "confidence": "medium",
+    "note": "2-pyridylthio",
+    "smiles": "[*]Sc1ccccn1"
+  },
+  "Sar": {
+    "confidence": "high",
+    "note": "sarcosine (N-methylglycine)",
+    "smiles": "CNCC(=O)[*]"
+  },
+  "Sec": {
+    "confidence": "medium",
+    "note": "L-selenocysteine residue",
+    "smiles": "N[C@@H](C[SeH])C(=O)[*]"
+  },
+  "Ser": {
+    "confidence": "high",
+    "note": "L-serine",
+    "smiles": "N[C@@H](CO)C(=O)[*]"
+  },
+  "Sta": {
+    "confidence": "medium",
+    "note": "statine, (3S,4S)-4-amino-3-hydroxy-6-methylheptanoic acid",
+    "smiles": "CC(C)C[C@H](N)[C@@H](O)CC(=O)[*]"
+  },
+  "Su": {
+    "confidence": "high",
+    "note": "succinimidyl (N-hydroxysuccinimidyl)",
+    "smiles": "[*]N1C(=O)CCC1=O"
+  },
+  "TBDMS": {
+    "confidence": "high",
+    "note": "tert-butyldimethylsilyl",
+    "smiles": "[*][Si](C)(C)C(C)(C)C"
+  },
+  "TBDPS": {
+    "confidence": "high",
+    "note": "tert-butyldiphenylsilyl",
+    "smiles": "CC(C)(C)[Si](c1ccccc1)(c1ccccc1)[*]"
+  },
+  "TBS": {
+    "confidence": "high",
+    "note": "tert-butyldimethylsilyl",
+    "smiles": "CC(C)(C)[Si](C)(C)[*]"
+  },
+  "TDS": {
+    "confidence": "high",
+    "note": "thexyldimethylsilyl",
+    "smiles": "C[Si](C)(C(C)(C)C(C)C)[*]"
+  },
+  "TES": {
+    "confidence": "high",
+    "note": "triethylsilyl",
+    "smiles": "[*][Si](CC)(CC)CC"
+  },
+  "TFA": {
+    "confidence": "high",
+    "note": "trifluoroacetyl",
+    "smiles": "FC(F)(F)C(=O)[*]"
+  },
+  "THF": {
+    "confidence": "medium",
+    "note": "tetrahydrofuran",
+    "smiles": "C1CCOC1",
+    "standalone": true
+  },
+  "THP": {
+    "confidence": "high",
+    "note": "tetrahydropyran-2-yl",
+    "smiles": "[*]C1CCCCO1"
+  },
+  "TIPS": {
+    "confidence": "high",
+    "note": "triisopropylsilyl",
+    "smiles": "CC(C)[Si](C(C)C)(C(C)C)[*]"
+  },
+  "TMS": {
+    "confidence": "high",
+    "note": "trimethylsilyl",
+    "smiles": "C[Si](C)(C)[*]"
+  },
+  "TNP": {
+    "confidence": "medium",
+    "note": "2,4,6-trinitrophenyl (picryl)",
+    "smiles": "[O-][N+](=O)c1cc([N+](=O)[O-])cc([N+](=O)[O-])c1[*]"
+  },
+  "Tce": {
+    "confidence": "medium",
+    "note": "2,2,2-trichloroethyl",
+    "smiles": "ClC(Cl)(Cl)C[*]"
+  },
+  "Tcp": {
+    "confidence": "medium",
+    "note": "2,4,5-trichlorophenyl",
+    "smiles": "[*]c1c(Cl)cc(Cl)c(Cl)c1"
+  },
+  "Teoc": {
+    "confidence": "high",
+    "note": "2-(trimethylsilyl)ethoxycarbonyl",
+    "smiles": "C[Si](C)(C)CCOC(=O)[*]"
+  },
+  "Tf": {
+    "confidence": "high",
+    "note": "trifluoromethanesulfonyl",
+    "smiles": "FC(F)(F)S(=O)(=O)[*]"
+  },
+  "Tfe": {
+    "confidence": "high",
+    "note": "2,2,2-trifluoroethyl",
+    "smiles": "FC(F)(F)C[*]"
+  },
+  "Thexyl": {
+    "confidence": "high",
+    "note": "thexyl (2,3-dimethylbutan-2-yl)",
+    "smiles": "CC(C)C(C)(C)[*]"
+  },
+  "Thr": {
+    "confidence": "high",
+    "note": "L-threonine",
+    "smiles": "C[C@@H](O)[C@H](N)C(=O)[*]"
+  },
+  "Tic": {
+    "confidence": "medium",
+    "note": "L-1,2,3,4-tetrahydroisoquinoline-3-carboxylic acid",
+    "smiles": "O=C([*])[C@@H]1Cc2ccccc2CN1"
+  },
+  "Tle": {
+    "confidence": "high",
+    "note": "L-tert-leucine residue",
+    "smiles": "N[C@@H](C(C)(C)C)C(=O)[*]"
+  },
+  "Tmob": {
+    "confidence": "medium",
+    "note": "2,4,6-trimethoxybenzyl",
+    "smiles": "COc1cc(OC)c(C[*])c(OC)c1"
+  },
+  "Tos": {
+    "confidence": "high",
+    "note": "p-toluenesulfonyl (tosyl)",
+    "smiles": "Cc1ccc(S(=O)(=O)[*])cc1"
+  },
+  "Trit": {
+    "confidence": "high",
+    "note": "trityl",
+    "smiles": "c1ccccc1C(c1ccccc1)(c1ccccc1)[*]"
+  },
+  "Troc": {
+    "confidence": "high",
+    "note": "2,2,2-trichloroethoxycarbonyl",
+    "smiles": "ClC(Cl)(Cl)CCOC(=O)[*]"
+  },
+  "Trp": {
+    "confidence": "high",
+    "note": "L-tryptophan",
+    "smiles": "N[C@@H](Cc1c[nH]c2ccccc12)C(=O)[*]"
+  },
+  "Trt": {
+    "confidence": "high",
+    "note": "trityl",
+    "smiles": "c1ccccc1C(c1ccccc1)(c1ccccc1)[*]"
+  },
+  "Ts": {
+    "confidence": "high",
+    "note": "tosyl (4-methylbenzenesulfonyl)",
+    "smiles": "Cc1ccc(S(=O)(=O)[*])cc1"
+  },
+  "Tyr": {
+    "confidence": "high",
+    "note": "L-tyrosine",
+    "smiles": "N[C@@H](Cc1ccc(O)cc1)C(=O)[*]"
+  },
+  "Val": {
+    "confidence": "high",
+    "note": "L-valine",
+    "smiles": "CC(C)[C@H](N)C(=O)[*]"
+  },
+  "Vi": {
+    "confidence": "high",
+    "note": "vinyl",
+    "smiles": "C=C[*]"
+  },
+  "ZNO2": {
+    "confidence": "high",
+    "note": "4-nitrobenzyloxycarbonyl",
+    "smiles": "[O-][N+](=O)c1ccc(COC(=O)[*])cc1"
+  },
+  "aIle": {
+    "confidence": "medium",
+    "note": "L-allo-isoleucine (2S,3R)",
+    "smiles": "CC[C@@H](C)[C@H](N)C(=O)[*]"
+  },
+  "aThr": {
+    "confidence": "medium",
+    "note": "L-allo-threonine (2S,3R)",
+    "smiles": "C[C@H](O)[C@@H](N)C(=O)[*]"
+  },
+  "bAla": {
+    "confidence": "high",
+    "note": "beta-alanine (3-aminopropanoic acid)",
+    "smiles": "NCCC(=O)[*]"
+  },
+  "bArg": {
+    "confidence": "medium",
+    "note": "beta3-homoarginine residue",
+    "smiles": "N[C@@H](CCCNC(=N)N)CC(=O)[*]"
+  },
+  "bAsn": {
+    "confidence": "medium",
+    "note": "beta3-asparagine; C3 stereochemistry left unspecified",
+    "smiles": "NC(=O)CC(N)CC(=O)[*]"
+  },
+  "bAsp": {
+    "confidence": "medium",
+    "note": "beta3-homoaspartic acid residue",
+    "smiles": "N[C@@H](CC(=O)O)CC(=O)[*]"
+  },
+  "bCys": {
+    "confidence": "medium",
+    "note": "beta3-cysteine; C3 stereochemistry left unspecified",
+    "smiles": "NC(CS)CC(=O)[*]"
+  },
+  "bGln": {
+    "confidence": "medium",
+    "note": "beta3-homoglutamine residue",
+    "smiles": "N[C@@H](CCC(N)=O)CC(=O)[*]"
+  },
+  "bGlu": {
+    "confidence": "medium",
+    "note": "beta3-glutamic acid; C3 stereochemistry left unspecified",
+    "smiles": "OC(=O)CCC(N)CC(=O)[*]"
+  },
+  "bHis": {
+    "confidence": "medium",
+    "note": "beta3-homohistidine residue",
+    "smiles": "N[C@@H](Cc1c[nH]cn1)CC(=O)[*]"
+  },
+  "bIle": {
+    "confidence": "medium",
+    "note": "beta3-isoleucine; C3 stereochemistry left unspecified",
+    "smiles": "CCC(C)C(N)CC(=O)[*]"
+  },
+  "bLeu": {
+    "confidence": "medium",
+    "note": "beta3-homoleucine residue",
+    "smiles": "N[C@@H](CC(C)C)CC(=O)[*]"
+  },
+  "bLys": {
+    "confidence": "medium",
+    "note": "beta3-lysine; C3 stereochemistry left unspecified",
+    "smiles": "NCCCCC(N)CC(=O)[*]"
+  },
+  "bMet": {
+    "confidence": "medium",
+    "note": "beta3-homomethionine residue",
+    "smiles": "N[C@@H](CCSC)CC(=O)[*]"
+  },
+  "bPhe": {
+    "confidence": "medium",
+    "note": "beta3-phenylalanine; C3 stereochemistry left unspecified",
+    "smiles": "NC(c1ccccc1)CC(=O)[*]"
+  },
+  "bSer": {
+    "confidence": "medium",
+    "note": "beta3-serine; C3 stereochemistry left unspecified",
+    "smiles": "OCC(N)CC(=O)[*]"
+  },
+  "bTrp": {
+    "confidence": "medium",
+    "note": "beta3-tryptophan; C3 stereochemistry left unspecified",
+    "smiles": "NC(Cc1c[nH]c2ccccc12)CC(=O)[*]"
+  },
+  "bTyr": {
+    "confidence": "medium",
+    "note": "beta3-homotyrosine residue",
+    "smiles": "N[C@@H](Cc1ccc(O)cc1)CC(=O)[*]"
+  },
+  "bVal": {
+    "confidence": "medium",
+    "note": "beta3-valine; C3 stereochemistry left unspecified",
+    "smiles": "CC(C)C(N)CC(=O)[*]"
+  },
+  "c-C3H5": {
+    "confidence": "high",
+    "note": "cyclopropyl",
+    "smiles": "[*]C1CC1"
+  },
+  "c-C4H7": {
+    "confidence": "high",
+    "note": "cyclobutyl",
+    "smiles": "C1CCC1[*]"
+  },
+  "c-C5H9": {
+    "confidence": "high",
+    "note": "cyclopentyl",
+    "smiles": "[*]C1CCCC1"
+  },
+  "c-C6H11": {
+    "confidence": "high",
+    "note": "cyclohexyl",
+    "smiles": "C1CCCCC1[*]"
+  },
+  "c-C7H13": {
+    "confidence": "high",
+    "note": "cycloheptyl",
+    "smiles": "[*]C1CCCCCC1"
+  },
+  "c-C8H15": {
+    "confidence": "high",
+    "note": "cyclooctyl",
+    "smiles": "C1CCCCCCC1[*]"
+  },
+  "c-Hx": {
+    "confidence": "high",
+    "note": "cyclohexyl",
+    "smiles": "[*]C1CCCCC1"
+  },
+  "cHx": {
+    "confidence": "high",
+    "note": "cyclohexyl",
+    "smiles": "C1CCCCC1[*]"
+  },
+  "cyclobutyl": {
+    "confidence": "high",
+    "note": "cyclobutyl",
+    "smiles": "C1CCC1[*]"
+  },
+  "cycloheptyl": {
+    "confidence": "high",
+    "note": "cycloheptyl",
+    "smiles": "[*]C1CCCCCC1"
+  },
+  "cyclooctyl": {
+    "confidence": "high",
+    "note": "cyclooctyl",
+    "smiles": "C1CCCCCCC1[*]"
+  },
+  "cyclopentyl": {
+    "confidence": "high",
+    "note": "cyclopentyl",
+    "smiles": "[*]C1CCCC1"
+  },
+  "cyclopropyl": {
+    "confidence": "high",
+    "note": "cyclopropyl",
+    "smiles": "C1CC1[*]"
+  },
+  "dC": {
+    "confidence": "medium",
+    "note": "2'-deoxycytidine, free nucleoside (whole molecule)",
+    "smiles": "Nc1ccn([C@H]2C[C@H](O)[C@@H](CO)O2)c(=O)n1",
+    "standalone": true
+  },
+  "dT": {
+    "confidence": "medium",
+    "note": "thymidine (2'-deoxy-5-methyluridine), free nucleoside",
+    "smiles": "Cc1cn([C@H]2C[C@H](O)[C@@H](CO)O2)c(=O)[nH]c1=O",
+    "standalone": true
+  },
+  "i-Am": {
+    "confidence": "high",
+    "note": "isopentyl (3-methylbutan-1-yl)",
+    "smiles": "CCC(C)C[*]"
+  },
+  "i-Bu": {
+    "confidence": "high",
+    "note": "isobutyl",
+    "smiles": "CC(C)C[*]"
+  },
+  "i-BuO": {
+    "confidence": "high",
+    "note": "isobutoxy",
+    "smiles": "[*]OCC(C)C"
+  },
+  "i-C3H7": {
+    "confidence": "high",
+    "note": "isopropyl",
+    "smiles": "CC(C)[*]"
+  },
+  "i-C4H9": {
+    "confidence": "high",
+    "note": "isobutyl",
+    "smiles": "CC(C)C[*]"
+  },
+  "i-C5H11": {
+    "confidence": "high",
+    "note": "isopentyl",
+    "smiles": "CC(C)CC[*]"
+  },
+  "i-Pr": {
+    "confidence": "high",
+    "note": "isopropyl",
+    "smiles": "C(C)C[*]"
+  },
+  "iAm": {
+    "confidence": "high",
+    "note": "isopentyl (3-methylbutyl)",
+    "smiles": "CC(C)CC[*]"
+  },
+  "iBu": {
+    "confidence": "high",
+    "note": "isobutyl",
+    "smiles": "CC(C)C[*]"
+  },
+  "iPr": {
+    "confidence": "high",
+    "note": "isopropyl",
+    "smiles": "CC(C)[*]"
+  },
+  "m-Tolyl": {
+    "confidence": "high",
+    "note": "3-methylphenyl",
+    "smiles": "[*]c1cccc(C)c1"
+  },
+  "n-Am": {
+    "confidence": "high",
+    "note": "n-pentyl",
+    "smiles": "CCCCC[*]"
+  },
+  "n-Bu": {
+    "confidence": "high",
+    "note": "n-butyl",
+    "smiles": "CCCC[*]"
+  },
+  "n-C3H7": {
+    "confidence": "high",
+    "note": "n-propyl",
+    "smiles": "CCC[*]"
+  },
+  "n-C4H9": {
+    "confidence": "high",
+    "note": "n-butyl",
+    "smiles": "CCCC[*]"
+  },
+  "n-C5H11": {
+    "confidence": "high",
+    "note": "n-pentyl",
+    "smiles": "CCCCC[*]"
+  },
+  "n-Pr": {
+    "confidence": "high",
+    "note": "n-propyl",
+    "smiles": "CCC[*]"
+  },
+  "nAm": {
+    "confidence": "high",
+    "note": "n-pentyl",
+    "smiles": "CCCCC[*]"
+  },
+  "nBu": {
+    "confidence": "high",
+    "note": "n-butyl",
+    "smiles": "CCCC[*]"
+  },
+  "nPr": {
+    "confidence": "high",
+    "note": "n-propyl",
+    "smiles": "CCC[*]"
+  },
+  "neo-Am": {
+    "confidence": "medium",
+    "note": "neopentyl (2,2-dimethylpropyl)",
+    "smiles": "CC(C)(C)C[*]"
+  },
+  "neo-C5H11": {
+    "confidence": "high",
+    "note": "neopentyl",
+    "smiles": "CC(C)(C)C[*]"
+  },
+  "o-Tolyl": {
+    "confidence": "high",
+    "note": "2-methylphenyl",
+    "smiles": "[*]c1ccccc1C"
+  },
+  "p-Tolyl": {
+    "confidence": "high",
+    "note": "4-methylphenyl",
+    "smiles": "[*]c1ccc(C)cc1"
+  },
+  "pGlu": {
+    "confidence": "high",
+    "note": "L-pyroglutamic acid (5-oxoproline)",
+    "smiles": "O=C([*])[C@@H]1CCC(=O)N1"
+  },
+  "pS": {
+    "confidence": "medium",
+    "note": "O-phospho-L-serine",
+    "smiles": "N[C@@H](COP(=O)(O)O)C(=O)[*]"
+  },
+  "pSer": {
+    "confidence": "high",
+    "note": "O-phospho-L-serine residue",
+    "smiles": "N[C@@H](COP(=O)(O)O)C(=O)[*]"
+  },
+  "pThr": {
+    "confidence": "medium",
+    "note": "O-phospho-L-threonine",
+    "smiles": "C[C@@H](OP(=O)(O)O)[C@H](N)C(=O)[*]"
+  },
+  "pTyr": {
+    "confidence": "high",
+    "note": "O-phospho-L-tyrosine residue",
+    "smiles": "N[C@@H](Cc1ccc(OP(=O)(O)O)cc1)C(=O)[*]"
+  },
+  "rA": {
+    "confidence": "medium",
+    "note": "adenosine, free nucleoside",
+    "smiles": "Nc1ncnc2c1ncn2[C@@H]1O[C@H](CO)[C@@H](O)[C@H]1O",
+    "standalone": true
+  },
+  "rG": {
+    "confidence": "medium",
+    "note": "guanosine, free nucleoside",
+    "smiles": "Nc1nc2c(ncn2[C@@H]2O[C@H](CO)[C@@H](O)[C@H]2O)c(=O)[nH]1",
+    "standalone": true
+  },
+  "rU": {
+    "confidence": "medium",
+    "note": "uridine, free nucleoside",
+    "smiles": "O=c1ccn([C@@H]2O[C@H](CO)[C@@H](O)[C@H]2O)c(=O)[nH]1",
+    "standalone": true
+  },
+  "s-Am": {
+    "confidence": "medium",
+    "note": "sec-pentyl (pentan-2-yl)",
+    "smiles": "C(C)CCC[*]"
+  },
+  "s-Bu": {
+    "confidence": "high",
+    "note": "sec-butyl",
+    "smiles": "[*]C(C)CC"
+  },
+  "s-Butyl": {
+    "confidence": "high",
+    "note": "sec-butyl",
+    "smiles": "C(C)CC[*]"
+  },
+  "s-C4H9": {
+    "confidence": "high",
+    "note": "sec-butyl",
+    "smiles": "[*]C(C)CC"
+  },
+  "s-C5H11": {
+    "confidence": "medium",
+    "note": "sec-pentyl (pentan-2-yl)",
+    "smiles": "C(C)CCC[*]"
+  },
+  "sAm": {
+    "confidence": "medium",
+    "note": "sec-amyl (pentan-2-yl)",
+    "smiles": "[*]C(C)CCC"
+  },
+  "sBu": {
+    "confidence": "high",
+    "note": "sec-butyl",
+    "smiles": "C(C)CC[*]"
+  },
+  "t-Am": {
+    "confidence": "high",
+    "note": "tert-amyl",
+    "smiles": "[*]C(C)(C)CC"
+  },
+  "t-BOC": {
+    "confidence": "high",
+    "note": "tert-butoxycarbonyl",
+    "smiles": "CC(C)(C)OC(=O)[*]"
+  },
+  "t-Bu": {
+    "confidence": "high",
+    "note": "tert-butyl",
+    "smiles": "CC(C)(C)[*]"
+  },
+  "t-Butyl": {
+    "confidence": "high",
+    "note": "tert-butyl",
+    "smiles": "C(C)(C)C[*]"
+  },
+  "t-C4H9": {
+    "confidence": "high",
+    "note": "tert-butyl",
+    "smiles": "CC(C)(C)[*]"
+  },
+  "t-C5H11": {
+    "confidence": "high",
+    "note": "tert-pentyl (2-methylbutan-2-yl)",
+    "smiles": "C(C)(C)CC[*]"
+  },
+  "tAm": {
+    "confidence": "high",
+    "note": "tert-amyl (2-methylbutan-2-yl)",
+    "smiles": "[*]C(C)(C)CC"
+  },
+  "tBu": {
+    "confidence": "high",
+    "note": "tert-butyl",
+    "smiles": "C(C)(C)C[*]"
+  },
+  "trans-Cinnamyl": {
+    "confidence": "high",
+    "note": "(E)-cinnamyl",
+    "smiles": "[*]C/C=C/c1ccccc1"
+  },
+  "NO2": {
+    "smiles": "*[N+](=O)[O-]",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "NO": {
+    "smiles": "*N=O",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "NH2": {
+    "smiles": "*N",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "NHMe": {
+    "smiles": "*NC",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "NHEt": {
+    "smiles": "*NCC",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OH": {
+    "smiles": "*O",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "SH": {
+    "smiles": "*S",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OiPr": {
+    "smiles": "*OC(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OtBu": {
+    "smiles": "*OC(C)(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OPh": {
+    "smiles": "*Oc1ccccc1",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OTES": {
+    "smiles": "*O[Si](CC)(CC)CC",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OTMS": {
+    "smiles": "*O[Si](C)(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OTBS": {
+    "smiles": "*O[Si](C)(C)C(C)(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OTBDMS": {
+    "smiles": "*O[Si](C)(C)C(C)(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OTIPS": {
+    "smiles": "*O[Si](C(C)C)(C(C)C)C(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OTBDPS": {
+    "smiles": "*O[Si](c1ccccc1)(c1ccccc1)C(C)(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OCF3": {
+    "smiles": "*OC(F)(F)F",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "SCF3": {
+    "smiles": "*SC(F)(F)F",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "CF3": {
+    "smiles": "*C(F)(F)F",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "CHF2": {
+    "smiles": "*C(F)F",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "CH2F": {
+    "smiles": "*CF",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "SO2CF3": {
+    "smiles": "*S(=O)(=O)C(F)(F)F",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "SO2Ph": {
+    "smiles": "*S(=O)(=O)c1ccccc1",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "SOPh": {
+    "smiles": "*S(=O)c1ccccc1",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "SOCH3": {
+    "smiles": "*S(=O)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "B(OH)2": {
+    "smiles": "*B(O)O",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "COCF3": {
+    "smiles": "*C(=O)C(F)(F)F",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "COCH3": {
+    "smiles": "*C(=O)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "COOtBu": {
+    "smiles": "*C(=O)OC(C)(C)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "NHTs": {
+    "smiles": "*NS(=O)(=O)c1ccc(C)cc1",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  },
+  "OCOMe": {
+    "smiles": "*OC(=O)C",
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *"
+  }
+}

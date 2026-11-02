@@ -1,0 +1,53 @@
+# brotli 1.3.3
+SPDX-License-Identifier: MIT
+Upstream: https://github.com/devongovett/brotli.js
+Bundled at: dsh_core/dsh/node_modules/brotli
+Status: license material supplied and reviewed on 2026-10-30.
+Note: Upstream declares MIT but supplies no standalone license text or year-specific copyright notice. Original author and any source copyright notices are preserved; the standard MIT grant is supplied separately.
+
+==============================================================================
+Source: https://registry.npmjs.org/brotli/1.3.3
+SHA-256 of text: 602a0f3028d38ee868ec87e21bdd6a23623bf18362481b9ebde1123d27d60541
+==============================================================================
+Upstream package.json declarations (verbatim JSON values):
+{
+  "name": "brotli",
+  "version": "1.3.3",
+  "license": "MIT",
+  "author": "Devon Govett <devongovett@gmail.com>"
+}
+
+==============================================================================
+Source: git+https://github.com/devongovett/brotli.js.git#e36051345f6d27a56e5f39ea70d2f789b8574046/README.md
+SHA-256 of text: a6dbc30856e877eb481e3453a6f7277d0ec968d0302df03828b05f60a6eac5cb
+==============================================================================
+## License
+
+MIT
+
+==============================================================================
+Source: https://spdx.org/licenses/MIT.html
+SHA-256 of text: 8ef4f3bd08081ab610f0d69160f46234d33f252a5e507204bea6efc696d13bd2
+==============================================================================
+MIT License — standard permission and disclaimer text
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: copyright lines in bundled npm source
+SHA-256 of text: ec15116801c95472fdf9bbb31abf1507abd248d4c09aa6999848c0a1beb142c2
+==============================================================================
+/* Copyright 2013 Google Inc. All Rights Reserved.

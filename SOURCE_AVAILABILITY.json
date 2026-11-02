@@ -1,0 +1,310 @@
+{
+  "version": "0.95",
+  "layout": "Each runtime ZIP includes its corresponding sources in MoleculeStudio/legal/<package>/third-party-sources/. OCSR optional FFmpeg video plugin excluded. Python source modules are supplied as .py with their original metadata and licenses.",
+  "packages": {
+    "Core": [
+      {
+        "file": "ffmpeg-7.1.tar.xz",
+        "url": "https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz",
+        "bytes": 11011364,
+        "sha256": "40973d44970dbc83ef302b0609f2e74982be2d85916dd2ee7472d30678a7abe6"
+      },
+      {
+        "file": "inchi-v1.07.2.tar.gz",
+        "url": "https://codeload.github.com/IUPAC-InChI/InChI/tar.gz/refs/tags/v1.07.2",
+        "bytes": 117097498,
+        "sha256": "0ff9336548bd682329872bdcb38fd11c92bba0856a1f365c146a7a54522c29b0"
+      },
+      {
+        "file": "isorelax-source.jar",
+        "origin": "Exact source and notices copied from the bundled component",
+        "url": null,
+        "sha256": "099b6052151acb6a230ea7989a0166a389405ba56aae075c9518b82b7ccd65cb",
+        "bytes": 51114
+      },
+      {
+        "file": "jdk21u-1c417fbfc2f7.tar.gz",
+        "url": "https://codeload.github.com/adoptium/jdk21u/tar.gz/1c417fbfc2f7",
+        "bytes": 114160332,
+        "sha256": "503fa789355f698a42429354af62e6911bd4e336a9477949cc867510da8c1e0f"
+      },
+      {
+        "file": "jna-inchi-1.3.1.tar.gz",
+        "url": "https://codeload.github.com/dan2097/jna-inchi/tar.gz/refs/tags/jna-inchi-1.3.1",
+        "bytes": 8642305,
+        "sha256": "d2c3b562d851aa282dc531dc02acd80e57203da6b8402e13bfe72c147b2a3c6d"
+      },
+      {
+        "file": "opencv-5.0.0-source.tar.gz",
+        "url": "https://codeload.github.com/opencv/opencv/tar.gz/a0a660fcb1e58a295e6caa6aee64ed4d369b0181",
+        "bytes": 81508684,
+        "sha256": "5d97bddd4c5d2895dddafe6aff211b9fc1add564887263b7c062f2699660bf1d"
+      },
+      {
+        "file": "opencv-ffmpeg-06dc20ca.tar.gz",
+        "url": "https://codeload.github.com/opencv/opencv_3rdparty/tar.gz/06dc20cad65dc7fcf784f70c95d46750520889a7",
+        "bytes": 25729765,
+        "sha256": "6ed03e7468a3d91b62e24aa5ad2183924f231dd81a3442da221d7ddf315220b8"
+      },
+      {
+        "file": "opsin-2.9.0.tar.gz",
+        "url": "https://codeload.github.com/dan2097/opsin/tar.gz/refs/tags/2.9.0",
+        "bytes": 1992413,
+        "sha256": "b0a50fda9d8e9b8ba3355007d5a5543baf84df0eb6a0f2811302524584967c83"
+      },
+      {
+        "file": "temurin-build-e6ba7dec.tar.gz",
+        "url": "https://codeload.github.com/adoptium/temurin-build/tar.gz/e6ba7dec3d07654074559310376a3ae89da5f4ac",
+        "bytes": 584568,
+        "sha256": "b1340378b9ed62b32acfacd012dd069ec2b9d940fc39d3c73f32142d64e89713"
+      },
+      {
+        "file": "tqdm-4.67.1-bundled-source.zip",
+        "origin": "Exact source and notices copied from the bundled component",
+        "url": null,
+        "sha256": "d9048ec8788ad51ea7cc3d084b982095bf5fa403d8067f47f1f9afff1389d001",
+        "bytes": 79162
+      },
+      {
+        "file": "tqdm-4.70.1-bundled-source.zip",
+        "origin": "Exact source and notices copied from the bundled component",
+        "url": null,
+        "sha256": "b52ea5a12a66b23a64527d7e42c6502cac005f9d4d6f1d6f55bda188354389a7",
+        "bytes": 80628
+      },
+      {
+        "file": "xsdlib-source.jar",
+        "origin": "Exact source and notices copied from the bundled component",
+        "url": null,
+        "sha256": "f08c93db0cba7a35853213925b0f477d5665a8443595005732a6f7bb1a5a4800",
+        "bytes": 277225
+      }
+    ],
+    "AI": [
+      {
+        "file": "aom-v3.14.1.tar.gz",
+        "url": "https://aomedia.googlesource.com/aom/+archive/refs/tags/v3.14.1.tar.gz",
+        "bytes": 6437951,
+        "sha256": "c90c60c3831607391835b4c5f98865ce570330d48344de8ef87e8ed799d8e2b7"
+      },
+      {
+        "file": "build-win64-mxe-v8.18.7.tar.gz",
+        "url": "https://codeload.github.com/libvips/build-win64-mxe/tar.gz/refs/tags/v8.18.7",
+        "bytes": 65711,
+        "sha256": "6e3c03a6af46f06f15495d72d116ceeb0c91faa2bdd7a8f31ffb811a74458fbd"
+      },
+      {
+        "file": "cairo-1.18.6.tar.xz",
+        "url": "https://cairographics.org/releases/cairo-1.18.6.tar.xz",
+        "bytes": 32725456,
+        "sha256": "1c767308174337a74694da0f3ec069c271452163a1ef4540964c50c301f157d4"
+      },
+      {
+        "file": "cgif-0.5.4.tar.gz",
+        "url": "https://codeload.github.com/dloebl/cgif/tar.gz/refs/tags/v0.5.4",
+        "bytes": 40028,
+        "sha256": "83a70a15bc2da41f081a44ebc58ee48e2e1d524a6d3fdb4a24064afa08d5ad4d"
+      },
+      {
+        "file": "expat-2.8.5.tar.xz",
+        "url": "https://github.com/libexpat/libexpat/releases/download/R_2_8_5/expat-2.8.5.tar.xz",
+        "bytes": 528380,
+        "sha256": "1e727b8933ec51a77a9a9d9afcf8e688bce45d907c13e36ab7393fe36e703182"
+      },
+      {
+        "file": "fontconfig-2.18.3.tar.bz2",
+        "url": "https://gitlab.freedesktop.org/fontconfig/fontconfig/-/archive/2.18.3/fontconfig-2.18.3.tar.bz2",
+        "bytes": 544066,
+        "sha256": "8d28f79d2017cbe1fbb7da84b2502c86421b4f45860234d2f4ab5b35564c8d01"
+      },
+      {
+        "file": "freetype-2.14.3.tar.xz",
+        "url": "https://download.savannah.gnu.org/releases/freetype/freetype-2.14.3.tar.xz",
+        "bytes": 2670220,
+        "sha256": "36bc4f1cc413335368ee656c42afca65c5a3987e8768cc28cf11ba775e785a5f"
+      },
+      {
+        "file": "fribidi-1.0.17.tar.xz",
+        "url": "https://github.com/fribidi/fribidi/releases/download/v1.0.17/fribidi-1.0.17.tar.xz",
+        "bytes": 1203284,
+        "sha256": "6949dcde27d41cebad1fd741fcafc36d55a1020d2d872d4a6eb3914caabbada2"
+      },
+      {
+        "file": "glib-2.90.0.tar.xz",
+        "url": "https://download.gnome.org/sources/glib/2.90/glib-2.90.0.tar.xz",
+        "bytes": 5830480,
+        "sha256": "17d15cac2af80a33271127408e0abc2748eb297c595c2a26409e81e14e7d1b8f"
+      },
+      {
+        "file": "harfbuzz-14.5.0.tar.xz",
+        "url": "https://github.com/harfbuzz/harfbuzz/releases/download/14.5.0/harfbuzz-14.5.0.tar.xz",
+        "bytes": 20262956,
+        "sha256": "b7132e148358a45185c9feafd049dbaf243649d3c44414b3534d9c95d18592b9"
+      },
+      {
+        "file": "highway-1.4.0.tar.gz",
+        "url": "https://codeload.github.com/google/highway/tar.gz/refs/tags/1.4.0",
+        "bytes": 3691240,
+        "sha256": "e72241ac9524bb653ae52ced768b508045d4438726a303f10181a38f764a453c"
+      },
+      {
+        "file": "lcms2-2.19.1.tar.gz",
+        "url": "https://github.com/mm2/Little-CMS/releases/download/lcms2.19.1/lcms2-2.19.1.tar.gz",
+        "bytes": 5728743,
+        "sha256": "bfc54f7bab59fbc921012014a8032e4cba4abd46db47d46b76416a8c0b2815c8"
+      },
+      {
+        "file": "libarchive-3.8.9.tar.xz",
+        "url": "https://github.com/libarchive/libarchive/releases/download/v3.8.9/libarchive-3.8.9.tar.xz",
+        "bytes": 6617696,
+        "sha256": "888c934f9d95648ecb9163dc8e23ab80a476ecb81a8f1154704a227b5b676dde"
+      },
+      {
+        "file": "libexif-0.6.26.tar.xz",
+        "url": "https://github.com/libexif/libexif/releases/download/v0.6.26/libexif-0.6.26.tar.xz",
+        "bytes": 1335488,
+        "sha256": "4a055ed6575e61ca46c3172be3c753cc16c9becd0f99ec71d58dd0e471476c0c"
+      },
+      {
+        "file": "libffi-3.8.0.tar.gz",
+        "url": "https://github.com/libffi/libffi/releases/download/v3.8.0/libffi-3.8.0.tar.gz",
+        "bytes": 1581626,
+        "sha256": "7da3e2d9a171eb0a038f592ecad3ff2bb2550f3496d87b3b29ad0cf4430c0db4"
+      },
+      {
+        "file": "libheif-1.23.5.tar.gz",
+        "url": "https://github.com/strukturag/libheif/releases/download/v1.23.5/libheif-1.23.5.tar.gz",
+        "bytes": 2276803,
+        "sha256": "fd9036064c4432f0550d15072ddf34956a248279ee9aeaff0fba3fa0f77d8f1a"
+      },
+      {
+        "file": "libimagequant-2.4.1.tar.gz",
+        "url": "https://codeload.github.com/lovell/libimagequant/tar.gz/refs/tags/v2.4.1",
+        "bytes": 45792,
+        "sha256": "47d2a84b7b1052975c9d50a3d4e3cacbf57b43d84a4c3131210848ead9964dfb"
+      },
+      {
+        "file": "libpng-1.6.58.tar.xz",
+        "url": "https://download.sourceforge.net/libpng/libpng-1.6.58.tar.xz",
+        "bytes": 1070096,
+        "sha256": "28eb403f51f0f7405249132cecfe82ea5c0ef97f1b32c5a65828814ae0d34775"
+      },
+      {
+        "file": "libreoffice-core-bce0998a.tar.gz",
+        "url": "https://codeload.github.com/LibreOffice/core/tar.gz/bce0998afefdbc355585ca324285661a2170ba77",
+        "bytes": 353665929,
+        "sha256": "c046d25748ff3cd0c31e226f45ba47eb328aeba3f8d4d844b9d9db78cf1f85eb"
+      },
+      {
+        "file": "libreoffice-kit-0.1.5-build-and-patches.zip",
+        "origin": "Exact source and notices copied from the bundled component",
+        "url": null,
+        "sha256": "32036674b19ec4e663aba8670156f9fafacdb3622955aa832d365563a65816a0",
+        "bytes": 158041
+      },
+      {
+        "file": "librsvg-2.63.2.tar.xz",
+        "url": "https://download.gnome.org/sources/librsvg/2.63/librsvg-2.63.2.tar.xz",
+        "bytes": 6768408,
+        "sha256": "852b18e1a00b8605528825a27dc7748bff2a5dd254028f59dc22a34ea57e81b6"
+      },
+      {
+        "file": "libultrahdr-2.0.2.tar.gz",
+        "url": "https://codeload.github.com/google/libultrahdr/tar.gz/refs/tags/v2.0.2",
+        "bytes": 1518872,
+        "sha256": "aa8d193bb887c348c419780511dd03b374f4e07af8812b6d3f80c8537cf1ef2c"
+      },
+      {
+        "file": "libvpx-v1.16.0.tar.gz",
+        "url": "https://codeload.github.com/webmproject/libvpx/tar.gz/refs/tags/v1.16.0",
+        "bytes": 5635379,
+        "sha256": "7a479a3c66b9f5d5542a4c6a1b7d3768a983b1e5c14c60a9396edc9b649e015c"
+      },
+      {
+        "file": "libwebp-1.6.0.tar.gz",
+        "url": "https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.6.0.tar.gz",
+        "bytes": 4296070,
+        "sha256": "e4ab7009bf0629fd11982d4c2aa83964cf244cffba7347ecd39019a9e38c4564"
+      },
+      {
+        "file": "libxml2-2.15.4.tar.xz",
+        "url": "https://download.gnome.org/sources/libxml2/2.15/libxml2-2.15.4.tar.xz",
+        "bytes": 3177444,
+        "sha256": "98087fd181d9070724f3fbc65c7377db03038eb92bd882374daff44940138821"
+      },
+      {
+        "file": "mozjpeg-0826579.tar.gz",
+        "url": "https://codeload.github.com/mozilla/mozjpeg/tar.gz/0826579",
+        "bytes": 2442053,
+        "sha256": "1dc1e510d1f0a550f5dfc6f6924ba01143cbb427a02d17f102701d4d427d135d"
+      },
+      {
+        "file": "mxe-llvm-mingw-20260924.tar.gz",
+        "url": "https://codeload.github.com/kleisauke/mxe/tar.gz/refs/heads/llvm-mingw-20260924",
+        "bytes": 2666092,
+        "sha256": "4e548586ea628e40dffc872489252249168f4bb2a81469c97d29cfaeaa7d843c"
+      },
+      {
+        "file": "openh264-v2.5.0.tar.gz",
+        "url": "https://codeload.github.com/cisco/openh264/tar.gz/refs/tags/v2.5.0",
+        "bytes": 60301431,
+        "sha256": "94c8ca364db990047ec4ec3481b04ce0d791e62561ef5601443011bdc00825e3"
+      },
+      {
+        "file": "pango-1.58.2.tar.xz",
+        "url": "https://download.gnome.org/sources/pango/1.58/pango-1.58.2.tar.xz",
+        "bytes": 1918112,
+        "sha256": "342385b6ca3b7c73455d7c80a13b7dbe4489e00bc3bd4c5bd6ed4dce421e374a"
+      },
+      {
+        "file": "pixman-0.46.4.tar.gz",
+        "url": "https://cairographics.org/releases/pixman-0.46.4.tar.gz",
+        "bytes": 827198,
+        "sha256": "d09c44ebc3bd5bee7021c79f922fe8fb2fb57f7320f55e97ff9914d2346a591c"
+      },
+      {
+        "file": "proxy-libintl-0.5.tar.gz",
+        "url": "https://codeload.github.com/frida/proxy-libintl/tar.gz/refs/tags/0.5",
+        "bytes": 13056,
+        "sha256": "f7a1cbd7579baaf575c66f9d99fb6295e9b0684a28b095967cfda17857595303"
+      },
+      {
+        "file": "sharp-libvips-v1.3.4.tar.gz",
+        "url": "https://codeload.github.com/lovell/sharp-libvips/tar.gz/refs/tags/v1.3.4",
+        "bytes": 24490,
+        "sha256": "a8e96acb479c9bc1a5b7950f8f25aa6c8e1ef3a19755b45cf2f00d506aeaccc0"
+      },
+      {
+        "file": "sharp-v0.35.5.tar.gz",
+        "url": "https://codeload.github.com/lovell/sharp/tar.gz/refs/tags/v0.35.5",
+        "bytes": 41792658,
+        "sha256": "5c609162a873c7d67c903f5dab39351642eedfc967f090c85e48cb6b8dd395c1"
+      },
+      {
+        "file": "tiff-4.7.2.tar.xz",
+        "url": "https://download.osgeo.org/libtiff/tiff-4.7.2.tar.xz",
+        "bytes": 2409652,
+        "sha256": "4996f0c4f93094719b1ca5c6279b20e588773ba8a247533e486416fb662ddb88"
+      },
+      {
+        "file": "vips-8.18.7.tar.xz",
+        "url": "https://github.com/libvips/libvips/releases/download/v8.18.7/vips-8.18.7.tar.xz",
+        "bytes": 25425084,
+        "sha256": "5baaead3b0bb20ffdb9e9ff09aa9fda08620923df77b63b436654cb5e0b3bf94"
+      },
+      {
+        "file": "vips-aom-3.15.1.tar.gz",
+        "url": "https://aomedia.googlesource.com/aom/+archive/refs/tags/v3.15.1.tar.gz",
+        "bytes": 6693111,
+        "sha256": "62df665c1b970dc8e84b7c46e7ce4bc957760c042f53b2f26f1011d5615e2236"
+      },
+      {
+        "file": "zlib-ng-2.3.3.tar.gz",
+        "url": "https://codeload.github.com/zlib-ng/zlib-ng/tar.gz/refs/tags/2.3.3",
+        "bytes": 2447397,
+        "sha256": "f9c65aa9c852eb8255b636fd9f07ce1c406f061ec19a2e7d508b318ca0c907d1"
+      }
+    ],
+    "OCSR": []
+  }
+}

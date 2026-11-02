@@ -1,0 +1,329 @@
+{
+  "grid": {
+    "staged": true,
+    "compounds": [
+      {
+        "ref": "new:1",
+        "label": "1a",
+        "label_ref": "new:2",
+        "smiles": "CCO",
+        "formula": "C2H6O",
+        "cid": null,
+        "source": null,
+        "ambiguous": false,
+        "diagnostics": {
+          "atoms": 3,
+          "rings": 0,
+          "stereocenters": 0,
+          "stage": "complete",
+          "attempts": [
+            {
+              "strategy": "coordgen",
+              "ok": true
+            }
+          ],
+          "suggestion": "",
+          "strategy": "coordgen"
+        },
+        "bounds": [
+          55.93,
+          14.4058,
+          80.87,
+          21.6171
+        ],
+        "group_bounds": [
+          55.93,
+          14.4058,
+          80.87,
+          39.6171
+        ]
+      },
+      {
+        "ref": "new:3",
+        "label": "long compound label",
+        "label_ref": "new:4",
+        "smiles": "c1ccccc1",
+        "formula": "C6H6",
+        "cid": null,
+        "source": null,
+        "ambiguous": false,
+        "diagnostics": {
+          "atoms": 6,
+          "rings": 1,
+          "stereocenters": 0,
+          "stage": "complete",
+          "attempts": [
+            {
+              "strategy": "coordgen",
+              "ok": true
+            }
+          ],
+          "suggestion": "",
+          "strategy": "coordgen"
+        },
+        "bounds": [
+          292.7238,
+          3.6115,
+          317.6762,
+          32.4115
+        ],
+        "group_bounds": [
+          236.8,
+          3.6115,
+          373.6,
+          50.4115
+        ]
+      },
+      {
+        "ref": "new:5",
+        "label": "化合物三",
+        "label_ref": "new:6",
+        "smiles": "CC(=O)O",
+        "formula": "C2H4O2",
+        "cid": null,
+        "source": null,
+        "ambiguous": false,
+        "diagnostics": {
+          "atoms": 4,
+          "rings": 0,
+          "stereocenters": 0,
+          "stage": "complete",
+          "attempts": [
+            {
+              "strategy": "coordgen",
+              "ok": true
+            }
+          ],
+          "suggestion": "",
+          "strategy": "coordgen"
+        },
+        "bounds": [
+          55.9289,
+          161.2122,
+          80.8711,
+          182.8566
+        ],
+        "group_bounds": [
+          48.4,
+          161.2122,
+          88.4,
+          200.8566
+        ]
+      },
+      {
+        "ref": "new:7",
+        "label": "4",
+        "label_ref": "new:8",
+        "smiles": "C[C@H](O)C(=O)O",
+        "formula": "C3H6O3",
+        "cid": null,
+        "source": null,
+        "ambiguous": false,
+        "diagnostics": {
+          "atoms": 6,
+          "rings": 0,
+          "stereocenters": 1,
+          "stage": "complete",
+          "attempts": [
+            {
+              "strategy": "coordgen",
+              "ok": true
+            }
+          ],
+          "suggestion": "",
+          "strategy": "coordgen"
+        },
+        "bounds": [
+          286.4858,
+          154.023,
+          323.9142,
+          190.0459
+        ],
+        "group_bounds": [
+          286.4858,
+          154.023,
+          323.9142,
+          208.0459
+        ]
+      }
+    ],
+    "refs": [
+      "new:1",
+      "new:3",
+      "new:5",
+      "new:7",
+      "new:2",
+      "new:4",
+      "new:6",
+      "new:8"
+    ],
+    "columns": 2,
+    "rows": 2,
+    "cell_size": [
+      136.8,
+      54.0229540368
+    ],
+    "gap": 100,
+    "avoided_existing": false,
+    "bounds": [
+      48.4,
+      3.6115,
+      373.6,
+      208.0459
+    ],
+    "note": "同列结构中心、同行结构中心对齐；文字尺寸为估算值",
+    "document_bounds": [
+      48.4,
+      3.6115,
+      373.6,
+      208.0459
+    ],
+    "coordinate_system": "insertion-relative-pt"
+  },
+  "report": {
+    "plugin": "1.5.2",
+    "document_bounds": [
+      48.4,
+      3.61,
+      357.67,
+      208.05
+    ],
+    "group_count": 10,
+    "groups": [
+      {
+        "ref": "new:3",
+        "kind": "molecule",
+        "objects": 12,
+        "bounds": [
+          276.79,
+          3.61,
+          301.75,
+          32.41
+        ],
+        "label": "M3"
+      },
+      {
+        "ref": "new:10",
+        "kind": "text",
+        "objects": 1,
+        "bounds": [
+          129.27,
+          9.01,
+          172.47,
+          19.01
+        ],
+        "label": "st"
+      },
+      {
+        "ref": "new:1",
+        "kind": "molecule",
+        "objects": 5,
+        "bounds": [
+          55.93,
+          14.41,
+          80.87,
+          21.62
+        ],
+        "label": "M1"
+      },
+      {
+        "ref": "new:9",
+        "kind": "arrow",
+        "objects": 1,
+        "bounds": [
+          90.87,
+          27.01,
+          210.87,
+          27.01
+        ],
+        "label": "->"
+      },
+      {
+        "ref": "new:2",
+        "kind": "text",
+        "objects": 1,
+        "bounds": [
+          61.2,
+          29.62,
+          75.6,
+          39.62
+        ],
+        "label": "1a"
+      },
+      {
+        "ref": "new:4",
+        "kind": "text",
+        "objects": 1,
+        "bounds": [
+          220.87,
+          40.41,
+          357.67,
+          50.41
+        ],
+        "label": "lo"
+      },
+      {
+        "ref": "new:7",
+        "kind": "molecule",
+        "objects": 11,
+        "bounds": [
+          286.49,
+          154.02,
+          323.91,
+          190.05
+        ],
+        "label": "M7"
+      },
+      {
+        "ref": "new:5",
+        "kind": "molecule",
+        "objects": 7,
+        "bounds": [
+          55.93,
+          161.21,
+          80.87,
+          182.86
+        ],
+        "label": "M5"
+      },
+      {
+        "ref": "new:6",
+        "kind": "text",
+        "objects": 1,
+        "bounds": [
+          48.4,
+          190.86,
+          88.4,
+          200.86
+        ],
+        "label": "化合"
+      },
+      {
+        "ref": "new:8",
+        "kind": "text",
+        "objects": 1,
+        "bounds": [
+          301.6,
+          198.05,
+          308.8,
+          208.05
+        ],
+        "label": "4"
+      }
+    ],
+    "overlaps": [],
+    "suggested_insert": [
+      108.4,
+      268.05
+    ],
+    "snapshot_truncated": false,
+    "note": "组间重叠只报告面积和比例较大的对象；文字标签轻微接触、箭杆/箭头/标注内部重叠属正常，不要因此移动箭头。refs 应使用这里的 ref；suggested_insert 是文档下方建议的中心附近坐标。"
+  },
+  "expected": {
+    "atom": 19,
+    "bond": 16,
+    "text": 5,
+    "arrow": 1,
+    "path": 0
+  }
+}

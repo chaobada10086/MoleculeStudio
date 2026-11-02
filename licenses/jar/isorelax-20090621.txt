@@ -1,0 +1,249 @@
+# isorelax 20090621
+SPDX-License-Identifier: MIT
+Upstream: https://repo1.maven.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/
+Bundled at: chemistry_runtime/opsin.jar
+Status: license material supplied and reviewed on 2026-10-30.
+Note: Maven coordinates: com.sun.xml.bind.jaxb:isorelax:20090621
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/SchemaProvider.java
+SHA-256 of text: cbbcbea5051ac5b5f08f7be19d2a16ee927ff83c3090a662337836523dc7eda4
+==============================================================================
+@(#)$Id: SchemaProvider.java,v 1.6 2003/05/30 23:46:32 kkawa Exp $
+
+Copyright 2001 Kohsuke KAWAGUCHI
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/AttributesDecl.java
+SHA-256 of text: 035e234defc3ff79e69782cbc7f4efd15c999749f0e2aa8b48c57141c2e920ec
+==============================================================================
+@(#)$Id: AttributesDecl.java,v 1.3 2001/11/01 00:11:45 kkawa Exp $
+
+Copyright 2001 Kohsuke KAWAGUCHI
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/IslandVerifier.java
+SHA-256 of text: 98040e6f2efc96883def9386edf7cdbe6985a9b0f53a9de0b0a40b5243d6b155
+==============================================================================
+@(#)$Id: IslandVerifier.java,v 1.6 2003/05/30 23:46:32 kkawa Exp $
+
+Copyright 2001 MURATA Makoto, KAWAGUCHI Kohsuke
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/IslandSchemaReader.java
+SHA-256 of text: 92ea1037610d235bcf9d3241bb2d1532f92e802f03b13b513634c16ac9ec49f3
+==============================================================================
+@(#)$Id: IslandSchemaReader.java,v 1.4 2001/11/01 00:11:45 kkawa Exp $
+
+Copyright 2001 KAWAGUCHI Kohsuke
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/impl/DispatcherImpl.java
+SHA-256 of text: 96ff0798e5e267cc61a636962f6556ee64a928bc20e643f5234db8c6fa0eced1
+==============================================================================
+@(#)$Id: DispatcherImpl.java,v 1.5 2003/05/30 23:46:32 kkawa Exp $
+
+Copyright 2001 Kohsuke KAWAGUCHI
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/impl/IgnoredSchema.java
+SHA-256 of text: faa414095b828113f580accfff509dd078b1b4aede0a852465c6d75d6d446393
+==============================================================================
+@(#)$Id: IgnoredSchema.java,v 1.5 2003/05/30 23:46:32 kkawa Exp $
+
+Copyright 2001 Kohsuke KAWAGUCHI
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/Dispatcher.java
+SHA-256 of text: 9bae0b56d4c0e1cf83bf1366d6a96560cd93a5b0bde8f7340842118350e5bb84
+==============================================================================
+@(#)$Id: Dispatcher.java,v 1.6 2003/05/30 23:46:32 kkawa Exp $
+
+Copyright 2001 MURATA Makoto, KAWAGUCHI Kohsuke
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/IslandSchema.java
+SHA-256 of text: c1dcdf028b9e241aa3cb1f0bbfa9693cf231cdc5c9721ff1a8bbed08a301f2fd
+==============================================================================
+@(#)$Id: IslandSchema.java,v 1.5 2003/05/30 23:46:32 kkawa Exp $
+
+Copyright 2001 KAWAGUCHI Kohsuke
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb/isorelax/20090621/isorelax-20090621-sources.jar#org/iso_relax/dispatcher/ElementDecl.java
+SHA-256 of text: b6b62bf6726b494ccb0c1c68cdd8e81a2b308914c191d3144e0d319a3141798d
+==============================================================================
+@(#)$Id: ElementDecl.java,v 1.3 2001/11/01 00:11:45 kkawa Exp $
+
+Copyright 2001 Kohsuke KAWAGUCHI
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

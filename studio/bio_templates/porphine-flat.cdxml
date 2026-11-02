@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CDXML BondLength="30" LabelFont="3" LabelSize="10" LineWidth="0.6" BondSpacing="18">
+  <fonttable>
+    <font id="3" charset="iso-8859-1" name="Times New Roman" />
+  </fonttable>
+  <page id="1">
+    <fragment id="2">
+      <n id="10" Element="6" p="-60.1600000 -26.8800000" />
+      <n id="11" Element="6" p="-74.2400000 -53.1200000" />
+      <n id="12" Element="6" p="-53.1200000 -74.2400000" />
+      <n id="13" Element="6" p="-26.2400000 -60.8000000" />
+      <n id="14" Element="7" p="-32.6400000 -32.0000000" MoleculeStudioHydrogens="1" NumHydrogens="1">
+        <t>
+          <s font="3" size="10" face="96">NH</s>
+        </t>
+      </n>
+      <n id="15" Element="6" p="26.8800000 -60.1600000" />
+      <n id="16" Element="6" p="53.1200000 -74.2400000" />
+      <n id="17" Element="6" p="74.2400000 -53.1200000" />
+      <n id="18" Element="6" p="60.8000000 -26.2400000" />
+      <n id="19" Element="7" p="32.0000000 -32.6400000" MoleculeStudioHydrogens="1" NumHydrogens="0">
+        <t>
+          <s font="3" size="10" face="96">N</s>
+        </t>
+      </n>
+      <n id="20" Element="6" p="60.1600000 26.8800000" />
+      <n id="21" Element="6" p="74.2400000 53.1200000" />
+      <n id="22" Element="6" p="53.1200000 74.2400000" />
+      <n id="23" Element="6" p="26.2400000 60.8000000" />
+      <n id="24" Element="7" p="32.6400000 32.0000000" MoleculeStudioHydrogens="1" NumHydrogens="1">
+        <t>
+          <s font="3" size="10" face="96">NH</s>
+        </t>
+      </n>
+      <n id="25" Element="6" p="-26.8800000 60.1600000" />
+      <n id="26" Element="6" p="-53.1200000 74.2400000" />
+      <n id="27" Element="6" p="-74.2400000 53.1200000" />
+      <n id="28" Element="6" p="-60.8000000 26.2400000" />
+      <n id="29" Element="7" p="-32.0000000 32.6400000" MoleculeStudioHydrogens="1" NumHydrogens="0">
+        <t>
+          <s font="3" size="10" face="96">N</s>
+        </t>
+      </n>
+      <n id="30" Element="6" p="0.0000000 -74.2400000" />
+      <n id="31" Element="6" p="74.2400000 -0.0000000" />
+      <n id="32" Element="6" p="0.0000000 74.2400000" />
+      <n id="33" Element="6" p="-74.2400000 0.0000000" />
+      <b id="1000" B="10" E="11" Order="2" />
+      <b id="1001" B="11" E="12" Order="1" />
+      <b id="1002" B="12" E="13" Order="2" />
+      <b id="1003" B="13" E="14" Order="1" />
+      <b id="1004" B="14" E="10" Order="1" />
+      <b id="1005" B="15" E="16" Order="1" />
+      <b id="1006" B="16" E="17" Order="2" />
+      <b id="1007" B="17" E="18" Order="1" />
+      <b id="1008" B="18" E="19" Order="2" />
+      <b id="1009" B="19" E="15" Order="1" />
+      <b id="1010" B="20" E="21" Order="1" />
+      <b id="1011" B="21" E="22" Order="2" />
+      <b id="1012" B="22" E="23" Order="1" />
+      <b id="1013" B="23" E="24" Order="1" />
+      <b id="1014" B="24" E="20" Order="1" />
+      <b id="1015" B="25" E="26" Order="1" />
+      <b id="1016" B="26" E="27" Order="2" />
+      <b id="1017" B="27" E="28" Order="1" />
+      <b id="1018" B="28" E="29" Order="1" />
+      <b id="1019" B="29" E="25" Order="2" />
+      <b id="1020" B="13" E="30" Order="1" />
+      <b id="1021" B="30" E="15" Order="2" />
+      <b id="1022" B="18" E="31" Order="1" />
+      <b id="1023" B="31" E="20" Order="2" />
+      <b id="1024" B="23" E="32" Order="2" />
+      <b id="1025" B="32" E="25" Order="1" />
+      <b id="1026" B="28" E="33" Order="2" />
+      <b id="1027" B="33" E="10" Order="1" />
+    </fragment>
+  </page>
+</CDXML>

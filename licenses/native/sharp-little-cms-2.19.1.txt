@@ -1,0 +1,97 @@
+# Little CMS 2.19.1
+SPDX-License-Identifier: MIT
+Upstream: https://github.com/mm2/Little-CMS
+Bundled at: dsh_core/dsh/node_modules/@img/sharp-win32-x64/lib/libvips-42.dll
+Status: license material supplied and reviewed on 2026-10-30.
+Note: Embedded dependency of the upstream libvips build. Complete supplied source, original notices and build recipes are included.
+
+==============================================================================
+Source: third-party-sources/lcms2-2.19.1.tar.gz#lcms2-2.19.1/LICENSE
+SHA-256 of text: 6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31
+==============================================================================
+MIT License
+
+Copyright (c) 2023 Marti Maria Saguer
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the 
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject
+to the following conditions:
+
+The above copyright notice and this permission notice shall be 
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==============================================================================
+Source: third-party-sources/lcms2-2.19.1.tar.gz#lcms2-2.19.1/AUTHORS
+SHA-256 of text: 4fc685b706c3271920643ef8b856a7cfd0b559a86fe2d7075c7c1c5a9c44d663
+==============================================================================
+Main Author
+------------
+Marti Maria 
+
+
+Contributors 
+------------
+Bob Friesenhahn 
+Kai-Uwe Behrmann
+Stuart Nixon
+Jordi Vilar
+Richard Hughes
+Auke Nauta
+Chris Evans (Google)
+Lorenzo Ridolfi 
+Robin Watts (Artifex)
+Shawn Pedersen 
+Andrew Brygin 
+Samuli Suominen 
+Florian H�ch
+Aurelien Jarno 
+Claudiu Cebuc
+Michael Vhrel (Artifex)
+Michal Cihar 
+Daniel Kaneider 
+Mateusz Jurczyk (Google)
+Paul Miller
+S�bastien L�on
+Christian Schmitz
+XhmikosR
+Stanislav Brabec (SuSe)
+Leonhard Gruenschloss (Google)
+Patrick Noffke
+Christopher James Halse Rogers
+John Hein
+Thomas Weber (Debian)
+Mark Allen
+Noel Carboni
+Sergei Trofimovic
+Philipp Knechtges
+Amyspark
+Lovell Fuller
+Eli Schwartz
+Diogo Teles Sant'Anna
+Vlad Erium
+
+Special Thanks 
+--------------
+Artifex software
+AlienSkin software
+libVIPS 
+Jan Morovic
+Jos Vernon (WebSupergoo)
+Harald Schneider (Maxon)
+Christian Albrecht 
+Dimitrios Anastassakis 
+Lemke Software 
+Tim Zaman
+Amir Montazery and Open Source Technology Improvement Fund (ostif.org), Google, for fuzzer fundings.

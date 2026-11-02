@@ -1,0 +1,4514 @@
+[
+  {
+    "name": "agent-base",
+    "version": "9.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/agent-base"
+  },
+  {
+    "name": "ajv",
+    "version": "8.20.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/ajv"
+  },
+  {
+    "name": "argparse",
+    "version": "2.0.1",
+    "license": "Python-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/argparse"
+  },
+  {
+    "name": "base64-js",
+    "version": "1.5.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/base64-js"
+  },
+  {
+    "name": "bignumber.js",
+    "version": "9.3.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/bignumber.js"
+  },
+  {
+    "name": "bowser",
+    "version": "2.14.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/bowser"
+  },
+  {
+    "name": "brotli",
+    "version": "1.3.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/brotli"
+  },
+  {
+    "name": "buffer-equal-constant-time",
+    "version": "1.0.1",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/buffer-equal-constant-time"
+  },
+  {
+    "name": "bundle-name",
+    "version": "4.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/bundle-name"
+  },
+  {
+    "name": "byte-counter",
+    "version": "0.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/byte-counter"
+  },
+  {
+    "name": "bytes",
+    "version": "3.1.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/bytes"
+  },
+  {
+    "name": "cacheable-lookup",
+    "version": "7.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/cacheable-lookup"
+  },
+  {
+    "name": "cacheable-request",
+    "version": "13.0.19",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/cacheable-request"
+  },
+  {
+    "name": "chokidar",
+    "version": "5.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/chokidar"
+  },
+  {
+    "name": "clone",
+    "version": "2.1.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/clone"
+  },
+  {
+    "name": "commander",
+    "version": "15.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/commander"
+  },
+  {
+    "name": "compressible",
+    "version": "2.0.18",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/compressible"
+  },
+  {
+    "name": "compression",
+    "version": "1.8.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/compression"
+  },
+  {
+    "name": "content-type",
+    "version": "2.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/content-type"
+  },
+  {
+    "name": "cross-spawn",
+    "version": "7.0.6",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/cross-spawn"
+  },
+  {
+    "name": "data-uri-to-buffer",
+    "version": "4.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/data-uri-to-buffer"
+  },
+  {
+    "name": "debug",
+    "version": "4.4.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/debug"
+  },
+  {
+    "name": "decompress-response",
+    "version": "10.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/decompress-response"
+  },
+  {
+    "name": "default-browser",
+    "version": "5.5.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/default-browser"
+  },
+  {
+    "name": "default-browser-id",
+    "version": "5.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/default-browser-id"
+  },
+  {
+    "name": "define-lazy-prop",
+    "version": "3.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/define-lazy-prop"
+  },
+  {
+    "name": "depd",
+    "version": "2.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/depd"
+  },
+  {
+    "name": "destroy",
+    "version": "1.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/destroy"
+  },
+  {
+    "name": "detect-libc",
+    "version": "2.1.2",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/detect-libc"
+  },
+  {
+    "name": "dfa",
+    "version": "1.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/dfa"
+  },
+  {
+    "name": "diff",
+    "version": "9.0.0",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/diff"
+  },
+  {
+    "name": "ecdsa-sig-formatter",
+    "version": "1.0.11",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/ecdsa-sig-formatter"
+  },
+  {
+    "name": "ee-first",
+    "version": "1.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/ee-first"
+  },
+  {
+    "name": "encodeurl",
+    "version": "2.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/encodeurl"
+  },
+  {
+    "name": "escape-html",
+    "version": "1.0.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/escape-html"
+  },
+  {
+    "name": "etag",
+    "version": "1.8.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/etag"
+  },
+  {
+    "name": "eventsource",
+    "version": "3.0.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/eventsource"
+  },
+  {
+    "name": "eventsource-parser",
+    "version": "3.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/eventsource-parser"
+  },
+  {
+    "name": "execa",
+    "version": "10.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/execa"
+  },
+  {
+    "name": "extend",
+    "version": "3.0.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/extend"
+  },
+  {
+    "name": "fast-deep-equal",
+    "version": "3.1.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fast-deep-equal"
+  },
+  {
+    "name": "fast-sha256",
+    "version": "1.3.0",
+    "license": "Unlicense",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fast-sha256"
+  },
+  {
+    "name": "fast-uri",
+    "version": "3.1.8",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fast-uri"
+  },
+  {
+    "name": "fetch-blob",
+    "version": "3.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fetch-blob"
+  },
+  {
+    "name": "fflate",
+    "version": "0.8.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fflate"
+  },
+  {
+    "name": "figures",
+    "version": "6.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/figures"
+  },
+  {
+    "name": "fontkit",
+    "version": "2.0.4",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fontkit"
+  },
+  {
+    "name": "form-data-encoder",
+    "version": "4.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/form-data-encoder"
+  },
+  {
+    "name": "formdata-polyfill",
+    "version": "4.0.10",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/formdata-polyfill"
+  },
+  {
+    "name": "fresh",
+    "version": "2.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fresh"
+  },
+  {
+    "name": "gaxios",
+    "version": "7.3.1",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/gaxios"
+  },
+  {
+    "name": "gcp-metadata",
+    "version": "8.1.2",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/gcp-metadata"
+  },
+  {
+    "name": "get-stream",
+    "version": "9.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/get-stream"
+  },
+  {
+    "name": "google-auth-library",
+    "version": "10.9.1",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/google-auth-library"
+  },
+  {
+    "name": "google-logging-utils",
+    "version": "1.1.3",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/google-logging-utils"
+  },
+  {
+    "name": "got",
+    "version": "14.6.6",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/got"
+  },
+  {
+    "name": "http-cache-semantics",
+    "version": "4.3.0",
+    "license": "BSD-2-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/http-cache-semantics"
+  },
+  {
+    "name": "http-errors",
+    "version": "2.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/http-errors"
+  },
+  {
+    "name": "http-proxy-agent",
+    "version": "9.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/http-proxy-agent"
+  },
+  {
+    "name": "http2-wrapper",
+    "version": "2.2.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/http2-wrapper"
+  },
+  {
+    "name": "https-proxy-agent",
+    "version": "7.0.6",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/https-proxy-agent"
+  },
+  {
+    "name": "human-signals",
+    "version": "8.0.1",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/human-signals"
+  },
+  {
+    "name": "inherits",
+    "version": "2.0.4",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/inherits"
+  },
+  {
+    "name": "ipaddr.js",
+    "version": "2.5.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/ipaddr.js"
+  },
+  {
+    "name": "is-docker",
+    "version": "3.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/is-docker"
+  },
+  {
+    "name": "is-in-ssh",
+    "version": "1.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/is-in-ssh"
+  },
+  {
+    "name": "is-inside-container",
+    "version": "1.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/is-inside-container"
+  },
+  {
+    "name": "is-plain-obj",
+    "version": "4.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/is-plain-obj"
+  },
+  {
+    "name": "is-stream",
+    "version": "4.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/is-stream"
+  },
+  {
+    "name": "is-unicode-supported",
+    "version": "2.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/is-unicode-supported"
+  },
+  {
+    "name": "is-wsl",
+    "version": "3.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/is-wsl"
+  },
+  {
+    "name": "isexe",
+    "version": "2.0.0",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/isexe"
+  },
+  {
+    "name": "jose",
+    "version": "6.2.12",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/jose"
+  },
+  {
+    "name": "js-tokens",
+    "version": "4.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/js-tokens"
+  },
+  {
+    "name": "js-yaml",
+    "version": "4.3.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/js-yaml"
+  },
+  {
+    "name": "jsbi",
+    "version": "4.3.2",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/jsbi"
+  },
+  {
+    "name": "json-bigint",
+    "version": "1.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/json-bigint"
+  },
+  {
+    "name": "json-schema-to-ts",
+    "version": "3.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/json-schema-to-ts"
+  },
+  {
+    "name": "json-schema-traverse",
+    "version": "1.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/json-schema-traverse"
+  },
+  {
+    "name": "jwa",
+    "version": "2.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/jwa"
+  },
+  {
+    "name": "jws",
+    "version": "4.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/jws"
+  },
+  {
+    "name": "keyv",
+    "version": "5.6.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/keyv"
+  },
+  {
+    "name": "koffi",
+    "version": "3.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/koffi"
+  },
+  {
+    "name": "long",
+    "version": "5.3.2",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/long"
+  },
+  {
+    "name": "lowercase-keys",
+    "version": "3.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/lowercase-keys"
+  },
+  {
+    "name": "mime-db",
+    "version": "1.54.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/mime-db"
+  },
+  {
+    "name": "mime-types",
+    "version": "3.0.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/mime-types"
+  },
+  {
+    "name": "mimic-response",
+    "version": "4.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/mimic-response"
+  },
+  {
+    "name": "minisearch",
+    "version": "7.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/minisearch"
+  },
+  {
+    "name": "ms",
+    "version": "2.1.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/ms"
+  },
+  {
+    "name": "negotiator",
+    "version": "0.6.4",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/negotiator"
+  },
+  {
+    "name": "node-addon-api",
+    "version": "7.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/node-addon-api"
+  },
+  {
+    "name": "node-addon-native-custom-loader",
+    "version": "0.1.9",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/node-addon-native-custom-loader"
+  },
+  {
+    "name": "node-addon-require-builtin",
+    "version": "0.1.9",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/node-addon-require-builtin"
+  },
+  {
+    "name": "node-addon-require-builtin-win32-x64-msvc",
+    "version": "0.1.9",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/node-addon-require-builtin-win32-x64-msvc"
+  },
+  {
+    "name": "node-domexception",
+    "version": "1.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/node-domexception"
+  },
+  {
+    "name": "node-fetch",
+    "version": "3.3.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/node-fetch"
+  },
+  {
+    "name": "node-pty",
+    "version": "1.2.0-beta.15",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/node-pty"
+  },
+  {
+    "name": "normalize-url",
+    "version": "8.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/normalize-url"
+  },
+  {
+    "name": "npm-run-path",
+    "version": "6.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/npm-run-path"
+  },
+  {
+    "name": "on-finished",
+    "version": "2.4.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/on-finished"
+  },
+  {
+    "name": "on-headers",
+    "version": "1.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/on-headers"
+  },
+  {
+    "name": "open",
+    "version": "11.0.4",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/open"
+  },
+  {
+    "name": "openai",
+    "version": "7.19.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/openai"
+  },
+  {
+    "name": "p-cancelable",
+    "version": "4.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/p-cancelable"
+  },
+  {
+    "name": "p-limit",
+    "version": "7.3.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/p-limit"
+  },
+  {
+    "name": "p-retry",
+    "version": "4.6.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/p-retry"
+  },
+  {
+    "name": "pako",
+    "version": "0.2.9",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/pako"
+  },
+  {
+    "name": "parse-ms",
+    "version": "4.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/parse-ms"
+  },
+  {
+    "name": "parseurl",
+    "version": "1.3.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/parseurl"
+  },
+  {
+    "name": "partial-json",
+    "version": "0.1.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/partial-json"
+  },
+  {
+    "name": "path-key",
+    "version": "4.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/path-key"
+  },
+  {
+    "name": "picocolors",
+    "version": "1.1.1",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/picocolors"
+  },
+  {
+    "name": "picomatch",
+    "version": "4.0.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/picomatch"
+  },
+  {
+    "name": "pkce-challenge",
+    "version": "5.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/pkce-challenge"
+  },
+  {
+    "name": "powershell-utils",
+    "version": "0.2.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/powershell-utils"
+  },
+  {
+    "name": "pretty-ms",
+    "version": "9.3.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/pretty-ms"
+  },
+  {
+    "name": "protobufjs",
+    "version": "7.6.6",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/protobufjs"
+  },
+  {
+    "name": "proxy-agent-negotiate",
+    "version": "1.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/proxy-agent-negotiate"
+  },
+  {
+    "name": "quick-lru",
+    "version": "5.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/quick-lru"
+  },
+  {
+    "name": "range-parser",
+    "version": "1.3.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/range-parser"
+  },
+  {
+    "name": "readdirp",
+    "version": "5.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/readdirp"
+  },
+  {
+    "name": "require-from-string",
+    "version": "2.0.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/require-from-string"
+  },
+  {
+    "name": "resolve-alpn",
+    "version": "1.2.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/resolve-alpn"
+  },
+  {
+    "name": "resolve.exports",
+    "version": "2.0.4",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/resolve.exports"
+  },
+  {
+    "name": "responselike",
+    "version": "4.0.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/responselike"
+  },
+  {
+    "name": "restructure",
+    "version": "3.0.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/restructure"
+  },
+  {
+    "name": "retry",
+    "version": "0.13.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/retry"
+  },
+  {
+    "name": "run-applescript",
+    "version": "7.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/run-applescript"
+  },
+  {
+    "name": "safe-buffer",
+    "version": "5.2.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/safe-buffer"
+  },
+  {
+    "name": "saxes",
+    "version": "6.0.0",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/saxes"
+  },
+  {
+    "name": "semver",
+    "version": "7.8.5",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/semver"
+  },
+  {
+    "name": "send",
+    "version": "1.2.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/send"
+  },
+  {
+    "name": "serve-static",
+    "version": "2.2.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/serve-static"
+  },
+  {
+    "name": "setprototypeof",
+    "version": "1.2.0",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/setprototypeof"
+  },
+  {
+    "name": "sharp",
+    "version": "0.35.5",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/sharp"
+  },
+  {
+    "name": "shebang-command",
+    "version": "2.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/shebang-command"
+  },
+  {
+    "name": "shebang-regex",
+    "version": "3.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/shebang-regex"
+  },
+  {
+    "name": "sherpa-onnx-node",
+    "version": "1.13.8",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/sherpa-onnx-node"
+  },
+  {
+    "name": "sherpa-onnx-win-x64",
+    "version": "1.13.8",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/sherpa-onnx-win-x64"
+  },
+  {
+    "name": "signal-exit",
+    "version": "4.1.0",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/signal-exit"
+  },
+  {
+    "name": "standardwebhooks",
+    "version": "1.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/standardwebhooks"
+  },
+  {
+    "name": "statuses",
+    "version": "2.0.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/statuses"
+  },
+  {
+    "name": "strip-final-newline",
+    "version": "4.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/strip-final-newline"
+  },
+  {
+    "name": "tiny-inflate",
+    "version": "1.0.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/tiny-inflate"
+  },
+  {
+    "name": "toidentifier",
+    "version": "1.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/toidentifier"
+  },
+  {
+    "name": "ts-algebra",
+    "version": "2.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/ts-algebra"
+  },
+  {
+    "name": "tslib",
+    "version": "2.8.1",
+    "license": "0BSD",
+    "location": "AI 套件/dsh_core/dsh/node_modules/tslib"
+  },
+  {
+    "name": "turndown",
+    "version": "7.2.4",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/turndown"
+  },
+  {
+    "name": "type-fest",
+    "version": "4.41.0",
+    "license": "(MIT OR CC0-1.0)",
+    "location": "AI 套件/dsh_core/dsh/node_modules/type-fest"
+  },
+  {
+    "name": "typebox",
+    "version": "1.3.27",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/typebox"
+  },
+  {
+    "name": "undici",
+    "version": "8.11.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/undici"
+  },
+  {
+    "name": "undici-types",
+    "version": "8.9.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/undici-types"
+  },
+  {
+    "name": "unicode-properties",
+    "version": "1.4.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/unicode-properties"
+  },
+  {
+    "name": "unicode-trie",
+    "version": "2.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/unicode-trie"
+  },
+  {
+    "name": "unicorn-magic",
+    "version": "0.3.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/unicorn-magic"
+  },
+  {
+    "name": "vary",
+    "version": "1.1.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/vary"
+  },
+  {
+    "name": "web-streams-polyfill",
+    "version": "3.3.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/web-streams-polyfill"
+  },
+  {
+    "name": "which",
+    "version": "2.0.2",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/which"
+  },
+  {
+    "name": "which-command",
+    "version": "0.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/which-command"
+  },
+  {
+    "name": "ws",
+    "version": "8.22.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/ws"
+  },
+  {
+    "name": "wsl-utils",
+    "version": "1.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/wsl-utils"
+  },
+  {
+    "name": "xmlchars",
+    "version": "2.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/xmlchars"
+  },
+  {
+    "name": "yaml",
+    "version": "2.9.1",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/yaml"
+  },
+  {
+    "name": "yocto-queue",
+    "version": "1.2.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/yocto-queue"
+  },
+  {
+    "name": "yoctocolors",
+    "version": "2.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/yoctocolors"
+  },
+  {
+    "name": "zod",
+    "version": "4.4.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod"
+  },
+  {
+    "name": "@agentclientprotocol/sdk",
+    "version": "1.4.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@agentclientprotocol/sdk"
+  },
+  {
+    "name": "@anthropic-ai/sdk",
+    "version": "0.129.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@anthropic-ai/sdk"
+  },
+  {
+    "name": "@aws/lambda-invoke-store",
+    "version": "0.3.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws/lambda-invoke-store"
+  },
+  {
+    "name": "@aws-sdk/client-bedrock-runtime",
+    "version": "3.1127.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/client-bedrock-runtime"
+  },
+  {
+    "name": "@aws-sdk/core",
+    "version": "3.978.3",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/core"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-env",
+    "version": "3.972.74",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-env"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-http",
+    "version": "3.972.76",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-http"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-ini",
+    "version": "3.973.19",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-ini"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-login",
+    "version": "3.972.81",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-login"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-node",
+    "version": "3.972.86",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-node"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-process",
+    "version": "3.972.74",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-process"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-sso",
+    "version": "3.973.18",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-sso"
+  },
+  {
+    "name": "@aws-sdk/credential-provider-web-identity",
+    "version": "3.972.80",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/credential-provider-web-identity"
+  },
+  {
+    "name": "@aws-sdk/eventstream-handler-node",
+    "version": "3.972.36",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/eventstream-handler-node"
+  },
+  {
+    "name": "@aws-sdk/middleware-eventstream",
+    "version": "3.972.31",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/middleware-eventstream"
+  },
+  {
+    "name": "@aws-sdk/middleware-websocket",
+    "version": "3.972.56",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/middleware-websocket"
+  },
+  {
+    "name": "@aws-sdk/nested-clients",
+    "version": "3.997.48",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/nested-clients"
+  },
+  {
+    "name": "@aws-sdk/signature-v4-multi-region",
+    "version": "3.996.48",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/signature-v4-multi-region"
+  },
+  {
+    "name": "@aws-sdk/token-providers",
+    "version": "3.1150.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/token-providers"
+  },
+  {
+    "name": "@aws-sdk/types",
+    "version": "3.974.6",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/types"
+  },
+  {
+    "name": "@aws-sdk/xml-builder",
+    "version": "3.972.41",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/xml-builder"
+  },
+  {
+    "name": "@aws-sdk/token-providers",
+    "version": "3.1127.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@aws-sdk/client-bedrock-runtime/node_modules/@aws-sdk/token-providers"
+  },
+  {
+    "name": "@babel/code-frame",
+    "version": "7.29.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@babel/code-frame"
+  },
+  {
+    "name": "@babel/helper-validator-identifier",
+    "version": "7.29.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@babel/helper-validator-identifier"
+  },
+  {
+    "name": "@babel/runtime",
+    "version": "7.29.10",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@babel/runtime"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@babel/runtime/helpers/esm"
+  },
+  {
+    "name": "@deepseek-ai/cordis",
+    "version": "4.0.5",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "name": "@deepseek-ai/cordis-plugin-group",
+    "version": "1.0.5",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/cordis-plugin-group"
+  },
+  {
+    "name": "@deepseek-ai/cordis-plugin-include",
+    "version": "1.0.10",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/cordis-plugin-include"
+  },
+  {
+    "name": "@deepseek-ai/cordis-plugin-loader",
+    "version": "1.0.6",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/cordis-plugin-loader"
+  },
+  {
+    "name": "@deepseek-ai/cordis-plugin-timer",
+    "version": "1.1.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/cordis-plugin-timer"
+  },
+  {
+    "name": "@deepseek-ai/cosmokit",
+    "version": "1.8.6",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/cosmokit"
+  },
+  {
+    "name": "@deepseek-ai/dsh",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh"
+  },
+  {
+    "name": "@deepseek-ai/dsh-acp",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-acp"
+  },
+  {
+    "name": "@deepseek-ai/dsh-acp-app",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-acp-app"
+  },
+  {
+    "name": "@deepseek-ai/dsh-agent",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent"
+  },
+  {
+    "name": "@deepseek-ai/dsh-agent-default-model",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-default-model"
+  },
+  {
+    "name": "@deepseek-ai/dsh-agent-instructions",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-instructions"
+  },
+  {
+    "name": "@deepseek-ai/dsh-agent-loop",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-loop"
+  },
+  {
+    "name": "@deepseek-ai/dsh-agent-preset",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-preset"
+  },
+  {
+    "name": "@deepseek-ai/dsh-agent-preset-registry",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-preset-registry"
+  },
+  {
+    "name": "@deepseek-ai/dsh-agent-tool-presentation",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-tool-presentation"
+  },
+  {
+    "name": "@deepseek-ai/dsh-anonymous-user-id",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-anonymous-user-id"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-account-controller",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-account-controller"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-gateway",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-gateway"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-job-controller",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-job-controller"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-remote-access",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-remote-access"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-remotes",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-remotes"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-session-controller",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-session-controller"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-settings-controller",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-settings-controller"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-terminal-controller",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-terminal-controller"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-workspace-controller",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-workspace-controller"
+  },
+  {
+    "name": "@deepseek-ai/dsh-api-workspace-files",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-api-workspace-files"
+  },
+  {
+    "name": "@deepseek-ai/dsh-app-boot",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-app-boot"
+  },
+  {
+    "name": "@deepseek-ai/dsh-atomic-write",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-atomic-write"
+  },
+  {
+    "name": "@deepseek-ai/dsh-attachment",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-attachment"
+  },
+  {
+    "name": "@deepseek-ai/dsh-attachment-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-attachment-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-authorization",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-authorization"
+  },
+  {
+    "name": "@deepseek-ai/dsh-base",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-base"
+  },
+  {
+    "name": "@deepseek-ai/dsh-bash-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-bash-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-bash-sandbox",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-bash-sandbox"
+  },
+  {
+    "name": "@deepseek-ai/dsh-brand",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-brand"
+  },
+  {
+    "name": "@deepseek-ai/dsh-chunked-list",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-chunked-list"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-connection",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-connection"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-file-upload",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-file-upload"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-hmr",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-hmr"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-locale",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-locale"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-modules",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-modules"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-product-analytics",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-product-analytics"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-resources",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-resources"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-shortcuts",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-shortcuts"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-agent-preset",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-agent-preset"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-approval",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-approval"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-attachment",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-attachment"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-brand-official",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-brand-official"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-chat",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-chat"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-commands",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-commands"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-conversation",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-conversation"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-cordis",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-cordis"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-deepseek-model-label-1017",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-deepseek-model-label-1017"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-deliverables",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-deliverables"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-directory-picker-browse",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-directory-picker-browse"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-directory-picker-native",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-directory-picker-native"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-goal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-goal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-input-trigger",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-input-trigger"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-jobs",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-jobs"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-layout",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-layout"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-message-feedback",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-message-feedback"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-model-selection",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-model-selection"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-open-in-app",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-open-in-app"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-permission-presets",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-permission-presets"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-plan",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-plan"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-plugin-manager",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-plugin-manager"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-plugin-market",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-plugin-market"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-reference",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-reference"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-renderer",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-renderer"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-schedule",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-schedule"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-secret-mask",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-secret-mask"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-session",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-session"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-account",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-account"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-agent-loop",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-agent-loop"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-general",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-general"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-models",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-models"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-plugin-inventory",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-plugin-inventory"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-plugins",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-plugins"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-session-log",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-session-log"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-shell",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-shell"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-subagent",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-subagent"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-settings-web-search",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-settings-web-search"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-shortcuts",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-shortcuts"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-sidebar",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-sidebar"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-sidebar-browser",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-sidebar-browser"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-sidebar-documentpreview",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-sidebar-documentpreview"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-sidebar-files",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-sidebar-files"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-sidebar-right",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-sidebar-right"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-sidebar-terminal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-sidebar-terminal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-skill",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-skill"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-subagent",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-subagent"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-theme",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-theme"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-tool",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-tool"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-trajectory",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-trajectory"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-user-questions",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-user-questions"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-workflow-run",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-workflow-run"
+  },
+  {
+    "name": "@deepseek-ai/dsh-client-ui-workspace",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-client-ui-workspace"
+  },
+  {
+    "name": "@deepseek-ai/dsh-cmdline",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-cmdline"
+  },
+  {
+    "name": "@deepseek-ai/dsh-command-compact",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-command-compact"
+  },
+  {
+    "name": "@deepseek-ai/dsh-command-feedback",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-command-feedback"
+  },
+  {
+    "name": "@deepseek-ai/dsh-command-goal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-command-goal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-commands",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-commands"
+  },
+  {
+    "name": "@deepseek-ai/dsh-compaction",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-compaction"
+  },
+  {
+    "name": "@deepseek-ai/dsh-compaction-basic",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-compaction-basic"
+  },
+  {
+    "name": "@deepseek-ai/dsh-compaction-image-offload",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-compaction-image-offload"
+  },
+  {
+    "name": "@deepseek-ai/dsh-compaction-tool-result-pruner",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-compaction-tool-result-pruner"
+  },
+  {
+    "name": "@deepseek-ai/dsh-config-editor",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-config-editor"
+  },
+  {
+    "name": "@deepseek-ai/dsh-cordis-client-runner",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-cordis-client-runner"
+  },
+  {
+    "name": "@deepseek-ai/dsh-cordis-host-runner",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-cordis-host-runner"
+  },
+  {
+    "name": "@deepseek-ai/dsh-credentials",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-credentials"
+  },
+  {
+    "name": "@deepseek-ai/dsh-credentials-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-credentials-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-deepseek-account",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-deepseek-account"
+  },
+  {
+    "name": "@deepseek-ai/dsh-deepseek-account-platform",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-deepseek-account-platform"
+  },
+  {
+    "name": "@deepseek-ai/dsh-deepseek-llm-api-extensions",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-deepseek-llm-api-extensions"
+  },
+  {
+    "name": "@deepseek-ai/dsh-deque",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-deque"
+  },
+  {
+    "name": "@deepseek-ai/dsh-desktop-host",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-desktop-host"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-agent-team",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-agent-team"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-agent-team-profile",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-agent-team-profile"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-api-speech-to-text",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-api-speech-to-text"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-auto-review",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-auto-review"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-badge-skill-bundle",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-badge-skill-bundle"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-client-ui-agent-team",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-agent-team"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-client-ui-cot-translation",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-client-ui-voice-input",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-voice-input"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-cot-translation-bundle",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-cot-translation-bundle"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-inspector",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-inspector"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-inspector-profile",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-inspector-profile"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-plugin-market-bundle",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-plugin-market-bundle"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-ralph-bundle",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-ralph-bundle"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-session-inspector",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-session-inspector"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-session-search",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-session-search"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-session-titles-bundle",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-session-titles-bundle"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-speech-to-text",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-speech-to-text"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-speech-to-text-sensevoice",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-speech-to-text-sensevoice"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-terminal-bundle",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-terminal-bundle"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-tool-agent-team",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-tool-agent-team"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-tool-worktree",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-tool-worktree"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-translator",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-translator"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-voice-input-bundle",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-voice-input-bundle"
+  },
+  {
+    "name": "@deepseek-ai/dsh-experimental-worktree",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-worktree"
+  },
+  {
+    "name": "@deepseek-ai/dsh-file-reference",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-file-reference"
+  },
+  {
+    "name": "@deepseek-ai/dsh-file-reference-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-file-reference-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-fs",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-fs"
+  },
+  {
+    "name": "@deepseek-ai/dsh-fs-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-fs-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-fs-observation-policy",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-fs-observation-policy"
+  },
+  {
+    "name": "@deepseek-ai/dsh-fs-sandbox",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-fs-sandbox"
+  },
+  {
+    "name": "@deepseek-ai/dsh-goal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-goal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-goal-round-driver",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-goal-round-driver"
+  },
+  {
+    "name": "@deepseek-ai/dsh-harness-dev-context",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-harness-dev-context"
+  },
+  {
+    "name": "@deepseek-ai/dsh-headless",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-headless"
+  },
+  {
+    "name": "@deepseek-ai/dsh-hmr",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-hmr"
+  },
+  {
+    "name": "@deepseek-ai/dsh-home-paths",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-home-paths"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-directory-picker",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-directory-picker"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-directory-picker-auto",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-directory-picker-auto"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-directory-picker-browse",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-directory-picker-browse"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-directory-picker-native",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-directory-picker-native"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-frontend-static",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-frontend-static"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-open-in-app",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-open-in-app"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-plugin-inventory",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-plugin-inventory"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-product-telemetry-otel",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-product-telemetry-otel"
+  },
+  {
+    "name": "@deepseek-ai/dsh-host-webserver",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-webserver"
+  },
+  {
+    "name": "@deepseek-ai/dsh-http-proxy",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-http-proxy"
+  },
+  {
+    "name": "@deepseek-ai/dsh-jobs",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-jobs"
+  },
+  {
+    "name": "@deepseek-ai/dsh-jobs-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-jobs-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-launch-environment",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-launch-environment"
+  },
+  {
+    "name": "@deepseek-ai/dsh-lazy-require",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-lazy-require"
+  },
+  {
+    "name": "@deepseek-ai/dsh-llm",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-llm"
+  },
+  {
+    "name": "@deepseek-ai/dsh-llm-deepseek",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-llm-deepseek"
+  },
+  {
+    "name": "@deepseek-ai/dsh-llm-deepseek-account",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-llm-deepseek-account"
+  },
+  {
+    "name": "@deepseek-ai/dsh-llm-deepseek-api-key",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-llm-deepseek-api-key"
+  },
+  {
+    "name": "@deepseek-ai/dsh-llm-pi-ai",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-llm-pi-ai"
+  },
+  {
+    "name": "@deepseek-ai/dsh-llm-retry",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-llm-retry"
+  },
+  {
+    "name": "@deepseek-ai/dsh-mcp-client",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-mcp-client"
+  },
+  {
+    "name": "@deepseek-ai/dsh-mcp-resources",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-mcp-resources"
+  },
+  {
+    "name": "@deepseek-ai/dsh-message-feedback",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-message-feedback"
+  },
+  {
+    "name": "@deepseek-ai/dsh-native-command",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-native-command"
+  },
+  {
+    "name": "@deepseek-ai/dsh-office-to-pdf",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-office-to-pdf"
+  },
+  {
+    "name": "@deepseek-ai/dsh-otel",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-otel"
+  },
+  {
+    "name": "@deepseek-ai/dsh-output-retention",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-output-retention"
+  },
+  {
+    "name": "@deepseek-ai/dsh-package-manifest",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-package-manifest"
+  },
+  {
+    "name": "@deepseek-ai/dsh-permission-presets",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-permission-presets"
+  },
+  {
+    "name": "@deepseek-ai/dsh-persona",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-persona"
+  },
+  {
+    "name": "@deepseek-ai/dsh-plan-mode",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plan-mode"
+  },
+  {
+    "name": "@deepseek-ai/dsh-plugin-manager",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-manager"
+  },
+  {
+    "name": "@deepseek-ai/dsh-plugin-market",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market"
+  },
+  {
+    "name": "@deepseek-ai/dsh-plugin-market-index",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market-index"
+  },
+  {
+    "name": "@deepseek-ai/dsh-plugin-package-inventory-deepseek",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-package-inventory-deepseek"
+  },
+  {
+    "name": "@deepseek-ai/dsh-ptc-runtime",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-ptc-runtime"
+  },
+  {
+    "name": "@deepseek-ai/dsh-ptc-runtime-node",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-ptc-runtime-node"
+  },
+  {
+    "name": "@deepseek-ai/dsh-pwsh-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-pwsh-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-pwsh-sandbox",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-pwsh-sandbox"
+  },
+  {
+    "name": "@deepseek-ai/dsh-repeat-tool-reminder",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-repeat-tool-reminder"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sandbox",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sandbox"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sandbox-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sandbox-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sandbox-policy",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sandbox-policy"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sandbox-windows-acl",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sandbox-windows-acl"
+  },
+  {
+    "name": "@deepseek-ai/dsh-schedule",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-schedule"
+  },
+  {
+    "name": "@deepseek-ai/dsh-scope",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-scope"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sdk-app",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sdk-app"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sdk-jsonrpc-server",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sdk-jsonrpc-server"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sdk-minimal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sdk-minimal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-sdk-protocol",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-sdk-protocol"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-checkpoint-policy",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-checkpoint-policy"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-format",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-format"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-format-catalog",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-format-catalog"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-format-v0-to-v1",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-format-v0-to-v1"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-format-v1-to-v2",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-format-v1-to-v2"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-format-v2-to-v3",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-format-v2-to-v3"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-format-v3-to-v4",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-format-v3-to-v4"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-log-deepseek",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-log-deepseek"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-log-export",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-log-export"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-persistence",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-persistence"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-persistence-jsonl",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-persistence-jsonl"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-projection",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-projection"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-projection-cache",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-projection-cache"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-query",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-query"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-query-sqlite",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-query-sqlite"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-reference",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-reference"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-stats",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-stats"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-telemetry",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-telemetry"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-telemetry-otel",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-telemetry-otel"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-title",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-title"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-title-all-prompts-llm",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-title-all-prompts-llm"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-title-first-prompt-llm",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-title-first-prompt-llm"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-title-llm",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-title-llm"
+  },
+  {
+    "name": "@deepseek-ai/dsh-session-turn-outline",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-turn-outline"
+  },
+  {
+    "name": "@deepseek-ai/dsh-settings",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-settings"
+  },
+  {
+    "name": "@deepseek-ai/dsh-shell",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-shell"
+  },
+  {
+    "name": "@deepseek-ai/dsh-shell-env",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-shell-env"
+  },
+  {
+    "name": "@deepseek-ai/dsh-skill",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-skill"
+  },
+  {
+    "name": "@deepseek-ai/dsh-skill-badge",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-skill-badge"
+  },
+  {
+    "name": "@deepseek-ai/dsh-skill-filesystem",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-skill-filesystem"
+  },
+  {
+    "name": "@deepseek-ai/dsh-skill-office",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-skill-office"
+  },
+  {
+    "name": "@deepseek-ai/dsh-spill",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-spill"
+  },
+  {
+    "name": "@deepseek-ai/dsh-spill-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-spill-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-spill-policy",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-spill-policy"
+  },
+  {
+    "name": "@deepseek-ai/dsh-storage",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-storage"
+  },
+  {
+    "name": "@deepseek-ai/dsh-storage-domain",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-storage-domain"
+  },
+  {
+    "name": "@deepseek-ai/dsh-storage-json",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-storage-json"
+  },
+  {
+    "name": "@deepseek-ai/dsh-subagent",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-subagent"
+  },
+  {
+    "name": "@deepseek-ai/dsh-subagent-fork-in-process",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-subagent-fork-in-process"
+  },
+  {
+    "name": "@deepseek-ai/dsh-subagent-spawn-in-process",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-subagent-spawn-in-process"
+  },
+  {
+    "name": "@deepseek-ai/dsh-subprocess",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-subprocess"
+  },
+  {
+    "name": "@deepseek-ai/dsh-subprocess-local",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-subprocess-local"
+  },
+  {
+    "name": "@deepseek-ai/dsh-system-prompt",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-system-prompt"
+  },
+  {
+    "name": "@deepseek-ai/dsh-terminal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-terminal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-terminal-bash",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-terminal-bash"
+  },
+  {
+    "name": "@deepseek-ai/dsh-time-context",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-time-context"
+  },
+  {
+    "name": "@deepseek-ai/dsh-timeout",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-timeout"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tmux-context",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tmux-context"
+  },
+  {
+    "name": "@deepseek-ai/dsh-token-meter",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-token-meter"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-ask-user",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-ask-user"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-bash",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-bash"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-bash-persistent",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-bash-persistent"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-call-timeout-policy",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-call-timeout-policy"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-cordis",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-cordis"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-fs",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-fs"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-fs-search",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-fs-search"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-goal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-goal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-jobs",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-jobs"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-present",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-present"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-pwsh",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-pwsh"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-pwsh-persistent",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-pwsh-persistent"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-ralph",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-ralph"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-schedule",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-schedule"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-session-query",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-session-query"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-skill",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-skill"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-str-replace-editor",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-str-replace-editor"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-subagent",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-subagent"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-subagent-control",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-subagent-control"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-terminal",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-terminal"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-todo",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-todo"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-web",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-web"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-workflow",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-workflow"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-working-directory",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-working-directory"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tool-workspace-dependencies",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tool-workspace-dependencies"
+  },
+  {
+    "name": "@deepseek-ai/dsh-tools",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "name": "@deepseek-ai/dsh-typert-loader",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-loader"
+  },
+  {
+    "name": "@deepseek-ai/dsh-typert-protocol",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol"
+  },
+  {
+    "name": "@deepseek-ai/dsh-typert-registry",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-registry"
+  },
+  {
+    "name": "@deepseek-ai/dsh-user-approval",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-user-approval"
+  },
+  {
+    "name": "@deepseek-ai/dsh-user-questions",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-user-questions"
+  },
+  {
+    "name": "@deepseek-ai/dsh-util-code-language",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-util-code-language"
+  },
+  {
+    "name": "@deepseek-ai/dsh-util-crypto",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-util-crypto"
+  },
+  {
+    "name": "@deepseek-ai/dsh-util-time",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-util-time"
+  },
+  {
+    "name": "@deepseek-ai/dsh-util-values",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-util-values"
+  },
+  {
+    "name": "@deepseek-ai/dsh-util-workspace-path",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-util-workspace-path"
+  },
+  {
+    "name": "@deepseek-ai/dsh-web",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-web"
+  },
+  {
+    "name": "@deepseek-ai/dsh-web-app",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-web-app"
+  },
+  {
+    "name": "@deepseek-ai/dsh-web-deepseek-api",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-web-deepseek-api"
+  },
+  {
+    "name": "@deepseek-ai/dsh-web-fetch-http",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-web-fetch-http"
+  },
+  {
+    "name": "@deepseek-ai/dsh-web-frontend",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-web-frontend"
+  },
+  {
+    "name": "@deepseek-ai/dsh-web-search-deepseek",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-web-search-deepseek"
+  },
+  {
+    "name": "@deepseek-ai/dsh-win32-process",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-win32-process"
+  },
+  {
+    "name": "@deepseek-ai/dsh-workflow",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-workflow"
+  },
+  {
+    "name": "@deepseek-ai/dsh-workflow-ptc",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-workflow-ptc"
+  },
+  {
+    "name": "@deepseek-ai/dsh-working-directory",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory"
+  },
+  {
+    "name": "@deepseek-ai/dsh-workspace",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-workspace"
+  },
+  {
+    "name": "@deepseek-ai/dsh-workspace-changes",
+    "version": "0.2.1-rc.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-workspace-changes"
+  },
+  {
+    "name": "@deepseek-ai/libreoffice-kit",
+    "version": "0.1.5",
+    "license": "MPL-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/libreoffice-kit"
+  },
+  {
+    "name": "@deepseek-ai/libreoffice-kit-win32-x64",
+    "version": "0.1.5",
+    "license": "MPL-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/libreoffice-kit-win32-x64"
+  },
+  {
+    "name": "@deepseek-ai/node-addon-system",
+    "version": "0.1.2",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/node-addon-system"
+  },
+  {
+    "name": "@deepseek-ai/schemastery",
+    "version": "3.18.5",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/schemastery"
+  },
+  {
+    "name": "@local/my-decoration",
+    "version": "1.0.0",
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-preset/skills/cordis-plugin-development/templates/decoration"
+  },
+  {
+    "name": "@local/demo-mcp",
+    "version": "1.0.0",
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-agent-preset/skills/cordis-plugin-development/templates/mcp"
+  },
+  {
+    "name": "zod",
+    "version": "4.6.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/v3"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/v4"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/v4-mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/v4/classic"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/v4/core"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/v4/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-experimental-client-ui-cot-translation/node_modules/zod/v4/mini"
+  },
+  {
+    "name": "negotiator",
+    "version": "1.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-host-webserver/node_modules/negotiator"
+  },
+  {
+    "name": "zod",
+    "version": "4.6.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/v3"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/v4"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/v4-mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/v4/classic"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/v4/core"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/v4/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-plugin-market/node_modules/zod/v4/mini"
+  },
+  {
+    "name": "fflate",
+    "version": "0.8.3",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-session-log-export/node_modules/fflate"
+  },
+  {
+    "name": "zod",
+    "version": "4.6.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/v3"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/v4"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/v4-mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/v4/classic"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/v4/core"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/v4/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-typert-protocol/node_modules/zod/v4/mini"
+  },
+  {
+    "name": "zod",
+    "version": "4.6.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/v3"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/v4"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/v4-mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/v4/classic"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/v4/core"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/v4/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@deepseek-ai/dsh-working-directory/node_modules/zod/v4/mini"
+  },
+  {
+    "name": "@earendil-works/pi-ai",
+    "version": "1.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@earendil-works/pi-ai"
+  },
+  {
+    "name": "@earendil-works/pi-telemetry",
+    "version": "1.3.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@earendil-works/pi-telemetry"
+  },
+  {
+    "name": "https-proxy-agent",
+    "version": "9.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@earendil-works/pi-ai/node_modules/https-proxy-agent"
+  },
+  {
+    "name": "@eslint-community/regexpp",
+    "version": "4.12.2",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@eslint-community/regexpp"
+  },
+  {
+    "name": "@google/genai",
+    "version": "2.21.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@google/genai"
+  },
+  {
+    "name": "@google/genai/node",
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@google/genai/node"
+  },
+  {
+    "name": "@google/genai/web",
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@google/genai/web"
+  },
+  {
+    "name": "@img/colour",
+    "version": "1.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@img/colour"
+  },
+  {
+    "name": "@img/sharp-win32-x64",
+    "version": "0.35.5",
+    "license": "Apache-2.0 AND LGPL-3.0-or-later",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@img/sharp-win32-x64"
+  },
+  {
+    "name": "@joplin/turndown-plugin-gfm",
+    "version": "1.0.68",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@joplin/turndown-plugin-gfm"
+  },
+  {
+    "name": "@js-temporal/polyfill",
+    "version": "0.5.1",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@js-temporal/polyfill"
+  },
+  {
+    "name": "@keyv/serialize",
+    "version": "1.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@keyv/serialize"
+  },
+  {
+    "name": "@koromix/koffi-win32-x64",
+    "version": "3.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@koromix/koffi-win32-x64"
+  },
+  {
+    "name": "@mixmark-io/domino",
+    "version": "2.2.0",
+    "license": "BSD-2-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@mixmark-io/domino"
+  },
+  {
+    "name": "@modelcontextprotocol/client",
+    "version": "2.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client"
+  },
+  {
+    "name": "@modelcontextprotocol/core",
+    "version": "2.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core"
+  },
+  {
+    "name": "zod",
+    "version": "4.6.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/v3"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/v4"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/v4-mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/v4/classic"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/v4/core"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/v4/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/client/node_modules/zod/v4/mini"
+  },
+  {
+    "name": "zod",
+    "version": "4.6.7",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/v3"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/v4"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/v4-mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/v4/classic"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/v4/core"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/v4/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@modelcontextprotocol/core/node_modules/zod/v4/mini"
+  },
+  {
+    "name": "@opentelemetry/api",
+    "version": "1.9.1",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/api"
+  },
+  {
+    "name": "@opentelemetry/api-logs",
+    "version": "0.222.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/api-logs"
+  },
+  {
+    "name": "@opentelemetry/core",
+    "version": "2.11.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/core"
+  },
+  {
+    "name": "@opentelemetry/otlp-exporter-base",
+    "version": "0.222.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/otlp-exporter-base"
+  },
+  {
+    "name": "@opentelemetry/otlp-transformer",
+    "version": "0.222.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/otlp-transformer"
+  },
+  {
+    "name": "@opentelemetry/resources",
+    "version": "2.11.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/resources"
+  },
+  {
+    "name": "@opentelemetry/sdk-logs",
+    "version": "0.222.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/sdk-logs"
+  },
+  {
+    "name": "@opentelemetry/sdk-metrics",
+    "version": "2.11.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/sdk-metrics"
+  },
+  {
+    "name": "@opentelemetry/sdk-trace",
+    "version": "2.11.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/sdk-trace"
+  },
+  {
+    "name": "@opentelemetry/semantic-conventions",
+    "version": "1.43.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@opentelemetry/semantic-conventions"
+  },
+  {
+    "name": "@protobufjs/aspromise",
+    "version": "1.1.2",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/aspromise"
+  },
+  {
+    "name": "@protobufjs/base64",
+    "version": "1.1.2",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/base64"
+  },
+  {
+    "name": "@protobufjs/codegen",
+    "version": "2.0.5",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/codegen"
+  },
+  {
+    "name": "@protobufjs/eventemitter",
+    "version": "1.1.1",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/eventemitter"
+  },
+  {
+    "name": "@protobufjs/fetch",
+    "version": "1.1.1",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/fetch"
+  },
+  {
+    "name": "@protobufjs/float",
+    "version": "1.0.2",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/float"
+  },
+  {
+    "name": "@protobufjs/path",
+    "version": "1.1.2",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/path"
+  },
+  {
+    "name": "@protobufjs/pool",
+    "version": "1.1.0",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/pool"
+  },
+  {
+    "name": "@protobufjs/utf8",
+    "version": "1.1.2",
+    "license": "BSD-3-Clause",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@protobufjs/utf8"
+  },
+  {
+    "name": "@sec-ant/readable-stream",
+    "version": "0.4.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@sec-ant/readable-stream"
+  },
+  {
+    "name": "@sindresorhus/is",
+    "version": "7.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@sindresorhus/is"
+  },
+  {
+    "name": "@sindresorhus/merge-streams",
+    "version": "4.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@sindresorhus/merge-streams"
+  },
+  {
+    "name": "@smithy/core",
+    "version": "3.36.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@smithy/core"
+  },
+  {
+    "name": "@smithy/credential-provider-imds",
+    "version": "4.5.2",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@smithy/credential-provider-imds"
+  },
+  {
+    "name": "@smithy/fetch-http-handler",
+    "version": "5.8.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@smithy/fetch-http-handler"
+  },
+  {
+    "name": "@smithy/node-http-handler",
+    "version": "4.12.1",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@smithy/node-http-handler"
+  },
+  {
+    "name": "@smithy/signature-v4",
+    "version": "5.7.4",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@smithy/signature-v4"
+  },
+  {
+    "name": "@smithy/types",
+    "version": "4.19.0",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@smithy/types"
+  },
+  {
+    "name": "@stablelib/base64",
+    "version": "1.0.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@stablelib/base64"
+  },
+  {
+    "name": "@standard-schema/spec",
+    "version": "1.1.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@standard-schema/spec"
+  },
+  {
+    "name": "@swc/helpers",
+    "version": "0.5.23",
+    "license": "Apache-2.0",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/index"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_apply_decorated_descriptor"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_apply_decs_2203_r"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_apply_decs_2311"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_array_like_to_array"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_array_without_holes"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_array_with_holes"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_assert_this_initialized"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_async_generator"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_async_generator_delegate"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_async_iterator"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_async_to_generator"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_await_async_generator"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_await_value"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_call_super"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_check_private_redeclaration"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_apply_descriptor_destructure"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_apply_descriptor_get"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_apply_descriptor_set"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_apply_descriptor_update"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_call_check"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_check_private_static_access"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_check_private_static_field_descriptor"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_extract_field_descriptor"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_name_tdz_error"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_field_destructure"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_field_get"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_field_init"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_field_loose_base"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_field_loose_key"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_field_set"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_field_update"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_method_get"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_method_init"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_private_method_set"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_static_private_field_destructure"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_static_private_field_spec_get"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_static_private_field_spec_set"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_static_private_field_update"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_class_static_private_method_get"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_construct"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_create_class"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_create_for_of_iterator_helper_loose"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_create_super"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_decorate"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_defaults"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_define_enumerable_properties"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_define_property"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_dispose"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_export_star"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_extends"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_get"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_get_prototype_of"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_identity"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_inherits"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_inherits_loose"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_initializer_define_property"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_initializer_warning_helper"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_instanceof"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_interop_require_default"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_interop_require_wildcard"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_is_native_function"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_is_native_reflect_construct"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_iterable_to_array"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_iterable_to_array_limit"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_iterable_to_array_limit_loose"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_jsx"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_new_arrow_check"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_non_iterable_rest"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_non_iterable_spread"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_object_destructuring_empty"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_object_spread"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_object_spread_props"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_object_without_properties"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_object_without_properties_loose"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_overload_yield"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_possible_constructor_return"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_read_only_error"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_set"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_set_prototype_of"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_skip_first_generator_next"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_sliced_to_array"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_sliced_to_array_loose"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_super_prop_base"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_tagged_template_literal"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_tagged_template_literal_loose"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_throw"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_to_array"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_to_consumable_array"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_to_primitive"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_to_property_key"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_add_disposable_resource"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_decorate"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_dispose_resources"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_generator"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_metadata"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_param"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_rewrite_relative_import_extension"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_ts_values"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_type_of"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_unsupported_iterable_to_array"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_update"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_using"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_using_ctx"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_wrap_async_generator"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_wrap_native_super"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_wrap_reg_exp"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/@swc/helpers/_/_write_only_error"
+  },
+  {
+    "name": "@types/http-cache-semantics",
+    "version": "4.2.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@types/http-cache-semantics"
+  },
+  {
+    "name": "@types/node",
+    "version": "26.6.5",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@types/node"
+  },
+  {
+    "name": "@types/retry",
+    "version": "0.12.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@types/retry"
+  },
+  {
+    "name": "@vscode/ripgrep",
+    "version": "1.18.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@vscode/ripgrep"
+  },
+  {
+    "name": "@vscode/ripgrep-win32-x64",
+    "version": "1.18.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@vscode/ripgrep-win32-x64"
+  },
+  {
+    "name": "@xterm/addon-serialize",
+    "version": "0.14.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@xterm/addon-serialize"
+  },
+  {
+    "name": "@xterm/headless",
+    "version": "6.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/@xterm/headless"
+  },
+  {
+    "name": "debug",
+    "version": "2.6.9",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/compression/node_modules/debug"
+  },
+  {
+    "name": "ms",
+    "version": "2.0.0",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/compression/node_modules/ms"
+  },
+  {
+    "name": "path-key",
+    "version": "3.1.1",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/cross-spawn/node_modules/path-key"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/diff/libcjs"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/diff/libesm"
+  },
+  {
+    "name": "benchmark",
+    "version": "1.0.0",
+    "license": "ISC",
+    "location": "AI 套件/dsh_core/dsh/node_modules/fast-uri/benchmark"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/gaxios/build/esm"
+  },
+  {
+    "name": "agent-base",
+    "version": "7.1.4",
+    "license": "MIT",
+    "location": "AI 套件/dsh_core/dsh/node_modules/https-proxy-agent/node_modules/agent-base"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/long/umd"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/signal-exit/dist/cjs"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/signal-exit/dist/mjs"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/tslib/modules"
+  },
+  {
+    "name": "web-streams-polyfill-es2018",
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/web-streams-polyfill/es2018"
+  },
+  {
+    "name": "web-streams-polyfill-es6",
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/web-streams-polyfill/es6"
+  },
+  {
+    "name": "web-streams-ponyfill",
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/web-streams-polyfill/ponyfill"
+  },
+  {
+    "name": "web-streams-ponyfill-es2018",
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/web-streams-polyfill/ponyfill/es2018"
+  },
+  {
+    "name": "web-streams-ponyfill-es6",
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/web-streams-polyfill/ponyfill/es6"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/yaml/browser"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/v3"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/v4"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/v4-mini"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/v4/classic"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/v4/core"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/v4/locales"
+  },
+  {
+    "name": null,
+    "version": null,
+    "license": null,
+    "location": "AI 套件/dsh_core/dsh/node_modules/zod/v4/mini"
+  }
+]
