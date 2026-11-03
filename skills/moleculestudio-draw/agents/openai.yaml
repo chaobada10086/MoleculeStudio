@@ -1,0 +1,4 @@
+interface:
+  display_name: "MoleculeStudio 化学绘图"
+  short_description: "通过外部 AI 生成可编辑化学结构和反应图，无需内置 AI"
+  default_prompt: "使用 $moleculestudio-draw 将我的化学绘图要求生成可在 MoleculeStudio 打开的可编辑文件。"

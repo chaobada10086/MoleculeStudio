@@ -21,3 +21,6 @@ Release 手工上传且仅上传以下三个 ZIP。三个 ZIP 都包含同名 `M
 自有代码沿用 Apache-2.0；第三方组件、运行时、字体、模型保留原许可证。参见 LICENSE、NOTICE、licenses/、PROVENANCE.md 和 docs/RELEASE.md。
 历史来源说明保留，不作独立净室实现认证。不要把整个已使用的绿色版目录上传到 GitHub。
 安全反馈请按 SECURITY.md 操作。贡献说明见 CONTRIBUTING.md。
+
+## 外部 AI 绘图 skill
+不使用内置 AI 时，可使用 [moleculestudio-draw](skills/moleculestudio-draw/SKILL.md) 生成可编辑 CDXML。基础文件绘图只需 Core；参见 [安装与使用说明](docs/EXTERNAL_AI_SKILL.md)。
