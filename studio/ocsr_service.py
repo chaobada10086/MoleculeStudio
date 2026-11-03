@@ -43,6 +43,23 @@ APP_DIR = Path(__file__).resolve().parent
 SERVICE_VERSION = "1.3.1"
 SCHEMA = "molecule-studio-ocsr/1"
 
+_runtime_handles = []
+
+
+def prepare_native_runtime():
+    """Use the addon's app-local C++ runtime, independent of installed VC++ software."""
+    if os.name != "nt" or _runtime_handles:
+        return
+    import ctypes
+    directory = Path(sys.executable).resolve().parent
+    if (directory / "msvcp140.dll").is_file():
+        _runtime_handles.append(os.add_dll_directory(str(directory)))
+        for name in ("msvcp140.dll", "msvcp140_1.dll", "msvcp140_2.dll",
+                     "msvcp140_atomic_wait.dll", "msvcp140_codecvt_ids.dll", "concrt140.dll"):
+            path = directory / name
+            if path.is_file():
+                _runtime_handles.append(ctypes.WinDLL(str(path)))
+
 # ---------------------------------------------------------------------------
 # Small helpers
 # ---------------------------------------------------------------------------
@@ -148,10 +165,19 @@ class OcsrEngine:
             "load_seconds": self.load_seconds,
             "load_error": self.load_error,
         }
+        # Status is the native client's startup handshake (60 s deadline).
+        # Importing torch here can exceed that on a cold disk / antivirus scan.
+        # Load native inference dependencies only when recognition is requested.
+        info["dependency_check"] = "deferred"
         try:
-            import torch
-            info["torch"] = torch.__version__
-            info["cuda"] = bool(torch.cuda.is_available())
+            torch = sys.modules.get("torch")
+            if torch is not None:
+                info["torch"] = torch.__version__
+                info["cuda"] = bool(torch.cuda.is_available())
+                info["dependency_check"] = "loaded"
+            else:
+                from importlib.metadata import version
+                info["torch"] = version("torch")
         except Exception as exc:
             info["torch"] = "unavailable: " + str(exc)[:200]
         if path and include_hash:
@@ -179,6 +205,7 @@ class OcsrEngine:
         self.model_path = paths[0]
         if progress:
             progress("正在加载本地 MolScribe 模型（首次约 2–20 秒，不联网）…")
+        prepare_native_runtime()
         import torch
         from molscribe import MolScribe
 
@@ -2912,6 +2939,7 @@ def main(argv=None) -> int:
         sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
+    prepare_native_runtime()
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--serve", action="store_true")
     parser.add_argument("--models", default=str(APP_DIR / "ocsr_runtime" / "models"))
@@ -2956,4 +2984,25 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # The 0.95 native client discards stderr. Keep worker failures locally so
+    # another machine can report an actionable error without an AI API key.
+    log_stream = None
+    try:
+        log_dir = APP_DIR / "OCSRCache"
+        try:
+            log_dir.mkdir(parents=True, exist_ok=True)
+            log_stream = (log_dir / "last-service-error.log").open("w", encoding="utf-8")
+        except OSError:
+            import tempfile
+            log_dir = Path(tempfile.gettempdir()) / "MoleculeStudio-OCSR"
+            log_dir.mkdir(parents=True, exist_ok=True)
+            log_stream = (log_dir / "last-service-error.log").open("w", encoding="utf-8")
+        sys.stderr = log_stream
+        sys.stderr.reconfigure(line_buffering=True)
+        raise SystemExit(main())
+    except Exception:
+        traceback.print_exc()
+        raise SystemExit(2)
+    finally:
+        if log_stream is not None:
+            log_stream.flush()
