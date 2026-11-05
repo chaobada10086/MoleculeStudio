@@ -4,14 +4,20 @@
 // Naming, format conversion, cleanup and 3D all run in an isolated local
 // process (RDKit / OPSIN / NISPO). No COM or ActiveX component is used.
 namespace chemservice {
+// Chemistry can use an independent, ABI-consistent runtime without changing AI.
+inline void chemistryPython(const std::wstring& ini,wchar_t* python,DWORD size){
+    GetPrivateProfileStringW(L"Backend",L"Python",L"python\\python.exe",python,size,ini.c_str());
+    std::wstring fallback=python;
+    GetPrivateProfileStringW(L"Backend",L"ChemistryPython",fallback.c_str(),python,size,ini.c_str());
+}
 inline std::wstring relativeTo(const std::wstring& directory,const std::wstring& value){return value.empty()||value[0]==L'\\'||value[0]==L'/'||(value.size()>1&&value[1]==L':')?value:directory+L"\\"+value;}
 inline void write(const std::wstring& path,const std::string& bytes){HANDLE f=CreateFileW(path.c_str(),GENERIC_WRITE,0,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);if(f==INVALID_HANDLE_VALUE)throw std::runtime_error("无法写入化学服务文件（"+std::to_string(GetLastError())+"）："+U(path));DWORD n=0;BOOL ok=WriteFile(f,bytes.data(),DWORD(bytes.size()),&n,0);CloseHandle(f);if(!ok||n!=bytes.size())throw std::runtime_error("化学服务文件写入不完整");}
 inline std::string read(const std::wstring& path,DWORD sharing=FILE_SHARE_READ){HANDLE f=CreateFileW(path.c_str(),GENERIC_READ,sharing,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);if(f==INVALID_HANDLE_VALUE)throw std::runtime_error("无法读取化学服务结果");DWORD size=GetFileSize(f,0);if(size>32*1024*1024){CloseHandle(f);throw std::runtime_error("化学服务文件过大");}std::string b(size,'\0');DWORD n=0;BOOL ok=ReadFile(f,b.empty()?0:&b[0],size,&n,0);CloseHandle(f);if(!ok||n!=size)throw std::runtime_error("化学服务文件读取不完整");return b;}
-inline int python3D(LPWSTR input,LPWSTR output){wchar_t exe[32768],python[32768];GetModuleFileNameW(nullptr,exe,32768);std::wstring path=exe,dir=path.substr(0,path.find_last_of(L"\\/")),ini=dir+L"\\chemistry_backend.ini";GetPrivateProfileStringW(L"Backend",L"Python",L"python.exe",python,32768,ini.c_str());std::wstring script=dir+L"\\chemistry_3d.py",command=L"\""+relativeTo(dir,python)+L"\" \""+script+L"\" \""+input+L"\" \""+output+L"\"";STARTUPINFOW start={};start.cb=sizeof(start);start.dwFlags=STARTF_USESHOWWINDOW;start.wShowWindow=SW_HIDE;PROCESS_INFORMATION p={};if(!CreateProcessW(nullptr,&command[0],0,0,FALSE,CREATE_NO_WINDOW,0,dir.c_str(),&start,&p)){write(output,"三维整理需要配置可用的 Python/RDKit 环境");return 2;}DWORD wait=WaitForSingleObject(p.hProcess,35000);DWORD code=2;if(wait==WAIT_TIMEOUT){TerminateProcess(p.hProcess,4);WaitForSingleObject(p.hProcess,500);write(output,"三维构象计算超时");}else{GetExitCodeProcess(p.hProcess,&code);if(GetFileAttributesW(output)==INVALID_FILE_ATTRIBUTES)write(output,"无法加载 RDKit 三维化学服务");}CloseHandle(p.hThread);CloseHandle(p.hProcess);return int(code);}
+inline int python3D(LPWSTR input,LPWSTR output){wchar_t exe[32768],python[32768];GetModuleFileNameW(nullptr,exe,32768);std::wstring path=exe,dir=path.substr(0,path.find_last_of(L"\\/")),ini=dir+L"\\chemistry_backend.ini";chemistryPython(ini,python,32768);std::wstring script=dir+L"\\chemistry_3d.py",command=L"\""+relativeTo(dir,python)+L"\" \""+script+L"\" \""+input+L"\" \""+output+L"\"";STARTUPINFOW start={};start.cb=sizeof(start);start.dwFlags=STARTF_USESHOWWINDOW;start.wShowWindow=SW_HIDE;PROCESS_INFORMATION p={};if(!CreateProcessW(nullptr,&command[0],0,0,FALSE,CREATE_NO_WINDOW,0,dir.c_str(),&start,&p)){write(output,"三维整理需要配置可用的 Python/RDKit 环境");return 2;}DWORD wait=WaitForSingleObject(p.hProcess,35000);DWORD code=2;if(wait==WAIT_TIMEOUT){TerminateProcess(p.hProcess,4);WaitForSingleObject(p.hProcess,500);write(output,"三维构象计算超时");}else{GetExitCodeProcess(p.hProcess,&code);if(GetFileAttributesW(output)==INVALID_FILE_ATTRIBUTES)write(output,"无法加载 RDKit 三维化学服务");}CloseHandle(p.hThread);CloseHandle(p.hProcess);return int(code);}
 inline int pythonOpen(LPWSTR input,LPWSTR output,LPWSTR inMime,LPWSTR outMime,LPWSTR action){
     wchar_t exe[32768]={},python[32768]={},runtime[32768]={};GetModuleFileNameW(nullptr,exe,32768);
     std::wstring path=exe,dir=path.substr(0,path.find_last_of(L"\\/")),ini=dir+L"\\chemistry_backend.ini";
-    GetPrivateProfileStringW(L"Backend",L"Python",L"python.exe",python,32768,ini.c_str());
+    chemistryPython(ini,python,32768);
     GetPrivateProfileStringW(L"Backend",L"RuntimeDirectory",dir.c_str(),runtime,32768,ini.c_str());
     std::wstring runtimeDir=relativeTo(dir,runtime),pythonPath=relativeTo(dir,python);
     std::wstring script=runtimeDir+L"\\chemistry_open.py";

@@ -2248,6 +2248,15 @@ int WINAPI WinMain(HINSTANCE inst,HINSTANCE,LPSTR,int){int serviceArgc=0;LPWSTR*
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     HRESULT oleInit=OleInitialize(nullptr);
     int argc=0;LPWSTR* argv=CommandLineToArgvW(GetCommandLineW(),&argc);std::wstring first=argc>1?argv[1]:L"";
+    if(first==L"--formula-check"){
+        Session sample;ObjectId c1,c2,o,b;
+        sample.doc.addAtom(Vec2(),6,&c1);sample.doc.addAtom(Vec2(30,0),6,&c2);sample.doc.addAtom(Vec2(60,0),8,&o);
+        sample.doc.addBond(c1,c2,&b);sample.doc.addBond(c2,o,&b);
+        auto f=analyze(sample.doc,{ObjectRef(ObjectKind::Atom,c1)});
+        bool ok=f.valid&&f.plain=="C2H6O"&&std::abs(f.averageMass-46.069)<.02;
+        if(argc>2){std::ofstream report(U(argv[2]));report<<f.plain<<" "<<f.averageMass<<" "<<(ok?"PASS":"FAIL");}
+        LocalFree(argv);if(SUCCEEDED(oleInit))OleUninitialize();GdiplusShutdown(token);return ok?0:3;
+    }
     bool embeddingMode=_wcsicmp(first.c_str(),L"-Embedding")==0||_wcsicmp(first.c_str(),L"--embedding")==0;
     bool clipboardCopyMode=_wcsicmp(first.c_str(),L"--clipboard-copy")==0;
     ole::setPreviewFactory([](const std::string& bytes,SIZE size){return olepreview::fromNative(bytes,size);});

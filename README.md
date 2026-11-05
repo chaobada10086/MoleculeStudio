@@ -15,6 +15,7 @@ Release 手工上传且仅上传以下三个 ZIP。三个 ZIP 都包含同名 `M
 运行 `python studio/build.py --dx11 --compiler C:/tools/mingw64/bin/g++.exe --exe MoleculeStudio.exe`。
 输出位于 `out/Studio/`。构建编辑器不需要 API Key，也不下载 OCR 权重。
 运行时依赖可从同版本三个发布包提取。`chemistry_backend.ini` 使用相对路径 `Python=python\python.exe`，不要提交个人配置。
+问题二修复包另设 `ChemistryPython=chemistry_python\python.exe`，仅供化学/核磁/三维后端使用；AI 继续使用 `Python`。未设置该项时兼容原配置。修复包的独立 3.10 运行时随 Core 提供，不依赖 OCSR 插件。
 源码布局：`studio/` 为产品界面和后端；`studio/engine/` 为引擎覆盖实现；`engine/` 为基础引擎及第三方源码。构建脚本按清单选择链接文件。
 
 ## 开源与安全

@@ -404,7 +404,9 @@ def predict_ml_nmr(mol, nucleus, solvent=None):
     if not target_count: raise ValueError({'1H':'当前结构不含可预测的氢原子','13C':'当前结构不含碳原子','19F':'当前结构不含氟原子，无需预测氟谱'}[nucleus])
     os.environ.setdefault('OMP_NUM_THREADS', '2')
     os.environ.setdefault('MKL_NUM_THREADS', '2')
-    sys.path.insert(0, str(RUNTIME / 'nmr-ml-site'))
+    # Prefer the interpreter's ABI-matched native packages; this directory
+    # supplies CSP5 and its checkpoints when not installed in the runtime.
+    sys.path.append(str(RUNTIME / 'nmr-ml-site'))
     import torch
     torch.set_num_threads(2)
     from csp5 import predict_mols
