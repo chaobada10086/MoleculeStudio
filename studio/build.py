@@ -13,7 +13,7 @@ shutil.copyfile(studio/'ai_assistant.py',out/'ai_assistant.py')
 for name in ('ai_dsh.py','dsh_proxy.py'):
     shutil.copyfile(studio/name,out/name)
 if (studio/'dsh_overlay.yml').exists():
-    overlay_target=out/'AI 套件/dsh_core/overlay.yml'
+    overlay_target=out/'ai/overlay.yml'
     overlay_target.parent.mkdir(parents=True,exist_ok=True)
     shutil.copyfile(studio/'dsh_overlay.yml',overlay_target)
 shutil.copyfile(studio/'ai_attachments.py',out/'ai_attachments.py')

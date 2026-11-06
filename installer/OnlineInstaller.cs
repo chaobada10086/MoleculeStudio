@@ -88,7 +88,7 @@ class OnlineInstaller {
  foreach(var rel in files.Keys)NoLinks(root,Safe(root,rel));
  int preserved=0,n=0;var dirs=new HashSet<string>();
  foreach(var item in files){CheckCancel();if(shared.Contains(item.Key))continue;string p=Safe(root,item.Key);
- if(File.Exists(p)){if(Hash(p)==item.Value){File.Delete(p);dirs.Add(Path.GetDirectoryName(p));}else preserved++;}
+ if(File.Exists(p)){if(Hash(p)==item.Value||ValidGeneratedConfig(root,package,item.Key)){File.Delete(p);dirs.Add(Path.GetDirectoryName(p));}else preserved++;}
  if(++n%200==0)Report("移除 "+package.Key+" · "+n+" / "+files.Count,100.0*n/files.Count);
  }
  foreach(string prefix in new[]{".installer-","MANIFEST-"}){string metadata=Safe(root,prefix+package.Key+".json");if(File.Exists(metadata))File.Delete(metadata);}
@@ -98,8 +98,14 @@ class OnlineInstaller {
  return preserved;
  }
  static string[] Titles={"核心工作台","AI 助手","图片识别"};
+ static bool GeneratedConfig(Package package,string rel){return package.Key=="OCSR"&&string.Equals(rel.Replace('\\','/'),"ocsr_runtime/venv/pyvenv.cfg",StringComparison.OrdinalIgnoreCase);}
+ static string RuntimeConfig(string root){return "home = "+Path.GetFullPath(Path.Combine(root,"ocsr_runtime/python/cpython-3.10-windows-x86_64-none"))+"\ninclude-system-site-packages = false\nversion_info = 3.10\n";}
+ static string NormalizeConfig(string text){var lines=new List<string>();foreach(string line in text.TrimStart('\uFEFF').Replace("\r","").Split('\n'))if(line.Trim().Length>0)lines.Add(line.Trim());return string.Join("\n",lines.ToArray());}
+ static bool ValidGeneratedConfig(string root,Package p,string rel){if(!GeneratedConfig(p,rel))return false;try{return string.Equals(NormalizeConfig(File.ReadAllText(Safe(root,rel))),NormalizeConfig(RuntimeConfig(root)),StringComparison.OrdinalIgnoreCase);}catch{return false;}}
  static int[] states={0,0,0}; static CheckBox[] picks; static TextBlock[] badges;
- static int State(string root,Package p){if(!Has(root,p))return 0;try{var files=Inventory(root,p);if(files.Count==0)return 2;foreach(var f in files.Keys)if(!File.Exists(Safe(root,f)))return 2;return Current(root,p)?1:4;}catch{return 3;}}
+ static int State(string root,Package p){if(!Has(root,p))return 0;try{var files=Inventory(root,p);if(files.Count==0)return 0;bool missing=false,payload=false;foreach(var f in files.Keys){bool exists=File.Exists(Safe(root,f));if(!exists)missing=true;else if(!f.StartsWith("MANIFEST-",StringComparison.OrdinalIgnoreCase)&&!f.StartsWith(".installer-",StringComparison.OrdinalIgnoreCase))payload=true;}if(!payload)return 0;if(missing)return 2;return Current(root,p)?1:4;}catch{return 3;}}
+ static bool CanOpen(string root){return State(root,packages[0])==1&&File.Exists(Path.Combine(root,"MoleculeStudio.exe"));}
+ static void OpenButton(bool enabled){var button=(Button)window.FindName("OpenApp");bool present=states[0]==1&&File.Exists(Path.Combine(folder.Text,"MoleculeStudio.exe"));button.Visibility=present?Visibility.Visible:Visibility.Collapsed;button.IsEnabled=enabled&&present;}
  static bool CanInstall(int index,int core){return index==0||core==1;}
  static void RequireCore(string root,int index){if(!CanInstall(index,State(root,packages[0])))throw new IOException("请先完整安装当前版本的核心工作台。");}
  static int[] Plan(bool[] selected,int[] actual,bool remove){var planned=new bool[3];for(int i=0;i<3;i++)planned[i]=selected[i]&&(remove?actual[i]!=0:actual[i]!=1);
@@ -109,17 +115,20 @@ class OnlineInstaller {
  var list=new List<int>();for(int j=0;j<3;j++){int i=remove?2-j:j;if(planned[i])list.Add(i);}return list.ToArray();}
  static bool[] Selection(){return new[]{picks[0].IsChecked==true,picks[1].IsChecked==true,picks[2].IsChecked==true};}
  static string Names(int[] indexes){var names=new List<string>();foreach(int i in indexes)names.Add(Titles[i]);return string.Join("、",names.ToArray());}
- static void Buttons(){if(picks==null)return;int[] add=Plan(Selection(),states,false),del=Plan(Selection(),states,true);start.IsEnabled=!busy&&add.Length>0;uninstall.IsEnabled=!busy&&del.Length>0;start.Content=add.Length>0?"安装 / 更新所选 ("+add.Length+")":"安装所选";uninstall.Content=del.Length>0?"卸载所选 ("+del.Length+")":"卸载所选";
- ((TextBlock)window.FindName("SelectionInfo")).Text=add.Length==0&&del.Length==0?"请勾选需要操作的组件":(add.Length>0?"安装顺序："+Names(add):"")+(add.Length>0&&del.Length>0?"\n":"")+(del.Length>0?"卸载顺序："+Names(del):"");}
+ // One selection expresses one operation. Never infer two conflicting actions.
+ // An exclusively outdated selection expresses an update, not an uninstall.
+ static int SelectionMode(bool[] selected,int[] actual){int[] add=Plan(selected,actual,false),del=Plan(selected,actual,true);if(add.Length==0&&del.Length==0)return 0;if(add.Length>0&&del.Length==0)return 1;if(del.Length>0&&add.Length==0)return 2;bool onlyUpdates=true;for(int i=0;i<3;i++)if(selected[i]&&actual[i]!=4)onlyUpdates=false;return onlyUpdates?1:0;}
+ static void Buttons(){if(picks==null)return;bool[] selected=Selection();int[] add=Plan(selected,states,false),del=Plan(selected,states,true);int mode=SelectionMode(selected,states);start.IsEnabled=!busy&&mode==1;uninstall.IsEnabled=!busy&&mode==2;start.Content=mode==1?"安装 / 更新所选 ("+add.Length+")":"安装所选";uninstall.Content=mode==2?"卸载所选 ("+del.Length+")":"卸载所选";
+ ((TextBlock)window.FindName("SelectionInfo")).Text=mode==1?"安装顺序："+Names(add):mode==2?"卸载顺序："+Names(del):add.Length==0&&del.Length==0?"请勾选需要操作的组件":"已混选安装项与卸载项，请分开选择；两个操作均已禁用。";}
  static void Cards(string root){int[] found=new int[3];for(int i=0;i<3;i++)found[i]=State(root,packages[i]);window.Dispatcher.Invoke((Action)(()=>{
  states=found;managed=found[0]!=0||found[1]!=0||found[2]!=0;
  for(int i=0;i<3;i++){badges[i].Text=new[]{"未安装","已安装","安装不完整","清单异常","可更新"}[found[i]];badges[i].Foreground=(System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString(found[i]==1?"#157D70":found[i]==0?"#637B78":"#AC5B22");
  ((TextBlock)window.FindName("Hint"+i)).Text=(i==0?"必备组件":"可选组件")+" · 发布版本 "+packages[i].Version+(found[i]==1?" · 已安装":"");}
- start.Visibility=uninstall.Visibility=Visibility.Visible;((Button)window.FindName("OpenApp")).IsEnabled=!busy&&found[0]==1;Buttons();
+ start.Visibility=Visibility.Visible;uninstall.Visibility=managed?Visibility.Visible:Visibility.Collapsed;OpenButton(!busy);Buttons();
  }));}
- static void EnableActions(bool enabled){scan.IsEnabled=enabled;folder.IsEnabled=mirror.IsEnabled=desktopShortcut.IsEnabled=enabled;((Button)window.FindName("Browse")).IsEnabled=enabled;foreach(var pick in picks)pick.IsEnabled=enabled;((Button)window.FindName("OpenApp")).IsEnabled=enabled&&states[0]==1;Buttons();if(!enabled)start.IsEnabled=uninstall.IsEnabled=false;}
+ static void EnableActions(bool enabled){scan.IsEnabled=enabled;folder.IsEnabled=mirror.IsEnabled=desktopShortcut.IsEnabled=enabled;((Button)window.FindName("Browse")).IsEnabled=enabled;foreach(var pick in picks)pick.IsEnabled=enabled;OpenButton(enabled);Buttons();if(!enabled)start.IsEnabled=uninstall.IsEnabled=false;}
  static void Detect(){if(busy)return;string root=folder.Text;Work(()=>{Recover(root);LoadFeed();Cards(root);Report(feedStatus,100);});}
- static void Batch(bool remove){if(busy)return;string root=folder.Text;int[] plan=Plan(Selection(),states,remove);if(plan.Length==0)return;bool mirrors=mirror.IsChecked==true,shortcut=desktopShortcut.IsChecked==true;
+ static void Batch(bool remove){if(busy)return;string root=folder.Text;Cards(root);if(SelectionMode(Selection(),states)!=(remove?2:1)){Report("当前选择不能执行此操作，请只选安装项或只选卸载项。",0);return;}int[] plan=Plan(Selection(),states,remove);if(plan.Length==0)return;bool mirrors=mirror.IsChecked==true,shortcut=desktopShortcut.IsChecked==true;
  if(remove&&MessageBox.Show("将按顺序卸载："+Names(plan)+"。\n用户文件和修改过的文件会保留。是否继续？","确认卸载所选组件",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes)return;
  Work(()=>{EnsureClosed(root);Recover(root);int kept=0;
  if(remove){foreach(int i in plan)kept+=Remove(root,packages[i]);if(!Has(root,packages[0])){Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),true);if(File.Exists(LastRoot)&&File.ReadAllText(LastRoot)==Path.GetFullPath(root))File.Delete(LastRoot);}Report("所选组件已卸载 · 用户文件已保留"+(kept>0?"，另保留 "+kept+" 个修改文件":""),100);}
@@ -148,7 +157,7 @@ class OnlineInstaller {
  if(!legacy&&(string)data["packageHash"]!=p.Hash)return false;
  if(legacy&&!Current(root,p))return false;
  var files=(Dictionary<string,object>)data["files"];int n=0;
- foreach(var entry in files){CheckCancel();string expected=legacy?(string)((Dictionary<string,object>)entry.Value)["sha256"]:(string)entry.Value;string f=Safe(root,entry.Key);if(!File.Exists(f)||Hash(f)!=expected)return false;if(++n%300==0)Report("正在校验已安装的 "+p.Key+" · "+n+" / "+files.Count,100.0*n/files.Count);}
+ foreach(var entry in files){CheckCancel();string expected=legacy?(string)((Dictionary<string,object>)entry.Value)["sha256"]:(string)entry.Value;string f=Safe(root,entry.Key);if(!File.Exists(f)||(Hash(f)!=expected&&!ValidGeneratedConfig(root,p,entry.Key)))return false;if(++n%300==0)Report("正在校验已安装的 "+p.Key+" · "+n+" / "+files.Count,100.0*n/files.Count);}
  return true;
  }
  static string Download(Package p,bool mirrors){
@@ -177,6 +186,12 @@ class OnlineInstaller {
  foreach(var e in z.Entries){CheckCancel();if(e.FullName.EndsWith("/"))continue;if(!e.FullName.StartsWith("MoleculeStudio/"))throw new IOException("未知压缩包结构");
  string rel=e.FullName.Substring(15),dest=Safe(root,rel),expected;if(rel.StartsWith(".installer-",StringComparison.OrdinalIgnoreCase))throw new IOException("发布包包含保留的安装器记录路径");using(var stream=e.Open())expected=Hash(stream);records[rel]=expected;
  Directory.CreateDirectory(Path.GetDirectoryName(dest));
+ if(GeneratedConfig(package,rel)){
+ // This exact file is rewritten by both the native OCSR UI and the AI bridge.
+ // Regenerate from the installation path, including when an older uninstall
+ // preserved it without a remaining component receipt.
+ Track(rel);if(File.Exists(dest))File.Delete(dest);File.WriteAllText(dest,RuntimeConfig(root),new System.Text.UTF8Encoding(false));records[rel]=Hash(dest);n++;continue;
+ }
  if(File.Exists(dest)){
  if(Hash(dest)==expected){n++;continue;}
  if(undo==null||!previous.ContainsKey(rel)||Hash(dest)!=previous[rel])throw new IOException("文件已被修改或不属于此组件："+rel+"。已停止安装并保留原文件。");
@@ -198,14 +213,31 @@ class OnlineInstaller {
  }
  static void Work(Action action){if(busy)return;string root=folder.Text;busy=true;cancelled=false;EnableActions(false);
  new Thread(()=>{try{action();}catch(Exception e){Report(e.Message,0);}finally{
- try{Cards(root);}catch{}window.Dispatcher.BeginInvoke((Action)(()=>{busy=false;EnableActions(true);}));
+ try{Cards(root);}catch(Exception refreshError){window.Dispatcher.Invoke((Action)(()=>{states=new[]{0,0,0};managed=false;foreach(var badge in badges)badge.Text="需要重新检测";((Button)window.FindName("OpenApp")).Visibility=Visibility.Collapsed;}));Report("状态刷新失败，请重新检测："+refreshError.Message,0);}window.Dispatcher.BeginInvoke((Action)(()=>{busy=false;EnableActions(true);}));
  }} ){IsBackground=true}.Start();}
  [STAThread] static int Main(string[] args){
  AppContext.SetSwitch("Switch.System.IO.UseLegacyPathHandling",false);AppContext.SetSwitch("Switch.System.IO.BlockLongPaths",false);
  ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;cache=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"MoleculeStudioInstaller","cache");Directory.CreateDirectory(cache);
- if(args.Length>0&&args[0]!="--preview"){try{
+ if(args.Length>0&&args[0]!="--preview"&&args[0]!="--ui-lifecycle-test"){try{
+ if(args[0]=="--ocsr-config-test"){
+ string root=Path.Combine(Path.GetTempPath(),"MoleculeStudio-ocsr-config-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);string rel="ocsr_runtime/venv/pyvenv.cfg",cfg=Safe(root,rel);Directory.CreateDirectory(Path.GetDirectoryName(cfg));string leftover="home = C:\\old-install\\python\ninclude-system-site-packages = false\nversion_info = 3.10\n";File.WriteAllText(cfg,leftover);
+ string zip=Path.Combine(root,"fixture.zip");using(var z=ZipFile.Open(zip,ZipArchiveMode.Create))using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/"+rel).Open()))w.Write("home = ..\\python\\cpython-3.10-windows-x86_64-none\ninclude-system-site-packages = false\nversion_info = 3.10\n");
+ // Reproduce a failed previous uninstall: leftover cfg, no OCSR receipt.
+ BeginTransaction(root);Extract(zip,root,packages[2]);if(!ValidGeneratedConfig(root,packages[2],rel))return 80;RollbackTransaction();if(File.ReadAllText(cfg)!=leftover)return 81;
+ BeginTransaction(root);Extract(zip,root,packages[2]);CommitTransaction();if(!Verify(root,packages[2]))return 82;
+ // The application rewrites line endings/home; checksum changes but semantics do not.
+ File.WriteAllText(cfg,RuntimeConfig(root).Replace("\n","\r\n"));if(!Verify(root,packages[2]))return 83;
+ File.WriteAllText(Path.Combine(root,"user.cdxml"),"keep");Remove(root,packages[2]);if(File.Exists(cfg)||Has(root,packages[2])||!File.Exists(Path.Combine(root,"user.cdxml")))return 84;
+ BeginTransaction(root);Extract(zip,root,packages[2]);CommitTransaction();return Verify(root,packages[2])?0:85;
+ }
+ if(args[0]=="--state-test"&&args.Length==3)return State(args[1],packages[0])==int.Parse(args[2])?0:65;
  if(args[0]=="--feed-test"&&args.Length==2){var p=ParseFeed(File.ReadAllText(args[1]));if(p.Length!=3)return 40;bool rejected=false;try{ParseFeed(File.ReadAllText(args[1]).Replace("https://github.com/","https://evil.invalid/"));}catch{rejected=true;}return rejected?0:41;}
  if(args[0]=="--batch-test"){
+ if(SelectionMode(new[]{true,true,true},new[]{1,0,0})!=0)return 67;
+ if(SelectionMode(new[]{false,true,true},new[]{1,0,0})!=1)return 68;
+ if(SelectionMode(new[]{true,false,false},new[]{1,0,0})!=2)return 69;
+ if(SelectionMode(new[]{false,false,false},new[]{1,0,0})!=0)return 70;
+ if(SelectionMode(new[]{true,false,false},new[]{4,0,0})!=1)return 71;
  if(string.Join(",",Plan(new[]{false,true,true},new[]{0,0,0},false))!="0,1,2")return 42;
  if(string.Join(",",Plan(new[]{false,true,true},new[]{1,0,0},false))!="1,2")return 43;
  if(string.Join(",",Plan(new[]{true,false,false},new[]{1,1,1},true))!="2,1,0")return 44;
@@ -229,7 +261,7 @@ class OnlineInstaller {
  string t=Path.Combine(Path.GetTempPath(),"MoleculeStudio-dependency-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(t);
  if(State(t,packages[0])!=0||CanInstall(1,0)||CanInstall(2,2)||!CanInstall(0,0))return 30;
  bool refused=false;try{RequireCore(t,1);}catch(IOException){refused=true;}if(!refused)return 31;
- var record=new Dictionary<string,string>{{"core.bin","unused"}};File.WriteAllText(Path.Combine(t,".installer-Core.json"),Json().Serialize(new{packageHash=packages[0].Hash,files=record}));if(State(t,packages[0])!=2)return 32;
+ var record=new Dictionary<string,string>{{"core.bin","unused"},{"present.bin","unused"}};File.WriteAllText(Path.Combine(t,"present.bin"),"fixture");File.WriteAllText(Path.Combine(t,".installer-Core.json"),Json().Serialize(new{packageHash=packages[0].Hash,files=record}));if(State(t,packages[0])!=2)return 32;
  File.WriteAllText(Path.Combine(t,"core.bin"),"fixture");if(State(t,packages[0])!=1||!CanInstall(2,1))return 33;RequireCore(t,2);return 0;
  }
  if(args[0]=="--lifecycle-test"){
@@ -265,11 +297,30 @@ class OnlineInstaller {
  folder.Text=File.Exists(LastRoot)?File.ReadAllText(LastRoot):Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","MoleculeStudio");
  picks=new CheckBox[3];badges=new TextBlock[3];for(int i=0;i<3;i++){picks[i]=(CheckBox)window.FindName("Pick"+i);badges[i]=(TextBlock)window.FindName("State"+i);picks[i].Checked+=(sender,e)=>Buttons();picks[i].Unchecked+=(sender,e)=>Buttons();}
  start.Click+=(sender,e)=>Batch(false);uninstall.Click+=(sender,e)=>Batch(true);
- ((Button)window.FindName("OpenApp")).Click+=(sender,e)=>{try{Process.Start(new ProcessStartInfo(Path.Combine(folder.Text,"MoleculeStudio.exe")){WorkingDirectory=folder.Text,UseShellExecute=true});}catch(Exception error){Report(error.Message,0);}};
+ ((Button)window.FindName("OpenApp")).Click+=(sender,e)=>{try{if(!CanOpen(folder.Text)){Cards(folder.Text);Report("核心程序不存在或安装不完整，请勾选核心重新安装。",0);return;}Process.Start(new ProcessStartInfo(Path.Combine(folder.Text,"MoleculeStudio.exe")){WorkingDirectory=folder.Text,UseShellExecute=true});}catch(Exception error){Report(error.Message,0);}};
  scan.Click+=(s,e)=>{string root=folder.Text;Work(()=>{var results=new List<string>();foreach(var p in packages){bool valid=false;try{valid=Verify(root,p);}catch(OperationCanceledException){throw;}catch{}results.Add(p.Key+"："+(valid?"已安装且完整":"未安装或需要校验安装"));}Report(string.Join("    ",results.ToArray()),100);});};
  ((Button)window.FindName("Cancel")).Click+=(s,e)=>{cancelled=true;Report("正在停止，请等待当前网络请求结束……",-1);};
  ((Button)window.FindName("Browse")).Click+=(s,e)=>{using(var dialog=new System.Windows.Forms.FolderBrowserDialog()){if(dialog.ShowDialog()==System.Windows.Forms.DialogResult.OK)folder.Text=dialog.SelectedPath;}};
  window.Closing+=(s,e)=>{if(busy){cancelled=true;e.Cancel=true;Report("正在停止，请稍后关闭窗口……",-1);}};
+ if(args.Length>0&&args[0]=="--ui-lifecycle-test"){
+ string t=Path.Combine(Path.GetTempPath(),"MoleculeStudio-ui-lifecycle-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(t);string root=Path.Combine(t,"installed"),zip=Path.Combine(t,"core.zip");folder.Text=root;
+ using(var z=ZipFile.Open(zip,ZipArchiveMode.Create)){
+ using(var input=File.OpenRead(Assembly.GetExecutingAssembly().Location))using(var output=z.CreateEntry("MoleculeStudio/MoleculeStudio.exe").Open())input.CopyTo(output);
+ using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/MANIFEST-Core.json").Open()))w.Write("{}");}
+ Extract(zip,root,packages[0]);Cards(root);picks[0].IsChecked=true;EnableActions(true);if(states[0]!=1||!uninstall.IsEnabled||start.IsEnabled||!((Button)window.FindName("OpenApp")).IsEnabled)return 60;
+ picks[1].IsChecked=picks[2].IsChecked=true;if(start.IsEnabled||uninstall.IsEnabled)return 72;
+ picks[0].IsChecked=false;if(!start.IsEnabled||uninstall.IsEnabled)return 73;
+ picks[1].IsChecked=picks[2].IsChecked=false;if(start.IsEnabled||uninstall.IsEnabled)return 74;
+ picks[0].IsChecked=true;if(start.IsEnabled||!uninstall.IsEnabled)return 75;
+ Remove(root,packages[0]);Cards(root);EnableActions(true);if(states[0]!=0||uninstall.IsEnabled||!start.IsEnabled||((Button)window.FindName("OpenApp")).Visibility!=Visibility.Collapsed)return 61;
+ // Simulate reopening with stale in-memory state; the disk must win.
+ states=new[]{1,1,1};Cards(root);EnableActions(true);if(states[0]!=0||CanOpen(root)||uninstall.Visibility!=Visibility.Collapsed)return 62;
+ using(var child=Process.Start(new ProcessStartInfo(Assembly.GetExecutingAssembly().Location,"--state-test \""+root+"\" 0"){UseShellExecute=false,CreateNoWindow=true})){if(!child.WaitForExit(10000)||child.ExitCode!=0)return 66;}
+ Extract(zip,root,packages[0]);Cards(root);EnableActions(true);if(states[0]!=1||!CanOpen(root))return 63;
+ // External uninstall: a stale receipt must never leave a working Open button.
+ File.Delete(Path.Combine(root,"MoleculeStudio.exe"));Cards(root);EnableActions(true);if(states[0]!=0||!start.IsEnabled||((Button)window.FindName("OpenApp")).Visibility!=Visibility.Collapsed)return 64;
+ window.Close();return 0;
+ }
  if(args.Length>=2&&args[0]=="--preview"){
  if(args.Length>2)folder.Text=args[2];Cards(folder.Text);if(args.Length>3){picks[1].IsChecked=true;picks[2].IsChecked=true;}EnableActions(true);status.Text=feedStatus;
  window.Show();window.UpdateLayout();var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap((int)window.ActualWidth,(int)window.ActualHeight,96,96,System.Windows.Media.PixelFormats.Pbgra32);bitmap.Render(window);var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));using(var f=File.Create(args[1]))encoder.Save(f);window.Close();return 0;}

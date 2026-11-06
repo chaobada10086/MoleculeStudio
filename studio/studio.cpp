@@ -210,7 +210,11 @@ static bool aiFolderAvailable(){
     wchar_t env[32768]={};
     std::wstring dir;
     if(GetEnvironmentVariableW(L"MOLECULE_STUDIO_AI_RUNTIME",env,32768)&&env[0])dir=env;
-    else dir=executableDirectory()+L"\\AI 套件";
+    else {
+        dir=executableDirectory()+L"\\ai";
+        DWORD compact=GetFileAttributesW(dir.c_str());
+        if(compact==INVALID_FILE_ATTRIBUTES||!(compact&FILE_ATTRIBUTE_DIRECTORY))dir=executableDirectory()+L"\\AI 套件";
+    }
     DWORD attr=GetFileAttributesW(dir.c_str());
     return attr!=INVALID_FILE_ATTRIBUTES&&(attr&FILE_ATTRIBUTE_DIRECTORY);
 }

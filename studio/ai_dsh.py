@@ -15,12 +15,21 @@ import subprocess
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
-DEFAULT_CORE = BASE / "AI 套件" / "dsh_core"
+DEFAULT_CORE = BASE / "ai"
+LEGACY_CORE = BASE / "AI 套件" / "dsh_core"
 DEFAULT_WORKSPACE = Path.home() / "Documents" / "MoleculeStudio Workspace"
 
 
 def core_dir() -> Path:
-    return Path(os.environ.get("MOLECULE_STUDIO_DSH_CORE") or DEFAULT_CORE)
+    configured = os.environ.get("MOLECULE_STUDIO_DSH_CORE")
+    return Path(configured) if configured else (DEFAULT_CORE if DEFAULT_CORE.is_dir() else LEGACY_CORE)
+
+
+def runtime_paths(core: Path):
+    """Support the compact layout and existing installations."""
+    if (core / "node.exe").is_file():
+        return core / "node.exe", core / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js"
+    return core / "node" / "node.exe", core / "dsh" / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js"
 
 
 def _writable(path: Path) -> bool:
@@ -45,11 +54,12 @@ def workspace_dir() -> Path:
 
 def available() -> bool:
     core = core_dir()
+    node, binary = runtime_paths(core)
     return all(
         path.is_file()
         for path in (
-            core / "node" / "node.exe",
-            core / "dsh" / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js",
+            node,
+            binary,
             core / "overlay.yml",
         )
     )
@@ -73,8 +83,7 @@ def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base
     core = core_dir()
     workspace = workspace_dir()
     workspace.mkdir(parents=True, exist_ok=True)
-    node = core / "node" / "node.exe"
-    binary = core / "dsh" / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js"
+    node, binary = runtime_paths(core)
     overlay = core / "overlay.yml"
     env = os.environ.copy()
     env["DEEPSEEK_API_KEY"] = api_key
@@ -86,7 +95,7 @@ def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base
     if model:
         env["MOLECULE_STUDIO_DSH_MODEL"] = model
     python_dir = BASE / "python"
-    env["PATH"] = (str(python_dir) + ";" if python_dir.is_dir() else "") + str(core / "node") + ";" + env.get("PATH", "")
+    env["PATH"] = (str(python_dir) + ";" if python_dir.is_dir() else "") + str(node.parent) + ";" + env.get("PATH", "")
     command = [str(node), str(binary), "headless", "--patch", str(overlay), "--", "-"]
     if progress:
         progress("高级绘图：正在规划…")
