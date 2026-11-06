@@ -16,3 +16,7 @@ GitHub 自动生成的 Source code (zip/tar.gz) 属于平台源码下载，不�
 审核后的运行目录分为 staging/Core/MoleculeStudio、staging/AI/MoleculeStudio、staging/OCSR/MoleculeStudio。不要把已使用的安装目录直接作为 staging。
 运行 `python tools/package_release.py --staging ../staging --output ../releases`。脚本扫描敏感/运行文件、计算每个文件的 SHA-256、生成三个 ZIP 并验证 ZIP CRC。
 校验清单输出到 releases 的上一级，Release 附件目录保持三个文件。源码仓库不提交 staging、模型或运行时。
+
+## 在线安装器更新发布
+
+正常发版按 [在线版本清单说明](../updates/README.md) 执行：先上传完整软件包，再运行 tools/generate_update_manifest.py，检查并推送 updates/stable.json。在线安装器读取该清单。首次启用需另行上传新版 MoleculeStudio-OnlineSetup.exe；此后包版本变化通常无需重新编译安装器。

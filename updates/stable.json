@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "min_installer_protocol": 1,
+  "channel": "stable",
+  "release": "v0.9.5.0.0",
+  "generated_utc": "2026-11-06T01:01:37.721459+00:00",
+  "components": [
+    {
+      "id": "Core",
+      "version": "0.95-issue2-hotfix",
+      "name": "MoleculeStudio-0.95-issue2-hotfix-Core-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.5.0.0/MoleculeStudio-0.95-issue2-hotfix-Core-win64.zip",
+      "sha256": "28b1da887bef991b54dab92c64f006658f97780cd7b41bd0c940ee5b3a952396",
+      "bytes": 1409048552,
+      "requires_core_version": null
+    },
+    {
+      "id": "AI",
+      "version": "0.95",
+      "name": "MoleculeStudio-0.95-AI-addon-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.5.0.0/MoleculeStudio-0.95-AI-addon-win64.zip",
+      "sha256": "aeb4c91db43defe9a956dcc518515f35000d0fb5a2fec4840c3c2fda1518e753",
+      "bytes": 814402760,
+      "requires_core_version": "0.95-issue2-hotfix"
+    },
+    {
+      "id": "OCSR",
+      "version": "0.95-hotfix2",
+      "name": "MoleculeStudio-0.95-OCSR-addon-win64-hotfix2.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.5.0.0/MoleculeStudio-0.95-OCSR-addon-win64-hotfix2.zip",
+      "sha256": "e58933bf435a8f57b3e6e6a4c7f5f4188c04196250b7af72e66e215c6849f6ff",
+      "bytes": 1568294580,
+      "requires_core_version": "0.95-issue2-hotfix"
+    }
+  ]
+}
