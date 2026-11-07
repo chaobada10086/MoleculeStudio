@@ -26,14 +26,16 @@ def digest(path):
     with path.open('rb') as f:
         return hashlib.file_digest(f, 'sha256').hexdigest()
 
-def repack(source, target, kind):
+def repack(source, target, kind, version, revision):
     updates = {'ai_dsh.py': ROOT/'studio/ai_dsh.py'} if kind in ('Core', 'AI') else {}
     if kind == 'Core':
         updates['MoleculeStudio.exe'] = ROOT/'out/Studio/MoleculeStudio.exe'
     with zipfile.ZipFile(source) as src:
         mn = PREFIX + f'MANIFEST-{kind}.json'
         manifest = json.loads(src.read(mn))
-        manifest['version'] = '0.95-20261106-ai-compact'
+        manifest['version'] = version
+        if 'package_revision' in manifest:
+            manifest['package_revision'] = revision
         manifest['files'] = {(rename(n) if kind == 'AI' else n): value for n, value in manifest['files'].items()}
         for n, path in updates.items():
             manifest['files'][n] = {'bytes': path.stat().st_size, 'sha256': digest(path)}
@@ -62,11 +64,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--version', default='0.95-20261106-ai-compact')
+    parser.add_argument('--revision', default='20261106-mapping-warning')
     args = parser.parse_args()
     args.output.mkdir(exist_ok=True)
     rows = json.loads((args.source/'RELEASE_CHECKSUMS.json').read_text())
     with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
-        futures = [pool.submit(repack,args.source/r['file'],args.output/(r['package']+'.zip'),r['package']) for r in rows]
+        futures = [pool.submit(repack,args.source/r['file'],args.output/(r['package']+'.zip'),r['package'],args.version,args.revision) for r in rows]
         result = [f.result() for f in futures]
     (args.output/'RELEASE_CHECKSUMS.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     (args.output/'SHA256SUMS.txt').write_text(''.join(r['sha256']+'  '+r['file']+'\n' for r in result),encoding='ascii')
