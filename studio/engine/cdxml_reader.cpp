@@ -1416,7 +1416,11 @@ Error readPage(ReaderContext& ctx, const XMLElement* element, int pageIndex) {
     const char* const allowed[] = {
         "id", "BoundingBox", "WidthPages", "HeightPages", "HeaderPosition",
         "FooterPosition", "PageHeight", "PageWidth", "PageOverlap", "Name",
-        "SupersededBy", "PageDefinition", "PrintTrimMarks", "Z"
+        "SupersededBy", "PageDefinition", "PrintTrimMarks", "Z",
+        // Poster canvas geometry (CDXML DTD) plus the per-page size this
+        // application records so a page grid survives ChemDraw's rewriting.
+        "DrawingSpace", "Width", "Height",
+        "MoleculeStudioPageWidth", "MoleculeStudioPageHeight"
     };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);

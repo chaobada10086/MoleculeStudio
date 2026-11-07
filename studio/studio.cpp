@@ -2084,7 +2084,13 @@ void App::selftest(){
     }
     {
         Session sheet;studioio::Page p;p.width=842;p.height=595;p.across=2;p.down=3;p.store(sheet.doc);
-        auto e=sheet.save(testOut+"/pages_2x3.cdxml",true);require(e.ok(),e.message.c_str());Session reopen;e=reopen.open(testOut+"/pages_2x3.cdxml");require(e.ok(),e.message.c_str());auto q=studioio::Page::get(reopen.doc);require(q.across==2&&q.down==3&&std::abs(q.width-842)<.1,"page settings roundtrip");
+        auto e=sheet.save(testOut+"/pages_2x3.cdxml",true);require(e.ok(),e.message.c_str());
+        std::string savedBytes;require(persistence::readFileBytes(testOut+"/pages_2x3.cdxml",&savedBytes).ok(),"read saved page CDXML");
+        tinyxml2::XMLDocument saved;require(saved.Parse(savedBytes.c_str())==tinyxml2::XML_SUCCESS,"parse saved page CDXML");
+        auto savedPage=saved.RootElement()?saved.RootElement()->FirstChildElement("page"):nullptr;require(savedPage,"saved CDXML has a page");
+        require(std::string(savedPage->Attribute("DrawingSpace")?savedPage->Attribute("DrawingSpace"):"")=="poster","canvas is written as a poster drawing space");
+        require(std::abs(savedPage->DoubleAttribute("Width",0)-1684)<.1&&std::abs(savedPage->DoubleAttribute("Height",0)-1785)<.1,"canvas width and height are written");
+        Session reopen;e=reopen.open(testOut+"/pages_2x3.cdxml");require(e.ok(),e.message.c_str());auto q=studioio::Page::get(reopen.doc);require(q.across==2&&q.down==3&&std::abs(q.width-842)<.1&&std::abs(q.height-595)<.1,"page settings roundtrip");
     }
 
     {Session ring;ring.activateCommand("chooseRingTool_Benzene");

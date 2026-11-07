@@ -30,7 +30,35 @@ inline void readPage(const std::string& bytes,Document& d){
     tinyxml2::XMLDocument x;if(x.Parse(bytes.c_str())!=tinyxml2::XML_SUCCESS)return;
     auto root=x.RootElement();auto e=root?root->FirstChildElement("page"):nullptr;if(!e)return;
     Page p;e->QueryIntAttribute("WidthPages",&p.across);e->QueryIntAttribute("HeightPages",&p.down);
-    const char* bb=e->Attribute("BoundingBox");double a,b,c,f;if(bb){std::istringstream in(bb);if(in>>a>>b>>c>>f){p.width=(c-a)/std::max(1,p.across);p.height=(f-b)/std::max(1,p.down);p.x=a;p.y=b;}}
+    if(p.across<1)p.across=1;if(p.down<1)p.down=1;
+    const char* space=e->Attribute("DrawingSpace");
+    const bool poster=space&&std::string(space)=="poster";
+    // A poster canvas stores the drawing area in Width/Height. Its BoundingBox is
+    // the whole canvas, so dividing it by WidthPages/HeightPages would invent a
+    // page size the file does not have. Prefer the application's per-page size
+    // when present, then the poster extent, then the pages-mode BoundingBox.
+    bool hasCanvas=false;double canvasWidth=0,canvasHeight=0;
+    if(const char* w=e->Attribute("Width"))if(const char* h=e->Attribute("Height")){
+        std::istringstream iw(w),ih(h);double vw=0,vh=0;
+        if((iw>>vw)&&(ih>>vh)&&std::isfinite(vw)&&std::isfinite(vh)&&vw>0&&vh>0){canvasWidth=vw;canvasHeight=vh;hasCanvas=true;}
+    }
+    bool hasStudioPage=false;double studioWidth=0,studioHeight=0;
+    if(const char* w=e->Attribute("MoleculeStudioPageWidth"))if(const char* h=e->Attribute("MoleculeStudioPageHeight")){
+        double vw=std::atof(w),vh=std::atof(h);
+        if(std::isfinite(vw)&&std::isfinite(vh)&&vw>0&&vh>0){studioWidth=vw;studioHeight=vh;hasStudioPage=true;}
+    }
+    if(hasStudioPage){p.width=studioWidth;p.height=studioHeight;p.x=0;p.y=0;}
+    else if(poster&&hasCanvas){
+        // ChemDraw rewrites WidthPages/HeightPages for its own paper but keeps
+        // Width/Height. Use those counts so a re-saved poster still has a valid
+        // page grid; divide the canvas, never the BoundingBox, which is the canvas.
+        const int across=std::max(1,std::min(20,p.across)),down=std::max(1,std::min(20,p.down));
+        const double pageWidth=canvasWidth/across,pageHeight=canvasHeight/down;
+        if(pageWidth>=72&&pageWidth<=14400&&pageHeight>=72&&pageHeight<=14400){p.width=pageWidth;p.height=pageHeight;p.across=across;p.down=down;}
+        else{p.width=canvasWidth;p.height=canvasHeight;p.across=1;p.down=1;}
+        p.x=0;p.y=0;
+    }
+    else{const char* bb=e->Attribute("BoundingBox");double a,b,c,f;if(bb){std::istringstream in(bb);if(in>>a>>b>>c>>f){p.width=(c-a)/std::max(1,p.across);p.height=(f-b)/std::max(1,p.down);p.x=a;p.y=b;}}}
     if(p.valid())p.store(d);
 }
 inline Error exportXml(const Document& d,std::string* bytes){
@@ -47,33 +75,64 @@ inline Error exportXml(const Document& d,std::string* bytes){
     for(const char* key:{"BondSpacing","MarginWidth","LabelFace","BoldWidth","HashSpacing"})if(auto value=d.documentExtensions().findValue(std::string("studio.style.")+key))root->SetAttribute(key,value->c_str());
     if(ft)for(auto f=ft->FirstChildElement("font");f;f=f->NextSiblingElement("font"))f->SetAttribute("charset","iso-8859-1");
     Page p=Page::get(d);if(!p.valid())return Error(ErrorCode::InvalidArgument,"纸张设置无效");
-    // Keep world coordinates, including negative coordinates. The sheet origin
-    // follows the document's paper origin rather than clipping at (0,0).
+    // ChemDraw's pages mode derives the canvas from its printer paper (540x720
+    // when the file carries no print record) and ignores BoundingBox for the
+    // extent. A file written with BoundingBox alone therefore opens at the wrong
+    // size and the drawing looks offset. A poster canvas states the drawing area
+    // with the public Width/Height attributes, which ChemDraw honours exactly.
     double ox=p.x,oy=p.y;
-    std::ostringstream bb;bb<<0<<' '<<0<<' '<<p.width*p.across<<' '<<p.height*p.down;
-    root->SetAttribute("BoundingBox",bb.str().c_str());root->DeleteAttribute("WindowPosition");root->DeleteAttribute("WindowSize");
+    const double canvasWidth=p.width*p.across,canvasHeight=p.height*p.down;
+    auto numberText=[](double value){std::ostringstream text;text.precision(12);text<<value;return text.str();};
+    const std::string canvasBox="0 0 "+numberText(canvasWidth)+' '+numberText(canvasHeight);
+    root->SetAttribute("BoundingBox",canvasBox.c_str());root->DeleteAttribute("WindowPosition");root->DeleteAttribute("WindowSize");
     for(auto pg=root->FirstChildElement("page");pg;pg=pg->NextSiblingElement("page")){
-        pg->SetAttribute("BoundingBox",bb.str().c_str());pg->SetAttribute("WidthPages",p.across);pg->SetAttribute("HeightPages",p.down);
-        pg->SetAttribute("HeaderPosition",36);pg->SetAttribute("FooterPosition",36);
+        pg->SetAttribute("BoundingBox",canvasBox.c_str());
+        pg->SetAttribute("Width",numberText(canvasWidth).c_str());pg->SetAttribute("Height",numberText(canvasHeight).c_str());
+        pg->SetAttribute("DrawingSpace","poster");
+        pg->SetAttribute("WidthPages",p.across);pg->SetAttribute("HeightPages",p.down);
+        pg->SetAttribute("PageOverlap",0);pg->SetAttribute("HeaderPosition",36);pg->SetAttribute("FooterPosition",36);
+        // ChemDraw recomputes WidthPages/HeightPages from its own paper but keeps
+        // Width/Height, so the page grid the user chose is also recorded here.
+        pg->SetAttribute("MoleculeStudioPageWidth",numberText(p.width).c_str());
+        pg->SetAttribute("MoleculeStudioPageHeight",numberText(p.height).c_str());
         // Captions and graphics belong to the page, not to a molecule fragment.
         for(auto frag=pg->FirstChildElement("fragment");frag;frag=frag->NextSiblingElement("fragment")){
             for(auto child=frag->FirstChildElement();child;){auto next=child->NextSiblingElement();std::string n=child->Name();if(n!="n"&&n!="b"&&n!="fragment"){auto clone=child->DeepClone(&xml);pg->InsertEndChild(clone);frag->DeleteChild(child);}child=next;}
         }
-        // ChemDraw clips negative drawing coordinates at the printable origin.
-        // Translate the exported page, never the live document, into that space.
-        double minX=1e30,minY=1e30;
+        // Keep drawing coordinates as they are, but move the exported copy into
+        // the canvas. ChemDraw reads them unchanged, so the translation must not
+        // touch the live document.
+        double minX=1e30,minY=1e30,maxX=-1e30,maxY=-1e30;
         std::function<void(tinyxml2::XMLElement*,bool,double,double)> walk;
         walk=[&](tinyxml2::XMLElement* node,bool move,double dx,double dy){
             for(auto e=node->FirstChildElement();e;e=e->NextSiblingElement()){
                 for(const char* name:{"p","xyz","BoundingBox","CurvePoints","Head3D","Tail3D","Center3D","MajorAxisEnd3D","MinorAxisEnd3D"})if(auto attr=e->Attribute(name)){
                     std::istringstream in(attr);std::vector<double> v;double n;while(in>>n)v.push_back(n);if(v.size()<2)continue;
-                    if(!move){minX=std::min(minX,v[0]);minY=std::min(minY,v[1]);}
-                    else{v[0]+=dx;v[1]+=dy;if(std::string(name)=="BoundingBox"||std::string(name)=="CurvePoints")for(size_t k=2;k+1<v.size();k+=2){v[k]+=dx;v[k+1]+=dy;}std::ostringstream o;o.precision(12);for(size_t i=0;i<v.size();i++){if(i)o<<' ';o<<v[i];}e->SetAttribute(name,o.str().c_str());}
+                    const bool corners=std::string(name)=="BoundingBox"||std::string(name)=="CurvePoints";
+                    if(!move){
+                        minX=std::min(minX,v[0]);minY=std::min(minY,v[1]);maxX=std::max(maxX,v[0]);maxY=std::max(maxY,v[1]);
+                        if(corners)for(size_t k=2;k+1<v.size();k+=2){minX=std::min(minX,v[k]);minY=std::min(minY,v[k+1]);maxX=std::max(maxX,v[k]);maxY=std::max(maxY,v[k+1]);}
+                    }
+                    else{v[0]+=dx;v[1]+=dy;if(corners)for(size_t k=2;k+1<v.size();k+=2){v[k]+=dx;v[k+1]+=dy;}std::ostringstream o;o.precision(12);for(size_t i=0;i<v.size();i++){if(i)o<<' ';o<<v[i];}e->SetAttribute(name,o.str().c_str());}
                 }
                 walk(e,move,dx,dy);
             }
         };
-        walk(pg,false,0,0);double dx=-ox,dy=-oy;if(minX<1e29&&minX+dx<24)dx+=24-minX-dx;if(minY<1e29&&minY+dy<24)dy+=24-minY-dy;walk(pg,true,dx,dy);
+        walk(pg,false,0,0);
+        // A fresh document keeps its sheet centred on the origin; moving it to the
+        // canvas origin must not push edge objects under ChemDraw's clip margin.
+        // A document read from a file already owns absolute coordinates, so it is
+        // translated by the page origin only and its positions stay untouched.
+        double dx=-ox,dy=-oy;
+        if(p.x<0&&minX<1e29&&minX+dx<24)dx+=24-minX-dx;
+        if(p.y<0&&minY<1e29&&minY+dy<24)dy+=24-minY-dy;
+        walk(pg,true,dx,dy);
+        // The root BoundingBox is the drawing's extent, as ChemDraw writes it,
+        // not the page rectangle; the canvas size lives on the page element.
+        if(minX<1e29&&maxX>-1e29){
+            const std::string contentBox=numberText(minX+dx)+' '+numberText(minY+dy)+' '+numberText(maxX+dx)+' '+numberText(maxY+dy);
+            root->SetAttribute("BoundingBox",contentBox.c_str());
+        }
     }
     tinyxml2::XMLPrinter printer;xml.Print(&printer);*bytes=printer.CStr();return Error();
 }

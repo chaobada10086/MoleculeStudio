@@ -42,7 +42,8 @@ def render(app, data):
     from chemistry_open import Chem, name_molecule, to_cdxml
     root = ET.Element('CDXML', BondLength='30', LabelFont='3', LabelSize='10', LineWidth='0.6', BondSpacing='18')
     ET.SubElement(ET.SubElement(root, 'fonttable'), 'font', id='3', charset='utf-8', name='Arial')
-    page = ET.SubElement(root, 'page', id='1', BoundingBox='0 0 595.276 841.89', WidthPages='1', HeightPages='1')
+    page = ET.SubElement(root, 'page', id='1', BoundingBox='0 0 595.276 841.89', Width='595.276',
+                         Height='841.89', DrawingSpace='poster', WidthPages='1', HeightPages='1')
     counter = 10
 
     def new_id():
