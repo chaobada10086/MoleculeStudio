@@ -3,15 +3,15 @@
   "min_installer_protocol": 2,
   "channel": "stable",
   "release": "v0.9.6.0.0",
-  "generated_utc": "2026-11-08T14:19:02.250325+00:00",
+  "generated_utc": "2026-11-08T14:48:43.884063+00:00",
   "components": [
     {
       "id": "Core",
       "version": "0.95-20261108",
       "name": "MoleculeStudio-0.95-20261108-Core-win64.zip",
       "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-Core-win64.zip",
-      "sha256": "eb683e2a2c405a626a1b893987872a5f104e525a9e4f10b16e30843eabb7ee8f",
-      "bytes": 1115230675,
+      "sha256": "fc57187a45dc1b45cbcc17ca2741312dedab5c8fa968c483c37a476550287c71",
+      "bytes": 1115231537,
       "requires": [],
       "requires_core_version": null
     },

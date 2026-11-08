@@ -43,6 +43,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 - **AI 未配置提示**：AI 助手窗口显示提示条与“配置 API”按钮，一键直达设置 → AI 与 API；配置补全后自动消失，发送/测试连接时也会提示。
 - **AI 生成内容居中**：AI 本轮新增的结构/文字/箭头整体平移到当前可见画布中心；多对象整体居中；超出视口仅缩小不放大；既有对象不被搬动；一次撤销。
 - **AI 绘图 Skill**：Skill 随 Core 内置，设置 → “AI 与 API”或“更新与关于”页均可“另存 AI 绘图 Skill…”，不安装任何 AI 模组也能导出给外部 AI 使用。
+- **AI 入口与设置页排版修复**：合并为单一 Python 运行时后，AI 可用性检查仍在找旧 `python\python.exe`，导致“开始 AI 绘图”入口消失、AI 标签页只剩“AI 设置”；现改为按 `chemistry_backend.ini` 解析实际解释器（chemistry_python，保留旧 python 回退）。另将设置 → “AI 与 API”页的 Skill 提示文字移到状态行下方，不再压住“测试连接 / 另存 AI 绘图 Skill…”按钮。
 - **AI 基础/高级拆分**：基础组件只含助手桥接代码（约 74 KB），无需下载 DSH；高级组件才包含 DSH 运行时与高级绘图插件（约 758 MB），必须先装基础。
 
 ### 安装器与更新
@@ -105,7 +106,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 
 ```
 MoleculeStudio-0.95-20261108-Core-win64.zip
-eb683e2a2c405a626a1b893987872a5f104e525a9e4f10b16e30843eabb7ee8f
+fc57187a45dc1b45cbcc17ca2741312dedab5c8fa968c483c37a476550287c71
 
 MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip
 c47ab5d456143342ca9efedd8535a0a7270fab13706a22be308cdb14e48ace78
@@ -117,7 +118,7 @@ MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip
 d9977a679f51852d95b3e4348304ad7d133d851397bc61fbb68dff970b032822
 
 MoleculeStudio-OnlineSetup.exe
-3d4a258d0f2171fe2c2ceee8d65ee0a18a1b15b40187c6c8af321b43e276a8db
+9f9881b67660a30461d5775816d0c062505fb9dfb23331622677558b61f50422
 ```
 
 ## 九、其他说明

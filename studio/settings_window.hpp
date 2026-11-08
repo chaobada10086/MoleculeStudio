@@ -232,7 +232,7 @@ struct StudioSettingsWindow {
         studio_ui::label(g,titles[category],RectF(202,23,w-232,36),22,studio_ui::ink(),true);studio_ui::label(g,subtitles[category],RectF(202,65,w-232,24),12,studio_ui::muted());
         auto label=[&](const wchar_t* text,int x,int y,int width=300){studio_ui::label(g,text,RectF(float(x),float(y),float(width),24),12,studio_ui::ink());};
         if(category==0){label(L"投稿标准 / 期刊样式",202,82,540);label(L"字体",202,144,220);label(L"字号（pt）",452,144,100);label(L"键长（pt）",202,218);label(L"线宽（pt）",406,218);label(L"选择 ACS Document 1996 或期刊标准会自动填入键长、线宽、字体和字号。",202,374,540);label(L"键长用于后续绘制；已有结构坐标不缩放，单独设置过样式的对象保留原格式。",202,400,540);}
-        if(category==1){label(L"API 基础地址 · 兼容 Chat Completions",202,104,540);label(L"API Key",202,172);label(L"模型",202,278);label(L"AI 绘图 Skill 随 Core 内置，可另存后用外部 AI 调用（无需安装 AI 模组）。",202,354,400);}
+        if(category==1){label(L"API 基础地址 · 兼容 Chat Completions",202,104,540);label(L"API Key",202,172);label(L"模型",202,278);label(L"AI 绘图 Skill 随 Core 内置，可另存后用外部 AI 调用（无需安装 AI 模组）。",202,448,int(w-232));}
         if(category==8){label(L"更新只在点击下方按钮时启动下载器；本程序启动、打开设置或空闲时都不会联网检查更新。",202,196,560);label(L"当前下载器路径：程序目录\\MoleculeStudio-OnlineSetup.exe（随 Core 提供）。",202,398,560);}
         if(category==5){label(L"添加自定义缩写：输入 别名=标准写法，选中文字设置格式",202,h-264,620);}
         if(category==2){label(L"纸张尺寸",202,114);label(L"方向",422,114);label(L"宽度（mm）",202,191);label(L"高度（mm）",406,191);label(L"横向张数",202,274);label(L"纵向张数",406,274);label(L"页面设置应用到当前文档，可按 Ctrl+Z 撤销。",202,390,540);studio_ui::label(g,L"勾选后，新建文档沿用这套纸张与张数；取消勾选则新建文档回到 A4。",RectF(202,414,620,24),12,studio_ui::muted());}

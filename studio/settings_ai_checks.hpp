@@ -241,7 +241,7 @@ void App::settingsAiCheck(const std::string& dir){
             query(L"zzzzzzzzzzzzzzzz");require(settingsWindow.completionKeys.empty()&&settingsWindow.text(802).find(L"没有匹配")!=std::wstring::npos,"empty search explains no match");query(L"");
             std::ofstream(dir+"/fuzzy-ui-checks.json")<<"{\"passed\":true,\"so4_visible\":true,\"formula_no_checkbox\":true,\"filtered_checkbox_identity\":true,\"no_match_explanation\":true}";
         }
-        for(int captureCategory:{5,6}){settingsWindow.set(968,captureCategory==5?L"SO4":L"");settingsWindow.fillCompletion();settingsWindow.select(captureCategory);UpdateWindow(settingsWindow.hwnd);// capture the page through the window itself, then encode with the
+        for(int captureCategory:{1,5,6}){settingsWindow.set(968,captureCategory==5?L"SO4":L"");settingsWindow.fillCompletion();settingsWindow.select(captureCategory);UpdateWindow(settingsWindow.hwnd);// capture the page through the window itself, then encode with the
          // same PNG encoder lookup the canvas screenshots use.
             RECT box;GetWindowRect(settingsWindow.hwnd,&box);
             int w=std::max(1,int(box.right-box.left)),h=std::max(1,int(box.bottom-box.top));
@@ -259,7 +259,7 @@ void App::settingsAiCheck(const std::string& dir){
                 Bitmap image(w,h,w*4,PixelFormat32bppARGB,(BYTE*)bits);
                 UINT count=0,bytes=0;GetImageEncodersSize(&count,&bytes);
                 std::vector<uint8_t> storage(bytes);auto codecs=(ImageCodecInfo*)storage.data();GetImageEncoders(count,bytes,codecs);
-                for(UINT i=0;i<count;++i)if(wcscmp(codecs[i].MimeType,L"image/png")==0){image.Save(W(dir+(captureCategory==5?"/completion-settings.png":"/custom-group-settings.png")).c_str(),&codecs[i].Clsid,0);break;}
+                for(UINT i=0;i<count;++i)if(wcscmp(codecs[i].MimeType,L"image/png")==0){image.Save(W(dir+(captureCategory==1?"/ai-api-settings.png":captureCategory==5?"/completion-settings.png":"/custom-group-settings.png")).c_str(),&codecs[i].Clsid,0);break;}
             }
             if(bitmap)DeleteObject(bitmap);
             SetForegroundWindow(settingsWindow.hwnd);

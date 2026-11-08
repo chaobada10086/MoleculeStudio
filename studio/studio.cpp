@@ -220,9 +220,31 @@ static bool aiFolderAvailable(){
     DWORD attr=GetFileAttributesW(dir.c_str());
     return attr!=INVALID_FILE_ATTRIBUTES&&(attr&FILE_ATTRIBUTE_DIRECTORY);
 }
-static bool aiDrawingAvailable(){
+// The AI assistant runs on the Python interpreter named by chemistry_backend.ini
+// (after the single-runtime migration that is chemistry_python\python.exe). The
+// old check for a separate python\python.exe hid "开始 AI 绘图" on every install
+// that only ships the merged runtime, leaving just "AI 设置" in the AI tab.
+static std::wstring backendPythonPath(){
     std::wstring dir=executableDirectory();
-    return aiFolderAvailable()&&fileExists(dir+L"\\python\\python.exe")&&fileExists(dir+L"\\ai_plugins\\plugin.xml");
+    wchar_t buffer[32768]={};
+    std::wstring ini=dir+L"\\chemistry_backend.ini";
+    for(const wchar_t* key:{L"Python",L"ChemistryPython"}){
+        DWORD length=GetPrivateProfileStringW(L"Backend",key,L"",buffer,32768,ini.c_str());
+        if(!length)continue;
+        std::wstring path=buffer;
+        if(path.empty())continue;
+        bool absolute=(path.size()>1&&path[1]==L':')||(path.size()>1&&path[0]==L'\\'&&path[1]==L'\\');
+        if(!absolute)path=dir+L"\\"+path;
+        if(fileExists(path))return path;
+    }
+    for(const wchar_t* fallback:{L"\\chemistry_python\\python.exe",L"\\python\\python.exe"}){
+        std::wstring path=dir+fallback;
+        if(fileExists(path))return path;
+    }
+    return std::wstring();
+}
+static bool aiDrawingAvailable(){
+    return aiFolderAvailable()&&!backendPythonPath().empty()&&fileExists(executableDirectory()+L"\\ai_plugins\\plugin.xml");
 }
 static bool aiRecognitionAvailable(){
     return aiFolderAvailable()&&ocsrRuntimeAvailable();
