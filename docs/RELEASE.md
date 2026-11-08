@@ -3,7 +3,8 @@
 2. 安装 Git 后执行 `git init`、`git add .`，先检查 `git status` 和 `git diff --cached`，再提交。
 3. 创建空 GitHub 仓库并按 GitHub 提示连接 remote、推送；推送前检查敏感信息扫描报告。
 4. 使用版本标签（如 v0.9.6.0.0）创建 Release，上传四个 ZIP：Core、AI 基础（AIBasic）、AI 高级（AIAdvanced）、图片识别（OCSR）。
-5. 把交付目录的 RELEASE_BODY.md 内容粘贴进 Release 描述；校验值写在描述里，不必增加额外附件。
+5. 代码签名（如需消除“未知发布者”）：按 [CODE_SIGNING.md](CODE_SIGNING.md) 使用 `tools/sign_release.ps1` 对 `MoleculeStudio.exe` 与 `MoleculeStudio-OnlineSetup.exe` 签名并确认 `Valid`，再上传。自签名只在本机受信任；公开发行请使用受信任 CA 或 SignPath/Certum 开源证书。
+6. 把交付目录的 RELEASE_BODY.md 内容粘贴进 Release 描述；校验值写在描述里，不必增加额外附件。
 GitHub 自动生成的 Source code (zip/tar.gz) 属于平台源码下载，不是额外手工上传的功能包。
 
 .gitignore 只防止新文件误加入 Git，不会移除已跟踪文件，也不会清理已有历史。此交付不含旧 .git。
