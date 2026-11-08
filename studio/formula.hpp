@@ -102,6 +102,10 @@ inline Formula analyze(const Document& d,const std::vector<ObjectRef>& refs){
             if(b->semantics!=BondSemantics::Normal){r.note="含查询或特殊键，暂不计算";return r;}sum+=int(b->order);}
         int h=sem.implicitHydrogens;
         if(h<0){
+            // A charged atom with no bonds has no valence context: the label
+            // alone cannot tell whether O- is an oxide (no H) or a hydroxide
+            // (one H). Report it as unresolved instead of inventing hydrogens.
+            if(sem.charge&&degree==0){r.note="带电结构需明确氢数";return r;}
             if(arom){if(a->element!=6||arom<2||degree>3){r.note="芳香杂原子的氢数待确认";return r;}h=3-degree;}
             else {int val=a->element==6?4:a->element==7?3:a->element==8?2:a->element==16?(sum<=2?2:sum<=4?4:6):a->element==15?(sum<=3?3:5):(a->element==1||a->element==9||a->element==17||a->element==35||a->element==53)?1:-1;
                 if(sem.charge){if((a->element==7&&std::abs(sem.charge)==1)||(a->element==8&&std::abs(sem.charge)==1))val+=sem.charge;else{r.note="带电结构需明确氢数";return r;}}

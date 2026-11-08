@@ -232,7 +232,15 @@ inline Labels labels(const Document& doc,text::GlyphCache& glyphs,const RingGeom
         // based on ink in the bond corridor, including unknown/free labels;
         // atom coordinates and explicit imported typography stay unchanged.
         bool hydrideFirst=false;size_t hydrideChars=0;
-        if(!native&&!hydrideLabel(a.element,label,&hydrideFirst,&hydrideChars)&&terminalAny.count(a.id)){
+        // A bare element symbol (O, N, S, Cl, ...) is centred on its atom the
+        // way ChemDraw does it, and imported files keep that exact native
+        // baseline. Shifting it to bound bond coverage would leave a freshly
+        // drawn O on a different baseline than the same atom re-imported, so
+        // reserve the coverage shift for labels that carry extra text
+        // (hydrogens, isotopes, charges, aliases) and genuinely hang over the
+        // bond corridor.
+        const bool bareElement=label==elementSymbol(a.element)&&!a.semantics.isotope&&!a.semantics.charge;
+        if(!native&&!bareElement&&!hydrideLabel(a.element,label,&hydrideFirst,&hydrideChars)&&terminalAny.count(a.id)){
             const auto& b=*terminalAny.at(a.id);auto other=b.beginAtom==a.id?b.endAtom:b.beginAtom;
             Vec2 toward=doc.atoms().get(other)->position-a.position;double distance=length(toward);
             if(distance>1e-6){toward=toward*(1/distance);Vec2 normal(-toward.y,toward.x);double intrusion=-1e100;

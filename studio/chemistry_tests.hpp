@@ -1,6 +1,11 @@
 // User-facing coverage for imported catalogs and the real chemistry service.
 #include "keymap_data.hpp"
 {
+    // The chemistry quick buttons are only laid out and hit-tested on the Home
+    // tab. Earlier suites (cdxml_color_checks switches to the Graphics tab for a
+    // screenshot) must not leave this file order-dependent, so restore the tab
+    // state explicitly before locating the buttons.
+    ribbonTab=0;ribbonVisible=true;ribbonCompact=false;layout();
     auto clickChemistryQuick=[&](const std::string& command){auto found=std::find_if(chemistryQuick.begin(),chemistryQuick.end(),[&](const Button& button){return button.cmd==command;});require(found!=chemistryQuick.end(),"right-hand chemistry button exists");auto point=MAKELPARAM(int((found->r.X+found->r.Width*.5)*scale),int((found->r.Y+found->r.Height*.5)*scale));SendMessageW(h,WM_MOUSEMOVE,0,point);require(hintButton().cmd==command,"chemistry quick button hover identifies the correct action");SendMessageW(h,WM_LBUTTONUP,0,point);};
     // Count the imported catalog rows by their stable id. One row (Atom/h) is
     // deliberately registered as @cycleHydrogen, so counting @defaultHotkey rows

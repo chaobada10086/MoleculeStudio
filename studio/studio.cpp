@@ -1972,6 +1972,10 @@ void App::firstEditBench(const std::string& file,const std::string& outPath){
 
 #include "endpoint_double_click_checks.hpp"
 void App::selftest(){
+    // The suite writes fixtures, screenshots and the final tests.json into
+    // testOut; the command line hands us a path that may not exist yet. Create
+    // it so a clean "delete the output directory, then run --test" works.
+    CreateDirectoryW(W(testOut).c_str(),0);
     DeleteFileW(W(testOut+"/failure.txt").c_str());DeleteFileW(W(testOut+"/tests.json").c_str());
     // ChemDraw-facing save invariants run first: they are cheap, self-contained, and
     // a regression here makes every CDXML the product writes unreadable.

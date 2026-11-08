@@ -19,7 +19,10 @@
     }
     auto digest=carbonyl.doc.digest();auto before=carbonyl.scene.bounds();auto refs=carbonyl.all();require(carbonyl.move(refs,Vec2(37,19)).ok(),"drag complete carbonyl");auto after=carbonyl.scene.bounds();require(length(after.min-before.min-Vec2(37,19))<.001,"drag keeps oxygen and clipped bonds aligned");require(carbonyl.undo().ok()&&carbonyl.doc.digest()==digest,"carbonyl drag undo");
     auto path=testOut+"/carbonyl_roundtrip.cdxml";require(carbonyl.save(path,true).ok(),"save carbonyl");Session reopened;require(reopened.open(path).ok(),"reopen carbonyl");require(reopened.doc.stats().aliveAtoms==4&&reopened.doc.stats().aliveBonds==3,"carbonyl connectivity preserved");
-    Session drawn;ObjectId c,o,left,right,bond,single;drawn.doc.addAtom(Vec2(0,0),6,&c);drawn.doc.addAtom(Vec2(0,-14.4),8,&o);drawn.doc.addAtom(Vec2(-12.4708,7.2),6,&left);drawn.doc.addAtom(Vec2(12.4708,7.2),6,&right);BondRecord doubleBond;doubleBond.beginAtom=c;doubleBond.endAtom=o;doubleBond.order=BondOrder::Double;drawn.doc.addBondRecord(doubleBond,&bond);drawn.doc.addBond(c,left,&single);drawn.doc.addBond(c,right,&single);drawn.refresh();
+    // A document created by the shell applies the ACS drawing preset (Arial 10);
+    // the bare engine Session default is Times New Roman. Draw into an
+    // app-equivalent document so the native baseline expectation is meaningful.
+    Session drawn;drawingSettings.apply(drawn.doc);ObjectId c,o,left,right,bond,single;drawn.doc.addAtom(Vec2(0,0),6,&c);drawn.doc.addAtom(Vec2(0,-14.4),8,&o);drawn.doc.addAtom(Vec2(-12.4708,7.2),6,&left);drawn.doc.addAtom(Vec2(12.4708,7.2),6,&right);BondRecord doubleBond;doubleBond.beginAtom=c;doubleBond.endAtom=o;doubleBond.order=BondOrder::Double;drawn.doc.addBondRecord(doubleBond,&bond);drawn.doc.addBond(c,left,&single);drawn.doc.addBond(c,right,&single);drawn.refresh();
     RingGeometry drawnRings(drawn.doc);auto fresh=molecular::labels(drawn.doc,drawn.glyphs,drawnRings);auto base=fresh.at(o).layout;Vec2 baseline=base.anchor+Vec2(0,base.metrics.firstBaseline);require(std::abs(baseline.y+14.4-3.904)<.001,"newly drawn oxygen uses native baseline too");
     // Partial drag rotates/lengthens C=O. The glyph remains upright, with one
     // shared clipped end on the two strokes. Undo restores the imported layout.
