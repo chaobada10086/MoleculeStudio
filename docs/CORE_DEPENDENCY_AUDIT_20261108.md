@@ -34,3 +34,9 @@
 - 按上述无损方案从 Core 包移除：`__pycache__`/`*.pyc`、site-packages 内 `*.h/*.hpp/*.pyi`、site-packages 内 `test/` 与 `torch/testing/`、stdlib `Lib/test`、`*.pdb`。
 - 结果：条目 39,667 → 25,552，解压体积减少约 122.1 MB，压缩包 1,305,160,644 → 1,256,870,101 B（约 -48.3 MB）。
 - 验证：缩小后的 Core 解压后 `chemistry_python` 的 RDKit 2024.9.6 / torch 2.5.1 导入成功，MoleculeStudio `--test` 两次全绿；安装器 `--extract-test` 通过。若未来发现缺失，可回退到未瘦身的 Core（保留在构建产物中）。
+
+## 2026-11-08 进一步：合并重复 Python 运行时
+
+- 原 Core 同时带 `python/`（CPython 3.12）与 `chemistry_python/`（CPython 3.10 + RDKit/torch）两个解释器，AI 助手与化学后端各用一个，rdkit/PIL 等依赖被重复安装。
+- 验证 `chemistry_python` 已包含 AI 所需全部依赖（rdkit 2024.09.6、PIL 12.3、pypdfium2、nispo 路径）后，`chemistry_backend.ini` 的 `Python` 与 `ChemistryPython` 统一指向 `chemistry_python\python.exe`，从 Core 包中彻底移除 `python/`。
+- 结果：Core 解压减少约 338 MB，压缩包从 1,256.9 MB 降到 1,115.2 MB；合并 AI/OCSR 后四组件安装自检全绿，AI 脚本在 3.10 运行时导入/运行正常。

@@ -2505,6 +2505,7 @@ static App* createEditorTab(HINSTANCE inst,HWND parent,const std::string& path,b
     a.createGraphics();
     a.layout();
     { wchar_t demoFlag[8]={}; if(GetEnvironmentVariableW(L"MOLECULE_STUDIO_OCSR_DEMO",demoFlag,8)) a.showOcsrDemo(); }
+    // Acceptance hook for the image branch of OCSR: open the image directly at startup
     { wchar_t imageFlag[32768]={}; if(GetEnvironmentVariableW(L"MOLECULE_STUDIO_IMAGE_DEMO",imageFlag,32768)&&imageFlag[0]) a.showImageToStructure(); }
     if(!path.empty()){
         Error e=a.s.open(path);

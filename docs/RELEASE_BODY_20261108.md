@@ -6,7 +6,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 
 | 组件 | 文件名 | 大小 | 说明 |
 | --- | --- | --- | --- |
-| 核心工作台 | MoleculeStudio-0.95-20261108-Core-win64.zip | 约 1.17 GB | 必选。主程序、基础绘图、本地化学/核磁/三维运行时、内置 AI 绘图 Skill、手动更新下载器。已做无损瘦身（移除运行期不用的缓存/头文件/测试目录）。 |
+| 核心工作台 | MoleculeStudio-0.95-20261108-Core-win64.zip | 约 1.04 GB | 必选。主程序、基础绘图、本地化学/核磁/三维运行时（已合并为单一 Python 运行时）、内置 AI 绘图 Skill、手动更新下载器。已做无损瘦身（移除重复的 Python 3.12 运行时与运行期不用的缓存/头文件/测试目录）。 |
 | AI 基础 | MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip | 约 74 KB | 可选。AI 助手、检索、对话画图的桥接代码，需 Core 运行时；需自行配置 API 服务、模型和密钥。 |
 | AI 高级 | MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip | 约 758 MB | 可选。内置 DSH（DeepSeek Harness）运行时、高级绘图插件及其第三方许可/源码；**必须先安装 AI 基础与 Core**。 |
 | 图片识别 | MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip | 约 857 MB | 可选。图片/PDF 转结构，含本地 MolScribe 模型（2026-11-08 精简模块，比旧包小约 40%），可独立于 AI 使用。 |
@@ -57,7 +57,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 - 清理说明文档中的历史来源表述（不再出现“309 个缩写串”“快捷键转录自 ChemDraw 26”等旧说法），以仓库自建目录与 `docs/FUNCTIONAL_GROUPS.md` 为准。
 - 软件不内置、不分发任何字体文件；界面与画布文字改用系统字体 API（GDI+ 按字体族名），默认 Arial 10，避免字体再分发与侵权风险。
 - 渲染性能核对：画布悬停 0 次重绘，拖动每帧仅一次画布绘制；没有“动一下就整画布重新渲染”的问题（数据见 `docs/PERF_20261108.md`）。
-- Core 无损瘦身：移除 `__pycache__`/pyc、site-packages 头文件、第三方 test 目录等运行期不用的条目，压缩包约减少 48 MB，功能自检全绿。
+- Core 瘦身与 Python 去重：合并重复的 Python 3.12/3.10 双运行时为单一 3.10 运行时，并移除 `__pycache__`/pyc、site-packages 头文件、第三方 test 目录等运行期不用的条目，压缩包由 1.31 GB 降到约 1.04 GB，功能自检全绿。
 
 ### 界面与多语言
 
@@ -96,7 +96,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 
 ```
 MoleculeStudio-0.95-20261108-Core-win64.zip
-9035558c68e9ce209736c5bed1433689225cbeb8e3896d6a24892ffd8f079c2c
+df94132fafcf68053a6931dc5b7c1bda95432841b6a77f4a6af8aff2300acadf
 
 MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip
 944500cf74e6778b1aa6067b69370c34091955fec3fbf1f59cd075ba53067355
@@ -108,7 +108,7 @@ MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip
 0895807f0fa800a2a393492ea8a81713f5df3ec7985dfd70c4c25b9775ccab34
 
 MoleculeStudio-OnlineSetup.exe
-dd2409f0664602c1811e6feab40e439c1d84fc6a97d62d57373ea841f79b0e90
+d4e59dc5930f208b193a9a04d30a4bf97b787303df236146677db702b3ed0014
 ```
 
 ## 九、其他说明
