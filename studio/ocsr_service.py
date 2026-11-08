@@ -41,6 +41,128 @@ warnings.filterwarnings("ignore")
 
 APP_DIR = Path(__file__).resolve().parent
 SERVICE_VERSION = "1.3.1"
+
+# --- MoleculeStudio fine-tune integration (added by ocsr-finetune/integration) ---
+# Runtime knobs, read once per model load.  Defaults match the "768 px, long
+# decode" plan; set MOLSCRIBE_INPUT_SIZE=384 / MOLSCRIBE_MAX_LEN=480 to get the
+# stock behaviour back without editing files again.
+FINETUNE_PATCH_ID = "ocsr-finetune-v3"
+FINETUNE_SIZES = (384, 512, 768, 1024)
+# Footgun guard: the stock release weights collapse at 768, so the *auto* default
+# must follow the model source.  MOLSCRIBE_INPUT_SIZE still wins when set.
+FINETUNE_DEFAULT_SIZE = 768          # fine-tuned checkpoints (experimental)
+FINETUNE_STOCK_SIZE = 384            # stock swin_base_char_aux_1m680k.pth
+FINETUNE_DEFAULT_MAX_LEN = 2000
+FINETUNE_MIN_MAX_LEN = 480
+STOCK_MODEL_NAMES = ("swin_base_char_aux_1m680k.pth",)
+
+
+def is_finetuned_model_path(model_path) -> bool:
+    """True when the checkpoint is NOT the stock MolScribe release."""
+    if not model_path:
+        return False
+    name = Path(str(model_path)).name.lower()
+    if name.startswith("finetuned_"):
+        return True
+    return name not in STOCK_MODEL_NAMES
+
+
+def finetune_default_input_size(model_path) -> int:
+    return FINETUNE_DEFAULT_SIZE if is_finetuned_model_path(model_path) else FINETUNE_STOCK_SIZE
+
+
+def finetune_int_env(name: str, default: int) -> int:
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        print("[ocsr] ignoring invalid %s=%r (using %d)" % (name, raw, default), file=sys.stderr)
+        return default
+
+
+def resolve_finetune_input_size(model_path=None) -> int:
+    """MOLSCRIBE_INPUT_SIZE wins; otherwise 384 for stock weights, 768 for fine-tuned."""
+    size = finetune_int_env("MOLSCRIBE_INPUT_SIZE", finetune_default_input_size(model_path))
+    if size in FINETUNE_SIZES:
+        return size
+    nearest = min(FINETUNE_SIZES, key=lambda s: (abs(s - size), s))
+    print("[ocsr] MOLSCRIBE_INPUT_SIZE=%d unsupported, using %d" % (size, nearest), file=sys.stderr)
+    return nearest
+
+
+def finetune_model_candidates(models_dir: Path) -> list:
+    """Env override first, then models\finetuned_*.pth (newest first)."""
+    out = []
+    env_model = os.environ.get("MOLSCRIBE_MODEL_FILE", "").strip()
+    if env_model:
+        path = Path(env_model)
+        out.append(path if path.is_absolute() else models_dir / env_model)
+    try:
+        finetuned = sorted(models_dir.glob("finetuned_*.pth"),
+                           key=lambda p: p.stat().st_mtime, reverse=True)
+        out.extend(finetuned)
+    except OSError:
+        pass
+    return out
+
+# Fine-tuned MolScribe emits aromatic atom tokens in SMILES style (c, n, o, se, cl ...).
+# The editor's element mapper expects proper element symbols, so normalise the model
+# output once, right where the atom list is materialised.
+_LOWER_AROMATIC = {"c", "n", "o", "s", "p", "b", "se", "as", "te", "si", "cl", "br", "i", "f"}
+
+
+def normalize_model_atom_symbol(symbol: str) -> str:
+    text = (symbol or "").strip()
+    if not text:
+        return text
+    low = text.lower()
+    if low in _LOWER_AROMATIC:
+        return low.capitalize()
+    match = re.fullmatch(r"\[?([a-z]{1,2})(?:H\d*|[+-]\d*|@@|@)*\]?", text)
+    if match:
+        return match.group(1).capitalize()
+    return text
+
+
+def normalize_model_atom_symbols(atoms) -> None:
+    for atom in atoms:
+        if isinstance(atom, dict) and "atom_symbol" in atom:
+            atom["atom_symbol"] = normalize_model_atom_symbol(atom.get("atom_symbol", ""))
+# --- large selection downscaling (task-17) ---------------------------------
+def _env_int(name, default, minimum, maximum):
+    try:
+        value = int(str(os.environ.get(name, "")).strip())
+    except Exception:
+        return default
+    if value < minimum or value > maximum:
+        return default
+    return value
+
+
+# env-configurable; defaults kept identical to the reviewed behaviour
+MAX_SELECTION_PX = _env_int("MOLSCRIBE_MAX_SELECTION_PX", 4096, 512, 20000)
+HARD_MAX_SELECTION_PX = _env_int("MOLSCRIBE_HARD_MAX_SELECTION_PX", 20000, MAX_SELECTION_PX, 60000)
+
+
+def downscale_selection_image(raw, max_side: int = MAX_SELECTION_PX):
+    """Return (model_input_image, scale) with the longest side <= max_side.
+
+    Only the model input is resized.  MolScribe normalises coordinates after its
+    own CropWhite + Resize(384), so normalised coordinates (and therefore the
+    restored pixel positions computed from the *untouched* crop box) stay valid.
+    """
+    from PIL import Image
+
+    longest = max(raw.width, raw.height)
+    if longest <= max_side:
+        return raw, 1.0
+    scale = max_side / float(longest)
+    size = (max(40, int(round(raw.width * scale))),
+            max(40, int(round(raw.height * scale))))
+    return raw.resize(size, Image.LANCZOS), scale
+# --- end fine-tune integration ---
 SCHEMA = "molecule-studio-ocsr/1"
 
 _runtime_handles = []
@@ -136,17 +258,27 @@ class OcsrEngine:
         self.load_seconds: float | None = None
         self.load_error = ""
         self.nicknames = load_nicknames()
+        self.input_size = resolve_finetune_input_size()
+        self.max_len = max(FINETUNE_MIN_MAX_LEN,
+                           finetune_int_env("MOLSCRIBE_MAX_LEN", FINETUNE_DEFAULT_MAX_LEN))
+        self.model_source = "pending"
 
     def candidates(self) -> list[Path]:
-        names = []
+        # fine-tune integration: MOLSCRIBE_MODEL_FILE > finetuned_*.pth > stock ckpt
+        names = list(finetune_model_candidates(self.models_dir))
         if self.model_file:
             names.append(self.model_file)
         names += ["swin_base_char_aux_1m680k.pth", "swin_base_char_aux_1m.pth"]
-        result = []
+        result: list[Path] = []
         for name in names:
-            path = self.models_dir / name
-            if path.is_file() and path.stat().st_size > 100 * 1024 * 1024:
-                result.append(path)
+            path = Path(name)
+            if not path.is_absolute():
+                path = self.models_dir / path
+            try:
+                if path.is_file() and path.stat().st_size > 100 * 1024 * 1024 and path not in result:
+                    result.append(path)
+            except OSError:
+                continue
         return result
 
     def status(self, include_hash: bool = False) -> dict:
@@ -164,6 +296,11 @@ class OcsrEngine:
             "models_available": [p.name for p in paths],
             "load_seconds": self.load_seconds,
             "load_error": self.load_error,
+            "input_size": self.input_size,
+            "max_len": self.max_len,
+            "model_source": self.model_source,
+            "input_size_source": getattr(self, "input_size_source", ""),
+            "finetune_patch": FINETUNE_PATCH_ID,
         }
         # Status is the native client's startup handshake (60 s deadline).
         # Importing torch here can exceed that on a cold disk / antivirus scan.
@@ -213,7 +350,41 @@ class OcsrEngine:
         started = time.time()
         self.model = MolScribe(str(self.model_path), device=device)
         self.load_seconds = round(time.time() - started, 2)
+        self._apply_finetune_runtime()
         self.load_error = ""
+
+    def _apply_finetune_runtime(self) -> None:
+        """Re-point the MolScribe transform at MOLSCRIBE_INPUT_SIZE and raise the
+        decode length limit.  Both are load-time only: no reload required."""
+        model_path = getattr(self, "model_path", None)
+        size = resolve_finetune_input_size(model_path)
+        self.input_size_source = ("env" if os.environ.get("MOLSCRIBE_INPUT_SIZE", "").strip()
+                                  else ("auto-finetuned" if is_finetuned_model_path(model_path)
+                                        else "auto-stock"))
+        max_len = max(FINETUNE_MIN_MAX_LEN,
+                      finetune_int_env("MOLSCRIBE_MAX_LEN", FINETUNE_DEFAULT_MAX_LEN))
+        try:
+            from molscribe.dataset import get_transforms
+            from molscribe.utils import FORMAT_INFO
+            for fmt in ("chartok_coords", "atomtok_coords"):
+                if fmt in FORMAT_INFO:
+                    FORMAT_INFO[fmt]["max_len"] = max_len
+            self.model.transform = get_transforms(size, augment=False)
+        except Exception as exc:  # keep the worker usable, fall back to stock 384
+            print("[ocsr] fine-tune runtime patch failed: %r; falling back to 384/480" % (exc,),
+                  file=sys.stderr)
+            size, max_len = 384, 480
+        self.input_size = int(size)
+        self.max_len = int(max_len)
+        if os.environ.get("MOLSCRIBE_MODEL_FILE", "").strip():
+            self.model_source = "env:MOLSCRIBE_MODEL_FILE"
+        elif self.model_path is not None and self.model_path.name.startswith("finetuned_"):
+            self.model_source = "auto:finetuned"
+        else:
+            self.model_source = "baseline"
+        print("[ocsr] model=%s source=%s input_size=%d max_len=%d"
+              % (self.model_path.name if self.model_path else "?", self.model_source,
+                 self.input_size, self.max_len), file=sys.stderr)
 
     def recognize(self, image_path: Path, return_atoms: bool = True) -> dict:
         self.ensure_loaded()
@@ -2329,6 +2500,7 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
               prepared: dict | None = None) -> dict:
     from PIL import Image
 
+    selection_scale = 1.0
     vector_info = None
     if prepared:
         prepared_path = Path(prepared.get("image") or "")
@@ -2348,8 +2520,12 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
         x, y, w, h = crop_rect
         if w < 40 or h < 40:
             raise ValueError("选区太小（至少 40×40 像素）")
-        if w > 5000 or h > 5000:
-            raise ValueError("选区太大，请缩小范围")
+        if max(w, h) > HARD_MAX_SELECTION_PX:
+            raise ValueError(
+                f"选区太大（{max(w, h)} 像素，超过 {HARD_MAX_SELECTION_PX} 像素上限），请缩小范围"
+            )
+        if max(w, h) > MAX_SELECTION_PX:
+            selection_scale = MAX_SELECTION_PX / float(max(w, h))
         x = max(0, min(image.width - 1, x))
         y = max(0, min(image.height - 1, y))
         w = min(w, image.width - x)
@@ -2371,7 +2547,19 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
     crop_path = cache / f"{stem}-crop.png"
     padded.save(crop_path, "PNG")
 
-    result = engine.recognize(crop_path, return_atoms=True)
+    model_input_path = crop_path
+    model_input_px = [padded.width, padded.height]
+    if selection_scale < 1.0:
+        model_raw, model_scale = downscale_selection_image(raw)
+        model_pad = max(2, int(round(pad * model_scale)))
+        model_image = Image.new("RGB",
+                                (model_raw.width + model_pad * 2,
+                                 model_raw.height + model_pad * 2), (255, 255, 255))
+        model_image.paste(model_raw, (model_pad, model_pad))
+        model_input_path = cache / f"{stem}-model-input.png"
+        model_image.save(model_input_path, "PNG")
+        model_input_px = [model_image.width, model_image.height]
+    result = engine.recognize(model_input_path, return_atoms=True)
     molfile = result.get("molfile") or ""
     if not molfile.strip():
         raise ValueError("模型没有返回 Molfile，可能是选区中缺少完整结构")
@@ -2385,11 +2573,14 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
         raise ValueError("模型返回了空结构")
     model_atoms = list(result.get("atoms", []))
     model_bonds = list(result.get("bonds", []))
+    # fine-tune integration: c/n/o/se/... -> C/N/O/Se/... so element mapping works
+    normalize_model_atom_symbols(model_atoms)
     if not model_atoms:
         raise ValueError("模型没有返回原子坐标，无法还原预处理坐标")
 
     box = crop_white_box(padded)
-    mapping = map_molfile_to_model(parsed, model_atoms, model_bonds, (padded.width, padded.height))
+    mapping = map_molfile_to_model(parsed, model_atoms, model_bonds,
+                                   (int(model_input_px[0]), int(model_input_px[1])))
     candidate = build_candidate(parsed, model_atoms, model_bonds,
                                 (padded.width, padded.height), box, mapping)
 
@@ -2422,6 +2613,12 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
     multi_fragment = len(components) > 1
 
     warnings_list = []
+    if selection_scale < 1.0:
+        warnings_list.append(
+            "图像过大已自动缩小到 %d×%d（×%.3f），细节可能丢失；"
+            "大结构建议框小一点或分块识别。" % (
+                model_input_px[0], model_input_px[1], selection_scale)
+        )
     if parsed.get("unsupported"):
         warnings_list.append(
             "Molfile 含未支持的属性（" + "，".join(parsed["unsupported"][:4]) +
@@ -2586,6 +2783,16 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
             "crop_rect_px": [x, y, w, h],
             "crop_padding_px": pad,
             "selection_original_px": [x - pad, y - pad, w + pad * 2, h + pad * 2],
+            "selection_downscaled": {
+                "applied": bool(selection_scale < 1.0),
+                "scale": round(float(selection_scale), 6),
+                "original_px": [int(w), int(h)],
+                "model_input_px": [int(model_input_px[0]), int(model_input_px[1])],
+                "max_side_px": MAX_SELECTION_PX,
+                "hard_limit_px": HARD_MAX_SELECTION_PX,
+                "note": "超大选区只对模型输入等比缩图；像素坐标仍按原尺寸 CropWhite 框恢复，"
+                        "叠加图与插入位置不受影响。",
+            },
             "vector_crop": ({
                 "applied": True,
                 "image": str(vector_info.get("image", "")),
@@ -2605,10 +2812,12 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
             "sha256": sha256_file(crop_path),
         },
         "model_preprocess": {
-            "operation": "CropWhite(pad=5) -> Resize(384,384); model coordinates are normalised to the cropped+padded image",
+            "operation": "CropWhite(pad=5) -> Resize(%d,%d); model coordinates are normalised to the cropped+padded image" % (engine.input_size, engine.input_size),
             "crop_white_box_in_input_px": [int(box[0]), int(box[1]), int(box[2]), int(box[3])],
             "pad": 5,
-            "model_input_size": [384, 384],
+            "model_input_size": [engine.input_size, engine.input_size],
+            "model_input_px": [int(model_input_px[0]), int(model_input_px[1])],
+            "selection_scale": round(float(selection_scale), 6),
             "restore_formula": "x_px=(left-5)+x_norm*((right-left)+10); y_px=(top-5)+y_norm*((bottom-top)+10)",
         },
         "transform": {
@@ -2640,7 +2849,9 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
             "device": str(result.get("_device", engine.device_name)),
             "inference_seconds": result.get("_seconds"),
             "load_seconds": engine.load_seconds,
-            "input_size": 384,
+            "input_size": engine.input_size,
+            "max_len": engine.max_len,
+            "model_source": engine.model_source,
         },
         "result": {
             "smiles": result.get("smiles", ""),
