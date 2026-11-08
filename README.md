@@ -2,12 +2,13 @@
 Windows x64 分子结构绘图工具，支持化学式、CDXML、模板、本地化学计算，以及可选 AI 和图片转结构（OCSR）。
 
 ## 下载与安装
-Release 手工上传且仅上传以下三个 ZIP。三个 ZIP 都包含同名 `MoleculeStudio/` 根目录。
-1. **Core-win64**：必选。解压后运行 `MoleculeStudio.exe`。含基础绘图和本地化学运行时。
-2. **AI-addon-win64**：可选。解压合并到核心包的同名目录，获得 AI 助手与高级绘图；需自行配置服务地址、模型和 API Key。服务商可能收费。AI 读取的提示和附件可能发送到配置的服务商。
-3. **OCSR-addon-win64**：可选。解压合并到核心包的同名目录，获得本地图片/PDF转结构；无需 AI 包。AI 识别图片功能需要同时安装 AI 与 OCSR。
+Release 手工上传四个 ZIP。四个 ZIP 都包含同名 `MoleculeStudio/` 根目录。
+1. **Core-win64**：必选。解压后运行 `MoleculeStudio.exe`。含基础绘图、本地化学运行时、内置 AI 绘图 Skill 与手动更新下载器。
+2. **AIBasic-addon-win64**（AI 基础）：可选。解压合并到核心包同名目录，获得 AI 助手、检索和对话画图；需自行配置服务地址、模型和 API Key。服务商可能收费，AI 读取的提示和附件可能发送到配置的服务商。
+3. **AIAdvanced-addon-win64**（AI 高级）：可选。仅高级绘图插件，必须已安装 AI 基础与核心；解压合并到同一目录。
+4. **OCSR-addon-win64**：可选。解压合并到核心包同名目录，获得本地图片/PDF 转结构；无需 AI 包。AI 识别图片功能需要同时安装 AI 基础与 OCSR。
 
-不要把插件解压成 `MoleculeStudio/MoleculeStudio/`。三个包版本必须一致。模型识别会出错，应核对键级、手性和电荷。
+不要把插件解压成 `MoleculeStudio/MoleculeStudio/`。四个包版本必须一致；AI 高级依赖 AI 基础。模型识别会出错，应核对键级、手性和电荷。
 `legal/<包名>/third-party-sources/` 是随包的第三方对应源码，运行时不加载，可归档但再分发时必须保留获取方式及许可资料。
 
 ## 从源码构建
