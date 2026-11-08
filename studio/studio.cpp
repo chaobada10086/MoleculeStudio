@@ -1679,7 +1679,7 @@ Error App::copySelectionPng(){
     render::Scene selectedScene;
     for(const auto& primitive:s.scene.primitives())if(refs.count(primitive.source))selectedScene.add(primitive);
     if(selectedScene.empty())return Error(ErrorCode::NotFound,"选区没有可绘制的内容");
-    compatible::Renderer renderer;std::string rendererWhy;
+    compatible::Renderer renderer;std::string rendererWhy;renderer.setTransparentBackground(true);
     if(!renderer.initialize(&rendererWhy))return Error(ErrorCode::IoError,"无法创建离屏渲染器"+(rendererWhy.empty()?std::string():std::string("：")+rendererWhy));
     render::View view=s.renderView;
     view.widthPx=double(size.width);view.heightPx=double(size.height);
@@ -1697,15 +1697,18 @@ Error App::copySelectionPng(){
     if(rgba.size()!=size_t(size.width)*size_t(size.height)*4)return Error(ErrorCode::IoError,"离屏渲染像素尺寸不一致");
     // Backend::readPixels hands back rows bottom-up (the canvas screenshot path
     // flips them the same way). GDI+ wants a top-down BGRA buffer for 32bpp, so
-    // flip once here; the CF_DIB below is bottom-up and can reuse the rows by
-    // copying them in this same order.
+    // flip once here. The alpha channel is preserved: the snapshot is the drawing
+    // on a transparent surface, never composited onto white first.
     std::vector<uint8_t> bgra(rgba.size());
     for(int y=0;y<size.height;++y){
         const uint8_t* source=&rgba[size_t(size.height-1-y)*size_t(size.width)*4];
         uint8_t* target=&bgra[size_t(y)*size_t(size.width)*4];
-        for(int x=0;x<size.width;++x){target[size_t(x)*4]=source[size_t(x)*4+2];target[size_t(x)*4+1]=source[size_t(x)*4+1];target[size_t(x)*4+2]=source[size_t(x)*4];target[size_t(x)*4+3]=255;}
+        for(int x=0;x<size.width;++x){target[size_t(x)*4]=source[size_t(x)*4+2];target[size_t(x)*4+1]=source[size_t(x)*4+1];target[size_t(x)*4+2]=source[size_t(x)*4];target[size_t(x)*4+3]=source[size_t(x)*4+3];}
     }
-    Bitmap image(size.width,size.height,size.width*4,PixelFormat32bppARGB,bgra.data());
+    // The renderer stores premultiplied alpha; wrapping it as PARGB lets the PNG
+    // encoder un-premultiply into the straight alpha PNG consumers expect, so
+    // anti-aliased edges keep their true colour instead of a dark fringe.
+    Bitmap image(size.width,size.height,size.width*4,PixelFormat32bppPARGB,bgra.data());
     if(image.GetLastStatus()!=Ok)return Error(ErrorCode::IoError,"无法创建 PNG 图像");
     UINT encoderCount=0,encoderBytes=0;GetImageEncodersSize(&encoderCount,&encoderBytes);
     std::vector<uint8_t> encoderStorage(encoderBytes);auto encoders=(ImageCodecInfo*)encoderStorage.data();
@@ -1725,10 +1728,11 @@ Error App::copySelectionPng(){
     }
     stream->Release();
     if(png.size()<8||png[0]!=0x89||png[1]!=0x50||png[2]!=0x4E||png[3]!=0x47)return Error(ErrorCode::IoError,"PNG 编码结果无效");
-    // CF_DIB: a plain bottom-up 24-bit BI_RGB image is what Word, PowerPoint and
-    // chat clients paste most reliably; the white background means no alpha is
-    // needed. A 32-bit CF_DIBV5 is deliberately not offered because some Office
-    // builds interpret its alpha channel.
+    // CF_DIB: the registered "PNG" keeps the transparent snapshot, but a plain
+    // bottom-up 24-bit BI_RGB DIB is what older Word/PowerPoint/chat builds paste
+    // most reliably, so it carries the same image composited over white. A 32-bit
+    // CF_DIBV5 is deliberately not offered because some Office builds interpret
+    // its alpha channel and would paste a black or clipped rectangle.
     const int stride=((size.width*24+31)/32)*4;
     HGLOBAL dib=GlobalAlloc(GMEM_MOVEABLE|GMEM_ZEROINIT,sizeof(BITMAPINFOHEADER)+size_t(stride)*size_t(size.height));
     if(!dib)return Error(ErrorCode::IoError,"剪贴板内存不足");
@@ -1740,7 +1744,15 @@ Error App::copySelectionPng(){
         for(int y=0;y<size.height;++y){
             const uint8_t* source=&bgra[size_t(y)*size_t(size.width)*4];
             uint8_t* target=pixels+size_t(size.height-1-y)*size_t(stride);
-            for(int x=0;x<size.width;++x){target[size_t(x)*3]=source[size_t(x)*4];target[size_t(x)*3+1]=source[size_t(x)*4+1];target[size_t(x)*3+2]=source[size_t(x)*4+2];}
+            for(int x=0;x<size.width;++x){
+                // The source is premultiplied BGRA; alpha 0 means "paper", so the
+                // legacy DIB gets the drawing composited over white and stays a
+                // plain opaque 24-bit image that Office always understands.
+                const int alpha=source[size_t(x)*4+3],coverage=255-alpha;
+                target[size_t(x)*3]=uint8_t(std::min(255,int(source[size_t(x)*4])+coverage));
+                target[size_t(x)*3+1]=uint8_t(std::min(255,int(source[size_t(x)*4+1])+coverage));
+                target[size_t(x)*3+2]=uint8_t(std::min(255,int(source[size_t(x)*4+2])+coverage));
+            }
         }
         GlobalUnlock(dib);
     }
@@ -2416,7 +2428,7 @@ void App::selftest(){
     // centred on the visible viewport without dragging the user's existing objects along.
     aiUxCheck(testOut);
 #include "copy_png_checks.hpp"
-    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true,\"paste_format_decision\":true,\"paste_blank_canvas_adopts_source\":true,\"paste_prompt_default_source\":true,\"paste_internal_no_prompt\":true,\"name_link_auto_group\":true,\"name_link_stale_frame\":true,\"name_link_hover_tip\":true,\"name_link_persists\":true,\"ai_config_banner\":true,\"ai_centred_insert\":true,\"copy_as_png\":true,\"copy_as_png_selection_only\":true,\"copy_as_png_clipboard_formats\":true,\"copy_as_png_document_unchanged\":true,\"copy_as_png_text_arrow\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
+    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true,\"paste_format_decision\":true,\"paste_blank_canvas_adopts_source\":true,\"paste_prompt_default_source\":true,\"paste_internal_no_prompt\":true,\"name_link_auto_group\":true,\"name_link_stale_frame\":true,\"name_link_hover_tip\":true,\"name_link_persists\":true,\"ai_config_banner\":true,\"ai_centred_insert\":true,\"copy_as_png\":true,\"copy_as_png_transparent\":true,\"copy_as_png_selection_only\":true,\"copy_as_png_clipboard_formats\":true,\"copy_as_png_document_unchanged\":true,\"copy_as_png_text_arrow\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }
 }
 #include "drawing_settings_checks.hpp"

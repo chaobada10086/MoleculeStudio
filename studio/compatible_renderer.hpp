@@ -24,6 +24,9 @@ class Renderer : public r62::render::Backend {
     HDC memory_=nullptr;HBITMAP dib_=nullptr;HGDIOBJ old_=nullptr;void* pixels_=nullptr;
     std::unique_ptr<Gdiplus::Bitmap> image_;
     int width_=0,height_=0;bool ready_=false;
+    // Offscreen PNG snapshots need the drawing alone on a transparent surface.
+    // The interactive canvas keeps the default white paper.
+    bool transparentBackground_=false;
     r62::render::Batcher content_,overlay_;
     r62::render::Scene foreground_;
     std::unique_ptr<Gdiplus::Bitmap> vectorImage_;
@@ -108,7 +111,7 @@ public:
             submit(vectors,content,stats,&foreground_,&view);vectors.Flush(Gdiplus::FlushIntentionSync);vectorKey_=key;vectorValid_=true;
         }
         if(overlay){overlay_.sync(*overlay,view,nullptr,&b);overlay_.buildBatch(*overlay,view,false,&over,&b);}
-        GdiFlush();Gdiplus::Graphics g(image_.get());g.Clear(Gdiplus::Color::White);
+        GdiFlush();Gdiplus::Graphics g(image_.get());g.Clear(transparentBackground_?Gdiplus::Color(0,0,0,0):Gdiplus::Color::White);
         g.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);g.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
         if(view.clipEnabled)g.SetClip(Gdiplus::RectF(float(view.clipMin.x),float(view.clipMin.y),float(std::max(0.,view.clipMax.x-view.clipMin.x)),float(std::max(0.,view.clipMax.y-view.clipMin.y))));
         for(const auto& p:scene.primitives())if(p.layer.value==0&&p.kind==PrimKind::Rect&&p.points.size()>=2){
@@ -123,6 +126,7 @@ public:
         if(stats){stats->primitivesTotal=scene.size()+(overlay?overlay->size():0);stats->primitivesCulled=a.culled+b.culled;stats->primitivesDrawn=a.drawn+b.drawn;stats->meshRebuilds=a.meshRebuilds+b.meshRebuilds;stats->viewRebuilds=a.viewRebuilds+b.viewRebuilds;stats->bvhRebuilds=a.bvhRebuilds+b.bvhRebuilds;stats->triangles=content.triangleCount()+over.triangleCount();}
         return Error();
     }
+    void setTransparentBackground(bool transparent){transparentBackground_=transparent;}
     bool present(HDC target){return memory_&&BitBlt(target,0,0,width_,height_,memory_,0,0,SRCCOPY);}
     r62::core::Error readPixels(int x,int y,int w,int h,std::vector<uint8_t>* rgba)const override{
         using namespace r62::core;

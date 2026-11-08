@@ -64,6 +64,7 @@
     std::vector<uint8_t> pngBytes;BITMAPINFOHEADER pngDib;
     require(readClipboardImage(pngBytes,pngDib),"copy-as-PNG publishes both clipboard formats");
     require(pngBytes.size()>8&&pngBytes[0]==0x89&&pngBytes[1]==0x50&&pngBytes[2]==0x4E&&pngBytes[3]==0x47,"clipboard PNG starts with the PNG signature");
+    require(pngBytes[24]==8&&pngBytes[25]==6,"clipboard PNG is 8-bit truecolour with alpha (32bpp ARGB)");
     require(IsClipboardFormatAvailable(pngFormat)&&IsClipboardFormatAvailable(CF_DIB),"clipboard exposes PNG and CF_DIB");
     const auto pngSize=pngDimensions(pngBytes);
     const uint32_t pngWidth=pngSize.first,pngHeight=pngSize.second;
@@ -74,7 +75,7 @@
     const double actualRatio=double(pngWidth-20)/double(std::max(1u,pngHeight>20?pngHeight-20:0u));
     require(std::abs(actualRatio-expectedRatio)<=0.15*std::max(1.0,expectedRatio),"PNG aspect ratio follows the selection bounds");
     // Decode the clipboard PNG with the same GDI+ decoder a paste target uses:
-    // white paper, actual drawn pixels, and the dimensions the DIB advertises.
+    // a transparent surface with only the drawing on it, and the advertised size.
     std::unique_ptr<Bitmap> decoded;
     {
         HGLOBAL copy=GlobalAlloc(GMEM_MOVEABLE,pngBytes.size());
@@ -84,16 +85,28 @@
         IStream* stream=nullptr;
         if(SUCCEEDED(CreateStreamOnHGlobal(copy,TRUE,&stream))&&stream){
             Bitmap image(stream);
-            if(image.GetLastStatus()==Ok)decoded.reset(image.Clone(0,0,image.GetWidth(),image.GetHeight(),PixelFormat32bppPARGB));
+            if(image.GetLastStatus()==Ok)decoded.reset(image.Clone(0,0,image.GetWidth(),image.GetHeight(),PixelFormat32bppARGB));
             stream->Release();
         }
     }
     require(decoded&&decoded->GetLastStatus()==Ok,"clipboard PNG decodes");
     require(decoded->GetWidth()==int(pngWidth)&&decoded->GetHeight()==int(pngHeight),"decoded PNG keeps the advertised size");
-    Color corner;require(decoded->GetPixel(0,0,&corner)==Ok&&corner.GetR()>245&&corner.GetG()>245&&corner.GetB()>245,"copy-as-PNG has a white background");
-    size_t inkPixels=0;
-    for(UINT y=0;y<UINT(pngHeight);y+=4)for(UINT x=0;x<UINT(pngWidth);x+=4){Color pixel;if(decoded->GetPixel(int(x),int(y),&pixel)==Ok&&(pixel.GetR()<245||pixel.GetG()<245||pixel.GetB()<245))++inkPixels;}
-    require(inkPixels>0,"copy-as-PNG contains the rendered structure");
+    const PixelFormat decodedFormat=decoded->GetPixelFormat();
+    require((decodedFormat&PixelFormatAlpha)!=0&&(decodedFormat&PixelFormatPAlpha)==0,"decoded clipboard PNG carries a straight alpha channel");
+    // Corners sit in the 10 px margin, so they must be fully transparent rather
+    // than a white paper background.
+    Color corners[4];
+    require(decoded->GetPixel(0,0,&corners[0])==Ok&&decoded->GetPixel(int(pngWidth)-1,0,&corners[1])==Ok&&decoded->GetPixel(0,int(pngHeight)-1,&corners[2])==Ok&&decoded->GetPixel(int(pngWidth)-1,int(pngHeight)-1,&corners[3])==Ok,"read the four corners of the copied PNG");
+    for(int cornerIndex=0;cornerIndex<4;++cornerIndex)require(corners[cornerIndex].GetA()==0,"copy-as-PNG corners are transparent, not white paper");
+    size_t opaquePixels=0,partiallyTransparentPixels=0;
+    for(UINT y=0;y<UINT(pngHeight);++y)for(UINT x=0;x<UINT(pngWidth);++x){
+        Color pixel;
+        if(decoded->GetPixel(int(x),int(y),&pixel)!=Ok)continue;
+        if(pixel.GetA()>250)++opaquePixels;
+        else if(pixel.GetA()>0)++partiallyTransparentPixels;
+    }
+    require(opaquePixels>0,"copy-as-PNG contains the rendered structure as opaque pixels");
+    require(partiallyTransparentPixels>0,"copy-as-PNG keeps anti-aliased semi-transparent edges");
     {std::ofstream imageFile(testOut+"/copy-as-png-benzene.png",std::ios::binary);imageFile.write(reinterpret_cast<const char*>(pngBytes.data()),std::streamsize(pngBytes.size()));}
     require(s.doc.digest()==pngDigest,"copy-as-PNG does not modify the document");
     require(s.history.cursor()==pngUndoDepth,"copy-as-PNG does not add an undo step");
@@ -139,7 +152,7 @@
         IStream* stream=nullptr;
         if(SUCCEEDED(CreateStreamOnHGlobal(copy,TRUE,&stream))&&stream){
             Bitmap image(stream);
-            if(image.GetLastStatus()==Ok)mixedDecoded.reset(image.Clone(0,0,image.GetWidth(),image.GetHeight(),PixelFormat32bppPARGB));
+            if(image.GetLastStatus()==Ok)mixedDecoded.reset(image.Clone(0,0,image.GetWidth(),image.GetHeight(),PixelFormat32bppARGB));
             stream->Release();
         }
     }
@@ -150,9 +163,10 @@
         Color pixel;
         if(mixedDecoded->GetPixel(int(x),y,&pixel)!=Ok)continue;
         const int r=pixel.GetR(),g=pixel.GetG(),b=pixel.GetB();
-        if(r<110&&g<110&&b<110&&std::abs(r-b)<28){captionOnTop=true;break;}
+        if(pixel.GetA()>200&&r<110&&g<110&&b<110&&std::abs(r-b)<28){captionOnTop=true;break;}
     }
     require(captionOnTop,"copy-as-PNG keeps the document orientation (caption above the arrow)");
+    {Color mixedCorner;require(mixedDecoded->GetPixel(0,0,&mixedCorner)==Ok&&mixedCorner.GetA()==0,"mixed selection PNG corner is transparent");}
     require(s.doc.digest()==mixedDigest&&s.history.cursor()==mixedUndoDepth,"mixed copy-as-PNG leaves document and undo unchanged");
     // Never leave this image on the clipboard for later clipboard assertions.
     releaseClipboard();
