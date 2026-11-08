@@ -3,15 +3,15 @@
   "min_installer_protocol": 2,
   "channel": "stable",
   "release": "v0.9.6.0.0",
-  "generated_utc": "2026-11-08T09:02:51.280813+00:00",
+  "generated_utc": "2026-11-08T12:05:00.502993+00:00",
   "components": [
     {
       "id": "Core",
       "version": "0.95-20261108",
       "name": "MoleculeStudio-0.95-20261108-Core-win64.zip",
       "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-Core-win64.zip",
-      "sha256": "9035558c68e9ce209736c5bed1433689225cbeb8e3896d6a24892ffd8f079c2c",
-      "bytes": 1256870101,
+      "sha256": "d739c27bef2154ec424109ed2cca7ff4fb00083f75d06288d82ebc134be91fb4",
+      "bytes": 1115229550,
       "requires": [],
       "requires_core_version": null
     },
@@ -44,8 +44,8 @@
       "version": "0.95-20261108",
       "name": "MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip",
       "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip",
-      "sha256": "0895807f0fa800a2a393492ea8a81713f5df3ec7985dfd70c4c25b9775ccab34",
-      "bytes": 898517652,
+      "sha256": "4aa68155e37b88c767f540edbc06c0c0a8739fcedf71f28e96a258ea0463dc1e",
+      "bytes": 834667587,
       "requires": [
         "Core"
       ],

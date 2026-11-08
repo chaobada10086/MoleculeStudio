@@ -134,12 +134,12 @@ app 必需项核对（均在）：`ocsr_service.py`（根，app 以 `appDir\ocsr
 
 | 项目 | 值 |
 | --- | --- |
-| 路径 | `C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\dist\packages\MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip`（`dist/` 已 gitignore） |
-| 大小 | **898,517,652 B**（856.9 MiB / 0.90 GB），旧包 1,504,763,253 B，**−40.3%** |
-| SHA-256 | `0895807f0fa800a2a393492ea8a81713f5df3ec7985dfd70c4c25b9775ccab34` |
+| 路径 | `C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\out\repack-20261108\MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip`（构建产物，不提交） |
+| 大小 | **834,667,587 B**（796.0 MiB / 0.83 GB），旧包 1,504,763,253 B，**−44.5%**（2026-11-08 重新压缩） |
+| SHA-256 | `4aa68155e37b88c767f540edbc06c0c0a8739fcedf71f28e96a258ea0463dc1e` |
 | 条目 | 32,830（32,077 新包文件 + 752 legal + 1 `MANIFEST-OCSR.json`；全部位于 `MoleculeStudio/` 下，无目录条目） |
 | 解压后 | 2,278,351,288 B（2.122 GiB） |
-| MANIFEST | `version="0.95-20261108"`、`package="OCSR"`、`package_revision="20261108"`、`files` 32,829 条（真实文件 → `bytes`+`sha256`，不含自身），6,568,202 B |
+| MANIFEST | `version="0.95-20261108"`、`package="OCSR"`、`package_revision="20261108-ocsr-unicode-fix"`、`files` 32,829 条（真实文件 → `bytes`+`sha256`，不含自身），6,568,219 B |
 | 补回 legal | 752 个文件，逐文件与旧包清单 SHA-256 比对 752/752 一致 |
 
 独立校验（`python out/ocsr-audit/verify_package.py`，26 项全 PASS）：CRC、无重复名、`MoleculeStudio/` 前缀齐全、无绝对/越界路径、无目录条目、MANIFEST 与条目集合完全对应、**逐文件 bytes+sha256 全部一致**、MODELS.json/`.sha256`/权重哈希一致、服务版本 1.3.1 与 7 个 op 齐全、legal 752 一致、`venv/Scripts/python.exe` 为 PE、pyvenv.cfg 可重定位。
@@ -147,10 +147,10 @@ app 必需项核对（均在）：`ocsr_service.py`（根，app 以 `appDir\ocsr
 ## 10. 应用/安装器兼容性结论
 
 - **安装器**（`installer/OnlineInstaller.cs`）：`Extract()` 只接受 `MoleculeStudio/` 前缀条目并重算 SHA-256 写 `.installer-OCSR.json`；本包满足。legacy 路径（无 receipt 时读 `MANIFEST-OCSR.json` 校验 `bytes/sha256`）也满足。`ocsr_runtime/venv/pyvenv.cfg` 会被安装器按安装路径重写（`GeneratedConfig`），因此包内保留原始绝对路径不影响安装结果。
-  **注意**：安装器内置的 OCSR 包哈希/版本常量在 `OnlineInstaller.cs`（`Package("OCSR", …)`、`Current()`）与 `updates/stable.json` 中仍是旧值，需由安装器/发布任务（P4）更新为新包大小/哈希/版本，否则“可更新/已安装”判定会不符。本任务按要求**未修改** `installer/`、`updates/`、`stable.json`。
+  **已更新（P4 关闭）**：2026-11-08 重新打包时已把安装器内置的 Core/OCSR 哈希、字节数与 `updates/stable.json` 一并刷新为本包计算值，并重建 `MoleculeStudio-OnlineSetup.exe`；安装器 `--feed-test`、`--extract-test 3` 通过。
 - **原生 UI**（`studio/ocsr_dialog.hpp`）：启动参数 `--serve --models --cache --records`、op 集合 `status/render/recognize/detect/export_crop/confirm`、响应属性（confidence/atoms/bonds/fragments/insertable/crop/overlay/cdxml/record/warnings…）与新版一致；status 的额外属性被忽略。大选区由“>5000 报错”变为“>4096 自动缩图（硬上限 20000）”，app 端无需改动。
 - **AI 桥**（`studio/ai_ocsr_bridge.py`）：只依赖 `ok/id`、`insertable`、`cdxml` 与 `warning` 子节点、各 op 的既有属性，全部保持；`prepare_runtime()` 已能重定位 venv。
-- **仓库源码**：`studio/ocsr_service.py` 已更新为 1.3.1（142,973 B，SHA-256 `cce4b31c…`），新增 `studio/ocsr_client.py`（5,993 B，SHA-256 `81d911c5…`），`studio/build.py` 增加把 `ocsr_client.py` 复制到构建输出（随发布包分发命令行客户端）。
+- **仓库源码**：`studio/ocsr_service.py` 已更新为 1.3.1（143,436 B，SHA-256 `182c6110…`，含 Pillow 解码修复），新增 `studio/ocsr_client.py`（5,993 B，SHA-256 `81d911c5…`），`studio/build.py` 增加把 `ocsr_client.py` 复制到构建输出（随发布包分发命令行客户端）。
 
 ## 11. 问题清单（分级）
 

@@ -389,10 +389,18 @@ class OcsrEngine:
     def recognize(self, image_path: Path, return_atoms: bool = True) -> dict:
         self.ensure_loaded()
         import torch
+        import numpy as np
+        from PIL import Image
 
         started = time.time()
-        output = self.model.predict_image_file(
-            str(image_path), return_atoms_bonds=return_atoms, return_confidence=True
+        # MolScribe's predict_image_file() decodes through OpenCV, which cannot
+        # open files under non-ASCII Windows paths (e.g. a Chinese install or
+        # cache directory). Decode with Pillow instead and hand the model an RGB
+        # array; it is exactly the same pixels OpenCV would have produced.
+        with Image.open(image_path) as source:
+            image = np.array(source.convert("RGB"))
+        output = self.model.predict_image(
+            image, return_atoms_bonds=return_atoms, return_confidence=True
         )
         elapsed = round(time.time() - started, 3)
         output["_seconds"] = elapsed

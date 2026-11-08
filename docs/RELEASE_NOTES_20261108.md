@@ -9,7 +9,7 @@
 | Core | MoleculeStudio-0.95-20261108-Core-win64.zip | 主程序、化学/核磁/三维运行时、内置 AI 绘图 Skill、手动更新下载器 | 无 |
 | AI 基础 | MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip | AI 助手、检索、对话画图桥接（约 74 KB，不装 AI 模组也能用 Core 内 Skill） | Core |
 | AI 高级 | MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip | 内置 DSH 运行时的 AI 高级绘图（约 758 MB，含第三方许可/源码） | AI 基础 |
-| 图片识别 | MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip | 本地图片/PDF 转结构（2026-11-08 精简模块） | Core |
+| 图片识别 | MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip | 本地图片/PDF 转结构（2026-11-08 精简模块，重新压缩后约 796 MB） | Core |
 
 四个 ZIP 都带 `MoleculeStudio/` 根目录，解压合并到同一目录；版本必须一致。AI 高级不能脱离 AI 基础单独安装。
 
@@ -31,7 +31,7 @@
 ## 追加需求
 
 - 选中结构右键新增“复制为 PNG”：透明背景 32bpp PNG（同时提供白底 CF_DIB 兼容格式），只复制选中内容，不改文档、不进撤销栈。
-- OCSR 模块替换为用户提供的 2026-11-08 精简模块：审核、补齐 legal、重生成清单后使用（898,517,652 B，约 -40.3%），识别服务 1.3.1 已通过 ping/status/recognize 与苯环识别验证。
+- OCSR 模块替换为用户提供的 2026-11-08 精简模块：审核、补齐 legal、重生成清单后使用，识别服务 1.3.1 已通过 ping/status/recognize 与苯环识别验证。重新打包后为 834,667,587 B（约 -44.5%，含 Pillow 解码修复）。
 
 ## 已知限制
 

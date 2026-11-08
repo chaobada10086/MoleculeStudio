@@ -62,7 +62,7 @@ class OnlineInstaller {
   string ocsrName="MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip";
   return new[]{
    BuiltinPackage("Core","0.95-20261108",coreName,
-    "1cd2c20a1844e6c15e04d5bebf612b80cb6316d8ab5a3a8ee18de1f35c757e87",1115217887L,
+    "d739c27bef2154ec424109ed2cca7ff4fb00083f75d06288d82ebc134be91fb4",1115229550L,
     ReleaseBase+"v0.9.6.0.0/"+coreName,true,null),
    BuiltinPackage("AIBasic","0.95-20261108",basicName,
     "944500cf74e6778b1aa6067b69370c34091955fec3fbf1f59cd075ba53067355",75564L,
@@ -71,7 +71,7 @@ class OnlineInstaller {
     "7a386c2464e678d642968c9b1315a02827797360fc851a709077a9cf17006389",794723178L,
     ReleaseBase+"v0.9.6.0.0/"+advancedName,true,null),
    BuiltinPackage("OCSR","0.95-20261108",ocsrName,
-    "0895807f0fa800a2a393492ea8a81713f5df3ec7985dfd70c4c25b9775ccab34",898517652L,
+    "4aa68155e37b88c767f540edbc06c0c0a8739fcedf71f28e96a258ea0463dc1e",834667587L,
     ReleaseBase+"v0.9.6.0.0/"+ocsrName,true,null)};
  }
  static Window window; static TextBox folder; static TextBlock status; static ProgressBar bar;
