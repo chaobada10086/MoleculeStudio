@@ -1,8 +1,12 @@
 """Split a published AI addon ZIP into AIBasic and AIAdvanced component packages.
 
 Rules (see README.md / installer/README.md):
-  * AIAdvanced = every payload file under MoleculeStudio/ai_plugins/**
-  * AIBasic    = every other payload file, keeping the MoleculeStudio/ prefix
+  * AIAdvanced = the bundled headless DSH runtime (MoleculeStudio/ai/**), the
+    DSH third-party legal/source bundle (MoleculeStudio/legal/**), its launchers
+    (ai_dsh.py, dsh_proxy.py) and the advanced drawing plugin
+    (MoleculeStudio/ai_plugins/**)
+  * AIBasic    = every other payload file (assistant/retrieval/drawing bridge),
+    keeping the MoleculeStudio/ prefix
   * the stale MANIFEST-AI.json is dropped in both outputs; each output gets a
     freshly generated MANIFEST-<Component>.json describing exactly its files
 
@@ -22,6 +26,9 @@ from pathlib import Path
 PREFIX = 'MoleculeStudio/'
 OLD_MANIFEST = PREFIX + 'MANIFEST-AI.json'
 PLUGIN_PREFIX = PREFIX + 'ai_plugins/'
+DSH_PREFIX = PREFIX + 'ai/'
+LEGAL_PREFIX = PREFIX + 'legal/'
+DSH_FILES = {'ai_dsh.py', 'dsh_proxy.py'}
 CHUNK = 1024 * 1024
 
 
@@ -83,7 +90,10 @@ def split(source, output, version=None, revision=None):
                     continue
                 if not info.filename.startswith(PREFIX):
                     raise SystemExit('unexpected archive root: ' + info.filename)
-                component = 'AIAdvanced' if info.filename.startswith(PLUGIN_PREFIX) else 'AIBasic'
+                relative = info.filename[len(PREFIX):]
+                advanced_file = (info.filename.startswith(PLUGIN_PREFIX) or info.filename.startswith(DSH_PREFIX) or
+                                 info.filename.startswith(LEGAL_PREFIX) or relative in DSH_FILES)
+                component = 'AIAdvanced' if advanced_file else 'AIBasic'
                 hasher = hashlib.sha256()
                 copy_entry(src, basic if component == 'AIBasic' else advanced, info, hasher)
                 records[component][info.filename[len(PREFIX):]] = {
