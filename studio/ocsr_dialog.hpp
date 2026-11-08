@@ -113,6 +113,12 @@ public:
             }
             std::wstring pythonPath = L"PYTHONPATH=" + sitePackages;
             environment.insert(environment.end(), pythonPath.begin(), pythonPath.end());
+            // A CreateProcess environment block is a list of NUL-terminated
+            // strings closed by one extra NUL, i.e. the block must end with
+            // L'\0\0'. Without the second NUL CreateProcess reads past the
+            // buffer and fails with ERROR_INVALID_PARAMETER (87) on machines
+            // where the following heap bytes are not zero.
+            environment.push_back(0);
             environment.push_back(0);
         }
         BOOL created = CreateProcessW(nullptr, mutableCommand.data(), nullptr, nullptr, TRUE,

@@ -51,4 +51,5 @@
 - **修复“图片转结构”连不上本地识别服务**：界面判断运行时文件是否存在时使用窄字符 `std::ifstream`（UTF-8 路径在中文/非 ASCII 安装目录下打不开），改为宽字符 `GetFileAttributesW`；安装路径含中文时也能正常启动本地服务并完成识别。
 - **OCSR 运行时便携化**：删除 venv 启动器（`ocsr_runtime/venv/Scripts`）与 `pyvenv.cfg`（旧包内是打包机绝对路径），统一用包内基础 Python + `PYTHONPATH` 启动；`ocsr_client.py`、`识别图片.cmd`、`recognize.cmd`、`启动OCSR服务.cmd` 与 AI 桥 `ai_ocsr_bridge.py` 同步修改。整个 OCSR 目录复制/剪切到任意位置或任意电脑都能直接运行，包内不再包含任何绝对路径。
 - Core、AI 基础、图片识别包与在线安装器按新哈希重新打包，`stable.json` 与校验值同步更新；已在中文路径整机运行识别成功，并在全新目录解压、移动后完成 `--test` 两连绿与安装器全部自测。
+- **修复 `CreateProcess failed, GetLastError=87`**：启动识别服务时构造的自定义环境块缺少结尾双 NUL，部分机器上 Windows 会读到缓冲区外并拒绝创建进程（同机时好时坏、换电脑必现），现已补齐；启动失败时日志会记录错误码与可读提示。
 - **修复“新解压后第一次识别失败、跑一次旧版本后才正常”**：旧 exe 在 OCSR 缓存目录尚不存在时无法建立日志文件，会把识别服务的 stderr 并入通信管道；个别电脑上 Python/torch 的启动警告会冲掉协议行导致识别失败（缓存目录被旧版本建出来后即恢复）。现在首次启动会自动创建缓存目录、stderr 固定落盘，客户端只接受 `<` 开头的协议行；日志首行记录本次启动的 python/cache/records 路径，启动失败会记录 Windows 错误码。

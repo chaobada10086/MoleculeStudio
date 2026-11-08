@@ -76,6 +76,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
   ① 修复“安装了图片识别却连不上本地识别服务”的问题：界面判断运行时文件是否存在时用了窄字符 `std::ifstream`（UTF-8 路径在中文/非 ASCII 安装目录下打不开），已改为宽字符 `GetFileAttributesW`，安装路径含中文也能正常启动服务；
   ② OCSR 运行时彻底去掉 venv 启动器与 `pyvenv.cfg`（旧包内是打包机绝对路径，复制到别的电脑会报 `No Python at …`），统一用包内基础 Python + `PYTHONPATH` 启动，命令行工具与 AI 桥同步修改；整个目录可复制/剪切到任意位置，包内不含任何绝对路径；
   ③ 服务端读取整页/裁剪图改为 Pillow 解码后以 RGB 数组送入 MolScribe，不再经由 OpenCV `imread` 读取文件；中文路径下 `render + recognize` 复验通过（10 原子/10 键）。
+  ⑤ 修复个别机器上启动识别服务报 `CreateProcess failed, GetLastError=87`：自定义环境块缺少结尾双 NUL，Windows 会读到缓冲区外并拒绝创建进程（同类机器上时好时坏也源于此），现按规范补上双 NUL。
   ④ 全新解压/首次运行时自动创建 OCSR 缓存目录，识别服务的错误输出固定写入 service-error.log 而不再并入通信管道（个别电脑上 Python/torch 的启动警告会冲掉协议行，导致第一次识别失败）；客户端只接受 "<" 开头的协议行，杂行自动忽略；日志首行记录本次启动的 python/cache/records 路径，CreateProcess 失败会记录 Win32 错误码。
   Core、AI 基础、图片识别包与在线安装器（内置离线清单）均已按新哈希重新打包。
 - 已安装旧 hotfix2 的用户：请直接使用本次 OCSR 新包（或四组件安装器）替换，旧 hotfix2 与启动器小补丁不再需要。
@@ -104,7 +105,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 
 ```
 MoleculeStudio-0.95-20261108-Core-win64.zip
-c2ea4626b66e42eeefb4a317501ff702de9a922732b2124c33ada461d17752f4
+eb683e2a2c405a626a1b893987872a5f104e525a9e4f10b16e30843eabb7ee8f
 
 MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip
 c47ab5d456143342ca9efedd8535a0a7270fab13706a22be308cdb14e48ace78
@@ -116,7 +117,7 @@ MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip
 d9977a679f51852d95b3e4348304ad7d133d851397bc61fbb68dff970b032822
 
 MoleculeStudio-OnlineSetup.exe
-75657fa4803380b33fc1579cfa948503080e6803168a674a36f765a3ff2802d7
+3d4a258d0f2171fe2c2ceee8d65ee0a18a1b15b40187c6c8af321b43e276a8db
 ```
 
 ## 九、其他说明
