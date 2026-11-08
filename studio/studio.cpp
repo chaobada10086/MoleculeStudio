@@ -778,6 +778,7 @@ void cdxmlColorCheck(const std::string& dir);
     void beginEmbedded(ole::DocumentObject& object);
     void finishEmbedded();
     void screenshot(const std::string& path,bool chrome=true,bool statusBar=true);
+    Error copySelectionPng();
     void probe(const std::string& dir);
     void selftest();
 };
@@ -1157,6 +1158,10 @@ void App::execute(const Button& b){
     radicalPlacing=false;
     cancelSelectionTransform();
     if(tableDragPending)cancelTableDrag();
+    if(b.cmd=="@copyPng"){
+        if(s.selected.empty()){status="请先选择要复制的结构";invalidate();return;}
+        auto copyError=copySelectionPng();status=copyError.ok()?s.status:copyError.message;invalidate();return;
+    }
     if(b.cmd.compare(0,7,"@table:")==0){tableCommand(b.cmd.substr(7));return;}
     if(b.cmd=="@tab"){switchTab(b.arg);return;}
     if(b.cmd=="@ribbonSize"){ribbonCompact=!ribbonCompact;ribbonVisible=true;saveRibbon();layout();invalidate();return;}
@@ -1349,6 +1354,21 @@ bool App::tabHotkey(UINT m,WPARAM wp){
 float App::tabBandH()const{return (tabChild&&host)?host->bandH:0.f;}
 void App::layoutTabBand(){if(tabChild&&host)host->layoutTabs(float(width)/scale);}
 void App::paintTabBand(Graphics& g){if(!tabChild||!host)return;auto state=g.Save();g.TranslateTransform(0.f,0.f);host->paintBand(g,float(width)/scale);g.Restore(state);}
+// Right-click menu for a box-selected drawing. Kept as one builder so the
+// product menu and the acceptance suite inspect exactly the same entries; the
+// "copy as PNG" entry sits right after 复制 and is greyed when nothing is selected.
+const int kContextCopyPngId=8;
+void appendSelectionContextMenu(HMENU menu,bool structure,bool hasSelection){
+    studio_i18n::appendMenu(menu,MF_STRING,1,L"复制\tCtrl+C");
+    studio_i18n::appendMenu(menu,hasSelection?MF_STRING:MF_GRAYED,kContextCopyPngId,L"复制为 PNG");
+    studio_i18n::appendMenu(menu,MF_STRING,2,L"剪切\tCtrl+X");
+    studio_i18n::appendMenu(menu,MF_STRING,3,L"删除\tDelete");
+    studio_i18n::appendMenu(menu,MF_SEPARATOR,0,0);
+    studio_i18n::appendMenu(menu,structure?MF_STRING:MF_GRAYED,4,L"整理结构");
+    studio_i18n::appendMenu(menu,MF_STRING,7,L"文字整理");
+    studio_i18n::appendMenu(menu,structure?MF_STRING:MF_GRAYED,5,L"预测核磁…");
+    studio_i18n::appendMenu(menu,structure?MF_STRING:MF_GRAYED,6,L"结构转命名");
+}
 LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetWindowLongPtrW(h,GWLP_USERDATA);if(m==WM_NCCREATE){a=(App*)((CREATESTRUCTW*)lp)->lpCreateParams;SetWindowLongPtrW(h,GWLP_USERDATA,(LONG_PTR)a);a->canvas=h;}if(!a)return DefWindowProcW(h,m,wp,lp);if(m==WM_LBUTTONDOWN||m==WM_RBUTTONDOWN||m==WM_MBUTTONDOWN||m==WM_MOUSEWHEEL||m==WM_KEYDOWN||m==WM_CHAR)a->expandPending=false;auto& s=a->s;Vec2 pixel(GET_X_LPARAM(lp),GET_Y_LPARAM(lp));uint32_t pointerModifiers=mods();if(wp&MK_CONTROL)pointerModifiers|=kModControl;if(wp&MK_SHIFT)pointerModifiers|=kModShift;
     switch(m){case WM_SETFOCUS:if(a->textEditor.active&&!a->textEditor.closing){SetFocus(a->edit);return 0;}break;case WM_DESTROY:a->canvasDestroySeen=true;a->shutdownRenderer();return 0;case WM_SIZE:s.renderView.widthPx=std::max(1,int(LOWORD(lp)));s.renderView.heightPx=std::max(1,int(HIWORD(lp)));{auto v=s.view();v.viewportCenter=Vec2(s.renderView.widthPx*.5,s.renderView.heightPx*.5);s.setView(v);}a->updateScrollbars();return 0;
     case WM_LBUTTONDOWN:a->insertionPreviewPending=false;
@@ -1430,16 +1450,10 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
             bool structure=false;
             for(auto r:refs)if(r.kind==ObjectKind::Atom||r.kind==ObjectKind::Bond){structure=true;break;}
             HMENU menu=CreatePopupMenu();
-            studio_i18n::appendMenu(menu,MF_STRING,1,L"复制\tCtrl+C");
-            studio_i18n::appendMenu(menu,MF_STRING,2,L"剪切\tCtrl+X");
-            studio_i18n::appendMenu(menu,MF_STRING,3,L"删除\tDelete");
-            studio_i18n::appendMenu(menu,MF_SEPARATOR,0,0);
-            studio_i18n::appendMenu(menu,structure?MF_STRING:MF_GRAYED,4,L"整理结构");
-            studio_i18n::appendMenu(menu,MF_STRING,7,L"文字整理");
-            studio_i18n::appendMenu(menu,structure?MF_STRING:MF_GRAYED,5,L"预测核磁…");
-            studio_i18n::appendMenu(menu,structure?MF_STRING:MF_GRAYED,6,L"结构转命名");
+            appendSelectionContextMenu(menu,structure,!s.selected.empty());
             int choice=TrackPopupMenu(menu,TPM_RETURNCMD|TPM_NONOTIFY|TPM_RIGHTBUTTON,screen.x,screen.y,0,h,nullptr);DestroyMenu(menu);
             if(choice==1)a->execute(Button("ctxCopy","复制","","@copy"));
+            else if(choice==kContextCopyPngId)a->execute(Button("ctxCopyPng","复制为 PNG","","@copyPng"));
             else if(choice==2)a->execute(Button("ctxCut","剪切","","@cut"));
             else if(choice==3)a->execute(Button("ctxDelete","删除","","@delete"));
             else if(choice==4)a->execute(Button("ctxClean","整理结构","","@clean"));
@@ -1633,6 +1647,125 @@ void App::screenshot(const std::string& path,bool chrome,bool statusBar){Bitmap 
     if(transformDragging){const auto& preview=selectionTransformScene();gl->draw(preview,nullptr,s.renderView,&stats);}else if(tableDragPending&&tableDragActive){const auto& preview=tableDragScene();gl->draw(preview,nullptr,s.renderView,&stats);}else if(cloneDragging&&cloneSource){auto preview=clonePreviewOverlay(overlay.scene());gl->draw(s.gpuScene,&preview,s.renderView,&stats);}else gl->draw(s.displayScene(),&overlay.scene(),s.renderView,&stats);if(rc)glFinish();std::vector<uint8_t> px;gl->readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&px);int w=s.renderView.widthPx,hg=s.renderView.heightPx;
     for(size_t i=0;i<px.size();i+=4)std::swap(px[i],px[i+2]);Bitmap cv(w,hg,-w*4,PixelFormat32bppARGB,px.data()+size_t(hg-1)*w*4);g.DrawImage(&cv,int(16*scale),top,w,hg);
     UINT n=0,sz=0;GetImageEncodersSize(&n,&sz);std::vector<uint8_t> enc(sz);auto list=(ImageCodecInfo*)enc.data();GetImageEncoders(n,sz,list);for(UINT i=0;i<n;i++)if(wcscmp(list[i].MimeType,L"image/png")==0)bitmap.Save(W(path).c_str(),&list[i].Clsid,0);
+}
+// "复制为 PNG": render exactly the selected objects (content only, current
+// document style) into an offscreen white canvas and publish both the original
+// PNG bytes and a CF_DIB so every pasting application has a raster it can read.
+// The document and the undo stack are never touched.
+Error App::copySelectionPng(){
+    if(s.selected.empty())return Error(ErrorCode::InvalidArgument,"请先选择要复制的结构");
+    if(s.scene.empty())s.refresh();
+    const auto refs=studioio::expanded(s.doc,s.selected);
+    const Box bounds=studioio::selectionBounds(s);
+    if(bounds.empty())return Error(ErrorCode::NotFound,"选区没有可绘制的内容");
+    // Document units are PostScript points. 300 DPI is a printable resolution and
+    // about 4x a 100% screen view, so small structures stay crisp without a huge
+    // surface. Oversized selections are scaled down instead of failing.
+    double scale=300.0/72.0;
+    const double contentWidth=std::max(1.0,bounds.width()),contentHeight=std::max(1.0,bounds.height());
+    const int padding=10; // device pixels of white margin on every side
+    const double maxEdge=4096.0,maxPixels=16.0*1024.0*1024.0;
+    struct PixelSize{int width;int height;};
+    auto extent=[&](double factor){
+        PixelSize size;
+        size.width=int(std::ceil(contentWidth*factor))+padding*2;
+        size.height=int(std::ceil(contentHeight*factor))+padding*2;
+        return size;
+    };
+    PixelSize size=extent(scale);
+    if(std::max(size.width,size.height)>maxEdge){scale*=maxEdge/std::max(size.width,size.height);size=extent(scale);}
+    if(double(size.width)*double(size.height)>maxPixels){scale*=std::sqrt(maxPixels/(double(size.width)*double(size.height)));size=extent(scale);}
+    if(size.width<8||size.height<8||size.width>8192||size.height>8192)return Error(ErrorCode::InvalidArgument,"选区尺寸无效，无法生成 PNG");
+    render::Scene selectedScene;
+    for(const auto& primitive:s.scene.primitives())if(refs.count(primitive.source))selectedScene.add(primitive);
+    if(selectedScene.empty())return Error(ErrorCode::NotFound,"选区没有可绘制的内容");
+    compatible::Renderer renderer;std::string rendererWhy;
+    if(!renderer.initialize(&rendererWhy))return Error(ErrorCode::IoError,"无法创建离屏渲染器"+(rendererWhy.empty()?std::string():std::string("：")+rendererWhy));
+    render::View view=s.renderView;
+    view.widthPx=double(size.width);view.heightPx=double(size.height);
+    view.clipEnabled=false;
+    view.transform.center=(bounds.min+bounds.max)*0.5;
+    view.transform.viewportCenter=Vec2(size.width*0.5,size.height*0.5);
+    view.transform.scale=scale;view.transform.dpiScale=1.0;
+    render::RenderStats stats;
+    Error e=renderer.draw(selectedScene,nullptr,view,&stats);
+    if(!e.ok())return e;
+    std::vector<uint8_t> rgba;
+    e=renderer.readPixels(0,0,size.width,size.height,&rgba);
+    if(!e.ok())return e;
+    renderer.destroy();
+    if(rgba.size()!=size_t(size.width)*size_t(size.height)*4)return Error(ErrorCode::IoError,"离屏渲染像素尺寸不一致");
+    // Backend::readPixels hands back rows bottom-up (the canvas screenshot path
+    // flips them the same way). GDI+ wants a top-down BGRA buffer for 32bpp, so
+    // flip once here; the CF_DIB below is bottom-up and can reuse the rows by
+    // copying them in this same order.
+    std::vector<uint8_t> bgra(rgba.size());
+    for(int y=0;y<size.height;++y){
+        const uint8_t* source=&rgba[size_t(size.height-1-y)*size_t(size.width)*4];
+        uint8_t* target=&bgra[size_t(y)*size_t(size.width)*4];
+        for(int x=0;x<size.width;++x){target[size_t(x)*4]=source[size_t(x)*4+2];target[size_t(x)*4+1]=source[size_t(x)*4+1];target[size_t(x)*4+2]=source[size_t(x)*4];target[size_t(x)*4+3]=255;}
+    }
+    Bitmap image(size.width,size.height,size.width*4,PixelFormat32bppARGB,bgra.data());
+    if(image.GetLastStatus()!=Ok)return Error(ErrorCode::IoError,"无法创建 PNG 图像");
+    UINT encoderCount=0,encoderBytes=0;GetImageEncodersSize(&encoderCount,&encoderBytes);
+    std::vector<uint8_t> encoderStorage(encoderBytes);auto encoders=(ImageCodecInfo*)encoderStorage.data();
+    CLSID pngEncoder={};bool encoderFound=false;
+    if(encoderBytes&&GetImageEncoders(encoderCount,encoderBytes,encoders)==Ok)for(UINT i=0;i<encoderCount;++i)if(encoders[i].MimeType&&wcscmp(encoders[i].MimeType,L"image/png")==0){pngEncoder=encoders[i].Clsid;encoderFound=true;break;}
+    if(!encoderFound)return Error(ErrorCode::IoError,"PNG 编码器不可用");
+    IStream* stream=nullptr;
+    if(FAILED(CreateStreamOnHGlobal(nullptr,TRUE,&stream))||!stream)return Error(ErrorCode::IoError,"无法创建 PNG 编码流");
+    if(image.Save(stream,&pngEncoder,nullptr)!=Ok){stream->Release();return Error(ErrorCode::IoError,"PNG 编码失败");}
+    std::vector<uint8_t> png;STATSTG streamStat={};
+    if(SUCCEEDED(stream->Stat(&streamStat,STATFLAG_NONAME))&&streamStat.cbSize.QuadPart>0&&streamStat.cbSize.QuadPart<64ull*1024ull*1024ull){
+        HGLOBAL memory=nullptr;
+        if(SUCCEEDED(GetHGlobalFromStream(stream,&memory))&&memory){
+            void* locked=GlobalLock(memory);
+            if(locked){png.assign(static_cast<uint8_t*>(locked),static_cast<uint8_t*>(locked)+size_t(streamStat.cbSize.QuadPart));GlobalUnlock(memory);}
+        }
+    }
+    stream->Release();
+    if(png.size()<8||png[0]!=0x89||png[1]!=0x50||png[2]!=0x4E||png[3]!=0x47)return Error(ErrorCode::IoError,"PNG 编码结果无效");
+    // CF_DIB: a plain bottom-up 24-bit BI_RGB image is what Word, PowerPoint and
+    // chat clients paste most reliably; the white background means no alpha is
+    // needed. A 32-bit CF_DIBV5 is deliberately not offered because some Office
+    // builds interpret its alpha channel.
+    const int stride=((size.width*24+31)/32)*4;
+    HGLOBAL dib=GlobalAlloc(GMEM_MOVEABLE|GMEM_ZEROINIT,sizeof(BITMAPINFOHEADER)+size_t(stride)*size_t(size.height));
+    if(!dib)return Error(ErrorCode::IoError,"剪贴板内存不足");
+    {
+        BITMAPINFOHEADER* header=static_cast<BITMAPINFOHEADER*>(GlobalLock(dib));
+        if(!header){GlobalFree(dib);return Error(ErrorCode::IoError,"剪贴板内存分配失败");}
+        header->biSize=sizeof(BITMAPINFOHEADER);header->biWidth=size.width;header->biHeight=size.height;header->biPlanes=1;header->biBitCount=24;header->biCompression=BI_RGB;header->biSizeImage=DWORD(size_t(stride)*size_t(size.height));
+        uint8_t* pixels=reinterpret_cast<uint8_t*>(header+1);
+        for(int y=0;y<size.height;++y){
+            const uint8_t* source=&bgra[size_t(y)*size_t(size.width)*4];
+            uint8_t* target=pixels+size_t(size.height-1-y)*size_t(stride);
+            for(int x=0;x<size.width;++x){target[size_t(x)*3]=source[size_t(x)*4];target[size_t(x)*3+1]=source[size_t(x)*4+1];target[size_t(x)*3+2]=source[size_t(x)*4+2];}
+        }
+        GlobalUnlock(dib);
+    }
+    HGLOBAL pngPayload=GlobalAlloc(GMEM_MOVEABLE,png.size());
+    if(!pngPayload){GlobalFree(dib);return Error(ErrorCode::IoError,"剪贴板内存不足");}
+    {void* locked=GlobalLock(pngPayload);if(!locked){GlobalFree(pngPayload);GlobalFree(dib);return Error(ErrorCode::IoError,"剪贴板内存分配失败");}memcpy(locked,png.data(),png.size());GlobalUnlock(pngPayload);}
+    if(!OpenClipboard(h)){GlobalFree(pngPayload);GlobalFree(dib);return Error(ErrorCode::Locked,"剪贴板被占用，请重试");}
+    if(!EmptyClipboard()){CloseClipboard();GlobalFree(pngPayload);GlobalFree(dib);return Error(ErrorCode::IoError,"无法清空剪贴板");}
+    const UINT pngFormat=RegisterClipboardFormatW(L"PNG");
+    bool pngStored=pngFormat&&SetClipboardData(pngFormat,pngPayload)!=nullptr;
+    if(pngStored)pngPayload=nullptr;
+    bool dibStored=pngStored&&SetClipboardData(CF_DIB,dib)!=nullptr;
+    if(dibStored)dib=nullptr;
+    if(!pngStored||!dibStored){
+        // Roll back so a consumer can never see half an image: the formats
+        // already handed over belong to the clipboard and are cleared with it.
+        EmptyClipboard();
+        if(pngPayload)GlobalFree(pngPayload);
+        if(dib)GlobalFree(dib);
+        CloseClipboard();
+        return Error(ErrorCode::IoError,"写入剪贴板失败，已回滚");
+    }
+    CloseClipboard();
+    s.status="已复制为 PNG（"+std::to_string(size.width)+"×"+std::to_string(size.height)+"）";
+    return Error();
 }
 #include "ai_checks.hpp"
 #include "graphic_style_checks.hpp"
@@ -2282,7 +2415,8 @@ void App::selftest(){
     // Task 7/8 acceptance: unconfigured-API banner with its direct settings route, and AI turns
     // centred on the visible viewport without dragging the user's existing objects along.
     aiUxCheck(testOut);
-    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true,\"paste_format_decision\":true,\"paste_blank_canvas_adopts_source\":true,\"paste_prompt_default_source\":true,\"paste_internal_no_prompt\":true,\"name_link_auto_group\":true,\"name_link_stale_frame\":true,\"name_link_hover_tip\":true,\"name_link_persists\":true,\"ai_config_banner\":true,\"ai_centred_insert\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
+#include "copy_png_checks.hpp"
+    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true,\"paste_format_decision\":true,\"paste_blank_canvas_adopts_source\":true,\"paste_prompt_default_source\":true,\"paste_internal_no_prompt\":true,\"name_link_auto_group\":true,\"name_link_stale_frame\":true,\"name_link_hover_tip\":true,\"name_link_persists\":true,\"ai_config_banner\":true,\"ai_centred_insert\":true,\"copy_as_png\":true,\"copy_as_png_selection_only\":true,\"copy_as_png_clipboard_formats\":true,\"copy_as_png_document_unchanged\":true,\"copy_as_png_text_arrow\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }
 }
 #include "drawing_settings_checks.hpp"
