@@ -28,3 +28,9 @@
 - 扫描范围：C:\\Users\\ChaobaDa\\AppData\\Local\\Programs\\MoleculeStudio。
 - 方法：按文件大小分组，对 ≥512 KB 文件计算 SHA-256；统计完全重复组与可回收字节数。
 - 明细：out\\dup-scan.json（构建产物目录，不提交）。
+
+## 2026-11-08 已执行的瘦身
+
+- 按上述无损方案从 Core 包移除：`__pycache__`/`*.pyc`、site-packages 内 `*.h/*.hpp/*.pyi`、site-packages 内 `test/` 与 `torch/testing/`、stdlib `Lib/test`、`*.pdb`。
+- 结果：条目 39,667 → 25,552，解压体积减少约 122.1 MB，压缩包 1,305,160,644 → 1,256,870,101 B（约 -48.3 MB）。
+- 验证：缩小后的 Core 解压后 `chemistry_python` 的 RDKit 2024.9.6 / torch 2.5.1 导入成功，MoleculeStudio `--test` 两次全绿；安装器 `--extract-test` 通过。若未来发现缺失，可回退到未瘦身的 Core（保留在构建产物中）。

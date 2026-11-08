@@ -3,15 +3,15 @@
   "min_installer_protocol": 2,
   "channel": "stable",
   "release": "v0.9.6.0.0",
-  "generated_utc": "2026-11-08T08:21:28.305250+00:00",
+  "generated_utc": "2026-11-08T09:02:51.280813+00:00",
   "components": [
     {
       "id": "Core",
       "version": "0.95-20261108",
       "name": "MoleculeStudio-0.95-20261108-Core-win64.zip",
       "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-Core-win64.zip",
-      "sha256": "a81a46780a6def2acfbadca886d86deb3cbe6e57815ec0f5653ea5e39ccddcc1",
-      "bytes": 1305149595,
+      "sha256": "9035558c68e9ce209736c5bed1433689225cbeb8e3896d6a24892ffd8f079c2c",
+      "bytes": 1256870101,
       "requires": [],
       "requires_core_version": null
     },
@@ -20,8 +20,8 @@
       "version": "0.95-20261108",
       "name": "MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip",
       "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip",
-      "sha256": "f5433c4ad6c05bb11bf405dc13507b2c84202f3ceb619ffeb8d29b7963559d14",
-      "bytes": 794725562,
+      "sha256": "944500cf74e6778b1aa6067b69370c34091955fec3fbf1f59cd075ba53067355",
+      "bytes": 75564,
       "requires": [
         "Core"
       ],
@@ -32,8 +32,8 @@
       "version": "0.95-20261108",
       "name": "MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip",
       "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip",
-      "sha256": "460f51c40eb5fc2cd95c30d6f78f831a4c788d6a3372b921cfdf609a8b025788",
-      "bytes": 73183,
+      "sha256": "7a386c2464e678d642968c9b1315a02827797360fc851a709077a9cf17006389",
+      "bytes": 794723178,
       "requires": [
         "AIBasic"
       ],
