@@ -1,5 +1,6 @@
 #ifndef STUDIO_ARRANGE_ACTIONS_HPP
 #define STUDIO_ARRANGE_ACTIONS_HPP
+#include "engine/name_link.hpp"
 // Alignment, distribution, grouping and ungrouping, all through one entry
 // point so the ribbon, the keyboard shortcuts and the menus cannot drift apart.
 //
@@ -66,6 +67,10 @@ bool App::arrangeAction(const std::string& op,int arg){
         Error e=s.submit(Command("解组",kInvalidateStructure,[groups,freed,report](CommandContext& c){
             selection::SelectionSet result=selection::ungroup(c.document,groups,false,&*report);
             *freed=result.refs();
+            // Ungrouping a 命名结构 pair is an explicit "these are independent
+            // again" instruction: drop the structure link so the stale red frame
+            // cannot outlive the association the user just dissolved.
+            for(size_t k=0;k<freed->size();++k)if((*freed)[k].kind==ObjectKind::Text&&namelink::hasLink(c.document,(*freed)[k].id))namelink::clearLink(c.document,(*freed)[k].id);
             return CommandResult::success();
         }),"解组");
         if(e.ok()){

@@ -23,6 +23,7 @@
 #include "ring_library_data.hpp"
 #include "engine/sprout_layout.hpp"
 #include "engine/valence_warnings.hpp"
+#include "engine/name_link.hpp"
 #include "engine/graphic_style.hpp"
 #include "page_dialog.hpp"
 #include "next/core/commands.hpp"
@@ -292,6 +293,13 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
     // sprout a new bond from it. Track the click's history cursor so the sprout
     // committed by the first click can be undone when the second click arrives.
     size_t clickHistory=0;Vec2 clickPoint;bool lastBondClick=false;size_t lastBondClickHistory=0;Vec2 lastBondClickPoint;uint64_t lastBondClickTick=0;std::string hover,status="准备就绪",fileName="未命名结构",testOut;Formula info;uint64_t formulaSerial=0;std::vector<ObjectRef> formulaRefs;size_t formulaBuilds=0;
+    // Hover popup for a system-name caption whose structure changed; and the
+    // modal format question asked when pasting an external structure.
+    HWND nameLinkTip=nullptr;std::wstring nameLinkTipText;
+    std::string nameLinkTipAt(Vec2 documentPoint);
+    void updateNameLinkTip(Vec2 documentPoint);
+    void hideNameLinkTip();
+    bool askPasteFormat(const studioio::DrawingFormat& source,const studioio::DrawingFormat& target,bool* adoptSource);
     App(){quick={Button("new","新建","","@new"),Button("open","打开","","@open"),Button("save","保存","","@save"),Button("export","导出","","@export"),Button("fit","适合窗口","","@fit"),Button("settings","设置","","@settings"),Button("ribbonSize","展开","","@ribbonSize"),Button("fixedLength","锁定键长","","@fixedLength"),Button("ribbonPin","锁定","","@ribbonPin"),Button("fileMenu","文件","","@fileMenu")};s.input.setKeymap(&shortcuts.chemistry);loadRibbon();applyDrawingDefaults();
         if(!ocsrRuntimeAvailable()){
             chemistryQuick.erase(std::remove_if(chemistryQuick.begin(),chemistryQuick.end(),[](const Button& b){return b.id=="quickImageToStructure";}),chemistryQuick.end());
@@ -306,6 +314,12 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
             }
         }
         aiGroups.erase(std::remove_if(aiGroups.begin(),aiGroups.end(),[](const Group& g){return g.items.empty();}),aiGroups.end());
+        // The clipboard layer lives in interop.hpp with no UI dependency; install
+        // the real dialog here. g_currentApp follows the active tab, so the
+        // question always belongs to the document the user is looking at.
+        if(!studioio::pasteFormatAsker())studioio::pasteFormatAsker()=[](const studioio::DrawingFormat& source,const studioio::DrawingFormat& target,bool* adoptSource){
+            App* app=g_currentApp;if(!app)return false;return app->askPasteFormat(source,target,adoptSource);
+        };
     }
     int ribbonTab=0;bool ribbonCompact=false,ribbonPinned=true,ribbonVisible=true;
     std::vector<std::pair<RectF,size_t>> compactMenus;bool graphicsDense=false,graphicsAutoCompact=false,swallowHotkeyChar=false;
@@ -768,6 +782,25 @@ void cdxmlColorCheck(const std::string& dir);
     void selftest();
 };
 
+// Hover popup for "the structure this caption names has changed". A plain popup
+// window (same idea as the tab tooltip in tabs_host.hpp) because the caption is
+// canvas content, not a child control.
+LRESULT CALLBACK nameLinkTipProc(HWND hwnd,UINT m,WPARAM wp,LPARAM lp){
+    if(m==WM_PAINT){
+        PAINTSTRUCT ps;HDC dc=BeginPaint(hwnd,&ps);RECT rc;GetClientRect(hwnd,&rc);
+        HBRUSH bg=CreateSolidBrush(RGB(254,244,244));FillRect(dc,&rc,bg);DeleteObject(bg);
+        FrameRect(dc,&rc,(HBRUSH)GetStockObject(GRAY_BRUSH));
+        wchar_t text[512]={};GetWindowTextW(hwnd,text,512);
+        SetBkMode(dc,TRANSPARENT);SetTextColor(dc,RGB(176,32,32));
+        HGDIOBJ old=SelectObject(dc,GetStockObject(DEFAULT_GUI_FONT));
+        RECT inner={7,4,rc.right-7,rc.bottom-4};
+        DrawTextW(dc,text,-1,&inner,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+        SelectObject(dc,old);EndPaint(hwnd,&ps);return 0;
+    }
+    if(m==WM_ERASEBKGND)return 1;
+    return DefWindowProcW(hwnd,m,wp,lp);
+}
+
 static bool captureCanvasPixels(HWND hwnd,std::vector<uint8_t>& rgba,int& w,int& h){
     RECT rc={};if(!GetClientRect(hwnd,&rc))return false;
     w=rc.right-rc.left;h=rc.bottom-rc.top;if(w<=0||h<=0)return false;
@@ -827,6 +860,53 @@ bool App::publishOleClipboard(const Document& subset,const std::string& native,c
     return true;
 }
 void App::touched(){if(embedded&&oleObject&&s.dirty)oleObject->markDirty();}
+std::string App::nameLinkTipAt(Vec2 documentPoint){
+    // Only captions bound to a structure whose digest no longer matches report
+    // the change; hit testing uses the same generated text box the user sees.
+    const std::vector<ObjectId> stale=namelink::staleTexts(s.doc);
+    for(size_t i=0;i<stale.size();++i){
+        Box bounds(Vec2(1,1),Vec2(-1,-1));
+        for(const auto& primitive:s.scene.primitives())if(primitive.source==ObjectRef(ObjectKind::Text,stale[i])&&!primitive.bounds.empty()){bounds.add(primitive.bounds.min);bounds.add(primitive.bounds.max);}
+        if(bounds.empty()){
+            const TextRecord* text=s.doc.texts().alive(stale[i]);if(!text)continue;
+            double size=text->size>0?text->size:s.doc.defaultTextSize();
+            bounds=Box(text->position,text->position+Vec2(std::max(8.,size*2.),std::max(4.,size*1.2)));
+        }
+        const double pad=std::max(1.5,s.view().deviceRadiusToDocument(3));
+        if(studioio::inside(bounds,documentPoint,pad))return std::string(namelink::staleMessage());
+    }
+    return std::string();
+}
+void App::hideNameLinkTip(){if(nameLinkTip)ShowWindow(nameLinkTip,SW_HIDE);}
+void App::updateNameLinkTip(Vec2 documentPoint){
+    const std::string tip=nameLinkTipAt(documentPoint);
+    if(tip.empty()){if(!nameLinkTipText.empty()){nameLinkTipText.clear();hideNameLinkTip();}return;}
+    const std::wstring wide=W(tip);
+    if(wide==nameLinkTipText){if(nameLinkTip&&!IsWindowVisible(nameLinkTip))ShowWindow(nameLinkTip,SW_SHOWNOACTIVATE);return;}
+    nameLinkTipText=wide;
+    if(!nameLinkTip){
+        static bool registered=false;
+        if(!registered){WNDCLASSW wc={};wc.lpfnWndProc=nameLinkTipProc;wc.hInstance=GetModuleHandleW(nullptr);wc.hCursor=LoadCursorW(nullptr,MAKEINTRESOURCEW(32512));wc.lpszClassName=L"MoleculeStudioNameLinkTip";RegisterClassW(&wc);registered=true;}
+        nameLinkTip=studio_i18n::createWindowEx(WS_EX_TOPMOST|WS_EX_TOOLWINDOW,L"MoleculeStudioNameLinkTip",L"",WS_POPUP,0,0,10,10,h,nullptr,GetModuleHandleW(nullptr),nullptr);
+    }
+    if(!nameLinkTip)return;
+    SetWindowTextW(nameLinkTip,wide.c_str());
+    HDC dc=GetDC(nameLinkTip);SIZE extent={};HGDIOBJ old=SelectObject(dc,GetStockObject(DEFAULT_GUI_FONT));
+    GetTextExtentPoint32W(dc,wide.c_str(),int(wide.size()),&extent);
+    SelectObject(dc,old);ReleaseDC(nameLinkTip,dc);
+    POINT cursor={};GetCursorPos(&cursor);
+    SetWindowPos(nameLinkTip,HWND_TOPMOST,cursor.x+12,cursor.y+22,extent.cx+16,extent.cy+12,SWP_NOACTIVATE|SWP_SHOWWINDOW);
+    InvalidateRect(nameLinkTip,nullptr,TRUE);
+}
+bool App::askPasteFormat(const studioio::DrawingFormat& source,const studioio::DrawingFormat& target,bool* adoptSource){
+    // A headless run must never open a modal window it cannot dismiss.
+    if(testing||!IsWindow(canvas))return false;
+    std::wstring text=L"从外部粘贴的内容带有与当前文档不同的默认格式。\n\n复制源格式："+W(studioio::drawingFormatSummary(source))+L"\n当前文档格式："+W(studioio::drawingFormatSummary(target))+L"\n\n是否采用复制源的格式？\n「是」= 采用复制源格式（默认）\n「否」= 保留当前文档格式";
+    int choice=studio_i18n::messageBox(canvas,text.c_str(),L"粘贴格式",MB_YESNO|MB_ICONQUESTION|MB_DEFBUTTON1);
+    if(choice==IDYES){*adoptSource=true;return true;}
+    if(choice==IDNO){*adoptSource=false;return true;}
+    return false;
+}
 void App::beginEmbedded(ole::DocumentObject& object){
     embedded=false;oleObject=&object;
     std::string bytes=object.contents();
@@ -1296,7 +1376,7 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         }
         a->movePreviewPending=false;a->marqueeBackdrop.clear();a->clickHistory=s.history.cursor();a->clickPoint=s.view().toDocument(pixel);a->lastBondClick=false;SetFocus(h);SetCapture(h);a->down=true;a->route(interaction::InputKind::PointerDown,lp);a->error(s.gesture(PointerPhase::Down,s.view().toDocument(pixel),pointerModifiers));
         if(a->cloneDragging){a->clonePress=s.view().toDocument(pixel);a->cloneDelta=Vec2();a->cloneRefs=s.selected;a->cloneSource=std::make_shared<Session>();auto e=studioio::append(s.doc,a->cloneSource->doc,a->cloneRefs,Vec2(),nullptr);if(!e.ok()){a->cloneDragging=false;a->error(e);}else a->cloneSource->refresh();}break;
-    case WM_MOUSEMOVE:if(a->pan&&!std::getenv("MOLECULE_STUDIO_PAN_LEGACY")){a->pointerPixel=pixel;a->pointerOverCanvas=true;auto v=s.view();v.center=v.center-(pixel-a->panAt)*v.docPerDevice();a->panAt=pixel;s.setView(v);SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32646)));InvalidateRect(h,0,FALSE);return 0;}if(a->patternPlacing){a->pointerPixel=pixel;a->pointerOverCanvas=true;
+    case WM_MOUSEMOVE:a->updateNameLinkTip(s.view().toDocument(pixel));if(a->pan&&!std::getenv("MOLECULE_STUDIO_PAN_LEGACY")){a->pointerPixel=pixel;a->pointerOverCanvas=true;auto v=s.view();v.center=v.center-(pixel-a->panAt)*v.docPerDevice();a->panAt=pixel;s.setView(v);SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32646)));InvalidateRect(h,0,FALSE);return 0;}if(a->patternPlacing){a->pointerPixel=pixel;a->pointerOverCanvas=true;
         if(std::getenv("MOLECULE_STUDIO_PATTERN_LEGACY")){if(a->patternDragging){a->patternEnd=s.view().toDocument(pixel);a->updatePatternPreview();}a->updateCanvasCursor();a->invalidate();return 0;}
         // Coalesce high-rate pointer input; placement changes only the canvas.
         if(a->patternDragging){a->patternEnd=s.view().toDocument(pixel);a->patternPreviewPending=true;}
@@ -1375,7 +1455,7 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         if(choice==1){a->error(s.submit(validation::setIgnored(target,!ignored),"价态提示"));a->status=ignored?"已恢复此原子的价态检查":"已忽略此原子的价态错误 · 右键可恢复";a->invalidate();}
         return 0;
     }
-    case WM_MOUSELEAVE:if(a->rotationHot){a->rotationHot=false;InvalidateRect(h,0,FALSE);}a->pointerOverCanvas=false;a->invalidate(false);return 0;
+    case WM_MOUSELEAVE:if(a->rotationHot){a->rotationHot=false;InvalidateRect(h,0,FALSE);}a->hideNameLinkTip();a->nameLinkTipText.clear();a->pointerOverCanvas=false;a->invalidate(false);return 0;
     case WM_MOUSEWHEEL:{{POINT bandPoint={GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};POINT shellPoint=bandPoint;ScreenToClient(a->h,&shellPoint);float bh=a->tabBandH();if(bh>0&&shellPoint.y/a->scale>=40.f&&shellPoint.y/a->scale<40.f+bh){int delta=GET_WHEEL_DELTA_WPARAM(wp);a->host->scrollBy(delta>0?-60.f:60.f);a->host->layoutTabs(float(a->width)/a->scale);RECT br={0,int(40*a->scale),a->width,int((40+bh)*a->scale)};InvalidateRect(a->h,&br,FALSE);return 0;}}a->cancelTextWrap();a->cancelSelectionTransform();a->cancelTableDrag();if(a->textEditor.active)a->finishText(true);POINT p={GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};ScreenToClient(h,&p);Vec2 pos(p.x,p.y);auto v=s.view();auto anchor=v.toDocument(pos);v.scale=std::max(.02,std::min(80.,v.scale*std::pow(1.15,double(GET_WHEEL_DELTA_WPARAM(wp))/WHEEL_DELTA)));v.center=v.center+anchor-v.toDocument(pos);s.setView(v);
 #ifdef MOLECULE_STUDIO_DX11
         // A wheel gesture is interactive: the renderer may stretch the existing
@@ -2027,6 +2107,8 @@ void App::selftest(){
 #include "shortcut_hint_tests.hpp"
 #include "cursor_cleanup_tests.hpp"
 #include "compatible_renderer_tests.hpp"
+#include "paste_format_checks.hpp"
+#include "name_link_checks.hpp"
     {
         Session drawn;drawn.activateCommand("chooseRingTool_Benzene");drawn.gesture(PointerPhase::Down,Vec2(),0);drawn.gesture(PointerPhase::Up,Vec2(),0);auto e=drawn.save(testOut+"/toolbar_benzene.cdxml",true);require(e.ok(),e.message.c_str());std::string bytes;persistence::readFileBytes(testOut+"/toolbar_benzene.cdxml",&bytes);tinyxml2::XMLDocument xml;require(xml.Parse(bytes.c_str())==tinyxml2::XML_SUCCESS,"parse actual toolbar benzene");int singles=0,doubles=0,aromatic=0;auto fragment=xml.RootElement()->FirstChildElement("page")->FirstChildElement("fragment");for(auto b=fragment->FirstChildElement("b");b;b=b->NextSiblingElement("b")){std::string order=b->Attribute("Order");if(order=="1")++singles;if(order=="2")++doubles;if(order=="1.5")++aromatic;}require(singles==3&&doubles==3&&aromatic==0,"tool-created benzene must export three explicit double bonds");
     }
@@ -2197,7 +2279,7 @@ void App::selftest(){
     demo();s.selected=s.all();s.activateCommand("chooseSelectionTool_Marquee");updateInfo();for(int w:{1100,1500}){SetWindowPos(h,0,0,0,w,900,SWP_NOMOVE|SWP_NOZORDER);layout();require(height-top-int(footerHeight()*scale)>height*.50,"toolbar leaves over half the window for drawing");for(const auto& b:chemistryQuick){require(b.r.GetRight()*scale<=width&&b.r.GetBottom()*scale<top,"chemistry quick button is inside the toolbar");for(const auto& group:groups)require(!b.r.IntersectsWith(group.r),"chemistry quick button does not overlap a tool group");}for(auto& gr:groups)for(auto& b:gr.items)require(b.r.GetRight()*scale<=width+1&&b.r.GetBottom()*scale<top,"toolbar clipped");screenshot(testOut+"/studio_"+std::to_string(w)+".png");}
     scale=2;SetWindowPos(h,0,0,0,3300,1800,SWP_NOMOVE|SWP_NOZORDER);layout();s.fit();for(auto& gr:groups)for(auto& b:gr.items)require(b.r.GetRight()*scale<=width+1&&b.r.GetBottom()*scale<top,"200 percent toolbar clipped");require(height-top-int(footerHeight()*scale)>height*.50,"high DPI canvas too small");screenshot(testOut+"/studio_200percent.png");
     auto& undoButton=groups[0].items[3];studio_i18n::sendMessage(h,WM_MOUSEMOVE,0,MAKELPARAM(int((undoButton.r.X+3)*scale),int((undoButton.r.Y+3)*scale)));require(hover==undoButton.id,"hover hit testing");screenshot(testOut+"/hover_shortcut.png");studio_i18n::sendMessage(h,WM_MOUSELEAVE,0,0);require(hover.empty(),"hover clears on leave");
-    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
+    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true,\"paste_format_decision\":true,\"paste_blank_canvas_adopts_source\":true,\"paste_prompt_default_source\":true,\"paste_internal_no_prompt\":true,\"name_link_auto_group\":true,\"name_link_stale_frame\":true,\"name_link_hover_tip\":true,\"name_link_persists\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }
 }
 #include "drawing_settings_checks.hpp"

@@ -1,6 +1,8 @@
 #ifndef STUDIO_CHEMISTRY_ACTIONS_HPP
 #define STUDIO_CHEMISTRY_ACTIONS_HPP
 #include "text_tidy.hpp"
+#include "engine/name_link.hpp"
+#include "next/selection/grouping.hpp"
 // Re-anchor every connected component separately. A clean service may normalize
 // the document origin and arrange disconnected fragments; neither translation
 // should move an ordinary structure cleanup away from its original location.
@@ -12,6 +14,47 @@ inline std::vector<Vec2> anchorCleanComponents(const Document& document,const st
         for(size_t k=0;k<component.size();++k){size_t i=component[k];before.add(document.atoms().get(ids[i])->position);after.add(cleaned[i]);for(auto next:edges[i])if(!seen[next]){seen[next]=true;component.push_back(next);}}
         Vec2 oldCenter=(before.min+before.max)*.5,newCenter=(after.min+after.max)*.5;for(auto i:component)positions[i]=oldCenter+(cleaned[i]-newCenter)*factor;
     }return positions;
+}
+// ---------------------------------------------------------------------------
+// Structure-to-name caption
+// ---------------------------------------------------------------------------
+// The caption is bound to the structure it names: the pair becomes one
+// GroupRecord, and the caption carries a digest of the linked structure so a
+// later edit can raise the red "structure changed" frame. One Command = one
+// Ctrl+Z, including the group and the link. Running it again REPLACES its own
+// previous caption instead of stacking a second one.
+namespace studioNaming {
+inline Error createCaption(r62::core::Document& document,const std::string& caption,const r62::core::Vec2& position,
+                           const std::vector<r62::core::ObjectRef>& linkedRefs,r62::core::ObjectId* textId){
+    using namespace r62::core;
+    // Captions this command owns (found by their structure link) and the naming
+    // groups they live in. A group the user made themselves is left alone.
+    const std::vector<ObjectId> previous=namelink::linkedTextsForStructure(document,linkedRefs);
+    std::vector<ObjectId> previousGroups;
+    for(size_t k=0;k<previous.size();++k){
+        const ObjectId owner=namelink::owningGroup(document,ObjectRef(ObjectKind::Text,previous[k]));
+        if(owner==kInvalidObjectId)continue;
+        const GroupRecord* group=document.groups().alive(owner);
+        if(!group||group->label!=namelink::groupLabel())continue;
+        if(std::find(previousGroups.begin(),previousGroups.end(),owner)==previousGroups.end())previousGroups.push_back(owner);
+    }
+    for(size_t k=0;k<previousGroups.size();++k){r62::selection::GroupReport report;r62::selection::ungroup(document,std::vector<ObjectId>(1,previousGroups[k]),false,&report);}
+    for(size_t k=0;k<previous.size();++k)if(document.texts().alive(previous[k]))document.removeObject(ObjectRef(ObjectKind::Text,previous[k]));
+    ObjectId fallbackId=kInvalidObjectId;
+    ObjectId* created=textId?textId:&fallbackId;
+    Error e=document.addText(position,12,caption,created);
+    if(!e.ok())return e;
+    auto format=document.texts().get(*created)->format;format.fontName="Arial";
+    e=document.setTextFormat(*created,format);
+    if(!e.ok())return e;
+    // Bubble existing user groups instead of stealing their members: this group
+    // nests the user group and puts the caption beside it.
+    std::vector<ObjectRef> groupRefs=namelink::topLevelMembers(document,linkedRefs);
+    groupRefs.push_back(ObjectRef(ObjectKind::Text,*created));
+    r62::selection::createGroup(document,groupRefs,namelink::groupLabel(),0);
+    namelink::setLink(document,*created,linkedRefs,namelink::structureDigestText(document,linkedRefs));
+    return Error();
+}
 }
 std::vector<ObjectRef> App::chemicalScope(){std::set<ObjectId> atoms;auto refs=studioio::expanded(s.doc,s.selected);for(auto r:refs)if(r.kind==ObjectKind::Atom)atoms.insert(r.id);else if(r.kind==ObjectKind::Bond){auto b=s.doc.bonds().alive(r.id);if(b){atoms.insert(b->beginAtom);atoms.insert(b->endAtom);}}if(s.selected.empty())for(auto& a:s.doc.atoms().records())if(a.isAlive())atoms.insert(a.id);bool changed=true;while(changed){changed=false;for(auto& b:s.doc.bonds().records())if(b.isAlive()&&(atoms.count(b.beginAtom)||atoms.count(b.endAtom))){changed|=atoms.insert(b.beginAtom).second;changed|=atoms.insert(b.endAtom).second;}}std::vector<ObjectRef> out;for(auto a:atoms)out.push_back(ObjectRef(ObjectKind::Atom,a));for(auto& b:s.doc.bonds().records())if(b.isAlive()&&atoms.count(b.beginAtom)&&atoms.count(b.endAtom))out.push_back(ObjectRef(ObjectKind::Bond,b.id));return out;}
 bool App::chemistryAction(const std::string& op,int){
@@ -147,7 +190,16 @@ bool App::chemistryAction(const std::string& op,int){
     if(!localExpanded){status="正在处理化学结构…（Esc 取消）";invalidate(false);UpdateWindow(h);if(!chemservice::run(h,input,inMime,outMime,action,&output)){status=output;invalidate(false);if((op=="nameToStructure"||op=="structureToName"||op=="nmr1h"||op=="nmr13c")&&output!="已取消化学服务")studio_i18n::messageBox(h,W(output).c_str(),L"化学计算未完成",MB_OK|MB_ICONINFORMATION);return true;}}
 
     if(copying){if(OpenClipboard(canvas)){EmptyClipboard();auto text=W(output);error(studioio::put(CF_UNICODETEXT,text.c_str(),(text.size()+1)*sizeof(wchar_t)));CloseClipboard();status="已复制 "+op.substr(4);}else status="无法写入剪贴板";return true;}
-    if(op=="structureToName"){Vec2 p(oldBounds.min.x,oldBounds.max.y+22);auto id=std::make_shared<ObjectId>();error(s.submit(Command("系统命名",kInvalidateAppearance|kInvalidateGeometry,[p,output,id](CommandContext& c){auto e=c.document.addText(p,12,output,id.get());if(e.ok()){auto fmt=c.document.texts().get(*id)->format;fmt.fontName="Arial";e=c.document.setTextFormat(*id,fmt);}return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"系统命名"));s.selected={ObjectRef(ObjectKind::Text,*id)};status=output;return true;}
+    if(op=="structureToName"){
+        Vec2 p(oldBounds.min.x,oldBounds.max.y+22);
+        auto id=std::make_shared<ObjectId>();
+        const std::vector<ObjectRef> linkedRefs=refs;
+        error(s.submit(Command("系统命名",kInvalidateAppearance|kInvalidateGeometry,[p,output,id,linkedRefs](CommandContext& c){
+            auto e=studioNaming::createCaption(c.document,output,p,linkedRefs,id.get());
+            return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
+        }),"系统命名"));
+        s.selected={ObjectRef(ObjectKind::Text,*id)};status=output;return true;
+    }
     auto generated=std::make_shared<Session>();auto e=persistence::readCdxml(output,generated->doc);if(!e.ok()){error(e);return true;}generated->refresh();
     if(localExpanded&&!studio::validation::overValentAtoms(generated->doc).empty()){status="展开结果含异常价态，已保留原结构";invalidate(false);return true;}
     if(op=="expandNickname"&&generated->doc.atoms().size()==0){status="本地缩写展开未返回结构，已保留原结构";invalidate();return true;}

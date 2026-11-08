@@ -1,4 +1,5 @@
 #include "engine/atom_runs.hpp"
+#include "engine/name_link.hpp"
 #include "persistence.hpp"
 #include "persistence_internal.hpp"
 #include "next/arrows_curves/model.hpp"
@@ -394,6 +395,27 @@ void emitBond(Writer& writer, const core::BondRecord& bond) {
     out << "/>";
 }
 
+namespace {
+// Translate a caption's stored structure members (document ids) into the CDXML
+// file ids this export assigns to the same objects. Bonds may not have been
+// emitted yet, so objectId() is used; atom ids were pre-allocated by
+// assignAtomIds() before any object is written.
+std::vector<core::ObjectRef> linkRefsToFileIds(Writer& writer, const std::vector<core::ObjectRef>& refs) {
+    std::vector<core::ObjectRef> out;
+    for (size_t i = 0; i < refs.size(); ++i) {
+        const core::ObjectRef& ref = refs[i];
+        if (ref.kind == core::ObjectKind::Atom) {
+            std::map<core::ObjectId, int32_t>::const_iterator it = writer.atomFileId.find(ref.id);
+            if (it != writer.atomFileId.end()) out.push_back(core::ObjectRef(core::ObjectKind::Atom, core::ObjectId(it->second)));
+        } else if (ref.kind == core::ObjectKind::Bond) {
+            const core::BondRecord* bond = writer.document.bonds().alive(ref.id);
+            if (bond) out.push_back(core::ObjectRef(core::ObjectKind::Bond, core::ObjectId(writer.objectId(ref, bond->sourceId))));
+        }
+    }
+    return out;
+}
+} // namespace
+
 void emitText(Writer& writer, const core::TextRecord& text) {
     const core::Document& document = writer.document;
     const std::vector<core::TextRun>& runs = document.runs(text.id);
@@ -407,6 +429,22 @@ void emitText(Writer& writer, const core::TextRecord& text) {
     if (const std::string* width = document.extensions(ObjectRef(ObjectKind::Text, text.id)).findValue("studio.text.width")) {
         const double value = std::atof(width->c_str());
         if (value > 0.0) attributeNumber(out, "MoleculeStudioTextWidth", value);
+    }
+    // The structure link travels as ONE attribute: "digest;a1,b2,...". Member
+    // ids are translated to CDXML file ids here and resolved back on read, so the
+    // association survives a CDXML round trip.
+    {
+        const core::ExtensionBag& linkBag = document.extensions(ObjectRef(ObjectKind::Text, text.id));
+        const std::string* digest = linkBag.findValue("studio.nameLink.digest");
+        if (digest && !digest->empty()) {
+            std::string value = *digest;
+            const std::string* storedRefs = linkBag.findValue("studio.nameLink.refs");
+            if (storedRefs) {
+                std::vector<core::ObjectRef> members = linkRefsToFileIds(writer, namelink::decodeRefs(*storedRefs));
+                if (!members.empty()) value += ";" + namelink::encodeRefs(members);
+            }
+            attribute(out, "MoleculeStudioNameLink", value);
+        }
     }
     replayPreservedAttributes(out, document, ObjectRef(ObjectKind::Text, text.id));
     out << ">";

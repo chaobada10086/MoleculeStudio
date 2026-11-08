@@ -6,6 +6,7 @@
 #include "source_tools.hpp"
 #include "engine/local_scene_update.hpp"
 #include "engine/valence_warnings.hpp"
+#include "engine/name_link.hpp"
 #include "engine/graphic_style.hpp"
 #include "tlc_preferences.hpp"
 #include "alkyne_sprout.hpp"
@@ -994,6 +995,38 @@ render::OverlayScene Session::overlay(){
         q.points={p+Vec2(-radius,-radius),p+Vec2(radius,-radius),p+Vec2(radius,radius),p+Vec2(-radius,radius),p+Vec2(-radius,-radius)};
         q.style.fill.enabled=false;q.style.stroke=render::Paint(0xE02020FF,true);q.style.strokeWidth=.65;
         q.layer=render::LayerId(950);q.z=200;q.bounds=render::geom::computeBounds(q,q.style.strokeWidth);
+        o.scene().add(q);
+    }
+    // A naming caption whose linked structure was edited shows a red frame
+    // around the TEXT (in document space, so it follows zoom and pan). State is
+    // re-derived only after a document edit, never on a mouse move or zoom.
+    static const Session* linkOwner=nullptr;static DocumentId linkDocument=0;
+    static uint64_t linkSerial=0;static std::map<ObjectId,Box> staleLinkBounds;
+    if(linkOwner!=this||linkDocument!=doc.id()||linkSerial!=serial){
+        staleLinkBounds.clear();
+        const std::vector<ObjectId> stale=namelink::staleTexts(doc);
+        for(size_t k=0;k<stale.size();++k){
+            Box bounds(Vec2(1,1),Vec2(-1,-1));
+            for(const auto& q:scene.primitives())if(q.source==ObjectRef(ObjectKind::Text,stale[k])&&!q.bounds.empty()){bounds.add(q.bounds.min);bounds.add(q.bounds.max);}
+            if(bounds.empty()){
+                // A caption with no generated glyphs (empty string) still has an
+                // anchor; frame a nominal box so the state stays visible.
+                const TextRecord* text=doc.texts().alive(stale[k]);
+                if(text){double size=text->size>0?text->size:doc.defaultTextSize();bounds=Box(text->position,text->position+Vec2(std::max(8.,size*2.),std::max(4.,size*1.2)));}
+            }
+            if(bounds.empty())continue;
+            const double pad=std::max(.6,doc.defaultTextSize()*.08);
+            bounds.min=bounds.min-Vec2(pad,pad);bounds.max=bounds.max+Vec2(pad,pad);
+            staleLinkBounds.emplace(stale[k],bounds);
+        }
+        linkOwner=this;linkDocument=doc.id();linkSerial=serial;
+    }
+    for(std::map<ObjectId,Box>::const_iterator it=staleLinkBounds.begin();it!=staleLinkBounds.end();++it){
+        const Box& b=it->second;
+        render::Primitive q;q.kind=render::PrimKind::Polyline;
+        q.points={b.min,Vec2(b.max.x,b.min.y),b.max,Vec2(b.min.x,b.max.y),b.min};
+        q.style.fill.enabled=false;q.style.stroke=render::Paint(0xE02020FF,true);q.style.strokeWidth=.9;
+        q.layer=render::LayerId(950);q.z=201;q.bounds=render::geom::computeBounds(q,q.style.strokeWidth);
         o.scene().add(q);
     }
     // Overlay cache has the same ordinal issue as content; geometry is the key.

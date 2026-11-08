@@ -1,5 +1,6 @@
 #include "engine/cdxml_id_repair.hpp"
 #include "engine/atom_runs.hpp"
+#include "engine/name_link.hpp"
 #include "persistence.hpp"
 #include "persistence_internal.hpp"
 
@@ -242,7 +243,8 @@ Error readTextRuns(ReaderContext& ctx, const XMLElement* element, double default
     AttrTable table;
     const char* const allowed[] = { "id", "p", "BoundingBox", "Justification",
                                     "LineHeight", "LineStarts", "CaptionLineHeight",
-                                    "TextStrikethrough", "MoleculeStudioTextWidth" };
+                                    "TextStrikethrough", "MoleculeStudioTextWidth",
+                                    "MoleculeStudioNameLink" };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);
     Error r = applyAttributeGate(ctx, element, table, ref, scopeObject);
@@ -594,6 +596,7 @@ void sourceAppearance(ReaderContext& ctx,const XMLElement* element,ObjectRef ref
     if(t){std::ostringstream colors;for(auto run=t->FirstChildElement("s");run;run=run->NextSiblingElement("s")){uint32_t c=color;if(run->Attribute("color"))ctx.color(run->Attribute("color"),&c);colors<<c<<' ';}bag.set("studio.text.colors",colors.str());
         for(const char* key:{"Justification","LabelJustification","LabelAlignment","RotationAngle","LineHeight","LineStarts","Visible"})if(auto v=t->Attribute(key))bag.set(std::string("studio.text.")+key,v);
     }
+    if(std::string(element->Name()?element->Name():"")=="t")if(const char* link=element->Attribute("MoleculeStudioNameLink"))bag.set("studio.nameLink.raw",link);
     const std::string name=element->Name();if(!element->Attribute("MoleculeStudioPath")&&(name=="graphic"||name=="curve"||name=="embeddedobject")){tinyxml2::XMLPrinter out;element->Accept(&out);bag.set("studio.cdxml.graphic",out.CStr());}
 }
 
@@ -1829,6 +1832,58 @@ Error readInto(const std::string& bytes, core::Document& document,
 
 
 // ---------------------------------------------------------------------------
+// Structure-to-name links
+// ---------------------------------------------------------------------------
+// The writer stores "digest;a1,b2" as MoleculeStudioNameLink. Members are CDXML
+// file ids, so they are translated back to document ObjectIds here (after every
+// object and its source id exists) and the caption's group is rebuilt. A file
+// whose members no longer resolve keeps no link rather than a dangling one.
+static void resolveNameLinks(core::Document& document) {
+    std::map<int, core::ObjectRef> bySourceId;
+    for (const auto& atom : document.atoms().records())
+        if (atom.isAlive() && atom.sourceId > 0) bySourceId[atom.sourceId] = core::ObjectRef(core::ObjectKind::Atom, atom.id);
+    for (const auto& bond : document.bonds().records())
+        if (bond.isAlive() && bond.sourceId > 0) bySourceId[bond.sourceId] = core::ObjectRef(core::ObjectKind::Bond, bond.id);
+    for (const auto& text : document.texts().records()) {
+        if (!text.isAlive()) continue;
+        const core::ObjectRef textRef(core::ObjectKind::Text, text.id);
+        const core::ExtensionBag& bag = document.extensions(textRef);
+        const std::string* raw = bag.findValue("studio.nameLink.raw");
+        if (!raw) continue;
+        const size_t separator = raw->find(';');
+        std::string digest = separator == std::string::npos ? *raw : raw->substr(0, separator);
+        std::vector<core::ObjectRef> resolved;
+        if (separator != std::string::npos) {
+            const std::vector<core::ObjectRef> fileRefs = namelink::decodeRefs(raw->substr(separator + 1));
+            for (size_t i = 0; i < fileRefs.size(); ++i) {
+                std::map<int, core::ObjectRef>::const_iterator found = bySourceId.find(int(fileRefs[i].id));
+                if (found != bySourceId.end() && found->second.kind == fileRefs[i].kind) resolved.push_back(found->second);
+            }
+        }
+        core::ExtensionBag& mutableBag = document.extensions(textRef);
+        mutableBag.erase("studio.nameLink.raw");
+        if (digest.empty() || resolved.empty()) continue;
+        mutableBag.set("studio.nameLink.digest", digest);
+        mutableBag.set("studio.nameLink.refs", namelink::encodeRefs(resolved));
+        bool grouped = false;
+        for (const auto& group : document.groups().records()) {
+            if (!group.isAlive()) continue;
+            for (size_t i = 0; i < group.members.size(); ++i) if (group.members[i] == textRef) { grouped = true; break; }
+            if (grouped) break;
+        }
+        if (grouped) continue;
+        std::vector<core::ObjectRef> members = namelink::topLevelMembers(document, resolved);
+        members.push_back(textRef);
+        if (members.size() < 2) continue;
+        core::GroupRecord group;
+        group.members = members;
+        group.label = namelink::groupLabel();
+        core::ObjectId groupId = core::kInvalidObjectId;
+        document.addGroup(group, &groupId);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Public entry points
 // ---------------------------------------------------------------------------
 // Declared in persistence.hpp; everything above this point is internal.
@@ -1880,6 +1935,7 @@ core::Error readCdxml(const std::string& bytes, core::Document& document,
             core::ObjectId id;auto e=experimental::addFigure(scratch,item.first,item.second,scratch.defaultLineWidth(),&id);if(!e.ok())return e;scratch.extensions(experimental::figureRef(id)).set("studio.tlc.spotDiameter",std::to_string(figureDiameters[figureIndex]));scratch.extensions(experimental::figureRef(id)).set("studio.tlc.showRf",figureRf[figureIndex++]?"1":"0");
         }
     }
+    resolveNameLinks(scratch);
     core::Document::RawState state;
     scratch.captureAll(&state);
     Error adopted = document.restoreRaw(state);

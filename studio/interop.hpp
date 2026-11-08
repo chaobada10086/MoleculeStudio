@@ -8,8 +8,10 @@
 #include "third_party/tinyxml2/tinyxml2.h"
 #include <windows.h>
 #include <functional>
+#include <cctype>
 #include "cdx_binary.hpp"
 #include "page_defaults.hpp"
+#include "engine/name_link.hpp"
 namespace studioio {
 using namespace r62; using namespace core;
 struct Page {
@@ -166,7 +168,9 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
     auto add=[&](ObjectRef old,ObjectId id,Error e){if(!e.ok()){error=e;return;}ObjectRef fresh(old.kind,id);map[old]=fresh;if(inserted)inserted->push_back(fresh);
         // Preserve non-source custom data; stale source snapshots must not be
         // re-emitted at their pre-paste coordinates on a later CDXML save.
-        for(auto& v:src.extensions(old).entries())if(v.key.compare(0,4,"pst.")!=0)dst.extensions(fresh).set(v.key,v.value);
+        // A pasted copy gets fresh object ids, so a stored structure link would
+        // point at unrelated objects; the copy starts unlinked instead.
+        for(auto& v:src.extensions(old).entries())if(v.key.compare(0,4,"pst.")!=0&&!namelink::isLinkKey(v.key))dst.extensions(fresh).set(v.key,v.value);
         if(old.kind==ObjectKind::Bond&&!dst.extensions(fresh).findValue("studio.graphics.width")){
             double width=src.defaultLineWidth();if(auto v=src.extensions(old).findValue("pst.attr.LineWidth"))width=std::atof(v->c_str());
             if(std::isfinite(width)&&width>0)dst.extensions(fresh).set("studio.graphics.width",std::to_string(width));
@@ -195,6 +199,144 @@ inline UINT nativeFormat(){return RegisterClipboardFormatW(L"MoleculeStudio.Docu
 // Host hook for OLE publishing. When set, copy() hands the selection to the
 // OLE data object (Embed Source + EMF) instead of writing raw clipboard formats.
 inline std::function<bool(const Document&,const std::string&,const std::string&)>& olePublisher(){static std::function<bool(const Document&,const std::string&,const std::string&)> fn;return fn;}
+// ---------------------------------------------------------------------------
+// Paste format confirmation (task 2)
+// ---------------------------------------------------------------------------
+// A structure pasted from another program carries that program's document
+// defaults (CDXML BondLength / LineWidth / CaptionFont). When those differ from
+// the current document, the user is asked whether to keep the source format.
+// The default answer is the source format, and an empty canvas adopts it
+// without asking because there is nothing the current defaults could protect.
+struct DrawingFormat {
+    double bondLength;
+    double lineWidth;
+    std::string font;
+    DrawingFormat() : bondLength(14.4), lineWidth(0.6), font("Arial") {}
+};
+
+inline DrawingFormat drawingFormat(const Document& d) {
+    DrawingFormat f;
+    f.bondLength = d.defaultBondLength();
+    f.lineWidth = d.defaultLineWidth();
+    f.font = d.defaultFont().empty() ? std::string("Arial") : d.defaultFont();
+    return f;
+}
+
+inline std::string normalizedFont(const std::string& font) {
+    size_t begin = 0, end = font.size();
+    while (begin < end && (font[begin] == ' ' || font[begin] == '\t')) ++begin;
+    while (end > begin && (font[end - 1] == ' ' || font[end - 1] == '\t')) --end;
+    std::string out = font.substr(begin, end - begin);
+    for (size_t i = 0; i < out.size(); ++i) out[i] = char(std::tolower(static_cast<unsigned char>(out[i])));
+    return out;
+}
+
+// Lengths are compared with a sub-visible tolerance so a printer/rounding
+// difference (14.4 vs 14.40000000000001) never asks the user a pointless
+// question. Font family comparison is case-insensitive, as CDXML font names are.
+inline bool sameDrawingFormat(const DrawingFormat& a, const DrawingFormat& b) {
+    return std::abs(a.bondLength - b.bondLength) <= 0.01 &&
+           std::abs(a.lineWidth - b.lineWidth) <= 0.01 &&
+           normalizedFont(a.font) == normalizedFont(b.font);
+}
+
+enum class PasteFormatMode { Same, AdoptSource, Ask };
+
+// Pure decision: NO UI, NO document mutation. Tests assert this directly.
+//  * internal (this program's own objects): never ask.
+//  * same format within tolerance: keep today's behaviour.
+//  * external + different: adopt silently on an empty canvas, otherwise ask.
+inline PasteFormatMode pasteFormatDecision(const DrawingFormat& source, const DrawingFormat& target,
+                                           bool canvasEmpty, bool externalSource) {
+    if (!externalSource) return PasteFormatMode::Same;
+    if (sameDrawingFormat(source, target)) return PasteFormatMode::Same;
+    return canvasEmpty ? PasteFormatMode::AdoptSource : PasteFormatMode::Ask;
+}
+
+enum class PasteFormatAction { Default, AdoptSource, KeepTarget };
+
+// "No drawable content": a blank canvas that has nothing to be consistent with.
+inline bool documentEmpty(const Document& d) {
+    for (const auto& atom : d.atoms().records()) if (atom.isAlive()) return false;
+    for (const auto& bond : d.bonds().records()) if (bond.isAlive()) return false;
+    for (const auto& text : d.texts().records()) if (text.isAlive()) return false;
+    for (const auto& path : d.paths().records()) if (path.isAlive()) return false;
+    for (const auto& table : d.tables().records()) if (table.isAlive()) return false;
+    for (const auto& group : d.groups().records()) if (group.isAlive()) return false;
+    for (int slab = 0; slab < 5; ++slab) {
+        const ObjectSlab<AnnotationRecord>& records =
+            slab == 0 ? d.arrows() : slab == 1 ? d.brackets() : slab == 2 ? d.orbitals()
+            : slab == 3 ? d.symbols() : d.bioShapes();
+        for (const auto& record : records.records()) if (record.isAlive()) return false;
+    }
+    return true;
+}
+
+// Adopting the source format means adopting it for the WHOLE document, not just
+// for the pasted objects: the document defaults (bond length, line width, font)
+// become the source's. Called inside the paste command so one Ctrl+Z restores
+// both the defaults and the removed objects.
+inline void adoptPasteFormat(Document& d, const DrawingFormat& source) {
+    if (!(source.bondLength > 0) || !(source.lineWidth > 0) || source.font.empty()) return;
+    d.noteTouchedDefaults();
+    d.setDefaultBondLength(source.bondLength);
+    d.setDefaultLineWidth(source.lineWidth);
+    d.setDefaultFont(source.font);
+}
+
+// Keeping the current format means the pasted content is re-styled to the
+// document defaults. Bond stroke width is not stored per bond (the renderer
+// uses the document width), but text faces and graphic widths are.
+inline void normalizePasteFormat(Document& d, const std::vector<ObjectRef>& inserted, const DrawingFormat& target) {
+    if (target.font.empty()) return;
+    for (size_t i = 0; i < inserted.size(); ++i) {
+        const ObjectRef& ref = inserted[i];
+        if (ref.kind == ObjectKind::Text && d.texts().alive(ref.id)) {
+            TextFormat format = d.texts().get(ref.id)->format;
+            if (format.fontName != target.font) { format.fontName = target.font; d.setTextFormat(ref.id, format); }
+            std::vector<TextRun> runs = d.runs(ref.id);
+            bool changed = false;
+            for (size_t k = 0; k < runs.size(); ++k) if (runs[k].fontName != target.font) { runs[k].fontName = target.font; changed = true; }
+            if (changed) d.setTextRuns(ref.id, runs);
+        } else if (ref.kind == ObjectKind::Atom && d.atoms().alive(ref.id)) {
+            std::vector<TextRun> runs = studioatom::runs(d, ref.id);
+            if (runs.empty()) continue;
+            bool changed = false;
+            for (size_t k = 0; k < runs.size(); ++k) if (runs[k].fontName != target.font) { runs[k].fontName = target.font; changed = true; }
+            if (changed) { studioatom::set(d, ref.id, runs); d.noteTouchedExtensions(ref, false); }
+        } else if (ref.kind != ObjectKind::Bond) {
+            std::ostringstream width;
+            width.precision(12);
+            width << target.lineWidth;
+            d.extensions(ref).set("studio.graphics.width", width.str());
+            d.noteTouchedExtensions(ref, false);
+        }
+    }
+}
+
+// Host hook for the modal question. studio.cpp installs the real dialog; every
+// other caller (tests, OLE, a future headless importer) runs without UI.
+inline std::function<bool(const DrawingFormat&, const DrawingFormat&, bool*)>& pasteFormatAsker() {
+    static std::function<bool(const DrawingFormat&, const DrawingFormat&, bool*)> fn;
+    return fn;
+}
+
+// MOLECULE_STUDIO_PASTE_FORMAT=source|target answers the question without a
+// window, so the acceptance suite can drive both branches of a modal prompt.
+inline bool resolvePasteFormatPrompt(const DrawingFormat& source, const DrawingFormat& target, bool* adoptSource) {
+    const char* forced = std::getenv("MOLECULE_STUDIO_PASTE_FORMAT");
+    if (forced && *forced) { *adoptSource = std::string(forced) != "target"; return true; }
+    if (pasteFormatAsker()) return pasteFormatAsker()(source, target, adoptSource);
+    return false;
+}
+
+inline std::string drawingFormatSummary(const DrawingFormat& format) {
+    std::ostringstream out;
+    out.precision(3);
+    out << "键长 " << format.bondLength << " pt · 线宽 " << format.lineWidth << " pt · 字体 " << format.font;
+    return out.str();
+}
+
 inline Error put(UINT fmt,const void* bytes,size_t size){HGLOBAL h=GlobalAlloc(GMEM_MOVEABLE|GMEM_ZEROINIT,size);if(!h)return Error(ErrorCode::IoError,"剪贴板内存不足");void* p=GlobalLock(h);if(!p){GlobalFree(h);return Error(ErrorCode::IoError,"剪贴板分配失败");}memcpy(p,bytes,size);GlobalUnlock(h);if(!SetClipboardData(fmt,h)){GlobalFree(h);return Error(ErrorCode::IoError,"剪贴板写入失败");}return Error();}
 inline Error copy(integration::Session& s,HWND owner,bool cut){
     if(s.selected.empty())return Error(ErrorCode::InvalidArgument,"请先选择对象");
@@ -247,10 +389,33 @@ inline Error paste(integration::Session& s,HWND owner){
 
     auto source=std::make_shared<integration::Session>();Error e;if(fmt==nativeFormat()){std::istringstream in(bytes);e=integration::loadSafeNative(source->doc,in);}else if(bytes.find("<CDXML")!=std::string::npos)e=persistence::readCdxml(bytes,source->doc);else{ObjectId t;e=source->doc.addText(Vec2(),s.doc.defaultTextSize(),bytes,&t);}
     if(!e.ok())return e;source->refresh();auto refs=source->all();if(refs.empty())return Error(ErrorCode::NotFound,"剪贴板中没有可编辑的对象");
+    // External = not this program's own clipboard payload. Plain text carries no
+    // document format at all, so it never prompts.
+    const bool externalSource=fmt!=nativeFormat();
+    const bool formatKnown=externalSource&&(fmt==RegisterClipboardFormatW(L"ChemDraw XML")||fmt==cdxbinary::format());
+    const DrawingFormat sourceFormat=drawingFormat(source->doc);
+    const DrawingFormat targetFormat=drawingFormat(s.doc);
+    PasteFormatAction action=PasteFormatAction::Default;
+    if(formatKnown){
+        const PasteFormatMode mode=pasteFormatDecision(sourceFormat,targetFormat,documentEmpty(s.doc),true);
+        if(mode==PasteFormatMode::AdoptSource)action=PasteFormatAction::AdoptSource;
+        else if(mode==PasteFormatMode::Ask){
+            // Default answer is the source format; a host without a dialog keeps
+            // that default rather than silently dropping the pasted formatting.
+            bool adoptSource=true;
+            resolvePasteFormatPrompt(sourceFormat,targetFormat,&adoptSource);
+            action=adoptSource?PasteFormatAction::AdoptSource:PasteFormatAction::KeepTarget;
+        }
+    }
     static std::string previous;static DocumentId document=0;static int count=0;if(previous==bytes&&document==s.doc.id())++count;else{count=1;previous=bytes;document=s.doc.id();}
     Vec2 delta(12*count,12*count);Box bounds;bool first=true;for(auto& p:source->scene.primitives()){if(first){bounds=p.bounds;first=false;}else{bounds.add(p.bounds.min);bounds.add(p.bounds.max);}}if(!first){auto center=(bounds.min+bounds.max)*.5;auto pixel=s.view().toDevice(center);if(pixel.x<0||pixel.y<0||pixel.x>s.renderView.widthPx||pixel.y>s.renderView.heightPx)delta=delta+s.view().center-center;}
-    auto inserted=std::make_shared<std::vector<ObjectRef>>();s.cancel();e=s.submit(Command("粘贴",kInvalidateStructure|kInvalidateGeometry|kInvalidateAppearance,[source,refs,delta,inserted](CommandContext& c){inserted->clear();auto e=append(source->doc,c.document,refs,delta,inserted.get());return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"粘贴");
-    if(e.ok()){s.selected=*inserted;s.activateCommand("chooseSelectionTool_Marquee");s.status="已粘贴";}return e;
+    auto inserted=std::make_shared<std::vector<ObjectRef>>();s.cancel();e=s.submit(Command("粘贴",kInvalidateStructure|kInvalidateGeometry|kInvalidateAppearance,[source,refs,delta,inserted,action,sourceFormat,targetFormat](CommandContext& c){inserted->clear();if(action==PasteFormatAction::AdoptSource)adoptPasteFormat(c.document,sourceFormat);auto e=append(source->doc,c.document,refs,delta,inserted.get());if(e.ok()&&action==PasteFormatAction::KeepTarget)normalizePasteFormat(c.document,*inserted,targetFormat);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"粘贴");
+    if(e.ok()){
+        s.selected=*inserted;s.activateCommand("chooseSelectionTool_Marquee");
+        if(action==PasteFormatAction::AdoptSource)s.status="已粘贴 · 已整体采用复制源格式（"+drawingFormatSummary(sourceFormat)+"）";
+        else if(action==PasteFormatAction::KeepTarget)s.status="已粘贴 · 保留当前文档格式（"+drawingFormatSummary(targetFormat)+"）";
+        else s.status="已粘贴";
+    }return e;
 }
 inline void selectionOverlay(integration::Session& s,render::OverlayScene& out){
     using namespace render;auto v=s.view();double unit=v.deviceRadiusToDocument(v.dpiScale*.75);
