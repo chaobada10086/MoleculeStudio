@@ -62,7 +62,7 @@ class OnlineInstaller {
   string ocsrName="MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip";
   return new[]{
    BuiltinPackage("Core","0.95-20261108",coreName,
-    "f274fc6ca49579e3b93dc9e4ed272dd623bc82945aa6b0073c2d6f4b5cebd3f8",1305149262L,
+    "a81a46780a6def2acfbadca886d86deb3cbe6e57815ec0f5653ea5e39ccddcc1",1305149595L,
     ReleaseBase+"v0.9.6.0.0/"+coreName,true,null),
    BuiltinPackage("AIBasic","0.95-20261108",basicName,
     "f5433c4ad6c05bb11bf405dc13507b2c84202f3ceb619ffeb8d29b7963559d14",794725562L,
@@ -266,14 +266,21 @@ class OnlineInstaller {
   start.IsEnabled=!busy&&mode==1;uninstall.IsEnabled=!busy&&mode==2;
   start.Content=mode==1?"安装 / 更新所选 ("+add.Length+")":"安装所选";
   uninstall.Content=mode==2?"卸载所选 ("+del.Length+")":"卸载所选";
-  ((TextBlock)window.FindName("SelectionInfo")).Text=mode==1?"安装顺序："+Names(add):mode==2?"卸载顺序："+Names(del):add.Length==0&&del.Length==0?"请勾选需要操作的组件":"已混选安装项与卸载项，请分开选择；两个操作均已禁用。";
+  long selectedBytes=0;foreach(int i in add)if(packages[i].Available)selectedBytes+=packages[i].Bytes;
+   ((TextBlock)window.FindName("SelectionInfo")).Text=mode==1?"安装顺序："+Names(add)+" · 合计约 "+SizeText(selectedBytes):mode==2?"卸载顺序："+Names(del):add.Length==0&&del.Length==0?"请勾选需要操作的组件":"已混选安装项与卸载项，请分开选择；两个操作均已禁用。";
+ }
+ static string SizeText(long bytes){
+  if(bytes>=1073741824L)return (bytes/1073741824.0).ToString("0.##")+" GB";
+  if(bytes>=1048576L)return (bytes/1048576.0).ToString("0.#")+" MB";
+  if(bytes>=1024L)return (bytes/1024.0).ToString("0.#")+" KB";
+  return bytes+" B";
  }
  static string Hint(int index,int[] found){
   var p=packages[index];
-  string text=p.Key=="Core"?"必备组件":p.Key=="AIAdvanced"?"可选组件 · 需先安装 AI 基础":p.Key=="AIBasic"?"可选组件 · 依赖核心工作台":"可选组件 · 依赖核心工作台";
+  string text=p.Key=="Core"?"必备组件":p.Key=="AIAdvanced"?"可选组件 · 需先安装 AI 基础":"可选组件 · 依赖核心工作台";
   if(p.Key=="AIAdvanced"&&found[1]==1)text="可选组件 · 已满足 AI 基础依赖";
   if(!p.Available)return text+" · "+(p.Reason==null?"需要新版清单":p.Reason);
-  return text+" · 发布版本 "+p.Version+(found[index]==1?" · 已安装":"");
+  return text+" · 发布版本 "+p.Version+" · 大小 "+SizeText(p.Bytes)+(found[index]==1?" · 已安装":"");
  }
  static void Cards(string root){
   int[] found=new int[Count];bool[] available=new bool[Count];
