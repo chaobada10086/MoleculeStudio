@@ -57,7 +57,7 @@ OCSR 的基础解释器及 site-packages 与核心 chemistry_python 文件哈希
 运行 `python installer/build.py`，使用系统 .NET Framework C# 编译器生成 `dist/MoleculeStudio-OnlineSetup.exe`（嵌入 DPI 感知应用清单）。无需 pip / npm。
 
 - `--self-test`：路径越界、重复安装、硬链接、修改冲突等基础安全用例。
-- `--health-test 安装目录`：验证化学运行时。
+- `--health-test 安装目录 [组件序号]`：验证组件运行时（默认 0=Core 化学运行时；1=AI 基础桥接文件；2=AI 高级 Node 运行时与插件）。
 - `--extract-test 组件序号 ZIP路径 测试目录`：用真实发布包验证哈希、解压及安装清单；序号 0 Core / 1 AIBasic / 2 AIAdvanced / 3 OCSR。
 - `--ocsr-config-test`：验证 OCSR 的 pyvenv.cfg 路径重写、回滚与校验。
 - `--feed-test 清单 [清单2]`：验证 schema1/schema2 解析、依赖闭合、旧协议拒绝与恶意 URL 拒绝。

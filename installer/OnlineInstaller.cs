@@ -493,11 +493,16 @@ class OnlineInstaller {
   using(var p=Process.Start(si)){string error="";p.ErrorDataReceived+=(s,e)=>{if(e.Data!=null)error+=e.Data+"\n";};p.BeginErrorReadLine();if(!p.WaitForExit(120000)){p.Kill();throw new IOException("运行时自检超时");}p.WaitForExit();if(p.ExitCode!=0)throw new IOException("运行时自检失败，可能被系统策略拦截：\n"+error);}
  }
  static void AIHealth(string root,Package package){
+  if(package.Key=="AIBasic"){
+   foreach(string rel in new[]{"ai_assistant.py","ai_attachments.py","ai_library.py","ai_local_sources.py","ai_ocsr_bridge.py","ai_ring_catalog.json","ai_scene.py"})
+    if(!File.Exists(Safe(root,rel)))throw new IOException("缺少 AI 基础文件："+rel);
+   return;
+  }
   string node=Path.Combine(root,"ai","node.exe");if(!File.Exists(node))throw new IOException("缺少 AI 运行时：ai/node.exe");
   var si=new ProcessStartInfo(node,"-v"){UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=root,RedirectStandardError=true,RedirectStandardOutput=true};
   using(var p=Process.Start(si)){string error="";p.ErrorDataReceived+=(s,e)=>{if(e.Data!=null)error+=e.Data+"\n";};p.BeginErrorReadLine();if(!p.WaitForExit(30000)){p.Kill();throw new IOException("AI 运行时自检超时");}p.WaitForExit();if(p.ExitCode!=0)throw new IOException("AI 运行时自检失败：\n"+error);}
-  if(package.Key=="AIAdvanced")foreach(string rel in new[]{"ai_plugins/plugin.xml","ai_plugins/draw_plugin.py","ai_plugins/biomolecules.py","ai_plugins/__init__.py"})
-   if(!File.Exists(Safe(root,rel)))throw new IOException("缺少 AI 高级插件文件："+rel);
+  foreach(string rel in new[]{"ai_plugins/plugin.xml","ai_plugins/draw_plugin.py","ai_plugins/biomolecules.py","ai_plugins/__init__.py","ai_dsh.py","dsh_proxy.py"})
+   if(!File.Exists(Safe(root,rel)))throw new IOException("缺少 AI 高级文件："+rel);
  }
  static void Health(string root,Package package){
   if(package.Key=="Core"){CoreHealth(root);return;}
@@ -752,7 +757,7 @@ class OnlineInstaller {
     if(Hash(args[2])!=packages[i].Hash)throw new IOException("hash mismatch");
     Extract(args[2],args[3],packages[i]);return Verify(args[3],packages[i])?0:3;
    }
-   if(args[0]=="--health-test"&&args.Length==2){Health(args[1],packages[0]);return 0;}
+   if(args[0]=="--health-test"&&(args.Length==2||args.Length==3)){int index=args.Length==3?int.Parse(args[2]):0;if(index<0||index>=Count)return 3;Health(args[1],packages[index]);return 0;}
    if(args[0]=="--network-test"){Download(new Package{Key="Network test",Name="MoleculeStudio-0.95-external-ai-skill.zip",Hash="1ce9a37f57069234d0e5c892c74e32cde8963bbb21d769155e69e11e88674a80",Bytes=1,Available=true,Url=ReleaseBase+"v0.9.5.0.0/MoleculeStudio-0.95-external-ai-skill.zip"},true);return 0;}
   }catch(Exception error){Console.Error.WriteLine(error);return 1;}return 2;}
 
