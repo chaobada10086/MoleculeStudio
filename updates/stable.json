@@ -1,36 +1,55 @@
 {
-  "schema": 1,
-  "min_installer_protocol": 1,
+  "schema": 2,
+  "min_installer_protocol": 2,
   "channel": "stable",
-  "release": "v0.9.5.0.1",
-  "generated_utc": "2026-11-07T11:19:55.000000+00:00",
+  "release": "v0.9.6.0.0",
+  "generated_utc": "2026-11-08T07:50:45.646622+00:00",
   "components": [
     {
       "id": "Core",
-      "version": "0.95-20261107-canvas-fix",
-      "name": "MoleculeStudio-0.95-20261107-canvas-fix-Core-win64.zip",
-      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.5.0.1/MoleculeStudio-0.95-20261107-canvas-fix-Core-win64.zip",
-      "sha256": "b638097433256483403c429bd93a0924972110b0ba26604691ca0d8064a6dbff",
-      "bytes": 1306374131,
+      "version": "0.95-20261108",
+      "name": "MoleculeStudio-0.95-20261108-Core-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-Core-win64.zip",
+      "sha256": "f274fc6ca49579e3b93dc9e4ed272dd623bc82945aa6b0073c2d6f4b5cebd3f8",
+      "bytes": 1305149262,
+      "requires": [],
       "requires_core_version": null
     },
     {
-      "id": "AI",
-      "version": "0.95-20261107-canvas-fix",
-      "name": "MoleculeStudio-0.95-20261107-canvas-fix-AI-addon-win64.zip",
-      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.5.0.1/MoleculeStudio-0.95-20261107-canvas-fix-AI-addon-win64.zip",
-      "sha256": "f983103a89d67879a673b070cb57f936fb39bd0e22ddce1c5dec47fb9e3acb90",
-      "bytes": 794798628,
-      "requires_core_version": "0.95-20261107-canvas-fix"
+      "id": "AIBasic",
+      "version": "0.95-20261108",
+      "name": "MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip",
+      "sha256": "f5433c4ad6c05bb11bf405dc13507b2c84202f3ceb619ffeb8d29b7963559d14",
+      "bytes": 794725562,
+      "requires": [
+        "Core"
+      ],
+      "requires_core_version": "0.95-20261108"
+    },
+    {
+      "id": "AIAdvanced",
+      "version": "0.95-20261108",
+      "name": "MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip",
+      "sha256": "460f51c40eb5fc2cd95c30d6f78f831a4c788d6a3372b921cfdf609a8b025788",
+      "bytes": 73183,
+      "requires": [
+        "AIBasic"
+      ],
+      "requires_core_version": "0.95-20261108"
     },
     {
       "id": "OCSR",
-      "version": "0.95-20261107-canvas-fix",
-      "name": "MoleculeStudio-0.95-20261107-canvas-fix-OCSR-addon-win64.zip",
-      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.5.0.1/MoleculeStudio-0.95-20261107-canvas-fix-OCSR-addon-win64.zip",
-      "sha256": "4f0acc98a2c692779e02ac6d53fca6a1f62342e817b73c9a7d84bf9801334c33",
-      "bytes": 1504763253,
-      "requires_core_version": "0.95-20261107-canvas-fix"
+      "version": "0.95-20261108",
+      "name": "MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v0.9.6.0.0/MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip",
+      "sha256": "0895807f0fa800a2a393492ea8a81713f5df3ec7985dfd70c4c25b9775ccab34",
+      "bytes": 898517652,
+      "requires": [
+        "Core"
+      ],
+      "requires_core_version": "0.95-20261108"
     }
   ]
 }

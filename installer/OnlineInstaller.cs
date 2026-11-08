@@ -56,23 +56,24 @@ class OnlineInstaller {
    RequiresCoreVersion=key=="Core"?null:"0.95-20261107-canvas-fix"};
  }
  static Package[] Builtin(){
-  string coreName="MoleculeStudio-0.95-20261107-canvas-fix-Core-win64.zip";
+  string coreName="MoleculeStudio-0.95-20261108-Core-win64.zip";
+  string basicName="MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip";
+  string advancedName="MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip";
   string ocsrName="MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip";
   return new[]{
-   BuiltinPackage("Core","0.95-20261107-canvas-fix",coreName,
-    "b638097433256483403c429bd93a0924972110b0ba26604691ca0d8064a6dbff",1306374131L,
-    ReleaseBase+"v0.9.5.0.1/"+coreName,true,null),
-   BuiltinPackage("AIBasic","0.95-20261107-canvas-fix",
-    "MoleculeStudio-0.95-20261107-canvas-fix-AIBasic-addon-win64.zip","",0L,"",false,
-    "内置版本尚未包含 AI 拆分包，请联网获取新版清单"),
-   BuiltinPackage("AIAdvanced","0.95-20261107-canvas-fix",
-    "MoleculeStudio-0.95-20261107-canvas-fix-AIAdvanced-addon-win64.zip","",0L,"",false,
-    "AI 高级需要新版清单，且必须先安装 AI 基础"),
+   BuiltinPackage("Core","0.95-20261108",coreName,
+    "f274fc6ca49579e3b93dc9e4ed272dd623bc82945aa6b0073c2d6f4b5cebd3f8",1305149262L,
+    ReleaseBase+"v0.9.6.0.0/"+coreName,true,null),
+   BuiltinPackage("AIBasic","0.95-20261108",basicName,
+    "f5433c4ad6c05bb11bf405dc13507b2c84202f3ceb619ffeb8d29b7963559d14",794725562L,
+    ReleaseBase+"v0.9.6.0.0/"+basicName,true,null),
+   BuiltinPackage("AIAdvanced","0.95-20261108",advancedName,
+    "460f51c40eb5fc2cd95c30d6f78f831a4c788d6a3372b921cfdf609a8b025788",73183L,
+    ReleaseBase+"v0.9.6.0.0/"+advancedName,true,null),
    BuiltinPackage("OCSR","0.95-20261108",ocsrName,
     "0895807f0fa800a2a393492ea8a81713f5df3ec7985dfd70c4c25b9775ccab34",898517652L,
-    ReleaseBase+"v0.9.5.0.2/"+ocsrName,true,null)};
+    ReleaseBase+"v0.9.6.0.0/"+ocsrName,true,null)};
  }
-
  static Window window; static TextBox folder; static TextBlock status; static ProgressBar bar;
  static Button start,scan,uninstall; static CheckBox mirror,desktopShortcut; static bool busy,managed; static string cache;
  static long saved; static bool cancelled;
