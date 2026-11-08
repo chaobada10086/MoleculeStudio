@@ -1713,6 +1713,12 @@ Error readInto(const std::string& bytes, core::Document& document,
         char* end=0; unsigned long id=std::strtoul(ctx.defaultFont.c_str(),&end,10);
         if(end && !*end){auto it=ctx.fontNames.find(static_cast<uint32_t>(id));ctx.defaultFont=it==ctx.fontNames.end()?"Arial":it->second;}
         document.setDefaultFont(ctx.defaultFont);
+    } else {
+        // ChemDraw's default caption/label face is Arial. A file that omits
+        // CaptionFont/LabelFont must not inherit this build's engine default
+        // (Times New Roman), or every imported/pasted caption would be typeset
+        // in a face the source document never asked for.
+        document.setDefaultFont("Arial");
     }
     for (const XMLElement* child = root->FirstChildElement(); child;
          child = child->NextSiblingElement(), ++childIndex) {

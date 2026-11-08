@@ -22,8 +22,79 @@ void App::chromeCheck(const std::string& dir){
 
     require(s.doc.defaultFont()=="Arial"&&textEditor.nextFamily=="Arial","new document and editor default to the ACS 1996 Arial preset");
     {Document explicitId(123);require(explicitId.defaultFont()=="Times New Roman","explicit-id Document keeps the engine default; the App applies the ACS preset");}
-    // The responsive-layout assertions below describe the expanded ribbon; the
-    // stored interface.ini preference defaults to the compact one.
+    {
+        // ChemDraw's default is Arial 10. New captions (text tool and bond-end
+        // labels) and files imported without font metadata must follow it.
+        s.doc=Document();drawingSettings.apply(s.doc);s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());s.refresh();
+        require(s.doc.defaultFont()=="Arial"&&std::abs(s.doc.defaultTextSize()-10)<1e-6,"ACS preset is Arial 10");
+        textEditor.begin(kInvalidObjectId,kInvalidObjectId,Vec2(0,0));
+        SendMessageW(edit,EM_REPLACESEL,TRUE,(LPARAM)L"Default font");require(textEditor.finish(true).ok(),"create caption with the default format");
+        ObjectId caption=kInvalidObjectId;for(const auto& record:s.doc.texts().records())if(record.isAlive())caption=record.id;
+        require(caption!=kInvalidObjectId&&!s.doc.runs(caption).empty()&&s.doc.runs(caption).front().fontName=="Arial","new caption is Arial");
+        require(std::abs(textBaseSize(s.doc,caption)-10)<1e-6,"new caption is 10 pt");
+        ObjectId left,right,bond;
+        require(s.doc.addAtom(Vec2(0,30),6,&left).ok()&&s.doc.addAtom(Vec2(30,30),6,&right).ok()&&s.doc.addBond(left,right,&bond).ok(),"label fixture");
+        s.refresh();openText(kInvalidObjectId,right);
+        require(textEditor.family=="Arial"&&std::abs(textEditor.size-10)<1e-6,"bond-end label editor uses Arial 10");
+        SendMessageW(edit,EM_REPLACESEL,TRUE,(LPARAM)L"cn");require(finishText(true),"commit lower-case cyano");
+        require(s.doc.atomLabel(right)=="CN","bond-end cn is auto-cased to CN");
+        require(static_cast<const Document&>(s.doc).extensions(ObjectRef(ObjectKind::Atom,right)).findValue("studio.nickname.fragment")!=nullptr,"CN is recognised as a functional group");
+        auto expansion=functional_groups::prepareExpansion(s.doc,right);
+        require(expansion.anchor!=kInvalidObjectId&&expansion.graph&&expansion.graph->atoms().size()>=2,"cyano expands to a nitrile");
+        const std::string bare="<CDXML><page id=\"1\"><fragment id=\"2\"><n id=\"3\" p=\"0 0\" Element=\"6\"/></fragment></page></CDXML>";
+        Session imported;require(persistence::readCdxml(bare,imported.doc).ok(),"import CDXML without font metadata");
+        require(imported.doc.defaultFont()=="Arial"&&std::abs(imported.doc.defaultTextSize()-10)<1e-6,"imported file without fonts follows the ChemDraw Arial 10 default");
+        std::ofstream(dir+"/default-text-checks.json")<<"{\"caption_font\":\"Arial\",\"caption_size\":10,\"bond_end_font\":\"Arial\",\"bond_end_size\":10,\"cyano_auto_case\":true,\"import_default_font\":\"Arial\"}";
+    }
+    {
+        // Formatting buttons act on the selected text object (and text inside a
+        // selected group) without entering the inline editor; each click is one
+        // undoable command.
+        s.doc=Document();drawingSettings.apply(s.doc);s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());s.refresh();
+        ObjectId first,second,atom;
+        require(s.doc.addText(Vec2(0,80),12,"Format me",&first).ok()&&s.doc.addText(Vec2(0,100),12,"And me",&second).ok(),"text format fixture");
+        require(s.doc.addAtom(Vec2(0,120),6,&atom).ok(),"text group fixture atom");
+        s.refresh();s.selected={ObjectRef(ObjectKind::Text,first)};
+        auto before=s.doc.digest();
+        execute(Button("","加粗","","@flag",kBold));
+        require(!s.doc.runs(first).empty()&&(s.doc.runs(first).front().flags&kBold)!=0,"bold applies to the selected text object");
+        require(s.undo().ok()&&s.doc.digest()==before,"selected text formatting undo");
+        execute(Button("","斜体","","@flag",kItalic));require((s.doc.runs(first).front().flags&kItalic)!=0,"italic applies to the selected text object");
+        execute(Button("","下划线","","@flag",kUnderline));require((s.doc.runs(first).front().flags&kUnderline)!=0,"underline applies to the selected text object");
+        execute(Button("","下标","","@flag",kSubscript));require((s.doc.runs(first).front().flags&kSubscript)!=0,"subscript applies to the selected text object");
+        execute(Button("","上标","","@flag",kSuperscript));require((s.doc.runs(first).front().flags&kSuperscript)!=0&&(s.doc.runs(first).front().flags&kSubscript)==0,"superscript replaces subscript");
+        size_t history=s.history.entries();
+        execute(Button("","增大字号","","@size",1));
+        require(std::abs(textBaseSize(s.doc,first)-13)<1e-6,"size button grows the selected text from its inherited size");
+        require(s.history.entries()==history+1,"size change is one undo step");
+        execute(Button("","左对齐","","@textalign",1));
+        require(s.doc.texts().get(first)->format.align==1,"alignment applies to the selected text object");
+        require(applyTextColor(0xDC1E1EFFu).ok()&&s.doc.texts().get(first)->format.colorRGBA==0xDC1E1EFFu,"color applies to the selected text object");
+        studio_i18n::setWindowText(fontBox,L"Times New Roman");styleFromBox(fontBox,false);
+        require(s.doc.texts().get(first)->format.fontName=="Times New Roman"&&s.doc.runs(first).front().fontName=="Times New Roman","font dropdown applies to the selected text object");
+        studio_i18n::setWindowText(sizeBox,L"14");styleFromBox(sizeBox,false);
+        require(std::abs(textBaseSize(s.doc,first)-14)<1e-6,"size dropdown applies to the selected text object");
+        s.selected={ObjectRef(ObjectKind::Text,first),ObjectRef(ObjectKind::Text,second)};execute(Button("","编组","","@group"));
+        require(!s.doc.groups().records().empty(),"text fixture group created");
+        ObjectId group=kInvalidObjectId;for(const auto& record:s.doc.groups().records())if(record.isAlive())group=record.id;
+        s.selected={ObjectRef(ObjectKind::Group,group)};before=s.doc.digest();
+        execute(Button("","加粗","","@flag",kBold));
+        require((s.doc.runs(first).front().flags&kBold)!=0&&(s.doc.runs(second).front().flags&kBold)!=0,"formatting reaches every text inside a selected group");
+        require(s.undo().ok()&&s.doc.digest()==before,"group text formatting undo");
+        std::ofstream(dir+"/text-format-checks.json")<<"{\"object_bold\":true,\"object_italic\":true,\"object_underline\":true,\"object_subscript\":true,\"object_superscript\":true,\"object_size\":true,\"object_align\":true,\"object_color\":true,\"object_font_dropdown\":true,\"object_size_dropdown\":true,\"group_text\":true,\"undo\":true}";
+    }
+    // First run (no saved Ribbon keys) shows the expanded toolbar; a stored
+    // Compact/Pinned preference is still honored.
+    {
+        std::wstring probe=W(dir+"/ribbon-default.ini");DeleteFileW(probe.c_str());
+        loadRibbon(probe);require(!ribbonCompact&&ribbonPinned&&ribbonVisible,"first run opens the expanded toolbar");
+        WritePrivateProfileStringW(L"Ribbon",L"Compact",L"1",probe.c_str());
+        WritePrivateProfileStringW(L"Ribbon",L"Pinned",L"0",probe.c_str());
+        loadRibbon(probe);require(ribbonCompact&&!ribbonPinned&&!ribbonVisible,"a saved compact preference is honored");
+        DeleteFileW(probe.c_str());loadRibbon();
+        std::ofstream(dir+"/ribbon-default-checks.json")<<"{\"first_run_expanded\":true,\"saved_preference_honored\":true}";
+    }
+    // The responsive-layout assertions below describe the expanded ribbon.
     ribbonCompact=false;ribbonVisible=true;layout();
     demo();
     {

@@ -32,13 +32,15 @@ struct InlineTextEditor {
         ~QuietEdit(){studio_i18n::sendMessage(editor.hwnd,EM_SETEVENTMASK,0,mask);editor.loading=loading;}
     };
     LONG appliedZoom=0,appliedZoomDenominator=0;int appliedWrap=-1;
-    double nextSize=10;std::string nextFamily="Times New Roman";uint16_t nextFlags=0;
-    std::string family="Times New Roman";TextFormat format;std::vector<TextRun> initial;std::vector<uint32_t> initialColors,runColors;
+    // Defaults follow the ChemDraw/ACS Document 1996 preset (Arial 10); the App
+    // overwrites them from the document defaults as soon as one exists.
+    double nextSize=10;std::string nextFamily="Arial";uint16_t nextFlags=0;
+    std::string family="Arial";TextFormat format;std::vector<TextRun> initial;std::vector<uint32_t> initialColors,runColors;
     int contentWidth=12,contentHeight=20,ascent=15;double widthLimit=0,lineHeight=0;
     bool resizing=false;int resizeEdge=0;std::wstring spacingFace;
     std::vector<std::wstring> measuredStyles;
     std::wstring ascentKey;int lastX=0,lastY=0,lastW=0,lastH=0;
-    void initialize(HWND parent,HWND surface,Session* s,TextEditHost* h){owner=parent;canvas=surface;session=s;host=h;nextSize=s->doc.defaultTextSize();nextFamily=s->doc.defaultFont().empty()?"Times New Roman":s->doc.defaultFont();LoadLibraryW(L"Msftedit.dll");
+    void initialize(HWND parent,HWND surface,Session* s,TextEditHost* h){owner=parent;canvas=surface;session=s;host=h;nextSize=s->doc.defaultTextSize();nextFamily=s->doc.defaultFont().empty()?"Arial":s->doc.defaultFont();LoadLibraryW(L"Msftedit.dll");
         if(!host)throw std::runtime_error("文字编辑器缺少宿主回调");
         hwnd=studio_i18n::createWindowEx(0,L"RICHEDIT50W",L"",WS_CHILD|ES_MULTILINE|ES_NOHIDESEL|ES_WANTRETURN|ES_AUTOHSCROLL,0,0,12,20,parent,(HMENU)301,GetModuleHandleW(0),0);
         if(!hwnd)throw std::runtime_error("无法创建原位文字编辑器");SetWindowLongPtrW(hwnd,GWLP_USERDATA,(LONG_PTR)this);original=(WNDPROC)SetWindowLongPtrW(hwnd,GWLP_WNDPROC,(LONG_PTR)proc);
@@ -270,7 +272,7 @@ struct InlineTextEditor {
     Error finish(bool accept){if(!active||closing)return Error();closing=true;if(resizing)finishResize();if(host)host->textEditFinishing();
         if(accept){
             // Completion runs once, on accept: the typed spelling becomes the
-            // dictionary spelling (tbu -> t-Bu) and the glyphs get formula
+            // dictionary spelling (tbu -> tBu) and the glyphs get formula
             // typography (SO42- -> SO4^2-, Fe3+ -> Fe^3+, Ph+* -> Ph^+ with a
             // radical dot). A caption is completed only when the WHOLE caption
             // is one chemical token, so sentences are never re-cased.
@@ -314,7 +316,11 @@ struct InlineTextEditor {
         if(!e.ok()){closing=false;studio_i18n::setWindowText(help,W("未保存："+e.message).c_str());if(completed)completed(e,accept);SetFocus(hwnd);PostMessageW(owner,WM_APP+31,0,0);return e;}
         active=false;ImmAssociateContext(canvas,nullptr);ShowWindow(hwnd,SW_HIDE);for(auto control:{help,acceptButton,cancelButton})ShowWindow(control,SW_HIDE);session->input.setFocus(interaction::InputFocus::Canvas);bool textTool=session->entries[session->activeIndex].owner=="T09";if(textTool)session->activateCommand("chooseSelectionTool_Marquee");session->selected.clear();if(t!=kInvalidObjectId&&session->doc.texts().alive(t))session->selected.push_back(ObjectRef(ObjectKind::Text,t));SetFocus(canvas);InvalidateRect(canvas,0,FALSE);PostMessageW(owner,WM_APP+31,0,0);closing=false;if(completed)completed(e,accept);return e;
     }
-    void setFont(const std::string& name,double points=0){if(!active){if(!name.empty())nextFamily=name;if(points>0)nextSize=points;return;}CHARFORMAT2W c={};c.cbSize=sizeof(c);if(!name.empty()){nextFamily=name;c.dwMask|=CFM_FACE;auto f=W(name);wcsncpy(c.szFaceName,f.c_str(),LF_FACESIZE-1);}if(points>0){nextSize=points;c.dwMask|=CFM_SIZE;c.yHeight=LONG(std::lround(points*20));}studio_i18n::sendMessage(hwnd,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);applyCanvasLineSpacing();resize();if(host)host->textEditChanged();SetFocus(hwnd);}
+    // Selecting a face/size for the text being edited must not change the default
+    // for future captions: ChemDraw keeps the document's caption style as the
+    // default and treats the edit as local formatting. Only choosing a format
+    // with no editor open (style menu / combo box) updates nextFamily/nextSize.
+    void setFont(const std::string& name,double points=0){if(!active){if(!name.empty())nextFamily=name;if(points>0)nextSize=points;return;}CHARFORMAT2W c={};c.cbSize=sizeof(c);if(!name.empty()){c.dwMask|=CFM_FACE;auto f=W(name);wcsncpy(c.szFaceName,f.c_str(),LF_FACESIZE-1);}if(points>0){c.dwMask|=CFM_SIZE;c.yHeight=LONG(std::lround(points*20));}studio_i18n::sendMessage(hwnd,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);applyCanvasLineSpacing();resize();if(host)host->textEditChanged();SetFocus(hwnd);}
     void toggle(int flag){if(!active)return;if(flag==kFormula){QuietEdit quiet(*this);CHARRANGE selection;studio_i18n::sendMessage(hwnd,EM_EXGETSEL,0,(LPARAM)&selection);auto text=value();LONG begin=selection.cpMin,end=selection.cpMax;if(begin==end){begin=0;end=LONG(text.size());}bool afterAtom=false;studio_i18n::sendMessage(hwnd,WM_SETREDRAW,FALSE,0);for(LONG i=begin;i<end&&i<LONG(text.size());i++){wchar_t ch=text[i];select(i,i+1);CHARFORMAT2W f={};f.cbSize=sizeof(f);f.dwMask=CFM_SUBSCRIPT|CFM_SUPERSCRIPT;LONG first=i;while(first>0&&text[first-1]>=L'0'&&text[first-1]<=L'9')--first;bool rIndex=first>0&&text[first-1]==L'R'&&(first<2||!iswalpha(text[first-2]));f.dwEffects=(ch>=L'0'&&ch<=L'9'&&afterAtom)?(rIndex?CFE_SUPERSCRIPT:CFE_SUBSCRIPT):0;studio_i18n::sendMessage(hwnd,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&f);if((ch>=L'A'&&ch<=L'Z')||(ch>=L'a'&&ch<=L'z')||ch==L')'||ch==L']')afterAtom=true;else if(!(ch>=L'0'&&ch<=L'9'))afterAtom=false;}studio_i18n::sendMessage(hwnd,EM_EXSETSEL,0,(LPARAM)&selection);studio_i18n::sendMessage(hwnd,WM_SETREDRAW,TRUE,0);resize();if(host)host->textEditChanged();SetFocus(hwnd);return;}CHARFORMAT2W c={};c.cbSize=sizeof(c);studio_i18n::sendMessage(hwnd,EM_GETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);DWORD mask=flag==kBold?CFM_BOLD:flag==kItalic?CFM_ITALIC:flag==kUnderline?CFM_UNDERLINE:flag==kSubscript?CFM_SUBSCRIPT:CFM_SUPERSCRIPT;DWORD effect=flag==kBold?CFE_BOLD:flag==kItalic?CFE_ITALIC:flag==kUnderline?CFE_UNDERLINE:flag==kSubscript?CFE_SUBSCRIPT:CFE_SUPERSCRIPT;c.dwMask=mask;c.dwEffects=(c.dwEffects&effect)?0:effect;studio_i18n::sendMessage(hwnd,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);applyCanvasLineSpacing();resize();if(host)host->textEditChanged();SetFocus(hwnd);}
     void align(int value){
         if(!active){format.align=uint8_t(value);return;}

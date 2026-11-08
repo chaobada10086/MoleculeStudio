@@ -307,10 +307,13 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
         }
         aiGroups.erase(std::remove_if(aiGroups.begin(),aiGroups.end(),[](const Group& g){return g.items.empty();}),aiGroups.end());
     }
-    int ribbonTab=0;bool ribbonCompact=true,ribbonPinned=true,ribbonVisible=true;
+    int ribbonTab=0;bool ribbonCompact=false,ribbonPinned=true,ribbonVisible=true;
     std::vector<std::pair<RectF,size_t>> compactMenus;bool graphicsDense=false,graphicsAutoCompact=false,swallowHotkeyChar=false;
     std::wstring interfacePath(){wchar_t exe[32768]={};GetModuleFileNameW(nullptr,exe,32768);std::wstring path=exe;return path.substr(0,path.find_last_of(L"\\/"))+L"\\interface.ini";}
-    void loadRibbon(){auto path=interfacePath();ribbonCompact=GetPrivateProfileIntW(L"Ribbon",L"Compact",1,path.c_str())!=0;ribbonPinned=GetPrivateProfileIntW(L"Ribbon",L"Pinned",1,path.c_str())!=0;ribbonVisible=ribbonPinned;auto& tlc=studio_tlc::preferences();tlc.lanes=std::max(1,std::min(12,int(GetPrivateProfileIntW(L"TLC",L"Lanes",4,path.c_str()))));tlc.spots=std::max(0,std::min(10,int(GetPrivateProfileIntW(L"TLC",L"Spots",1,path.c_str()))));tlc.diameter=std::max(1.,std::min(16.,GetPrivateProfileIntW(L"TLC",L"DiameterTenths",40,path.c_str())/10.));tlc.guides=GetPrivateProfileIntW(L"TLC",L"Guides",0,path.c_str())!=0;tlc.origin=GetPrivateProfileIntW(L"TLC",L"Origin",1,path.c_str())!=0;tlc.front=GetPrivateProfileIntW(L"TLC",L"Front",1,path.c_str())!=0;tlc.showRf=GetPrivateProfileIntW(L"TLC",L"ShowRf",0,path.c_str())!=0;std::vector<wchar_t> payload(131072);GetPrivateProfileStringW(L"TLC",L"Template",L"",payload.data(),DWORD(payload.size()),path.c_str());bool valid=false;auto draft=r62::experimental::decodeFigure(U(payload.data()),&valid);if(valid&&draft.kind==r62::experimental::FigureKind::TlcPlate&&r62::experimental::validateFigure(draft).ok()){tlc.plateTemplate=draft;tlc.customTemplate=true;}arrowPreset=GetPrivateProfileIntW(L"Arrow",L"Preset",0,path.c_str());auto arrow=arrows::presetById(arrowPreset);if(!arrow){arrowPreset=0;arrow=arrows::presetById(0);}syncArrowSurfaces();}
+    // A first install has no saved Ribbon keys: the expanded ribbon is the default
+    // (ChemDraw opens with its toolbars visible). Only an explicitly saved
+    // Compact=1 or Pinned=0 restores a collapsed/auto-hidden toolbar.
+    void loadRibbon(const std::wstring& settingsPath=std::wstring()){auto path=settingsPath.empty()?interfacePath():settingsPath;ribbonCompact=GetPrivateProfileIntW(L"Ribbon",L"Compact",0,path.c_str())!=0;ribbonPinned=GetPrivateProfileIntW(L"Ribbon",L"Pinned",1,path.c_str())!=0;ribbonVisible=ribbonPinned;auto& tlc=studio_tlc::preferences();tlc.lanes=std::max(1,std::min(12,int(GetPrivateProfileIntW(L"TLC",L"Lanes",4,path.c_str()))));tlc.spots=std::max(0,std::min(10,int(GetPrivateProfileIntW(L"TLC",L"Spots",1,path.c_str()))));tlc.diameter=std::max(1.,std::min(16.,GetPrivateProfileIntW(L"TLC",L"DiameterTenths",40,path.c_str())/10.));tlc.guides=GetPrivateProfileIntW(L"TLC",L"Guides",0,path.c_str())!=0;tlc.origin=GetPrivateProfileIntW(L"TLC",L"Origin",1,path.c_str())!=0;tlc.front=GetPrivateProfileIntW(L"TLC",L"Front",1,path.c_str())!=0;tlc.showRf=GetPrivateProfileIntW(L"TLC",L"ShowRf",0,path.c_str())!=0;std::vector<wchar_t> payload(131072);GetPrivateProfileStringW(L"TLC",L"Template",L"",payload.data(),DWORD(payload.size()),path.c_str());bool valid=false;auto draft=r62::experimental::decodeFigure(U(payload.data()),&valid);if(valid&&draft.kind==r62::experimental::FigureKind::TlcPlate&&r62::experimental::validateFigure(draft).ok()){tlc.plateTemplate=draft;tlc.customTemplate=true;}arrowPreset=GetPrivateProfileIntW(L"Arrow",L"Preset",0,path.c_str());auto arrow=arrows::presetById(arrowPreset);if(!arrow){arrowPreset=0;arrow=arrows::presetById(0);}syncArrowSurfaces();}
     void saveRibbon(){auto path=interfacePath();WritePrivateProfileStringW(L"Ribbon",L"Compact",ribbonCompact?L"1":L"0",path.c_str());WritePrivateProfileStringW(L"Ribbon",L"Pinned",ribbonPinned?L"1":L"0",path.c_str());}
     void showRibbonGroup(size_t index){if(index>=visibleGroups().size())return;auto group=visibleGroups()[index];for(auto& b:group.items)if(b.cmd=="@addCustomTemplate")b.enabled=!s.selected.empty();for(size_t i=0,n=group.items.size();i<n;++i)if(group.items[i].cmd=="chooseTLCPlateTool")group.items.insert(group.items.begin()+i+1,Button("tlcSetup","薄层板点样设置…","table","@tlcMenu"));HMENU menu=CreatePopupMenu();for(size_t i=0;i<group.items.size();i++){const auto& item=group.items[i];auto title=W(item.label);auto shortcut=shortcutFor(item);if(!shortcut.empty())title+=L"\t"+W(shortcut);studio_i18n::appendMenu(menu,MF_STRING|(item.enabled?0:MF_GRAYED),UINT_PTR(i+1),title.c_str());}POINT at={int(group.r.X*scale),int(group.r.GetBottom()*scale)};ClientToScreen(h,&at);int result=TrackPopupMenu(menu,TPM_RETURNCMD|TPM_LEFTALIGN,at.x,at.y,0,h,nullptr);DestroyMenu(menu);if(result>0&&size_t(result)<=group.items.size())execute(group.items[size_t(result)-1]);}
 
@@ -336,6 +339,13 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
     void paintGraphicFormatControl(Graphics& g,const Button& button);
     bool drawGraphicStyleItem(DRAWITEMSTRUCT* item);
     Error applyTextColor(uint32_t color);
+    // Text objects reached by the current selection, including text inside
+    // selected groups: formatting buttons and the font/size boxes act on these
+    // directly, without first opening the inline editor.
+    std::vector<ObjectId> selectedTexts(){std::vector<ObjectId> texts;std::set<ObjectId> seen;for(auto ref:studioio::expanded(s.doc,s.selected))if(ref.kind==ObjectKind::Text&&s.doc.texts().alive(ref.id)&&seen.insert(ref.id).second)texts.push_back(ref.id);return texts;}
+    // Point size a text object effectively uses: its own size, else the first
+    // explicit run size, else the document caption size.
+    static double textBaseSize(const r62::core::Document& d,ObjectId id){auto text=d.texts().alive(id);if(!text)return d.defaultTextSize();if(text->size>0)return text->size;for(const auto& run:d.runs(id))if(run.size>0)return run.size;return d.defaultTextSize();}
     Error applyGraphicsStyle(double width,uint32_t color,bool setWidth,bool setColor);
     bool drawArrowMenuItem(DRAWITEMSTRUCT* item);
     void chromeCheck(const std::string& dir);
@@ -745,8 +755,8 @@ void cdxmlColorCheck(const std::string& dir);
         ObjectId a;
         s.doc.addText(Vec2(-46,82),11,"Benzene",&a);s.selected.push_back(ObjectRef(ObjectKind::Atom,atoms[0]));s.input.bindDocument(s.doc.id());s.refresh();s.fit();auto view=s.view();view.scale=1.3;s.setView(view);s.dirty=false;fileName="苯 · 示例";status="点选结构，右上角分子信息自动更新";}
     void initializeTextControls();
-    void syncTextControls(){if(!fontBox||syncingTextControls)return;syncingTextControls=true;std::string family=textEditor.nextFamily;double points=textEditor.nextSize;if(textEditor.active){CHARFORMAT2W c={};c.cbSize=sizeof(c);studio_i18n::sendMessage(edit,EM_GETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);family=U(c.szFaceName);points=c.yHeight/20.0;}else for(auto ref:s.selected)if(ref.kind==ObjectKind::Text){auto text=s.doc.texts().alive(ref.id);if(text){family=text->format.fontName.empty()?s.doc.defaultFont():text->format.fontName;points=text->size>0?text->size:s.doc.defaultTextSize();auto runs=s.doc.runs(ref.id);if(!runs.empty()){if(!runs.front().fontName.empty())family=runs.front().fontName;if(runs.front().size>0)points=runs.front().size;}break;}}else if(ref.kind==ObjectKind::Atom&&s.doc.atoms().alive(ref.id)){family=s.doc.defaultFont();points=10;if(auto v=s.doc.documentExtensions().findValue("studio.style.LabelSize"))points=std::atof(v->c_str());auto runs=studioatom::runs(s.doc,ref.id);if(!runs.empty()){if(!runs.front().fontName.empty())family=runs.front().fontName;if(runs.front().size>0)points=runs.front().size;}break;}wchar_t num[32];swprintf(num,32,L"%.1f",points);std::wstring number=num;if(number.size()>2&&number.substr(number.size()-2)==L".0")number.resize(number.size()-2);for(auto item:{std::make_pair(fontBox,W(family)),std::make_pair(sizeBox,number)}){COMBOBOXINFO cb={};cb.cbSize=sizeof(cb);GetComboBoxInfo(item.first,&cb);if(GetFocus()==item.first||GetFocus()==cb.hwndItem)continue;wchar_t old[256]={};studio_i18n::getWindowText(item.first,old,256);if(item.second!=old)studio_i18n::setWindowText(item.first,item.second.c_str());}syncingTextControls=false;}
-    void styleFromBox(HWND box,bool selected){if(syncingTextControls)return;syncingTextControls=true;wchar_t value[256]={};int index=int(studio_i18n::sendMessage(box,CB_GETCURSEL,0,0));if(selected&&index>=0)studio_i18n::sendMessage(box,CB_GETLBTEXT,index,(LPARAM)value);else studio_i18n::getWindowText(box,value,256);bool face=box==fontBox;std::string name=face?U(value):"";wchar_t* end=nullptr;double points=face?0:wcstod(value,&end);if((face&&name.empty())||(!face&&(!end||*end||points<4||points>200))){syncingTextControls=false;syncTextControls();return;}textEditor.setFont(name,points);if(!textEditor.active){std::vector<ObjectId> texts;for(auto ref:s.selected)if(ref.kind==ObjectKind::Text&&s.doc.texts().alive(ref.id))texts.push_back(ref.id);if(!texts.empty())error(s.submit(Command("字体与字号",kInvalidateAppearance|kInvalidateGeometry,[texts,name,points,face](CommandContext& c){for(auto id:texts){auto runs=c.document.runs(id);for(auto& run:runs)if(face)run.fontName=name;else run.size=0;auto e=c.document.setTextRuns(id,runs);if(!e.ok())return CommandResult::fail(e.code,e.message);if(face){auto f=c.document.texts().get(id)->format;f.fontName=name;e=c.document.setTextFormat(id,f);}else e=c.document.setTextSize(id,points);if(!e.ok())return CommandResult::fail(e.code,e.message);}return CommandResult::success();}),"字体与字号"));}syncingTextControls=false;invalidate();}
+    void syncTextControls(){if(!fontBox||syncingTextControls)return;syncingTextControls=true;std::string family=textEditor.nextFamily;double points=textEditor.nextSize;if(textEditor.active){CHARFORMAT2W c={};c.cbSize=sizeof(c);studio_i18n::sendMessage(edit,EM_GETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);family=U(c.szFaceName);points=c.yHeight/20.0;}else{for(auto id:selectedTexts()){auto text=s.doc.texts().alive(id);if(text){family=text->format.fontName.empty()?s.doc.defaultFont():text->format.fontName;points=textBaseSize(s.doc,id);auto runs=s.doc.runs(id);if(!runs.empty()&&!runs.front().fontName.empty())family=runs.front().fontName;break;}}for(auto ref:s.selected)if(ref.kind==ObjectKind::Atom&&s.doc.atoms().alive(ref.id)){family=s.doc.defaultFont();points=10;if(auto v=s.doc.documentExtensions().findValue("studio.style.LabelSize"))points=std::atof(v->c_str());auto runs=studioatom::runs(s.doc,ref.id);if(!runs.empty()){if(!runs.front().fontName.empty())family=runs.front().fontName;if(runs.front().size>0)points=runs.front().size;}break;}}wchar_t num[32];swprintf(num,32,L"%.1f",points);std::wstring number=num;if(number.size()>2&&number.substr(number.size()-2)==L".0")number.resize(number.size()-2);for(auto item:{std::make_pair(fontBox,W(family)),std::make_pair(sizeBox,number)}){COMBOBOXINFO cb={};cb.cbSize=sizeof(cb);GetComboBoxInfo(item.first,&cb);if(GetFocus()==item.first||GetFocus()==cb.hwndItem)continue;wchar_t old[256]={};studio_i18n::getWindowText(item.first,old,256);if(item.second!=old)studio_i18n::setWindowText(item.first,item.second.c_str());}syncingTextControls=false;}
+    void styleFromBox(HWND box,bool selected){if(syncingTextControls)return;syncingTextControls=true;wchar_t value[256]={};int index=int(studio_i18n::sendMessage(box,CB_GETCURSEL,0,0));if(selected&&index>=0)studio_i18n::sendMessage(box,CB_GETLBTEXT,index,(LPARAM)value);else studio_i18n::getWindowText(box,value,256);bool face=box==fontBox;std::string name=face?U(value):"";wchar_t* end=nullptr;double points=face?0:wcstod(value,&end);if((face&&name.empty())||(!face&&(!end||*end||points<4||points>200))){syncingTextControls=false;syncTextControls();return;}textEditor.setFont(name,points);if(!textEditor.active){std::vector<ObjectId> texts=selectedTexts();if(!texts.empty())error(s.submit(Command("字体与字号",kInvalidateAppearance|kInvalidateGeometry,[texts,name,points,face](CommandContext& c){for(auto id:texts){auto runs=c.document.runs(id);for(auto& run:runs)if(face)run.fontName=name;else run.size=0;auto e=c.document.setTextRuns(id,runs);if(!e.ok())return CommandResult::fail(e.code,e.message);if(face){auto f=c.document.texts().get(id)->format;f.fontName=name;e=c.document.setTextFormat(id,f);}else e=c.document.setTextSize(id,points);if(!e.ok())return CommandResult::fail(e.code,e.message);}return CommandResult::success();}),"字体与字号"));}syncingTextControls=false;invalidate();}
     void execute(const Button& b);
     void fitPage(){auto p=studioio::Page::get(s.doc);auto v=s.view();v.center=Vec2(p.x+p.width*p.across*.5,p.y+p.height*p.down*.5);v.scale=.92*std::min(s.renderView.widthPx/(p.width*p.across*v.dpiScale),s.renderView.heightPx/(p.height*p.down*v.dpiScale));s.setView(v);}
     bool publishOleClipboard(const Document& subset,const std::string& native,const std::string& xml);
@@ -1136,19 +1146,45 @@ void App::execute(const Button& b){
     else if(op=="newwindow"){if(host)host->newWindow();return;}
     else if(op=="new"){if(host){host->newTab();return;}if(leave()){s.cancel();s.doc=Document();drawingSettings.apply(s.doc);s.graphicsWidth=0;s.history.clear();s.selected.clear();s.sourcePath.clear();s.input.bindDocument(s.doc.id());s.refresh();s.dirty=false;textEditor.nextFamily=s.doc.defaultFont();textEditor.nextSize=s.doc.defaultTextSize();textEditor.nextFlags=0;fileName="未命名结构";}}
     else {
-        auto refs=s.selected;std::vector<ObjectId> texts;for(auto x:refs)if(x.kind==ObjectKind::Text&&s.doc.texts().alive(x.id))texts.push_back(x.id);
+        auto refs=s.selected;
+        // Formatting acts on every selected text object, including text inside a
+        // selected group, without requiring the inline editor to be open first.
+        std::vector<ObjectId> texts=selectedTexts();
         if(op=="flag"||op=="size"||op=="textalign"||op=="font"||op=="color"){
-            if(texts.empty()){status="先选中文字，再设置"+b.label;invalidate();return;}
+            if(texts.empty()){status="先选中文字或包含文字的组，再设置"+b.label;invalidate();return;}
             uint32_t color=0;std::string face;double fontSize=0;
+            std::string currentFace=s.doc.defaultFont();double currentSize=s.doc.defaultTextSize();
+            if(auto text=s.doc.texts().alive(texts.front())){
+                currentFace=text->format.fontName.empty()?s.doc.defaultFont():text->format.fontName;
+                currentSize=textBaseSize(s.doc,texts.front());
+                auto runs=s.doc.runs(texts.front());if(!runs.empty()&&!runs.front().fontName.empty())currentFace=runs.front().fontName;
+            }
             if(op=="color"){CHOOSECOLORW cc={};static COLORREF custom[16]={};cc.lStructSize=sizeof(cc);cc.hwndOwner=h;cc.lpCustColors=custom;cc.Flags=CC_FULLOPEN|CC_RGBINIT;if(!studio_i18n::chooseColor(&cc))return;color=(uint32_t(GetRValue(cc.rgbResult))<<24)|(uint32_t(GetGValue(cc.rgbResult))<<16)|(uint32_t(GetBValue(cc.rgbResult))<<8)|255;}
-            if(op=="font"){LOGFONTW lf={};lf.lfHeight=-16;wcscpy(lf.lfFaceName,L"Arial");CHOOSEFONTW cf={};cf.lStructSize=sizeof(cf);cf.hwndOwner=h;cf.lpLogFont=&lf;cf.Flags=CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT;if(!ChooseFontW(&cf))return;face=U(lf.lfFaceName);fontSize=cf.iPointSize/10.;}
-            int arg=b.arg;error(s.submit(Command("文字格式",kInvalidateAppearance,[texts,op,arg,color,face,fontSize](CommandContext& c){for(auto id:texts){auto runs=c.document.runs(id);auto rec=c.document.texts().get(id);Error e;
-                if(op=="flag"){if(arg==kFormula){for(auto& r:runs){r.flags&=~(kSubscript|kSuperscript);r.flags|=kFormula;}e=c.document.setTextRuns(id,runs);}
-                    else for(auto& r:runs){r.flags^=uint16_t(arg);if(arg==kSubscript)r.flags&=~kSuperscript;if(arg==kSuperscript)r.flags&=~kSubscript;}e=c.document.setTextRuns(id,runs);}
-                else if(op=="size"){for(auto& r:runs)r.size=0;e=c.document.setTextRuns(id,runs);if(e.ok())e=c.document.setTextSize(id,std::max(4.,rec->size+arg));}
-                else if(op=="font"){for(auto& r:runs){r.fontName=face;r.size=0;}e=c.document.setTextRuns(id,runs);if(e.ok())e=c.document.setTextSize(id,fontSize);}
-                else{auto fmt=rec->format;if(op=="textalign")fmt.align=uint8_t(arg);else fmt.colorRGBA=color;e=c.document.setTextFormat(id,fmt);}if(!e.ok())return CommandResult::fail(e.code,e.message);}
+            if(op=="font"){
+                // Start the dialog from the selection's own face and size instead
+                // of a hard-coded Arial 10, so "choose font" edits rather than resets.
+                LOGFONTW lf={};HDC screen=GetDC(h);int logpixels=screen?GetDeviceCaps(screen,LOGPIXELSY):96;if(screen)ReleaseDC(h,screen);if(logpixels<=0)logpixels=96;
+                lf.lfHeight=-LONG(std::lround(currentSize*logpixels/72.0));wcscpy(lf.lfFaceName,W(currentFace).c_str());
+                CHOOSEFONTW cf={};cf.lStructSize=sizeof(cf);cf.hwndOwner=h;cf.lpLogFont=&lf;cf.Flags=CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT;
+                if(!ChooseFontW(&cf))return;face=U(lf.lfFaceName);fontSize=cf.iPointSize>0?cf.iPointSize/10.:currentSize;
+            }
+            int arg=b.arg;error(s.submit(Command("文字格式",kInvalidateAppearance|kInvalidateGeometry,[texts,op,arg,color,face,fontSize](CommandContext& c){
+                for(auto id:texts){auto runs=c.document.runs(id);auto rec=c.document.texts().get(id);if(!rec)return CommandResult::fail(ErrorCode::NotFound,"文字对象不存在");Error e;
+                    if(op=="flag"){
+                        if(arg==kFormula){for(auto& r:runs){r.flags&=~(kSubscript|kSuperscript);r.flags|=kFormula;}e=c.document.setTextRuns(id,runs);}
+                        else{
+                            // Clicking a style button applies one decision to the whole
+                            // selection: any run already carrying it clears all runs.
+                            bool on=true;for(const auto& r:runs)if(r.flags&arg)on=false;
+                            for(auto& r:runs){if(on){r.flags|=uint16_t(arg);if(arg==kSubscript)r.flags&=~kSuperscript;if(arg==kSuperscript)r.flags&=~kSubscript;}else r.flags&=~uint16_t(arg);}
+                            e=c.document.setTextRuns(id,runs);
+                        }
+                    }
+                    else if(op=="size"){double base=App::textBaseSize(c.document,id);for(auto& r:runs)r.size=0;e=c.document.setTextRuns(id,runs);if(e.ok())e=c.document.setTextSize(id,std::max(4.,base+arg));}
+                    else if(op=="font"){for(auto& r:runs){r.fontName=face;r.size=0;}e=c.document.setTextRuns(id,runs);if(e.ok())e=c.document.setTextSize(id,fontSize);}
+                    else{auto fmt=rec->format;if(op=="textalign")fmt.align=uint8_t(arg);else fmt.colorRGBA=color;e=c.document.setTextFormat(id,fmt);}if(!e.ok())return CommandResult::fail(e.code,e.message);}
                 return CommandResult::success();}),"文字格式"));
+            syncTextControls();
         }else if(op=="align"||op=="distribute"||op=="group"||op=="ungroup"){arrangeAction(op,b.arg);}
         else if(refs.empty())status="请先选择要排列的对象";
         else {int arg=b.arg;Box bounds=studioio::selectionBounds(s);Vec2 pivot=bounds.empty()?s.view().center:(bounds.min+bounds.max)*.5;
@@ -2005,6 +2041,42 @@ void App::selftest(){
         s.selected=s.all();screenshot(testOut+"/text_at_100percent.png");
     }
 
+    // P1 drawing UX: ChemDraw's Arial 10 default, automatic abbreviation case
+    // at a bond terminus, object-level text formatting without the editor, and
+    // the expanded first-run toolbar.
+    {
+        s.doc=Document();drawingSettings.apply(s.doc);s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());s.refresh();
+        require(s.doc.defaultFont()=="Arial"&&std::abs(s.doc.defaultTextSize()-10)<1e-6,"new document uses the ChemDraw Arial 10 default");
+        textEditor.begin(kInvalidObjectId,kInvalidObjectId,Vec2(0,0));
+        studio_i18n::sendMessage(edit,EM_REPLACESEL,TRUE,(LPARAM)L"Default font");require(textEditor.finish(true).ok(),"commit default-font caption");
+        ObjectId caption=kInvalidObjectId;for(const auto& text:s.doc.texts().records())if(text.isAlive())caption=text.id;
+        require(caption!=kInvalidObjectId&&!s.doc.runs(caption).empty()&&s.doc.runs(caption).front().fontName=="Arial","new caption is Arial");
+        require(std::abs(textBaseSize(s.doc,caption)-10)<1e-6,"new caption is 10 pt");
+        ObjectId left,right,bond;
+        require(s.doc.addAtom(Vec2(0,40),6,&left).ok()&&s.doc.addAtom(Vec2(30,40),6,&right).ok()&&s.doc.addBond(left,right,&bond).ok(),"label fixture");
+        s.refresh();openText(kInvalidObjectId,right);
+        require(textEditor.family=="Arial"&&std::abs(textEditor.size-10)<1e-6,"bond-end label editor uses Arial 10");
+        studio_i18n::sendMessage(edit,EM_REPLACESEL,TRUE,(LPARAM)L"cn");require(finishText(true),"commit lower-case cyano");
+        require(s.doc.atomLabel(right)=="CN","bond-end cn is auto-cased to CN");
+        require(static_cast<const Document&>(s.doc).extensions(ObjectRef(ObjectKind::Atom,right)).findValue("studio.nickname.fragment")!=nullptr,"CN is recognised as a functional group");
+        auto expansion=functional_groups::prepareExpansion(s.doc,right);
+        require(expansion.anchor!=kInvalidObjectId&&expansion.graph&&expansion.graph->atoms().size()>=2,"cyano expands to a nitrile");
+        require(chemcompletion::normalize("Co")=="Co"&&chemcompletion::normalize("Cn")=="Cn"&&chemcompletion::normalize("N")=="N","exactly typed element symbols keep their case");
+        require(chemcompletion::normalize("bpin")=="Bpin"&&chemcompletion::normalize("tbu")=="tBu"&&chemcompletion::normalize("boc")=="Boc","new abbreviations are auto-cased");
+        require(chemcompletion::normalize("iam")=="iam","unreviewed ambiguous key is not guessed");
+        auto formatDigest=s.doc.digest();s.selected={ObjectRef(ObjectKind::Text,caption)};
+        execute(Button("","加粗","","@flag",kBold));
+        require(!s.doc.runs(caption).empty()&&(s.doc.runs(caption).front().flags&kBold)!=0,"bold applies to the selected text object without opening the editor");
+        execute(Button("","增大字号","","@size",1));
+        require(std::abs(textBaseSize(s.doc,caption)-11)<1e-6,"size button grows the selected text from its inherited size");
+        require(s.undo().ok()&&s.undo().ok()&&s.doc.digest()==formatDigest,"object text formatting is undoable");
+        std::wstring ribbon=W(testOut)+L"/ribbon-default.ini";DeleteFileW(ribbon.c_str());loadRibbon(ribbon);
+        require(!ribbonCompact&&ribbonPinned&&ribbonVisible,"first run opens the expanded toolbar");
+        WritePrivateProfileStringW(L"Ribbon",L"Compact",L"1",ribbon.c_str());loadRibbon(ribbon);
+        require(ribbonCompact,"a saved compact preference is still honored");
+        DeleteFileW(ribbon.c_str());loadRibbon();ribbonCompact=false;ribbonVisible=true;layout();
+    }
+
     {
         std::vector<std::string> files;for(int variant=0;variant<32;++variant){auto path=testOut+"/project-corpus-"+std::to_string(variant)+".cdxml";std::ofstream(path)<<projectCorpusXml(variant);files.push_back(path);}std::ofstream report(testOut+"/corpus.tsv");report<<"file\tatoms\tbonds\tstatus\n";
         size_t i=0;for(auto f:files){Session a;auto e=a.open(f);require(e.ok(),(f+": "+e.message).c_str());std::string dst=testOut+"/corpus_"+std::to_string(i++)+".cdxml";e=a.save(dst,true);require(e.ok(),(f+": "+e.message).c_str());Session b;e=b.open(dst);require(e.ok(),(f+": "+e.message).c_str());require(a.doc.stats().aliveAtoms==b.doc.stats().aliveAtoms&&a.doc.stats().aliveBonds==b.doc.stats().aliveBonds,"corpus atom/bond counts changed");
@@ -2125,7 +2197,7 @@ void App::selftest(){
     demo();s.selected=s.all();s.activateCommand("chooseSelectionTool_Marquee");updateInfo();for(int w:{1100,1500}){SetWindowPos(h,0,0,0,w,900,SWP_NOMOVE|SWP_NOZORDER);layout();require(height-top-int(footerHeight()*scale)>height*.50,"toolbar leaves over half the window for drawing");for(const auto& b:chemistryQuick){require(b.r.GetRight()*scale<=width&&b.r.GetBottom()*scale<top,"chemistry quick button is inside the toolbar");for(const auto& group:groups)require(!b.r.IntersectsWith(group.r),"chemistry quick button does not overlap a tool group");}for(auto& gr:groups)for(auto& b:gr.items)require(b.r.GetRight()*scale<=width+1&&b.r.GetBottom()*scale<top,"toolbar clipped");screenshot(testOut+"/studio_"+std::to_string(w)+".png");}
     scale=2;SetWindowPos(h,0,0,0,3300,1800,SWP_NOMOVE|SWP_NOZORDER);layout();s.fit();for(auto& gr:groups)for(auto& b:gr.items)require(b.r.GetRight()*scale<=width+1&&b.r.GetBottom()*scale<top,"200 percent toolbar clipped");require(height-top-int(footerHeight()*scale)>height*.50,"high DPI canvas too small");screenshot(testOut+"/studio_200percent.png");
     auto& undoButton=groups[0].items[3];studio_i18n::sendMessage(h,WM_MOUSEMOVE,0,MAKELPARAM(int((undoButton.r.X+3)*scale),int((undoButton.r.Y+3)*scale)));require(hover==undoButton.id,"hover hit testing");screenshot(testOut+"/hover_shortcut.png");studio_i18n::sendMessage(h,WM_MOUSELEAVE,0,0);require(hover.empty(),"hover clears on leave");
-    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
+    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }
 }
 #include "drawing_settings_checks.hpp"
