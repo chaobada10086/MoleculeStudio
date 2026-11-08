@@ -48,7 +48,7 @@ OCSR 的基础解释器及 site-packages 与核心 chemistry_python 文件哈希
 
 ## 下载来源
 
-默认 GHFast → GH-Proxy → GHProxy.net → GitHub，镜像失败后自动切换，GitHub 最后备用。取消“镜像优先”则只使用 GitHub。第三方来源可能不可用；每个来源最多两次尝试，全部失败后提示重试。所有 ZIP 必须匹配官方版本清单（离线回退时为内置清单）的 SHA-256，错误内容不会解压。不关闭 TLS 校验，不执行镜像返回的脚本。
+默认 GHFast → GH-Proxy → GHProxy.net → GitHub，镜像失败后自动切换，GitHub 最后备用。取消“镜像优先”则只使用 GitHub。第三方来源可能不可用；每个来源最多三次尝试（连接 20 秒、读取 30 秒超时），每次失败会在状态栏显示该来源的具体原因并继续切换；全部失败时错误信息会列出每个来源的失败原因，便于判断是网络还是镜像问题。所有 ZIP 必须匹配官方版本清单（离线回退时为内置清单）的 SHA-256，错误内容不会解压。不关闭 TLS 校验，不执行镜像返回的脚本。
 
 备用服务文档：[GH-Proxy](https://gh-proxy.com/en/docs/github-accelerator/)、[GitHub Releases 代理说明](https://doc.oplist.org/guide/drivers/github_releases)。可取消勾选，仅使用 GitHub。安装器 EXE 和窗口使用项目原有 MoleculeStudio 图标。
 

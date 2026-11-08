@@ -406,23 +406,35 @@ class OnlineInstaller {
   string url=p.Url;var sources=new List<string>();
   if(mirrors){sources.Add("https://ghfast.top/"+url);sources.Add("https://gh-proxy.com/"+url);sources.Add("https://ghproxy.net/"+url);}
   sources.Add(url);
-  string partial=path+".part";Exception last=null;
-  foreach(string source in sources)for(int attempt=0;attempt<2;attempt++){
+  string partial=path+".part";var failures=new List<string>();
+  foreach(string source in sources)for(int attempt=0;attempt<3;attempt++){
    CheckCancel();
+   string host=new Uri(source).Host;
    try{
-    Report("连接 "+new Uri(source).Host+" · "+p.Display,-1);
-    var req=(HttpWebRequest)WebRequest.Create(source);req.UserAgent="MoleculeStudio-Installer/2.0";req.Timeout=20000;req.ReadWriteTimeout=20000;
+    if(File.Exists(partial))try{File.Delete(partial);}catch{}
+    Report("连接 "+host+" · "+p.Display+(attempt>0?" · 第 "+(attempt+1)+" 次尝试":""),-1);
+    var req=(HttpWebRequest)WebRequest.Create(source);req.UserAgent="MoleculeStudio-Installer/2.0";req.Timeout=20000;req.ReadWriteTimeout=30000;
     using(var response=req.GetResponse())using(var input=response.GetResponseStream())using(var output=File.Create(partial)){
      byte[] buffer=new byte[1024*1024];long done=0;int n;var time=Stopwatch.StartNew();long lastUpdate=0;
-     while((n=input.Read(buffer,0,buffer.Length))>0){CheckCancel();output.Write(buffer,0,n);done+=n;if(time.ElapsedMilliseconds-lastUpdate>400){Report("下载 "+p.Display+" · "+(done/1048576)+" MB / "+(response.ContentLength/1048576)+" MB · "+new Uri(source).Host,response.ContentLength>0?100.0*done/response.ContentLength:-1);lastUpdate=time.ElapsedMilliseconds;}}
+     while((n=input.Read(buffer,0,buffer.Length))>0){CheckCancel();output.Write(buffer,0,n);done+=n;if(time.ElapsedMilliseconds-lastUpdate>400){Report("下载 "+p.Display+" · "+(done/1048576)+" MB / "+(response.ContentLength/1048576)+" MB · "+host,response.ContentLength>0?100.0*done/response.ContentLength:-1);lastUpdate=time.ElapsedMilliseconds;}}
     }
     Report("校验 "+p.Display+" 的 SHA-256",-1);
-    if(Hash(partial)!=p.Hash)throw new IOException("文件校验失败");
+    if(Hash(partial)!=p.Hash)throw new IOException("SHA-256 校验不匹配");
     if(File.Exists(path))File.Delete(path);
     File.Move(partial,path);return path;
-   }catch(OperationCanceledException){throw;}catch(Exception error){last=error;Report("当前来源失败，正在重试或切换来源……",-1);}
+   }catch(OperationCanceledException){throw;}
+   catch(Exception error){
+    string reason=error.Message==null?"未知错误":error.Message.Replace("\r"," ").Replace("\n"," ");
+    if(reason.Length>140)reason=reason.Substring(0,140)+"…";
+    failures.Add(host+"："+reason);
+    bool lastAttemptForSource=attempt==2;
+    Report("来源 "+host+" 失败（"+reason+"），"+(lastAttemptForSource?"切换下一个来源…":"重试…"),-1);
+    System.Threading.Thread.Sleep(250);
+   }
   }
-  throw new IOException("下载失败，请检查网络后重试。"+(last==null?"":last.Message));
+  var unique=new List<string>();
+  foreach(string item in failures)if(!unique.Contains(item))unique.Add(item);
+  throw new IOException("所有下载来源均失败，请检查网络/代理后重试（已在 "+sources.Count+" 个来源间自动切换）："+string.Join("；",unique.ToArray()));
  }
  static string Duplicate(string root,string rel){
   const string a="ocsr_runtime/python/cpython-3.10-windows-x86_64-none/",b="ocsr_runtime/venv/Lib/site-packages/";
