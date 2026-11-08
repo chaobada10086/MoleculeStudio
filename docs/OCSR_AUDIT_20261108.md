@@ -135,7 +135,7 @@ app 必需项核对（均在）：`ocsr_service.py`（根，app 以 `appDir\ocsr
 | --- | --- |
 | 路径 | `C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\out\repack-20261108\MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip`（构建产物，不提交） |
 | 大小 | **833,407,453 B**（794.8 MiB / 0.83 GB），旧包 1,504,763,253 B，**−44.6%**（2026-11-08 二次打包） |
-| SHA-256 | `4aa68155e37b88c767f540edbc06c0c0a8739fcedf71f28e96a258ea0463dc1e` |
+| SHA-256 | `d9977a679f51852d95b3e4348304ad7d133d851397bc61fbb68dff970b032822` |
 | 条目 | 32,812（32,059 新包文件 + 752 legal + 1 `MANIFEST-OCSR.json`；全部位于 `MoleculeStudio/` 下，无目录条目；已移除 18 个 venv 启动器/配置文件） |
 | 解压后 | 2,278,351,288 B（2.122 GiB） |
 | MANIFEST | `version="0.95-20261108"`、`package="OCSR"`、`package_revision="20261108-portable-runtime"`、`files` 32,811 条（真实文件 → `bytes`+`sha256`，不含自身），6,565,335 B |
