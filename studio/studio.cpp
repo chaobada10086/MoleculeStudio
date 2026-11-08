@@ -16,6 +16,7 @@
 #include <objidl.h>
 #include <shellapi.h>
 #include <gdiplus.h>
+#include "skill_export.hpp"
 #include <GL/gl.h>
 #include "ui_native_language.hpp"
 #include "formula.hpp"
@@ -234,7 +235,7 @@ struct App : TextEditHost {
     render::Scene tablePreview;std::vector<size_t> tablePreviewSlots;uint64_t tablePreviewDocument=0,tablePreviewSerial=0;void tableContextMenu(Vec2 point,POINT screen);
     struct TableControls{ObjectId table=kInvalidObjectId;uint32_t rows=0,cols=0;RectF addRow,delRow,addCol,delCol;};bool tableControlLayout(TableControls* out)const;bool tableControlClick(Vec2 pixel,uint32_t modifiers);
     AiWindow ai;DocumentId aiDocument=0;uint64_t aiSerial=0;std::vector<ObjectRef> aiSelection;Vec2 aiOrigin;double aiWidth=0;uint32_t aiColor=0x000000FFu;
-    std::string aiContext();std::string applyAI(const std::string& bytes);void showAI(const std::string& prompt="",bool settings=false);void aiCheck(const std::string& dir);void aiUxCheck(const std::string& dir);
+    std::string aiContext();std::string applyAI(const std::string& bytes);void showAI(const std::string& prompt="",bool settings=false);void aiCheck(const std::string& dir);void aiUxCheck(const std::string& dir);void skillUpdateCheck(const std::string& dir);
     void showOcsr();void showOcsrDemo();void showImageToStructure();void openImageToStructure(const std::wstring& imagePath);bool insertOcsrStructure(const std::string& cdxmlPath,const std::string& recordPath,std::wstring& error);bool copyOcsrStructure(const std::string& cdxmlPath,std::wstring& error);
     bool stereoLabelChecking=false;void stereoLabelCheck(const std::string& dir);bool uiChecking=false,chromeChecking=false,aiChecking=false,aiLiveChecking=false,textWrapChecking=false,textExtendChecking=false,ringLibraryChecking=false,templateLibraryChecking=false;void templateLibraryCheck(const std::string& dir);void ringLibraryCheck(const std::string& dir);void textExtendCheck(const std::string& dir);void settingsAiCheck(const std::string& dir);void groupDirectionCheck(const std::string& dir);void completionCheck(const std::string& dir);bool groupDirectionChecking=false,completionChecking=false;void textWrapCheck(const std::string& dir);bool arrowShortcutChecking=false;void arrowShortcutCheck(const std::string& dir);
     bool crosshairs=false,rulers=false,splitter=false,pointerOverCanvas=false,selectionCursorReset=true;uint64_t cursorRequests=0;Vec2 pointerPixel;std::string pendingName;
@@ -1790,6 +1791,7 @@ Error App::copySelectionPng(){
 #include "ring_library_checks.hpp"
 #include "template_library_checks.hpp"
 #include "settings_ai_checks.hpp"
+#include "skill_update_checks.hpp"
 #include "table_checks.hpp"
 void App::probe(const std::string& dir){
     SetWindowPos(h,0,0,0,1500,950,SWP_NOMOVE|SWP_NOZORDER);layout();
@@ -2426,9 +2428,9 @@ void App::selftest(){
     auto& undoButton=groups[0].items[3];studio_i18n::sendMessage(h,WM_MOUSEMOVE,0,MAKELPARAM(int((undoButton.r.X+3)*scale),int((undoButton.r.Y+3)*scale)));require(hover==undoButton.id,"hover hit testing");screenshot(testOut+"/hover_shortcut.png");studio_i18n::sendMessage(h,WM_MOUSELEAVE,0,0);require(hover.empty(),"hover clears on leave");
     // Task 7/8 acceptance: unconfigured-API banner with its direct settings route, and AI turns
     // centred on the visible viewport without dragging the user's existing objects along.
-    aiUxCheck(testOut);
+    aiUxCheck(testOut);skillUpdateCheck(testOut);
 #include "copy_png_checks.hpp"
-    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true,\"paste_format_decision\":true,\"paste_blank_canvas_adopts_source\":true,\"paste_prompt_default_source\":true,\"paste_internal_no_prompt\":true,\"name_link_auto_group\":true,\"name_link_stale_frame\":true,\"name_link_hover_tip\":true,\"name_link_persists\":true,\"ai_config_banner\":true,\"ai_centred_insert\":true,\"copy_as_png\":true,\"copy_as_png_transparent\":true,\"copy_as_png_selection_only\":true,\"copy_as_png_clipboard_formats\":true,\"copy_as_png_document_unchanged\":true,\"copy_as_png_text_arrow\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
+    std::ofstream(testOut+"/tests.json")<<"{\"formula\":true,\"selection_clear\":true,\"undo_refresh\":true,\"cache\":true,\"draw_undo\":true,\"save_reload\":true,\"tool_routes\":true,\"responsive_layout\":true,\"old_ui_linked\":false,\"cdxml_interop\":true,\"clipboard_undo_redo\":true,\"ole_embed\":true,\"ole_emf_preview\":true,\"paper_layout\":true,\"toolbar_benzene_three_doubles\":true,\"inline_native_text\":true,\"inline_text_undo\":true,\"shortcut_defaults_and_customization\":true,\"interior_and_partial_drag\":true,\"ctrl_drag_copy_undo\":true,\"free_arrow_resize\":true,\"all_arrow_styles_roundtrip\":true,\"editor_hotkeys\":97,\"windows_command_shortcuts\":75,\"structural_nicknames\":521,\"query_nicknames\":43,\"native_systematic_naming\":true,\"native_2d_cleanup\":true,\"rdkit_3d_cleanup\":true,\"chemdraw_text_defaults\":true,\"abbreviation_auto_case\":true,\"functional_group_catalog\":true,\"text_format_without_editor\":true,\"ribbon_default_expanded\":true,\"paste_format_decision\":true,\"paste_blank_canvas_adopts_source\":true,\"paste_prompt_default_source\":true,\"paste_internal_no_prompt\":true,\"name_link_auto_group\":true,\"name_link_stale_frame\":true,\"name_link_hover_tip\":true,\"name_link_persists\":true,\"ai_config_banner\":true,\"ai_centred_insert\":true,\"copy_as_png\":true,\"copy_as_png_transparent\":true,\"copy_as_png_selection_only\":true,\"copy_as_png_clipboard_formats\":true,\"copy_as_png_document_unchanged\":true,\"copy_as_png_text_arrow\":true,\"skill_export\":true,\"updater_manual_only\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }
 }
 #include "drawing_settings_checks.hpp"

@@ -3,6 +3,7 @@
 #include "completion_search.hpp"
 #include "page_defaults.hpp"
 #include "ui_language.hpp"
+#include "skill_export.hpp"
 struct StudioSettingsWindow {
     static LRESULT CALLBACK groupListKey(HWND list,UINT message,WPARAM key,LPARAM data,UINT_PTR subclass,DWORD_PTR context){
         auto self=reinterpret_cast<StudioSettingsWindow*>(context);
@@ -41,9 +42,9 @@ struct StudioSettingsWindow {
     }
     void fillGroups(){groupsReady=true;auto list=GetDlgItem(hwnd,974);studio_i18n::sendMessage(list,LB_RESETCONTENT,0,0);customgroups::load();for(auto& e:customgroups::entries())studio_i18n::sendMessage(list,LB_ADDSTRING,0,(LPARAM)W(e.name).c_str());if(!customgroups::entries().empty())::SendMessageW(list,LB_SETCURSEL,0,0);updateGroupPreview();}
 
-    static const int kCategories=8;
+    static const int kCategories=9;
     bool completionReady=false,groupsReady=false;
-    HBITMAP pagePaint[8]={};int paintWidth=0,paintHeight=0,paintLanguage=-1;UINT paintDpi=0;bool paintCacheDisabled=false;
+    HBITMAP pagePaint[9]={};int paintWidth=0,paintHeight=0,paintLanguage=-1;UINT paintDpi=0;bool paintCacheDisabled=false;
     void clearPaintCache(){for(auto& image:pagePaint){if(image)DeleteObject(image);image=nullptr;}}
 
     std::map<int,std::wstring> captions;std::wstring statusSource;
@@ -58,6 +59,12 @@ struct StudioSettingsWindow {
         studio_i18n::sendDlgItemMessage(hwnd,980,CB_SETCURSEL,studio_i18n::current(),0);RedrawWindow(hwnd,0,0,RDW_INVALIDATE|RDW_ALLCHILDREN);loading=previousLoading;
     }
     DrawingSettings* drawing=nullptr;AiWindow* ai=nullptr;studioio::Page page;DocumentId pageDocument=0;
+    // Task 9/10. Both callbacks are invoked from a button click only - never from show(),
+    // populate(), select() or the 350 ms poll timer. Automated runs set silent so a test click
+    // can never open a modal dialog.
+    std::function<skillexport::Result()> exportSkill;
+    std::function<bool()> launchUpdater;
+    bool silent=false;
     std::function<studioio::Page()> getPage;
     std::function<DocumentId()> getDocument;
     std::function<void(const DrawingSettings&,bool)> applyDrawing;
@@ -68,7 +75,7 @@ struct StudioSettingsWindow {
     std::wstring text(int id)const{return AiWindow::controlText(GetDlgItem(hwnd,id));}
     void set(int id,const std::wstring& value){if(id==802)statusSource=value;auto translated=(id==802?studio_i18n::tr(value):value);if(id==926)translated=studio_i18n::tr(translated);if(text(id)!=translated)studio_i18n::setDlgItemText(hwnd,id,translated.c_str());}
     static std::wstring number(double value){wchar_t s[64];swprintf(s,64,L"%.6g",value);return s;}
-    static int group(int id){if(id>=985&&id<=987)return 5;if(id==980||id==981)return 7;if(id>=970&&id<=974)return 6;if(id==968)return 5;if(id>=960&&id<=974)return 5;if(id>=950&&id<=953)return 4;if(id>=910&&id<=917)return 0;if(id>=920&&id<=926)return 1;if(id>=940&&id<=946)return 2;if(id>=930&&id<=932)return 3;return -1;}
+    static int group(int id){if(id>=985&&id<=987)return 5;if(id==928||(id>=983&&id<=984))return 8;if(id==980||id==981)return 7;if(id>=970&&id<=974)return 6;if(id==968)return 5;if(id>=960&&id<=974)return 5;if(id>=950&&id<=953)return 4;if(id>=910&&id<=917)return 0;if(id==927)return 1;if(id>=920&&id<=926)return 1;if(id>=940&&id<=946)return 2;if(id>=930&&id<=932)return 3;return -1;}
     void refreshModels(){
         auto combo=GetDlgItem(hwnd,923);auto original=text(923);studio_i18n::sendMessage(combo,CB_RESETCONTENT,0,0);auto src=GetDlgItem(ai->hwnd,704);int n=int(studio_i18n::sendMessage(src,CB_GETCOUNT,0,0));
         for(int i=0;i<n;i++){int length=int(studio_i18n::sendMessage(src,CB_GETLBTEXTLEN,i,0));if(length<0||length>500)continue;std::wstring s(size_t(length)+1,0);studio_i18n::sendMessage(src,CB_GETLBTEXT,i,(LPARAM)&s[0]);studio_i18n::sendMessage(combo,CB_ADDSTRING,0,(LPARAM)s.c_str());}
@@ -164,15 +171,39 @@ struct StudioSettingsWindow {
         bool running=ai&&ai->process;for(int id:{920,921,922,923,924,925}){auto c=GetDlgItem(hwnd,id);if(bool(IsWindowEnabled(c))==running)EnableWindow(c,!running);}
         if(category==1){if(waiting&&!running){loading=true;refreshModels();loading=false;waiting=false;}set(926,W(ai->apiStatus));}
     }
+    // Task 9: only this button handler copies the built-in skill. The destination may be
+    // overridden by an environment variable so the self-test never opens a folder dialog.
+    bool exportSkillNow(){
+        std::wstring folder;wchar_t override[32768]={};
+        if(GetEnvironmentVariableW(L"MOLECULE_STUDIO_SKILL_EXPORT_DIR",override,32768))folder=override;
+        else if(silent){set(802,L"测试模式未选择目标文件夹");return false;}
+        else if(!skillexport::chooseFolder(hwnd,&folder)){set(802,L"已取消导出 AI 绘图 Skill");return false;}
+        auto result=skillexport::exportTo(skillexport::builtinSkillDir(),folder);
+        set(802,result.ok?(L"已导出 AI 绘图 Skill（"+std::to_wstring(result.files)+L" 个文件）："+result.target):result.error);
+        return result.ok;
+    }
+    // Task 10: the downloader starts only here, on an explicit click. Automated runs record the
+    // resolved path through MOLECULE_STUDIO_TEST_UPDATER instead of starting a second installer.
+    bool launchUpdaterNow(){
+        std::wstring error;
+        bool ok=skillexport::launchUpdater(skillexport::executableDir(),&error);
+        set(802,ok?L"已启动更新下载器（仅本次手动点击；不会自动更新）":error);
+        return ok;
+    }
     void layout(){
         RECT r;GetClientRect(hwnd,&r);double dpi=GetDpiForWindow(hwnd)/96.;auto px=[&](int n){return int(n*dpi);};int w=r.right,h=r.bottom,x=px(202),right=w-px(30),content=right-x;
         auto move=[&](int id,int a,int b,int c,int d){auto child=GetDlgItem(hwnd,id);if(!child)return;RECT old;GetWindowRect(child,&old);MapWindowPoints(0,hwnd,(POINT*)&old,2);if(old.left!=a||old.top!=b||old.right-old.left!=std::max(1,c)||old.bottom-old.top!=std::max(1,d))MoveWindow(child,a,b,std::max(1,c),std::max(1,d),FALSE);};
         move(980,x,px(145),std::min(content,px(350)),px(260));move(981,x,px(210),content,px(50));
-        int order[]={0,1,4,2,3,5,6,7};for(int i=0;i<kCategories;i++)move(810+order[i],px(16),px(87+i*46),px(146),px(40));
+        int order[]={0,1,4,2,3,5,6,7,8};for(int i=0;i<kCategories;i++)move(810+order[i],px(16),px(87+i*46),px(146),px(40));
         move(916,x,px(104),content,px(200));move(914,x,px(166),px(230),px(200));move(915,x+px(250),px(166),px(86),px(32));move(910,x,px(240),px(160),px(32));move(911,x+px(204),px(240),px(160),px(32));move(912,x,px(292),content-px(158),px(30));move(913,right-px(144),px(292),px(144),px(34));
         move(917,x,px(332),content,px(30));
         move(920,x,px(134),content,px(32));move(921,x,px(202),content,px(32));move(922,x,px(242),content,px(26));
         move(923,x,px(308),std::max(px(180),content-px(120)),px(220));move(924,right-px(108),px(308),px(108),px(32));move(925,x,px(354),px(118),px(34));move(926,x,px(400),content,px(40));
+        // Task 9: the built-in AI drawing skill can be saved from the AI page. Kept on the same
+        // row band as 测试连接 so the page does not get taller and stays inside small windows.
+        move(927,right-px(240),px(352),px(240),px(32));
+        // Task 10: "更新与关于" page. Only the button can start the downloader.
+        move(928,x,px(140),px(260),px(36));move(983,x,px(196),content,px(96));move(984,x,px(310),content,px(64));
         move(940,x,px(145),px(200),px(230));move(941,x+px(220),px(145),px(144),px(120));
         move(942,x,px(222),px(160),px(32));move(943,x+px(204),px(222),px(160),px(32));
         move(944,x,px(305),px(160),px(32));move(945,x+px(204),px(305),px(160),px(32));
@@ -197,17 +228,18 @@ struct StudioSettingsWindow {
     }
     void drawPage(HDC dc,RECT r){float dpi=GetDpiForWindow(hwnd)/96.f;Graphics g(dc);g.ScaleTransform(dpi,dpi);g.SetSmoothingMode(SmoothingModeAntiAlias);g.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);float w=r.right/dpi,h=r.bottom/dpi;SolidBrush bg(Color(255,255,255,255));g.FillRectangle(&bg,0.f,0.f,w,h);SolidBrush nav(studio_ui::background());g.FillRectangle(&nav,0.f,0.f,178.f,h);
         studio_ui::label(g,L"设置",RectF(26,20,146,36),18,studio_ui::ink(),true);studio_ui::label(g,L"MOLECULE STUDIO",RectF(26,55,145,20),9,studio_ui::muted());
-        const wchar_t* titles[]={L"结构绘图",L"AI 与 API",L"页面与排版",L"快捷键",L"AI 预设提示词",L"基团补齐",L"自定义官能团",L"语言"};const wchar_t* subtitles[]={L"设置新建结构的线宽与键长",L"连接服务、选择模型，配置只需一次",L"调整当前文档的纸张尺寸和页面网格",L"熟悉的操作，让绘图保持流畅",L"编辑反应条件分行、上下标和紧凑排版偏好",L"搜索缩写，设置自动补齐与公式排版",L"从选中的完整结构保存可展开的官能团",L"界面语言"};
+        const wchar_t* titles[]={L"结构绘图",L"AI 与 API",L"页面与排版",L"快捷键",L"AI 预设提示词",L"基团补齐",L"自定义官能团",L"语言",L"更新与关于"};const wchar_t* subtitles[]={L"设置新建结构的线宽与键长",L"连接服务、选择模型，配置只需一次",L"调整当前文档的纸张尺寸和页面网格",L"熟悉的操作，让绘图保持流畅",L"编辑反应条件分行、上下标和紧凑排版偏好",L"搜索缩写，设置自动补齐与公式排版",L"从选中的完整结构保存可展开的官能团",L"界面语言",L"内置 AI 绘图 Skill 与手动更新"};
         studio_ui::label(g,titles[category],RectF(202,23,w-232,36),22,studio_ui::ink(),true);studio_ui::label(g,subtitles[category],RectF(202,65,w-232,24),12,studio_ui::muted());
         auto label=[&](const wchar_t* text,int x,int y,int width=300){studio_ui::label(g,text,RectF(float(x),float(y),float(width),24),12,studio_ui::ink());};
         if(category==0){label(L"投稿标准 / 期刊样式",202,82,540);label(L"字体",202,144,220);label(L"字号（pt）",452,144,100);label(L"键长（pt）",202,218);label(L"线宽（pt）",406,218);label(L"选择 ACS Document 1996 或期刊标准会自动填入键长、线宽、字体和字号。",202,374,540);label(L"键长用于后续绘制；已有结构坐标不缩放，单独设置过样式的对象保留原格式。",202,400,540);}
-        if(category==1){label(L"API 基础地址 · 兼容 Chat Completions",202,104,540);label(L"API Key",202,172);label(L"模型",202,278);}
+        if(category==1){label(L"API 基础地址 · 兼容 Chat Completions",202,104,540);label(L"API Key",202,172);label(L"模型",202,278);label(L"AI 绘图 Skill 随 Core 内置，可另存后用外部 AI 调用（无需安装 AI 模组）。",202,354,400);}
+        if(category==8){label(L"更新与关于",202,104,540);label(L"更新只在点击下方按钮时启动下载器；本程序启动、打开设置或空闲时都不会联网检查更新。",202,196,560);label(L"AI 绘图 Skill 不依赖任何 AI 模组；可在“AI 与 API”页另存到任意文件夹。",202,310,560);label(L"当前下载器路径：程序目录\\MoleculeStudio-OnlineSetup.exe（随 Core 提供）。",202,398,560);}
         if(category==5){label(L"添加自定义缩写：输入 别名=标准写法，选中文字设置格式",202,h-264,620);}
         if(category==2){label(L"纸张尺寸",202,114);label(L"方向",422,114);label(L"宽度（mm）",202,191);label(L"高度（mm）",406,191);label(L"横向张数",202,274);label(L"纵向张数",406,274);label(L"页面设置应用到当前文档，可按 Ctrl+Z 撤销。",202,390,540);studio_ui::label(g,L"勾选后，新建文档沿用这套纸张与张数；取消勾选则新建文档回到 A4。",RectF(202,414,620,24),12,studio_ui::muted());}
     }
     void paint(){
         PAINTSTRUCT ps;HDC dc=BeginPaint(hwnd,&ps);RECT r;GetClientRect(hwnd,&r);
-        if(category<0||category>=8||r.right<=0||r.bottom<=0){EndPaint(hwnd,&ps);return;}
+        if(category<0||category>=kCategories||r.right<=0||r.bottom<=0){EndPaint(hwnd,&ps);return;}
         UINT dpi=GetDpiForWindow(hwnd);
         if(paintWidth!=r.right||paintHeight!=r.bottom||paintLanguage!=studio_i18n::current()||paintDpi!=dpi){clearPaintCache();paintWidth=r.right;paintHeight=r.bottom;paintLanguage=studio_i18n::current();paintDpi=dpi;}
         if(paintCacheDisabled){drawPage(dc,r);drawGroupPreview(dc);EndPaint(hwnd,&ps);return;}
@@ -245,7 +277,7 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
                 else{ListView_SetCheckState(GetDlgItem(h,961),view->iItem,checked?FALSE:TRUE);self->set(802,L"无法保存基团补齐清单，请检查程序目录是否可写。");}
             }
             return 0;}return DefWindowProcW(h,m,w,l);}
-        case WM_COMMAND:{int id=LOWORD(w),event=HIWORD(w);if(id>=810&&id<=817){self->select(id-810);return 0;}if(id==800){self->save();return 0;}if(id==801||id==IDCANCEL){ShowWindow(h,SW_HIDE);return 0;}
+        case WM_COMMAND:{int id=LOWORD(w),event=HIWORD(w);if(id>=810&&id<=818){self->select(id-810);return 0;}if(id==800){self->save();return 0;}if(id==801||id==IDCANCEL){ShowWindow(h,SW_HIDE);return 0;}
             if(id==980&&event==CBN_SELCHANGE){int language=int(studio_i18n::sendDlgItemMessage(h,980,CB_GETCURSEL,0,0));if(studio_i18n::save(language)){self->translate();studio_i18n::refreshAll();RedrawWindow(self->owner,0,0,RDW_INVALIDATE|RDW_ALLCHILDREN);}else{studio_i18n::sendDlgItemMessage(h,980,CB_SETCURSEL,studio_i18n::current(),0);self->set(802,L"无法保存语言设置，请检查程序目录是否可写。");}return 0;}
             if(id==968&&event==EN_CHANGE){if(!self->loading){KillTimer(h,2);SetTimer(h,2,120,nullptr);}return 0;}
             if(id==974&&HIWORD(w)==LBN_SELCHANGE){self->updateGroupPreview();return 0;}
@@ -270,6 +302,8 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
             if(id==913){self->set(910,L"14.40");self->set(911,L"1.19");self->dirty[0]=true;return 0;}
             if(id==930){if(self->editShortcuts)self->editShortcuts();if(self->shortcutSummary)self->set(931,self->shortcutSummary());return 0;}
             if(id==924||id==925){if(self->syncAPI()){self->ai->start(true,id==924);self->waiting=true;self->poll();}return 0;}
+            if(id==927&&event==BN_CLICKED){self->exportSkillNow();return 0;}
+            if(id==928&&event==BN_CLICKED){self->launchUpdaterNow();return 0;}
             if(self->loading)return 0;
             if(id==917&&event==BN_CLICKED){self->completionDirty=true;if(GetDlgItem(h,969))CheckDlgButton(h,969,IsDlgButtonChecked(h,917));return 0;}
             int g=group(id);if(g>=0&&g<5&&(event==EN_CHANGE||event==CBN_EDITCHANGE||event==CBN_SELCHANGE||event==BN_CLICKED))self->dirty[g]=true;
@@ -290,7 +324,7 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
         studio_i18n::createWindowEx(WS_EX_CONTROLPARENT,L"MoleculeStudioSettings",L"Molecule Studio · 设置",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,mi.rcWork.left+(mi.rcWork.right-mi.rcWork.left-width)/2,mi.rcWork.top+(mi.rcWork.bottom-mi.rcWork.top-height)/2,width,height,parent,nullptr,wc.hInstance,this);
         auto child=[&](const wchar_t* cls,const wchar_t* title,int id,DWORD style=0){auto control=studio_i18n::createWindowEx(0,cls,title,WS_CHILD|style,0,0,1,1,hwnd,(HMENU)(INT_PTR)id,wc.hInstance,nullptr);if(id==914||id==916||id==923||id==961||id==974||id==980)studio_i18n::protect(control);if(title&&*title&&wcscmp(cls,L"EDIT")!=0&&wcscmp(cls,L"COMBOBOX")!=0)captions[id]=title;return control;};
         auto button=[&](const wchar_t* title,int id){return child(L"BUTTON",title,id,WS_TABSTOP|BS_OWNERDRAW);};auto edit=[&](const wchar_t* title,int id,DWORD style=0){return child(L"EDIT",title,id,WS_TABSTOP|WS_BORDER|((style&ES_MULTILINE)?0:ES_AUTOHSCROLL)|style);};
-        const wchar_t* categories[]={L"结构绘图",L"AI 与 API",L"页面与排版",L"快捷键",L"AI 预设",L"基团补齐",L"自定义官能团",L"语言"};for(int i=0;i<kCategories;i++){button(categories[i],810+i);ShowWindow(GetDlgItem(hwnd,810+i),SW_SHOW);}
+        const wchar_t* categories[]={L"结构绘图",L"AI 与 API",L"页面与排版",L"快捷键",L"AI 预设",L"基团补齐",L"自定义官能团",L"语言",L"更新与关于"};for(int i=0;i<kCategories;i++){button(categories[i],810+i);ShowWindow(GetDlgItem(hwnd,810+i),SW_SHOW);}
         edit(L"",950,ES_MULTILINE|ES_AUTOVSCROLL|ES_WANTRETURN|WS_VSCROLL);studio_i18n::sendDlgItemMessage(hwnd,950,EM_SETLIMITTEXT,6000,0);button(L"恢复默认预设",951);child(L"STATIC",L"预设提示词",952);child(L"STATIC",L"试剂与当量在上，溶剂温度时间在下；保存后从下一次发送起生效。",953);
         child(L"COMBOBOX",L"",916,WS_TABSTOP|CBS_DROPDOWNLIST|WS_VSCROLL);for(auto& style:journalStyles())studio_i18n::sendDlgItemMessage(hwnd,916,CB_ADDSTRING,0,(LPARAM)style.name);child(L"COMBOBOX",L"",914,WS_TABSTOP|CBS_DROPDOWN|CBS_AUTOHSCROLL|WS_VSCROLL);studio_i18n::sendDlgItemMessage(hwnd,914,CB_LIMITTEXT,120,0);for(auto name:{L"Arial",L"Helvetica",L"Times New Roman",L"Calibri",L"Courier New",L"Microsoft YaHei",L"Symbol"})studio_i18n::sendDlgItemMessage(hwnd,914,CB_ADDSTRING,0,(LPARAM)name);edit(L"10",915);edit(L"14.40",910);edit(L"0.60",911);child(L"BUTTON",L"同时应用到当前文档的默认格式",912,WS_TABSTOP|BS_AUTOCHECKBOX);button(L"恢复默认值",913);
         child(L"BUTTON",L"自动补齐基团大小写和连字符（如 tbu → t-Bu）",917,WS_TABSTOP|BS_AUTOCHECKBOX);
@@ -310,6 +344,8 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
         button(L"添加",963);button(L"删除选中",964);button(L"恢复默认",965);child(L"STATIC",L"",967);
         edit(L"https://api.deepseek.com",920);edit(L"",921,ES_PASSWORD);studio_i18n::sendDlgItemMessage(hwnd,921,EM_SETLIMITTEXT,512,0);child(L"BUTTON",L"在这台电脑记住密钥（Windows 加密保存）",922,WS_TABSTOP|BS_AUTOCHECKBOX);
         child(L"COMBOBOX",L"",923,WS_TABSTOP|CBS_DROPDOWN|CBS_AUTOHSCROLL|WS_VSCROLL);studio_i18n::sendDlgItemMessage(hwnd,923,CB_LIMITTEXT,120,0);button(L"获取模型",924);button(L"测试连接",925);child(L"STATIC",L"尚未测试连接",926);
+        button(L"另存 AI 绘图 Skill…",927);
+        button(L"打开更新下载器…",928);child(L"STATIC",L"更新仅在点击上方按钮时手动启动：本程序不会自动检查更新，也不会自动联网。",983);child(L"STATIC",L"AI 绘图 Skill 随 Core 提供，不安装任何 AI 模组也能导出；更新下载器位于程序目录。",984);
         button(L"编辑快捷键…",930);edit(L"",931,ES_MULTILINE|ES_READONLY|WS_VSCROLL);child(L"STATIC",L"支持修改、清除与恢复 默认快捷键。",932);
         child(L"COMBOBOX",L"",940,WS_TABSTOP|CBS_DROPDOWNLIST|WS_VSCROLL);for(auto name:{L"A4",L"A3",L"A5",L"B5 (ISO)",L"US Letter",L"US Legal",L"自定义"})studio_i18n::sendDlgItemMessage(hwnd,940,CB_ADDSTRING,0,(LPARAM)name);
         child(L"COMBOBOX",L"",941,WS_TABSTOP|CBS_DROPDOWNLIST);for(auto name:{L"纵向",L"横向"})studio_i18n::sendDlgItemMessage(hwnd,941,CB_ADDSTRING,0,(LPARAM)name);

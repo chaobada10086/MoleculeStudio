@@ -34,6 +34,16 @@ plugin_target=out/'ai_plugins'
 if plugin_source.exists():
     if plugin_target.exists():shutil.rmtree(plugin_target)
     shutil.copytree(plugin_source,plugin_target,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+# Built-in AI drawing skill ships with Core so it can be exported from Settings even
+# when no AI addon is installed. The installer is copied next to the executable so the
+# manual update button can start the exact same downloader; nothing auto-runs it.
+skill_source=root/'skills'/'moleculestudio-draw'
+if skill_source.exists():
+    skill_target=out/'skills'/'moleculestudio-draw'
+    if skill_target.exists():shutil.rmtree(skill_target)
+    shutil.copytree(skill_source,skill_target,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+installer_source=root/'dist'/'MoleculeStudio-OnlineSetup.exe'
+if installer_source.exists():shutil.copyfile(installer_source,out/'MoleculeStudio-OnlineSetup.exe')
 backend=out/'chemistry_backend.ini'
 if not backend.exists():backend.write_text('[Backend]\nPython='+sys.executable+'\n',encoding='utf-16')
 compiler_arg=(sys.argv[sys.argv.index('--compiler')+1] if '--compiler' in sys.argv else os.environ.get('MOLECULE_STUDIO_CXX', 'g++'))
