@@ -46,6 +46,56 @@ void App::completionCheck(const std::string& dir){
     commit("cuso4","CuSO4","0000-","copper sulfate");
     commit("cu2+","Cu2+","00++","copper(II) ion");
     commit("CH3COOH","CH3COOH","00-0000","acetic acid keeps its counts");
+    // Auto case at a bond terminus: lower-case input is an abbreviation, so it
+    // reaches the dictionary instead of being read as an element symbol.
+    commit("cn","CN","00","cyano auto case");
+    commit("bpin","Bpin","0000","pinacol boronate auto case");
+    commit("tbu","tBu","000","tert-butyl auto case");
+    commit("boc","Boc","000","Boc auto case");
+    commit("mgbr","MgBr","0000","Grignard auto case");
+    // The committed cyano label really is the functional group, not a bare
+    // element label: the definition is stored and the group expands to C#N.
+    {
+        app.s.cancel();app.s.doc=Document();app.s.history.clear();app.s.selected.clear();app.s.input.bindDocument(app.s.doc.id());app.s.refresh();
+        ObjectId carbon,atom,bond;
+        require(app.s.doc.addAtom(Vec2(0,0),6,&carbon).ok()&&app.s.doc.addAtom(Vec2(30,0),6,&atom).ok()&&app.s.doc.addBond(carbon,atom,&bond).ok(),"cyano fixture");
+        app.s.refresh();app.openText(kInvalidObjectId,atom);
+        std::wstring value=W(std::string("cn"));app.textEditor.select(0,-1);
+        SendMessageW(app.edit,EM_REPLACESEL,TRUE,(LPARAM)value.c_str());pump();
+        require(app.finishText(true),"commit cyano");
+        require(app.s.doc.atomLabel(atom)=="CN","cn is auto-cased to CN");
+        require(static_cast<const Document&>(app.s.doc).extensions(ObjectRef(ObjectKind::Atom,atom)).findValue("studio.nickname.fragment")!=nullptr,"CN stores the cyano group definition");
+        auto expansion=functional_groups::prepareExpansion(app.s.doc,atom);
+        require(expansion.anchor!=kInvalidObjectId&&expansion.graph&&expansion.graph->atoms().size()>=2,"cyano expands to a nitrile");
+        ++checks;
+    }
+    // Every compiled entry has to be described by the generated document, and
+    // element symbols keep their exact spelling while lower-case input is an
+    // abbreviation (cn -> CN is cyano; Cn stays copernicium).
+    require(nickdata::count==functionalgroupsdoc::count,"functional group document matches the compiled catalogue");
+    require(chemcompletion::normalize("Co")=="Co"&&chemcompletion::normalize("Cn")=="Cn"&&chemcompletion::normalize("N")=="N"&&chemcompletion::normalize("O")=="O","exactly typed element symbols keep their case");
+    require(chemcompletion::chemicalToken("Co")=="Co","captions keep exactly typed element symbols");
+    require(chemcompletion::normalize("cn")=="CN"&&chemcompletion::normalize("li")=="Li"&&chemcompletion::normalize("bpin")=="Bpin","lower-case input completes to the reviewed abbreviation");
+    require(chemcompletion::normalize("tbu")=="tBu"&&chemcompletion::normalize("boc")=="Boc"&&chemcompletion::normalize("mgbr")=="MgBr"&&chemcompletion::normalize("ns")=="Ns","new catalog entries complete in lower case");
+    require(chemcompletion::normalize("TBS")=="TBS"&&chemcompletion::normalize("t-Bu")=="t-Bu","authored and canonical spellings are never rewritten");
+    require(chemcompletion::normalize("iam")=="iam"&&chemcompletion::normalize("nam")=="nam"&&chemcompletion::chemicalToken("iam").empty(),"an unreviewed ambiguous key is not guessed");
+    bool sawBpin=false,sawNs=false,sawDibal=false;
+    for(const auto& entry:chemcompletion::list()){if(entry.key=="bpin"&&entry.enabled)sawBpin=true;if(entry.key=="ns"&&entry.enabled)sawNs=true;if(entry.key=="dibal"&&entry.enabled)sawDibal=true;}
+    require(sawBpin&&sawNs&&sawDibal,"new abbreviations appear in the settings list");
+    ++checks;
+    // Every newly reviewed abbreviation must carry a chemically valid, single
+    // attachment definition that expands without false valence warnings.
+    for(const char* name:{"Bpin","pin","Ns","ONs","Bs","DIBAL","Li","MgBr","MgCl","MgI","Cp","Tr","OPiv","CCl3","CH2Cl","SPh","SePh","PPh2","SnBu3","C6F5","Mts"}){
+        app.s.cancel();app.s.doc=Document();app.s.history.clear();app.s.selected.clear();app.s.input.bindDocument(app.s.doc.id());app.s.refresh();
+        ObjectId left,right,bond;
+        require(app.s.doc.addAtom(Vec2(0,0),6,&left).ok()&&app.s.doc.addAtom(Vec2(30,0),6,&right).ok()&&app.s.doc.addBond(left,right,&bond).ok(),"abbreviation fixture");
+        require(nicknames::apply(app.s.doc,right,name).ok(),(std::string("apply ")+name).c_str());
+        auto definition=functional_groups::prepareExpansion(app.s.doc,right);
+        require(definition.anchor!=kInvalidObjectId&&definition.graph&&!definition.graph->atoms().records().empty(),(std::string("expand ")+name).c_str());
+        std::vector<ObjectRef> inserted;functional_groups::applyExpansion(app.s.doc,definition,inserted);
+        require(studio::validation::overValentAtoms(app.s.doc).empty(),(std::string("valence ")+name).c_str());
+        ++checks;
+    }
     // A caption is completed only when the whole caption is one chemical token.
     {
         auto caption=[&](const char* typed,const char* expectText,const char* expectScripts,const char* why){
@@ -283,6 +333,6 @@ void App::completionCheck(const std::string& dir){
         app.screenshot(dir+"/text-tab.png",true,true);
         app.switchTab(0);
     }
-    std::ofstream(dir+"/completion-checks.json")<<"{\"label_cases\":"<<checks<<",\"per_entry_switch\":true,\"custom_entry\":true,\"formula_toggle\":true,\"settings_list\":true,\"text_tidy\":true}";
+    std::ofstream(dir+"/completion-checks.json")<<"{\"label_cases\":"<<checks<<",\"per_entry_switch\":true,\"custom_entry\":true,\"formula_toggle\":true,\"settings_list\":true,\"text_tidy\":true,\"auto_case\":true,\"element_exact\":true,\"ambiguity\":true,\"cyano_expands\":true,\"doc_count\":true,\"new_entries_expand\":true}";
     s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }

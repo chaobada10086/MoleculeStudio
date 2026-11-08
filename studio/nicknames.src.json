@@ -1746,5 +1746,110 @@
     "smiles": "*OC(=O)C",
     "confidence": "authored",
     "note": "Common functional group; attachment at *"
+  },
+  "Bpin": {
+    "confidence": "high",
+    "note": "pinacolboranyl (4,4,5,5-tetramethyl-1,3,2-dioxaborolan-2-yl, B-bound)",
+    "smiles": "[*]B1OC(C)(C)C(C)(C)O1"
+  },
+  "pin": {
+    "confidence": "medium",
+    "note": "pinacol O-ether (pinacolato O-linked); for the boronate use Bpin",
+    "smiles": "[*]OC(C)(C)C(C)(C)O"
+  },
+  "Ns": {
+    "confidence": "high",
+    "note": "2-nitrobenzenesulfonyl (nosyl)",
+    "smiles": "[*]S(=O)(=O)c1ccccc1[N+](=O)[O-]"
+  },
+  "ONs": {
+    "confidence": "high",
+    "note": "2-nitrobenzenesulfonate (nosylate, O-linked)",
+    "smiles": "[*]OS(=O)(=O)c1ccccc1[N+](=O)[O-]"
+  },
+  "Bs": {
+    "confidence": "high",
+    "note": "4-bromobenzenesulfonyl (brosyl)",
+    "smiles": "[*]S(=O)(=O)c1ccc(Br)cc1"
+  },
+  "DIBAL": {
+    "confidence": "medium",
+    "note": "diisobutylaluminium (DIBAL-H without its hydride; Al-bound reagent shorthand)",
+    "smiles": "[*][Al](CC(C)C)CC(C)C"
+  },
+  "Li": {
+    "confidence": "high",
+    "note": "lithium (organolithium, Li-bound)",
+    "smiles": "[*][Li]"
+  },
+  "MgBr": {
+    "confidence": "high",
+    "note": "magnesium bromide (Grignard, Mg-bound)",
+    "smiles": "[*][Mg]Br"
+  },
+  "MgCl": {
+    "confidence": "high",
+    "note": "magnesium chloride (Grignard, Mg-bound)",
+    "smiles": "[*][Mg]Cl"
+  },
+  "MgI": {
+    "confidence": "high",
+    "note": "magnesium iodide (Grignard, Mg-bound)",
+    "smiles": "[*][Mg]I"
+  },
+  "Cp": {
+    "confidence": "medium",
+    "note": "cyclopentadienyl (eta-1 C-bound; coordination to metals is shown separately)",
+    "smiles": "[*]C1C=CC=C1"
+  },
+  "Tr": {
+    "confidence": "high",
+    "note": "trityl (triphenylmethyl)",
+    "smiles": "[*]C(c1ccccc1)(c1ccccc1)c1ccccc1"
+  },
+  "OPiv": {
+    "confidence": "high",
+    "note": "pivalate (O-linked pivaloyl)",
+    "smiles": "[*]OC(=O)C(C)(C)C"
+  },
+  "CCl3": {
+    "confidence": "high",
+    "note": "trichloromethyl",
+    "smiles": "[*]C(Cl)(Cl)Cl"
+  },
+  "CH2Cl": {
+    "confidence": "high",
+    "note": "chloromethyl",
+    "smiles": "[*]CCl"
+  },
+  "SPh": {
+    "confidence": "high",
+    "note": "phenylthio",
+    "smiles": "[*]Sc1ccccc1"
+  },
+  "SePh": {
+    "confidence": "high",
+    "note": "phenylselenyl",
+    "smiles": "[*][Se]c1ccccc1"
+  },
+  "PPh2": {
+    "confidence": "high",
+    "note": "diphenylphosphino",
+    "smiles": "[*]P(c1ccccc1)c1ccccc1"
+  },
+  "SnBu3": {
+    "confidence": "high",
+    "note": "tributylstannyl",
+    "smiles": "[*][Sn](CCCC)(CCCC)CCCC"
+  },
+  "C6F5": {
+    "confidence": "high",
+    "note": "pentafluorophenyl",
+    "smiles": "[*]c1c(F)c(F)c(F)c(F)c1F"
+  },
+  "Mts": {
+    "confidence": "high",
+    "note": "mesitylenesulfonyl (2,4,6-trimethylbenzenesulfonyl)",
+    "smiles": "[*]S(=O)(=O)c1c(C)cc(C)cc1C"
   }
 }

@@ -5,7 +5,7 @@ inline void fuzzySearchCheck(const std::string& dir){
  auto find=[](const std::vector<Hit>& hits,const std::string& name)->const Hit*{for(const auto& h:hits)if(h.entry.name==name)return &h;return nullptr;};
  auto sulf=search("SO4");auto h=find(sulf,"SO4");require(h&&h->formula&&h->entry.key.empty(),"SO4 is a formula preview, never a structural nickname checkbox");require(find(sulf,"Na2SO4"),"formula substring includes sulfate salts");
  auto uni=search("ＳＯ₄");require(find(uni,"SO4"),"fullwidth and subscript digits normalized");require(normalized("SO42-")==normalized("SO₄²⁻")&&normalized("SO42-")==normalized("SO4^2-"),"charge spelling normalization");auto ion=search("SO₄²⁻");require(find(ion,"SO42-"),"ionic superscript query");
- for(const char* q:{"tbu","T-Bu"," t bu "}){auto rows=search(q);require(!rows.empty()&&rows.front().entry.name=="t-Bu"&&rows.front().score==0,"t-Bu normalization ranks exact first");}
+ for(const char* q:{"tbu","tBu"," t bu "}){auto rows=search(q);require(!rows.empty()&&rows.front().entry.name=="tBu"&&rows.front().score==0,"tBu normalization ranks exact first");}
  auto ph=search("ph");require(!ph.empty()&&ph.front().entry.name=="Ph","short case-folded exact");require(rank("oh","Ph")<0,"no fuzzy expansion for short symbols");require(rank("SO4","SO3")<0&&rank("SO4","PO4")<0,"no numeric chemical autocorrection");require(rank("tmep","temp")==200,"adjacent typo candidate");
  auto old=chemcompletion::state();struct Restore{chemcompletion::State v;~Restore(){chemcompletion::state()=v;}}restore{old};
  chemcompletion::state().custom["xtestalias"]="RareLabel";chemcompletion::state().revision++;
