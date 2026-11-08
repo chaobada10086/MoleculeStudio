@@ -61,14 +61,29 @@ public:
         }
         SetHandleInformation(parentIn, HANDLE_FLAG_INHERIT, 0);
         SetHandleInformation(parentOut, HANDLE_FLAG_INHERIT, 0);
-        // Keep the worker's stderr in a real file: a clean machine can fail
-        // before the first handshake (missing runtime/AV block) and the log is
-        // the only useful diagnostic the user can send back.
+        // A freshly copied folder has no cache directory yet; create it before
+        // opening the log so the worker's stderr is always captured instead of
+        // being merged into the response pipe (a stray Python warning there
+        // would corrupt the XML handshake on machines where it is emitted).
+        CreateDirectoryW(cache.c_str(), nullptr);
+        CreateDirectoryW(records.c_str(), nullptr);
         logPath = cache + L"\\service-error.log";
         HANDLE errorLog = CreateFileW(logPath.c_str(), GENERIC_WRITE,
                                       FILE_SHARE_READ | FILE_SHARE_WRITE, &sa,
                                       CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (errorLog == INVALID_HANDLE_VALUE)
+            errorLog = CreateFileW(L"NUL", GENERIC_WRITE,
+                                   FILE_SHARE_READ | FILE_SHARE_WRITE, &sa,
+                                   OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (errorLog == INVALID_HANDLE_VALUE) errorLog = nullptr;
+        if (errorLog) {
+            // Record what was launched: on a fresh machine this is the first
+            // thing needed to tell a blocked python.exe from a broken runtime.
+            std::string header = "[ocsr] python=" + U(python) + "\r\n[ocsr] cache=" + U(cache) +
+                                 "\r\n[ocsr] records=" + U(records) + "\r\n";
+            DWORD ignored = 0;
+            WriteFile(errorLog, header.data(), DWORD(header.size()), &ignored, nullptr);
+        }
 
         std::wstring command = L"\"" + python + L"\" \"" + script + L"\" --serve --models \"" +
                                models + L"\" --cache \"" + cache + L"\" --records \"" + records + L"\"";
@@ -107,9 +122,21 @@ public:
         CloseHandle(childOut);
         if (errorLog) CloseHandle(errorLog);
         if (!created) {
+            DWORD code = GetLastError();
             CloseHandle(parentIn);
             CloseHandle(parentOut);
-            error = L"无法启动本地 OCR 运行时。请检查 ocsr_runtime 是否存在。";
+            HANDLE tail = CreateFileW(logPath.c_str(), FILE_APPEND_DATA,
+                                      FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+            if (tail != INVALID_HANDLE_VALUE) {
+                std::string line = "[ocsr] CreateProcess failed, GetLastError=" +
+                                   std::to_string(code) + "\r\n";
+                DWORD ignored = 0;
+                WriteFile(tail, line.data(), DWORD(line.size()), &ignored, nullptr);
+                CloseHandle(tail);
+            }
+            error = L"无法启动本地识别服务（错误码 " + std::to_wstring(code) +
+                    L"）。请确认 ocsr_runtime 完整，或杀毒软件没有拦截 python.exe。诊断日志：" + logPath;
             return false;
         }
         CloseHandle(pi.hThread);
@@ -153,11 +180,21 @@ public:
             DWORD want = std::min<DWORD>(available, DWORD(sizeof(buffer)));
             if (!ReadFile(readHandle, buffer, want, &got, nullptr) || got == 0)
                 throw std::runtime_error("无法读取识别服务响应");
+            bool lineComplete = false;
             for (DWORD i = 0; i < got; ++i) {
-                if (buffer[i] == '\n') return response;
+                if (buffer[i] == '\n') { lineComplete = true; break; }
                 response.push_back(buffer[i]);
                 if (response.size() > 4 * 1024 * 1024)
                     throw std::runtime_error("识别服务响应过大");
+            }
+            if (lineComplete) {
+                // Only '<'-prefixed lines are protocol responses; ignore any
+                // stray stderr text instead of failing the request.
+                std::string line = response;
+                size_t start = line.find_first_not_of(" \t\r");
+                if (start != std::string::npos && line[start] == '<')
+                    return line.substr(start);
+                response.clear();
             }
         }
     }
