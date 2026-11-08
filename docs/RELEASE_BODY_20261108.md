@@ -9,7 +9,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 | 核心工作台 | MoleculeStudio-0.95-20261108-Core-win64.zip | 约 1.04 GB | 必选。主程序、基础绘图、本地化学/核磁/三维运行时（已合并为单一 Python 运行时）、内置 AI 绘图 Skill、手动更新下载器。已做无损瘦身（移除重复的 Python 3.12 运行时与运行期不用的缓存/头文件/测试目录）。 |
 | AI 基础 | MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip | 约 74 KB | 可选。AI 助手、检索、对话画图的桥接代码，需 Core 运行时；需自行配置 API 服务、模型和密钥。 |
 | AI 高级 | MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip | 约 758 MB | 可选。内置 DSH（DeepSeek Harness）运行时、高级绘图插件及其第三方许可/源码；**必须先安装 AI 基础与 Core**。 |
-| 图片识别 | MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip | 约 796 MB | 可选。图片/PDF 转结构，含本地 MolScribe 模型（2026-11-08 精简模块，比旧包小约 44%），可独立于 AI 使用。 |
+| 图片识别 | MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip | 约 795 MB | 可选。图片/PDF 转结构，含本地 MolScribe 模型（2026-11-08 精简模块，比旧包小约 45%），可独立于 AI 使用。 |
 
 另附 **MoleculeStudio-OnlineSetup.exe**：四组件在线安装器，可自动处理依赖顺序、显示各组件体积，并在 1024×600 / 125% / 150% 缩放下正常显示。
 
@@ -66,13 +66,17 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 
 ## 四、OCSR 模块更新说明（替代 hotfix2）
 
-- 本次图片识别使用 **2026-11-08 精简模块**：文件数约 3.4 万，压缩包约 796 MB（834,667,587 B；旧 OCSR 包约 1.5 GB，减小约 44%），保留 MolScribe 模型、Python 运行时、许可与来源材料。
+- 本次图片识别使用 **2026-11-08 精简模块**：文件数约 3.4 万，压缩包约 795 MB（833,407,453 B；旧 OCSR 包约 1.5 GB，减小约 45%），保留 MolScribe 模型、Python 运行时、许可与来源材料。
 - 服务版本升级到 **1.3.1**，保留并整合 hotfix1/hotfix2 的本地运行库补充、启动握手优化与错误日志；`ocsr_runtime/venv/pyvenv.cfg` 由安装器按实际安装路径重写，不再使用开发机绝对路径。
 - **额外修复**：安装路径包含中文时，旧方案会让 OpenCV 读取模型输入图失败，出现识别无响应；现已把识别缓存改到 ASCII 临时目录，中文路径实测 `render + recognize` 成功。
 - **启动方式加固**：不再依赖 venv 的 `pyvenv.cfg` 绝对路径，改用包内基础 Python 并通过 `PYTHONPATH` 加载 venv 依赖；复制到其他电脑/其他目录即使 `pyvenv.cfg` 失效也能启动。服务 stderr 写入 `%TEMP%\MoleculeStudio-OCSR-cache\service-error.log`，启动失败时界面会给出该日志路径。
 - **去重**：Core 不再携带 `ai_dsh.py`（改由 AI 高级提供），四个 ZIP 解压合并时不会再出现重复文件提示。
 - 已通过压缩包完整性、MANIFEST 逐文件校验、`ping`/`status`/`recognize`、苯环识别（6 原子/6 键）与安装器 `--extract-test` 验证。
-- **重新打包（2026-11-08 20 时）**：服务端读取整页/裁剪图改为 Pillow 解码后以 RGB 数组送入 MolScribe，不再经由 OpenCV `imread` 读取文件；安装目录或缓存目录含非 ASCII 字符时也能识别。中文路径下 `render + recognize` 复验通过（10 原子/10 键），与旧解码结果逐字节一致。Core（含主程序）、OCSR 组件与在线安装器（内置离线清单）已按新哈希重新打包。
+- **重新打包（2026-11-08 二次修复）**：
+  ① 修复“安装了图片识别却连不上本地识别服务”的问题：界面判断运行时文件是否存在时用了窄字符 `std::ifstream`（UTF-8 路径在中文/非 ASCII 安装目录下打不开），已改为宽字符 `GetFileAttributesW`，安装路径含中文也能正常启动服务；
+  ② OCSR 运行时彻底去掉 venv 启动器与 `pyvenv.cfg`（旧包内是打包机绝对路径，复制到别的电脑会报 `No Python at …`），统一用包内基础 Python + `PYTHONPATH` 启动，命令行工具与 AI 桥同步修改；整个目录可复制/剪切到任意位置，包内不含任何绝对路径；
+  ③ 服务端读取整页/裁剪图改为 Pillow 解码后以 RGB 数组送入 MolScribe，不再经由 OpenCV `imread` 读取文件；中文路径下 `render + recognize` 复验通过（10 原子/10 键）。
+  Core、AI 基础、图片识别包与在线安装器（内置离线清单）均已按新哈希重新打包。
 - 已安装旧 hotfix2 的用户：请直接使用本次 OCSR 新包（或四组件安装器）替换，旧 hotfix2 与启动器小补丁不再需要。
 
 ## 五、已安装用户如何更新
@@ -99,19 +103,19 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 
 ```
 MoleculeStudio-0.95-20261108-Core-win64.zip
-d739c27bef2154ec424109ed2cca7ff4fb00083f75d06288d82ebc134be91fb4
+967a1ed30ed1d0a0c18f2730e061c00e84c71f80ec1146855bb1716bfbab5286
 
 MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip
-944500cf74e6778b1aa6067b69370c34091955fec3fbf1f59cd075ba53067355
+c47ab5d456143342ca9efedd8535a0a7270fab13706a22be308cdb14e48ace78
 
 MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip
 7a386c2464e678d642968c9b1315a02827797360fc851a709077a9cf17006389
 
 MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip
-4aa68155e37b88c767f540edbc06c0c0a8739fcedf71f28e96a258ea0463dc1e
+d9977a679f51852d95b3e4348304ad7d133d851397bc61fbb68dff970b032822
 
 MoleculeStudio-OnlineSetup.exe
-c3d39bdc6ebff31e9453f6d783c52ac79161d0e5e22af40e4c9745fc50b7a182
+0a73261a275477334420136554684d3dbdb0d1d992ded1dbf254b909ee818763
 ```
 
 ## 九、其他说明

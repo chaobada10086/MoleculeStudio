@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """OCSR 模块（A+C 版）Python 调用示例 / 命令行工具（ocsr_client.py）。
 
-运行环境：本目录自带的 ocsr_runtime\venv\Scripts\python.exe
+运行环境：本目录自带的 ocsr_runtime\python\cpython-3.10-windows-x86_64-none\python.exe
+（依赖通过 PYTHONPATH 指向 ocsr_runtime\venv\Lib\site-packages，整个目录可任意移动）
 用法：
     python ocsr_client.py status                 # 查看服务/模型状态
     python ocsr_client.py recognize <图片路径>   # 识别一张图片（也可写作 识别）
@@ -16,6 +17,7 @@
     ocsr.close()
 """
 import json
+import os
 import shutil
 import tempfile
 import subprocess
@@ -25,28 +27,25 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent
-PY = ROOT / "ocsr_runtime" / "venv" / "Scripts" / "python.exe"
+_RUNTIME = ROOT / "ocsr_runtime"
+# The package ships the base CPython and keeps only site-packages in the venv
+# directory, so no absolute pyvenv.cfg path is needed and the whole folder can
+# be copied to another computer.
+_CANDIDATES = [_RUNTIME / "python" / "cpython-3.10-windows-x86_64-none"]
+_CANDIDATES += sorted((_RUNTIME / "python").glob("cpython-3.10*-windows-x86_64-none"))
+PY = next((path / "python.exe" for path in _CANDIDATES if (path / "python.exe").is_file()),
+          _RUNTIME / "venv" / "Scripts" / "python.exe")
+SITE = _RUNTIME / "venv" / "Lib" / "site-packages"
 SERVICE = ROOT / "ocsr_service.py"
-MODELS = ROOT / "ocsr_runtime" / "models"
+MODELS = _RUNTIME / "models"
 # 注意：OpenCV 在 Windows 上无法读取含中文的路径，因此缓存目录放到 TEMP（纯 ASCII），
 # 这样即使本模块放在中文路径下也能正常识别。
 CACHE = Path(tempfile.gettempdir()) / "MoleculeStudio-OCSR-cache"
 RECORDS = ROOT / "recognition_records"
 
 
-def fix_venv():
-    """把 venv 的 home 指向本目录内的 python，使整个文件夹可以随意移动。"""
-    cfg = ROOT / "ocsr_runtime" / "venv" / "pyvenv.cfg"
-    base = ROOT / "ocsr_runtime" / "python" / "cpython-3.10-windows-x86_64-none"
-    cfg.write_text(
-        "home = %s\ninclude-system-site-packages = false\nversion_info = 3.10\n" % base,
-        encoding="utf-8",
-    )
-
-
 class OCSR:
     def __init__(self, device="cpu", verbose=False):
-        fix_venv()
         CACHE.mkdir(parents=True, exist_ok=True)
         RECORDS.mkdir(parents=True, exist_ok=True)
         cmd = [
@@ -54,10 +53,14 @@ class OCSR:
             "--models", str(MODELS), "--cache", str(CACHE), "--records", str(RECORDS),
             "--device", device,
         ]
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(SITE)
+        env["PYTHONNOUSERSITE"] = "1"
+        env.pop("PYTHONHOME", None)
         self.proc = subprocess.Popen(
             cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             stderr=None if verbose else subprocess.DEVNULL,
-            text=True, encoding="utf-8", bufsize=1,
+            text=True, encoding="utf-8", bufsize=1, env=env,
         )
 
     def request(self, xml: str) -> dict:

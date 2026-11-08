@@ -54,9 +54,8 @@
 
 ## 5. venv 可移动性与环境变量
 
-- 输入包 `ocsr_runtime/venv/pyvenv.cfg` 的 `home =` 指向**打包机绝对路径** `C:\Users\chaobada\Desktop\OCSR模块_A+C_2026-11-08\ocsr_runtime\python\cpython-3.10-windows-x86_64-none`。
-- 应用侧已有三处修正，安装到其他路径后可正常工作：安装器 `OnlineInstaller.Extract()` 对 `ocsr_runtime/venv/pyvenv.cfg` 按安装路径重写；原生 UI `ocsr_dialog.hpp::repairVenvConfig()`；AI 桥 `ai_ocsr_bridge.py::prepare_runtime()`。
-- 包内 `启动OCSR服务.cmd` 会自行按 `%~dp0` 重写 pyvenv.cfg；但 `recognize.cmd` / `识别图片.cmd` **不会**。因此“解压后先双击识别图片.cmd”在非打包机路径上可能失败一次（先跑一次服务脚本即可）。属建议项，不影响安装器安装后的 app 使用。
+- ~~输入包 `ocsr_runtime/venv/pyvenv.cfg` 的 `home =` 指向打包机绝对路径~~ → **已于 2026-11-08 二次打包彻底移除**：包内删除 `ocsr_runtime/venv/Scripts` 与 `pyvenv.cfg`，运行时只保留 `venv/Lib/site-packages`；原生 UI、AI 桥、`ocsr_client.py` 与三个 `.cmd` 统一改为“包内基础 Python + `PYTHONPATH`”，不再需要任何路径修正。
+- 附带修复：原生 UI `startService()` 的运行时存在性检查由窄字符 `std::ifstream` 改为 `GetFileAttributesW`，安装路径含中文/非 ASCII 字符时也能启动服务（这是“图片转结构连不上”的真正原因）。
 - 本次功能验证按安装器语义把 `home` 重写为解压目录后运行，ping/status/recognize 全部通过。
 
 ## 6. 许可证与来源材料
@@ -91,7 +90,7 @@
 
 体积：解压后 2.769 GiB → 2.115 GiB（−654 MiB）。主因：权重由 **1.13 GB 全量 checkpoint** 变为 **366 MB weights-only 重存版**（去掉优化器状态，−715 MiB）；其次是缺 legal（−6.6 MB）；新增 `.pyc` 约 +57 MB（`added_bytes = 59,833,834`）。代码/依赖主体（28,694 个文件）逐字节相同，故不存在“删掉 app 运行必需文件”的情况：旧包 `OCSR-HOTFIX.txt` 是 hotfix2 历史说明（其内容已被新包 `调用说明.md` 取代），`ocsr_runtime/README.txt` 的运行时说明同样被 `调用说明.md` 覆盖，二者均非运行必需（重打包时未补回，见第 9 节）。
 
-app 必需项核对（均在）：`ocsr_service.py`（根，app 以 `appDir\ocsr_service.py` 启动）、`ocsr_runtime/venv/Scripts/python.exe`、`ocsr_runtime/python/cpython-3.10-windows-x86_64-none/`、`ocsr_runtime/models/swin_base_char_aux_1m680k.pth`、`ocsr_runtime/models/MODELS.json`、`ocsr_runtime/models/*.sha256`、`ocsr_runtime/LICENSES/`、`recognition_records/`（安装器/服务会创建）。
+app 必需项核对（均在）：`ocsr_service.py`（根，app 以 `appDir\ocsr_service.py` 启动）、`ocsr_runtime/python/cpython-3.10-windows-x86_64-none/python.exe`、`ocsr_runtime/venv/Lib/site-packages/`、`ocsr_runtime/models/swin_base_char_aux_1m680k.pth`、`ocsr_runtime/models/MODELS.json`、`ocsr_runtime/models/*.sha256`、`ocsr_runtime/LICENSES/`、`recognition_records/`（安装器/服务会创建）。
 
 `ocsr_service.py` 变更要点（旧 129,855 B → 新 142,973 B，+223/−12 行）：新增 `FINETUNE_PATCH_ID=ocsr-finetune-v3`、`resolve_finetune_input_size()`（stock 384 / 微调 768，`MOLSCRIBE_INPUT_SIZE` 优先）、`MOLSCRIBE_MAX_LEN` 默认 2000、`finetuned_*.pth` 候选、芳香原子符号归一化；新增 `MAX_SELECTION_PX=4096`（超出自动缩图，硬上限 `MOLSCRIBE_HARD_MAX_SELECTION_PX=20000`，旧版 >5000 直接报错）；状态/记录增加 `input_size/max_len/model_source/input_size_source/finetune_patch/selection_downscaled` 字段。**协议 op 与请求属性未变。**
 
@@ -135,18 +134,18 @@ app 必需项核对（均在）：`ocsr_service.py`（根，app 以 `appDir\ocsr
 | 项目 | 值 |
 | --- | --- |
 | 路径 | `C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\out\repack-20261108\MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip`（构建产物，不提交） |
-| 大小 | **834,667,587 B**（796.0 MiB / 0.83 GB），旧包 1,504,763,253 B，**−44.5%**（2026-11-08 重新压缩） |
+| 大小 | **833,407,453 B**（794.8 MiB / 0.83 GB），旧包 1,504,763,253 B，**−44.6%**（2026-11-08 二次打包） |
 | SHA-256 | `4aa68155e37b88c767f540edbc06c0c0a8739fcedf71f28e96a258ea0463dc1e` |
-| 条目 | 32,830（32,077 新包文件 + 752 legal + 1 `MANIFEST-OCSR.json`；全部位于 `MoleculeStudio/` 下，无目录条目） |
+| 条目 | 32,812（32,059 新包文件 + 752 legal + 1 `MANIFEST-OCSR.json`；全部位于 `MoleculeStudio/` 下，无目录条目；已移除 18 个 venv 启动器/配置文件） |
 | 解压后 | 2,278,351,288 B（2.122 GiB） |
-| MANIFEST | `version="0.95-20261108"`、`package="OCSR"`、`package_revision="20261108-ocsr-unicode-fix"`、`files` 32,829 条（真实文件 → `bytes`+`sha256`，不含自身），6,568,219 B |
+| MANIFEST | `version="0.95-20261108"`、`package="OCSR"`、`package_revision="20261108-portable-runtime"`、`files` 32,811 条（真实文件 → `bytes`+`sha256`，不含自身），6,565,335 B |
 | 补回 legal | 752 个文件，逐文件与旧包清单 SHA-256 比对 752/752 一致 |
 
 独立校验（`python out/ocsr-audit/verify_package.py`，26 项全 PASS）：CRC、无重复名、`MoleculeStudio/` 前缀齐全、无绝对/越界路径、无目录条目、MANIFEST 与条目集合完全对应、**逐文件 bytes+sha256 全部一致**、MODELS.json/`.sha256`/权重哈希一致、服务版本 1.3.1 与 7 个 op 齐全、legal 752 一致、`venv/Scripts/python.exe` 为 PE、pyvenv.cfg 可重定位。
 
 ## 10. 应用/安装器兼容性结论
 
-- **安装器**（`installer/OnlineInstaller.cs`）：`Extract()` 只接受 `MoleculeStudio/` 前缀条目并重算 SHA-256 写 `.installer-OCSR.json`；本包满足。legacy 路径（无 receipt 时读 `MANIFEST-OCSR.json` 校验 `bytes/sha256`）也满足。`ocsr_runtime/venv/pyvenv.cfg` 会被安装器按安装路径重写（`GeneratedConfig`），因此包内保留原始绝对路径不影响安装结果。
+- **安装器**（`installer/OnlineInstaller.cs`）：`Extract()` 只接受 `MoleculeStudio/` 前缀条目并重算 SHA-256 写 `.installer-OCSR.json`；本包满足。legacy 路径（无 receipt 时读 `MANIFEST-OCSR.json` 校验 `bytes/sha256`）也满足。二次打包后包内不再包含 `ocsr_runtime/venv/pyvenv.cfg`，安装器的 `GeneratedConfig` 逻辑对该文件变为可选（旧安装收据仍兼容）。
   **已更新（P4 关闭）**：2026-11-08 重新打包时已把安装器内置的 Core/OCSR 哈希、字节数与 `updates/stable.json` 一并刷新为本包计算值，并重建 `MoleculeStudio-OnlineSetup.exe`；安装器 `--feed-test`、`--extract-test 3` 通过。
 - **原生 UI**（`studio/ocsr_dialog.hpp`）：启动参数 `--serve --models --cache --records`、op 集合 `status/render/recognize/detect/export_crop/confirm`、响应属性（confidence/atoms/bonds/fragments/insertable/crop/overlay/cdxml/record/warnings…）与新版一致；status 的额外属性被忽略。大选区由“>5000 报错”变为“>4096 自动缩图（硬上限 20000）”，app 端无需改动。
 - **AI 桥**（`studio/ai_ocsr_bridge.py`）：只依赖 `ok/id`、`insertable`、`cdxml` 与 `warning` 子节点、各 op 的既有属性，全部保持；`prepare_runtime()` 已能重定位 venv。
@@ -163,7 +162,7 @@ app 必需项核对（均在）：`ocsr_service.py`（根，app 以 `appDir\ocsr
 
 **建议**
 1. 清理包内 3,373 个 `.pyc`（469 个 `__pycache__`）以减少体积/提高可重现性；打包前用 `python -B` 或删除缓存。
-2. `recognize.cmd`/`识别图片.cmd` 也加入 pyvenv.cfg 修正（或首次运行提示先跑服务脚本），避免用户移动目录后直接识别失败。
+2. ~~`recognize.cmd`/`识别图片.cmd` 也加入 pyvenv.cfg 修正~~ → **已解决**：三个 `.cmd` 与 `ocsr_client.py` 统一使用基础 Python + `PYTHONPATH`，不再依赖 pyvenv.cfg。
 3. `ocsr_client.py` 第 4/68 行非 raw 字符串含 `\S`、`\l`，Python 3.12 会告 `SyntaxWarning`；建议改 raw 字符串（本次为保持与审核输入一致未改）。
 4. 权重为 weights-only 重存版（与旧包权重哈希不同）：本次单图验证识别正确，建议发布前用同一批真实图与旧包做对照识别，确认推理结果一致。
 5. 把“legal 补回 + MANIFEST 重生成 + pyvenv 归一化 + 体积检查”固化为打包脚本（可复用本次 `out/ocsr-audit/repack.py` 逻辑）。

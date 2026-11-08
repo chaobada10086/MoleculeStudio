@@ -658,7 +658,10 @@ private:
 
     void startService() {
         repairVenvConfig();
-        if (!std::ifstream(U(pythonPath)).good() || !std::ifstream(U(scriptPath)).good()) {
+        // Wide-API existence checks: the UTF-8 narrow std::ifstream path cannot
+        // open files under non-ASCII directories (e.g. a Chinese install path).
+        if (GetFileAttributesW(pythonPath.c_str()) == INVALID_FILE_ATTRIBUTES ||
+            GetFileAttributesW(scriptPath.c_str()) == INVALID_FILE_ATTRIBUTES) {
             serviceReady = false;
             statusText = L"本地 OCSR 运行时缺失：请安装 ocsr_runtime（含 Python、MolScribe 权重）";
             warningsText = L"未找到本地识别运行时。\r\n"

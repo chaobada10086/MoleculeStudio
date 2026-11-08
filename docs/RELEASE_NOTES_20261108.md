@@ -9,7 +9,7 @@
 | Core | MoleculeStudio-0.95-20261108-Core-win64.zip | 主程序、化学/核磁/三维运行时、内置 AI 绘图 Skill、手动更新下载器 | 无 |
 | AI 基础 | MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip | AI 助手、检索、对话画图桥接（约 74 KB，不装 AI 模组也能用 Core 内 Skill） | Core |
 | AI 高级 | MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip | 内置 DSH 运行时的 AI 高级绘图（约 758 MB，含第三方许可/源码） | AI 基础 |
-| 图片识别 | MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip | 本地图片/PDF 转结构（2026-11-08 精简模块，重新压缩后约 796 MB） | Core |
+| 图片识别 | MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip | 本地图片/PDF 转结构（2026-11-08 精简模块，重新打包后约 795 MB） | Core |
 
 四个 ZIP 都带 `MoleculeStudio/` 根目录，解压合并到同一目录；版本必须一致。AI 高级不能脱离 AI 基础单独安装。
 
@@ -31,7 +31,7 @@
 ## 追加需求
 
 - 选中结构右键新增“复制为 PNG”：透明背景 32bpp PNG（同时提供白底 CF_DIB 兼容格式），只复制选中内容，不改文档、不进撤销栈。
-- OCSR 模块替换为用户提供的 2026-11-08 精简模块：审核、补齐 legal、重生成清单后使用，识别服务 1.3.1 已通过 ping/status/recognize 与苯环识别验证。重新打包后为 834,667,587 B（约 -44.5%，含 Pillow 解码修复）。
+- OCSR 模块替换为用户提供的 2026-11-08 精简模块：审核、补齐 legal、重生成清单后使用，识别服务 1.3.1 已通过 ping/status/recognize 与苯环识别验证。重新打包后为 833,407,453 B（约 -44.6%，含 Pillow 解码与便携运行时修复）。
 
 ## 已知限制
 
@@ -45,3 +45,9 @@
 - 修复安装目录含中文时“图片转结构”失败的问题：OCSR 模型输入缓存改到 ASCII 临时目录（OpenCV 不支持非 ASCII 路径）。
 - 设置页次要按钮改为浅色底+描边，避免看起来像一行文字；更新页新增“另存 AI 绘图 Skill…”按钮，点击直接打开另存窗口。
 - 新增功能文案补齐 15 语言目录（含英文、繁体中文）；AI 基础=约 74 KB 桥接代码，AI 高级=约 758 MB（内置 DSH 运行时、插件与其第三方许可/源码）。
+
+## 2026-11-08 二次修复（便携与中文路径）
+
+- **修复“图片转结构”连不上本地识别服务**：界面判断运行时文件是否存在时使用窄字符 `std::ifstream`（UTF-8 路径在中文/非 ASCII 安装目录下打不开），改为宽字符 `GetFileAttributesW`；安装路径含中文时也能正常启动本地服务并完成识别。
+- **OCSR 运行时便携化**：删除 venv 启动器（`ocsr_runtime/venv/Scripts`）与 `pyvenv.cfg`（旧包内是打包机绝对路径），统一用包内基础 Python + `PYTHONPATH` 启动；`ocsr_client.py`、`识别图片.cmd`、`recognize.cmd`、`启动OCSR服务.cmd` 与 AI 桥 `ai_ocsr_bridge.py` 同步修改。整个 OCSR 目录复制/剪切到任意位置或任意电脑都能直接运行，包内不再包含任何绝对路径。
+- Core、AI 基础、图片识别包与在线安装器按新哈希重新打包，`stable.json` 与校验值同步更新；已在中文路径整机运行识别成功，并在全新目录解压、移动后完成 `--test` 两连绿与安装器全部自测。

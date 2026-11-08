@@ -36,34 +36,23 @@ def _validate_crop(value, label='crop'):
 
 
 def prepare_runtime(runtime):
-    """Relocate the bundled venv before launching it, just like the native UI."""
-    python = runtime / 'venv' / 'Scripts' / 'python.exe'
-    cfg = runtime / 'venv' / 'pyvenv.cfg'
-    if not python.is_file() or not cfg.is_file():
-        raise ValueError('本地图片转结构运行时缺失：' + str(runtime))
-    text = cfg.read_text(encoding='utf-8-sig')
+    """Return the bundled base interpreter and its site-packages directory.
+
+    The old package shipped a uv venv whose pyvenv.cfg carried the packaging
+    machine's absolute path, so its launcher broke as soon as the folder was
+    copied to another computer.  Launch the bundled base Python and load the
+    venv site-packages through PYTHONPATH instead: nothing absolute is needed.
+    """
     candidates = [runtime / 'python' / 'cpython-3.10-windows-x86_64-none']
     candidates += sorted((runtime / 'python').glob('cpython-3.10*-windows-x86_64-none'))
-    home = next((path.resolve() for path in candidates
+    base = next((path.resolve() for path in candidates
                  if (path/'python.exe').is_file() and (path/'Lib/encodings/__init__.py').is_file()), None)
-    if home is None:
+    if base is None:
         raise ValueError('本地 OCSR Python 标准库缺失（encodings），请修复运行时：' + str(runtime))
-    replacement = 'home = ' + str(home)
-    updated, count = re.subn(r'(?m)^[ \t]*home[ \t]*=[^\r\n]*', lambda match: replacement, text)
-    if not count: updated = replacement + '\n' + text
-    if updated != text:
-        temporary = None
-        try:
-            with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=cfg.parent, suffix='.tmp', delete=False) as file:
-                temporary = Path(file.name); file.write(updated)
-            temporary.replace(cfg)
-        except OSError as exc:
-            raise ValueError('无法修正本地 OCSR 运行时路径：' + str(exc)) from None
-        finally:
-            if temporary is not None:
-                try: temporary.unlink(missing_ok=True)
-                except OSError: pass
-    return python
+    site = runtime / 'venv' / 'Lib' / 'site-packages'
+    if not site.is_dir():
+        raise ValueError('本地图片转结构依赖目录缺失：' + str(site))
+    return base / 'python.exe', site
 
 
 class OcsrServiceError(ValueError):
@@ -77,7 +66,7 @@ class OcsrServiceError(ValueError):
 def service_session(base):
     base = Path(base).resolve()
     runtime = Path(os.environ.get('MOLECULE_STUDIO_OCSR_RUNTIME') or base / 'ocsr_runtime')
-    try: python = prepare_runtime(runtime)
+    try: python, site = prepare_runtime(runtime)
     except (OSError, ValueError) as exc:
         raise OcsrServiceError('本地识别运行时初始化失败：' + str(exc), None, 'service_startup') from None
     script = base / 'ocsr_service.py'
@@ -89,6 +78,7 @@ def service_session(base):
     flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
     env = os.environ.copy()
     for key in ('PYTHONHOME', 'PYTHONPATH', 'PYTHONSTARTUP'): env.pop(key, None)
+    env['PYTHONPATH'] = str(site)
     env['PYTHONNOUSERSITE'] = '1'
     stderr = tempfile.TemporaryFile(mode='w+b')
     try:
