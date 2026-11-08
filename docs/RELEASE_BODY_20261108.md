@@ -69,6 +69,8 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 - 本次图片识别使用 **2026-11-08 精简模块**：文件数约 3.4 万，压缩包约 857 MB（旧 OCSR 包约 1.5 GB，减小约 40%），保留 MolScribe 模型、Python 运行时、许可与来源材料。
 - 服务版本升级到 **1.3.1**，保留并整合 hotfix1/hotfix2 的本地运行库补充、启动握手优化与错误日志；`ocsr_runtime/venv/pyvenv.cfg` 由安装器按实际安装路径重写，不再使用开发机绝对路径。
 - **额外修复**：安装路径包含中文时，旧方案会让 OpenCV 读取模型输入图失败，出现识别无响应；现已把识别缓存改到 ASCII 临时目录，中文路径实测 `render + recognize` 成功。
+- **启动方式加固**：不再依赖 venv 的 `pyvenv.cfg` 绝对路径，改用包内基础 Python 并通过 `PYTHONPATH` 加载 venv 依赖；复制到其他电脑/其他目录即使 `pyvenv.cfg` 失效也能启动。服务 stderr 写入 `%TEMP%\MoleculeStudio-OCSR-cache\service-error.log`，启动失败时界面会给出该日志路径。
+- **去重**：Core 不再携带 `ai_dsh.py`（改由 AI 高级提供），四个 ZIP 解压合并时不会再出现重复文件提示。
 - 已通过压缩包完整性、MANIFEST 逐文件校验、`ping`/`status`/`recognize`、苯环识别（6 原子/6 键）与安装器 `--extract-test` 验证。
 - 已安装旧 hotfix2 的用户：请直接使用本次 OCSR 新包（或四组件安装器）替换，旧 hotfix2 与启动器小补丁不再需要。
 
@@ -96,7 +98,7 @@ Windows x64 绿色版。Core 为必选，AI 基础 / AI 高级 / 图片识别按
 
 ```
 MoleculeStudio-0.95-20261108-Core-win64.zip
-df94132fafcf68053a6931dc5b7c1bda95432841b6a77f4a6af8aff2300acadf
+1cd2c20a1844e6c15e04d5bebf612b80cb6316d8ab5a3a8ee18de1f35c757e87
 
 MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip
 944500cf74e6778b1aa6067b69370c34091955fec3fbf1f59cd075ba53067355
@@ -108,7 +110,7 @@ MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip
 0895807f0fa800a2a393492ea8a81713f5df3ec7985dfd70c4c25b9775ccab34
 
 MoleculeStudio-OnlineSetup.exe
-d4e59dc5930f208b193a9a04d30a4bf97b787303df236146677db702b3ed0014
+801795de825334e0bdaecf08d73616965b71d5551093d737e169786d54805c55
 ```
 
 ## 九、其他说明

@@ -46,7 +46,8 @@ public:
 
     bool start(const std::wstring& python, const std::wstring& script,
                const std::wstring& models, const std::wstring& cache,
-               const std::wstring& records, std::wstring& error) {
+               const std::wstring& records, const std::wstring& sitePackages,
+               std::wstring& error) {
         stop();
         SECURITY_ATTRIBUTES sa{};
         sa.nLength = sizeof(sa);
@@ -60,8 +61,14 @@ public:
         }
         SetHandleInformation(parentIn, HANDLE_FLAG_INHERIT, 0);
         SetHandleInformation(parentOut, HANDLE_FLAG_INHERIT, 0);
-        HANDLE nul = CreateFileW(L"NUL", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                 &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        // Keep the worker's stderr in a real file: a clean machine can fail
+        // before the first handshake (missing runtime/AV block) and the log is
+        // the only useful diagnostic the user can send back.
+        logPath = cache + L"\\service-error.log";
+        HANDLE errorLog = CreateFileW(logPath.c_str(), GENERIC_WRITE,
+                                      FILE_SHARE_READ | FILE_SHARE_WRITE, &sa,
+                                      CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (errorLog == INVALID_HANDLE_VALUE) errorLog = nullptr;
 
         std::wstring command = L"\"" + python + L"\" \"" + script + L"\" --serve --models \"" +
                                models + L"\" --cache \"" + cache + L"\" --records \"" + records + L"\"";
@@ -71,15 +78,34 @@ public:
         si.wShowWindow = SW_HIDE;
         si.hStdInput = childIn;
         si.hStdOutput = childOut;
-        si.hStdError = nul ? nul : childOut;
+        si.hStdError = errorLog ? errorLog : childOut;
         PROCESS_INFORMATION pi{};
         std::vector<wchar_t> mutableCommand(command.begin(), command.end());
         mutableCommand.push_back(0);
+        // The uv/venv launcher depends on an absolute pyvenv.cfg that a copied
+        // folder cannot always repair. Launch the bundled base interpreter and
+        // point it at the venv site-packages via the child environment instead.
+        std::vector<wchar_t> environment;
+        if (!sitePackages.empty()) {
+            wchar_t* current = GetEnvironmentStringsW();
+            if (current) {
+                for (wchar_t* item = current; *item; item += wcslen(item) + 1) {
+                    if (_wcsnicmp(item, L"PYTHONPATH=", 11) == 0) continue;
+                    if (_wcsnicmp(item, L"PYTHONHOME=", 11) == 0) continue;
+                    environment.insert(environment.end(), item, item + wcslen(item) + 1);
+                }
+                FreeEnvironmentStringsW(current);
+            }
+            std::wstring pythonPath = L"PYTHONPATH=" + sitePackages;
+            environment.insert(environment.end(), pythonPath.begin(), pythonPath.end());
+            environment.push_back(0);
+        }
         BOOL created = CreateProcessW(nullptr, mutableCommand.data(), nullptr, nullptr, TRUE,
-                                      CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi);
+                                      CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
+                                      environment.empty() ? nullptr : environment.data(), nullptr, &si, &pi);
         CloseHandle(childIn);
         CloseHandle(childOut);
-        if (nul) CloseHandle(nul);
+        if (errorLog) CloseHandle(errorLog);
         if (!created) {
             CloseHandle(parentIn);
             CloseHandle(parentOut);
@@ -104,7 +130,7 @@ public:
         DWORD written = 0;
         if (!WriteFile(writeHandle, line.data(), DWORD(line.size()), &written, nullptr) ||
             written != line.size()) {
-            throw std::runtime_error("无法向识别服务发送请求");
+            throw std::runtime_error("无法向识别服务发送请求；诊断日志：" + U(logPath));
         }
         std::string response;
         response.reserve(4096);
@@ -112,13 +138,13 @@ public:
         for (;;) {
             DWORD available = 0;
             if (!PeekNamedPipe(readHandle, nullptr, 0, nullptr, &available, nullptr)) {
-                throw std::runtime_error("识别服务连接已断开");
+                throw std::runtime_error("识别服务连接已断开；诊断日志：" + U(logPath));
             }
             if (available == 0) {
                 if (WaitForSingleObject(process, 0) == WAIT_OBJECT_0)
-                    throw std::runtime_error("识别服务已退出；请检查模型文件或运行日志");
+                    throw std::runtime_error("识别服务已退出；诊断日志：" + U(logPath));
                 if (GetTickCount64() > deadline)
-                    throw std::runtime_error("识别超时；可缩小选区或检查本地运行时");
+                    throw std::runtime_error("识别超时；可缩小选区或检查本地运行时。诊断日志：" + U(logPath));
                 Sleep(15);
                 continue;
             }
@@ -157,6 +183,7 @@ private:
     HANDLE process = nullptr;
     HANDLE writeHandle = nullptr;
     HANDLE readHandle = nullptr;
+    std::wstring logPath;
     mutable std::mutex mutex;
 };
 
@@ -306,6 +333,7 @@ private:
     std::wstring appDir;
     std::wstring runtimeDir;
     std::wstring pythonPath;
+    std::wstring sitePackages;
     std::wstring scriptPath;
     std::wstring modelsDir;
     std::wstring cacheDir;
@@ -432,6 +460,9 @@ private:
         runtimeDir = (length && length < 32768) ? std::wstring(overrideDir, length)
                                                                 : appDir + L"\\ocsr_runtime";
         pythonPath = runtimeDir + L"\\venv\\Scripts\\python.exe";
+        std::wstring basePython = runtimeDir + L"\\python\\cpython-3.10-windows-x86_64-none\\python.exe";
+        if (GetFileAttributesW(basePython.c_str()) != INVALID_FILE_ATTRIBUTES) pythonPath = basePython;
+        sitePackages = runtimeDir + L"\\venv\\Lib\\site-packages";
         scriptPath = appDir + L"\\ocsr_service.py";
         modelsDir = runtimeDir + L"\\models";
         // OpenCV (inside MolScribe) cannot read image files under non-ASCII paths on
@@ -639,9 +670,9 @@ private:
         }
         runTask(TaskResult::Service, L"正在启动本地识别服务…", [this]() {
             std::wstring error;
-            if (!client.start(pythonPath, scriptPath, modelsDir, cacheDir, recordsDir, error))
+            if (!client.start(pythonPath, scriptPath, modelsDir, cacheDir, recordsDir, sitePackages, error))
                 throw std::runtime_error(U(error));
-            return client.request("<request id=\"1\" op=\"status\"/>", 60000);
+            return client.request("<request id=\"1\" op=\"status\"/>", 180000);
         });
     }
 
