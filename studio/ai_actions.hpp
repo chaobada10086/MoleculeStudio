@@ -43,6 +43,21 @@ void aiAttachPlugin(tinyxml2::XMLDocument& xml, tinyxml2::XMLElement* request) {
     plugin->SetAttribute("entry",entry);
     plugin->SetAttribute("path",relative.c_str());
 }
+// Task 8: bounding box of exactly what this AI turn created, so a single translation can put
+// the whole turn (molecule + caption + arrow + its text) at the visible canvas centre.
+// Captions are measured with StudioTextBounds (arrange_actions.hpp) - the same layout engine
+// that draws them - instead of falling back to the anchor point.
+Box aiContentBounds(Document& document,const std::vector<ObjectRef>& refs,text::GlyphCache& glyphs){
+    Box box(Vec2(1,1),Vec2(-1,-1));StudioTextBounds metrics(glyphs);
+    for(const auto& ref:studioio::expanded(document,refs)){
+        Box part;
+        if(ref.kind==ObjectKind::Text&&document.texts().alive(ref.id)){if(!metrics.textInkBox(document,ref.id,&part)||part.empty())part=selection::objectBounds(document,ref);}
+        else part=selection::objectBounds(document,ref);
+        if(part.empty()||!selection::boxFinite(part))continue;
+        if(box.empty())box=part;else{box.add(part.min);box.add(part.max);}
+    }
+    return box;
+}
 }
 std::string App::aiContext(){
     if(textEditor.active)finishText(true);
@@ -114,7 +129,10 @@ std::string App::applyAI(const std::string& bytes){
         if((p.kind=="draw_shape"||p.kind=="draw_arrow")&&p.from==p.to)throw std::runtime_error("AI 图形起终点相同");plan.push_back(std::move(p));
     }
     auto inserted=std::make_shared<std::vector<ObjectRef>>();auto selection=aiSelection;auto matched=std::make_shared<size_t>(0);auto pageChanged=std::make_shared<bool>(false);
-    auto err=s.submit(Command("AI 绘图",kInvalidateStructure|kInvalidateGeometry|kInvalidateAppearance,[plan,selection,inserted,matched,pageChanged](CommandContext& c){
+    // Task 8: where the *current* viewport centre is, resolved at apply time (a docked pane or a
+    // pan/zoom between request and reply no longer matters), and the final bounds of this turn.
+    Vec2 aiTarget=s.view().toDocument(s.view().viewportCenter);auto centered=std::make_shared<Box>(Vec2(1,1),Vec2(-1,-1));
+    auto err=s.submit(Command("AI 绘图",kInvalidateStructure|kInvalidateGeometry|kInvalidateAppearance,[plan,selection,inserted,matched,pageChanged,this,aiTarget,centered](CommandContext& c){
         auto fail=[](Error e){return CommandResult::fail(e.code,e.message);};
         try{auto registry=aiobjects::registry(c.document,selection);
         for(const auto& p:plan){Error e;std::vector<ObjectRef> refs;ObjectId id=kInvalidObjectId;
@@ -143,8 +161,29 @@ std::string App::applyAI(const std::string& bytes){
             else if(p.kind=="style_selection"){for(auto ref:studioio::expanded(c.document,selection)){e=graphic_style::apply(c.document,ref,p.width,p.color,p.setWidth,p.setColor);if(!e.ok())break;}}
             if(!e.ok())return fail(e);
             if(p.kind!="duplicate_objects")for(auto ref:refs){e=graphic_style::apply(c.document,ref,p.width,p.color,p.width>0,true);if(!e.ok())return fail(e);}inserted->insert(inserted->end(),refs.begin(),refs.end());aiobjects::created(registry,p.handle,refs,p.molecule?&p.molecule->doc:nullptr);
-        }return CommandResult::success();}catch(const std::exception& e){return CommandResult::fail(ErrorCode::InvalidArgument,e.what());}}),"AI 绘图");
+        }
+        // Centre only the objects this turn created. Edits/moves applied to the user's existing
+        // selection stay exactly where the AI asked for them; the whole turn moves together so a
+        // molecule, its name and a reaction arrow keep their relative layout.
+        {auto live=aiobjects::all(c.document);std::set<ObjectRef> alive(live.begin(),live.end());std::vector<ObjectRef> fresh;
+         for(auto ref:*inserted)if(alive.count(ref))fresh.push_back(ref);
+         if(!fresh.empty()){Box box=aiContentBounds(c.document,fresh,s.glyphs);
+             if(!box.empty()){Vec2 centre=(box.min+box.max)*.5,delta=aiTarget-centre;
+                 if(std::abs(delta.x)>1e-9||std::abs(delta.y)>1e-9){Error moved=r62::integration::translateDocumentObjects(c.document,fresh,delta);if(!moved.ok())return fail(moved);}
+                 *centered=aiContentBounds(c.document,fresh,s.glyphs);}}}
+        return CommandResult::success();}catch(const std::exception& e){return CommandResult::fail(ErrorCode::InvalidArgument,e.what());}}),"AI 绘图");
     if(!err.ok())throw std::runtime_error(err.message);if(*pageChanged)fitPage();
     {auto live=aiobjects::all(s.doc);std::set<ObjectRef> alive(live.begin(),live.end());bool hadNew=!inserted->empty();auto filter=[&](std::vector<ObjectRef>& refs){refs.erase(std::remove_if(refs.begin(),refs.end(),[&](ObjectRef r){return !alive.count(r);}),refs.end());};filter(s.selected);filter(*inserted);if(hadNew)s.selected=*inserted;}
-    status="AI 已完成 "+std::to_string(plan.size())+" 个绘图动作"+(*matched?"，编辑 "+std::to_string(*matched)+" 个对象":"")+" · Ctrl+Z 撤销";if(!inserted->empty()){s.fit();auto view=s.view();view.scale=std::min(view.scale,2.0);s.setView(view);}invalidate();return status;
+    status="AI 已完成 "+std::to_string(plan.size())+" 个绘图动作"+(*matched?"，编辑 "+std::to_string(*matched)+" 个对象":"")+" · Ctrl+Z 撤销";
+    if(!inserted->empty()&&!*pageChanged&&!centered->empty()){
+        // Never zoom in: a small molecule must not make the canvas jump. A result larger than the
+        // viewport is only shrunk just enough to stay visible, about the viewport centre, so it is
+        // still centred afterwards. (Choice per the task: keep centring, adapt only when needed.)
+        auto view=s.view();double dpi=view.dpiScale>0?view.dpiScale:1.0;
+        double availW=std::max(120.0,double(s.renderView.widthPx)-60.0),availH=std::max(120.0,double(s.renderView.heightPx)-60.0);
+        double needW=centered->width()*dpi,needH=centered->height()*dpi,fit=view.scale;
+        if(needW>1e-9)fit=std::min(fit,availW/needW);if(needH>1e-9)fit=std::min(fit,availH/needH);
+        if(fit<view.scale){view.scale=std::max(0.02,fit);s.setView(view);}
+    }
+    invalidate();return status;
 }

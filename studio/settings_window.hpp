@@ -136,7 +136,10 @@ struct StudioSettingsWindow {
         if(endpoint.find(L"https://")!=0||endpoint.size()>2000){set(926,L"请输入有效的 HTTPS API 基础地址。");return false;}
         if(model.empty())model=L"auto";
         if(key.size()>512||model.size()>120){set(926,L"密钥或模型名称过长。");return false;}
-        ai->set(702,U(endpoint));ai->set(706,U(key));ai->set(704,U(model));CheckDlgButton(ai->hwnd,707,IsDlgButtonChecked(hwnd,922));ai->set(723,"模型 · "+U(model));return true;
+        ai->set(702,U(endpoint));ai->set(706,U(key));ai->set(704,U(model));CheckDlgButton(ai->hwnd,707,IsDlgButtonChecked(hwnd,922));ai->set(723,"模型 · "+U(model));
+        // Minimal hook for task 7: the AI pane's "not configured" banner follows these controls,
+        // and WM_SETTEXT on an EDIT does not raise EN_CHANGE. One call, no layout change.
+        if(IsWindow(ai->hwnd))ai->refreshConfiguration(true);return true;
     }
     bool save(){
         try{

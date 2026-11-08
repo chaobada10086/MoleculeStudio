@@ -83,3 +83,132 @@ void App::aiCheck(const std::string& dir){
     {RECT rect;GetClientRect(ai.hwnd,&rect);HDC screen=GetDC(ai.hwnd),memory=CreateCompatibleDC(screen);HBITMAP bitmap=CreateCompatibleBitmap(screen,rect.right,rect.bottom);auto old=SelectObject(memory,bitmap);PrintWindow(ai.hwnd,memory,PW_CLIENTONLY);Bitmap image(bitmap,0);UINT count=0,bytes=0;GetImageEncodersSize(&count,&bytes);std::vector<uint8_t> storage(bytes);auto encoders=(ImageCodecInfo*)storage.data();GetImageEncoders(count,bytes,encoders);for(UINT i=0;i<count;++i)if(wcscmp(encoders[i].MimeType,L"image/png")==0)image.Save(W(dir+"/ai-window.png").c_str(),&encoders[i].Clsid,0);SelectObject(memory,old);DeleteObject(bitmap);DeleteDC(memory);ReleaseDC(ai.hwnd,screen);}
     ai.stop(false);ShowWindow(ai.hwnd,SW_HIDE);std::ofstream(dir+"/ai-checks.json")<<"{\"tab\":true,\"editable_molecule\":true,\"undo_redo\":true,\"shapes_arrows_text\":true,\"selection_format_move\":true,\"invalid_batch_atomic\":true,\"stale_document_guard\":true,\"dpapi\":true,\"live_deepseek\":"<<(aiLiveChecking?"true":"false")<<"}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }
+
+// Task 7/8 acceptance: the AI pane's "api not configured" banner and the centring of an AI
+// drawing turn. No network: the worker is never started; the reply XML is synthesised and fed
+// through App::applyAI exactly like a polled result, and the openSettings route is a test stub.
+void App::aiUxCheck(const std::string& dir){
+    auto require=[&](bool value,const char* why){if(!value){std::ofstream(dir+"/ai-ux-failure.txt",std::ios::app)<<why<<"\n";throw std::runtime_error(why);}};
+    std::ofstream log(dir+"/ai-ux-checks.txt");
+    CreateDirectoryW(W(dir+"/ai-ux").c_str(),nullptr);
+    const std::wstring previousStorage=ai.storageOverride;ai.storageOverride=W(dir+"/ai-ux");
+
+    // ---- Task 7: warning bar + direct route to the AI settings page ----
+    ai.show(h,"",false,true);
+    require(IsWindow(ai.hwnd),"AI pane is created");
+    ai.set(702,"");ai.set(704,"auto");ai.set(706,"");ai.refreshConfiguration();
+    auto bar=GetDlgItem(ai.hwnd,AiWindow::configMessageId);auto configButton=GetDlgItem(ai.hwnd,AiWindow::configButtonId);
+    require(bar&&configButton,"banner and config button controls exist");
+    require(IsWindowVisible(bar)&&IsWindowVisible(configButton),"incomplete API shows the banner and its button");
+    require(AiWindow::controlText(configButton)==L"配置 API","config button carries the 配置 API label");
+    int opened=0;auto previousOpen=ai.openSettings;ai.openSettings=[&](){++opened;};
+    SendMessageW(ai.hwnd,WM_COMMAND,MAKEWPARAM(AiWindow::configButtonId,BN_CLICKED),(LPARAM)configButton);
+    require(opened==1,"配置 API invokes the openSettings route (设置 → AI 与 API)");
+    ai.openSettings=previousOpen;
+    ai.set(702,"https://api.deepseek.com");ai.set(706,"");ai.refreshConfiguration();
+    require(!ai.configurationComplete()&&IsWindowVisible(bar),"address + model without a key is still unconfigured");
+    ai.set(706,"key");ai.set(704,"");ai.refreshConfiguration();
+    require(!ai.configurationComplete(),"half configuration (missing model) counts as unconfigured");
+    auto handle=ai.hwnd;ai.set(704,"auto");ai.set(706,"key");ai.refreshConfiguration();
+    require(ai.hwnd==handle&&ai.configurationComplete(),"the same pane is reused when the configuration becomes complete");
+    require(!IsWindowVisible(bar)&&!IsWindowVisible(configButton),"complete API hides the banner without recreating the pane");
+    ai.set(706,"");ai.refreshConfiguration();require(IsWindowVisible(bar),"banner returns when the key is cleared");
+    ai.set(711,"画一个苯环");auto unchanged=s.doc.digest();ai.start(false);
+    require(ai.process==0,"an incomplete configuration never launches a worker");
+    require(IsWindowVisible(bar)&&ai.configurationAlert,"send with an incomplete API surfaces and highlights the banner");
+    require(s.doc.digest()==unchanged,"the failed send leaves the document unchanged");ai.set(711,"");
+    for(int width:{300,420}){
+        SetWindowPos(ai.hwnd,0,0,0,width,520,SWP_NOMOVE|SWP_NOZORDER);RECT client;GetClientRect(ai.hwnd,&client);
+        for(int id:{AiWindow::configMessageId,AiWindow::configButtonId}){RECT r;GetWindowRect(GetDlgItem(ai.hwnd,id),&r);MapWindowPoints(nullptr,ai.hwnd,(POINT*)&r,2);require(r.left>=0&&r.top>=0&&r.right<=client.right+1&&r.bottom<=client.bottom+1,"narrow layout keeps the banner controls inside the pane");}
+        require(IsWindowVisible(bar)&&IsWindowVisible(configButton)&&IsWindowEnabled(configButton),"narrow layout still shows the banner and keeps its button enabled");
+    }
+    ai.docked=true;ai.dockScale=1.25f;ai.updateFont();ai.layout();
+    {RECT client;GetClientRect(ai.hwnd,&client);RECT r;GetWindowRect(configButton,&r);MapWindowPoints(nullptr,ai.hwnd,(POINT*)&r,2);require(r.right<=client.right+1&&r.bottom<=client.bottom+1,"docked layout keeps the config button visible");require(IsWindowVisible(configButton)&&IsWindowEnabled(configButton),"docked layout shows and enables the config button");}
+    ai.docked=false;ai.dockScale=1;ai.updateFont();ai.layout();ai.hide();
+    log<<"banner_visible_blank=true\nconfig_route=true\nhalf_config=true\nbanner_hides=true\nsend_prompts=true\nnarrow_visible=true\ndocked_visible=true\n";
+
+    // ---- Task 8: an AI turn is centred on the visible viewport, existing objects untouched ----
+    auto reset=[&](){s.cancel();s.doc=Document();drawingSettings.apply(s.doc);s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());s.refresh();};
+    auto setView=[&](Vec2 centre,double zoom,int width,int height){auto v=s.view();v.center=centre;v.scale=zoom;v.dpiScale=1;v.viewportCenter=Vec2(width*.5,height*.5);s.renderView.widthPx=width;s.renderView.heightPx=height;s.setView(v);};
+    auto boundsOf=[&](const std::vector<ObjectRef>& refs){return aiContentBounds(s.doc,refs,s.glyphs);};
+    auto closeEnough=[&](double a,double b){return std::abs(a-b)<1e-6;};
+    Session mol;{ObjectId a,b,c,x,y;mol.doc.addAtom(Vec2(-14.4,0),6,&a);mol.doc.addAtom(Vec2(0,-12.5),6,&b);mol.doc.addAtom(Vec2(14.4,0),6,&c);mol.doc.addBond(a,b,&x);mol.doc.addBond(b,c,&y);mol.refresh();}
+    const std::string molXml=persistence::writeCdxmlToString(mol.doc);
+    auto resultXml=[&](const std::function<void(tinyxml2::XMLElement*)>& fill){
+        tinyxml2::XMLDocument doc;auto root=doc.NewElement("result");root->SetAttribute("ok",true);doc.InsertEndChild(root);
+        auto actions=doc.NewElement("actions");root->InsertEndChild(actions);fill(actions);
+        tinyxml2::XMLPrinter printer;doc.Print(&printer);return std::string(printer.CStr());
+    };
+    auto moleculeAction=[&](tinyxml2::XMLElement* actions,double x,double y){
+        auto element=actions->GetDocument()->NewElement("molecule");element->SetAttribute("x",x);element->SetAttribute("y",y);element->SetText(molXml.c_str());actions->InsertEndChild(element);
+    };
+
+    // (a) request captured at (0,0)/1.0x, then the user panned and zoomed; the turn must land on
+    // the viewport centre, not at the stale request origin.
+    reset();setView(Vec2(0,0),1,900,600);
+    ObjectId keep;require(s.doc.addText(Vec2(-420,260),12,"keep",&keep).ok(),"existing user caption fixture");s.refresh();
+    auto keepPosition=s.doc.texts().get(keep)->position;auto beforeDigest=s.doc.digest();
+    s.selected.clear();aiContext();
+    auto panned=s.view();panned.center=Vec2(150,-80);panned.scale=1.7;panned.viewportCenter=Vec2(320,220);s.setView(panned);
+    applyAI(resultXml([&](tinyxml2::XMLElement* actions){
+        moleculeAction(actions,0,0);
+        auto text=actions->GetDocument()->NewElement("add_text");text->SetAttribute("x",-60);text->SetAttribute("y",70);text->SetText("名称");actions->InsertEndChild(text);
+        auto arrow=actions->GetDocument()->NewElement("draw_arrow");arrow->SetAttribute("style","forward");arrow->SetAttribute("x",10);arrow->SetAttribute("y",110);arrow->SetAttribute("x2",170);arrow->SetAttribute("y2",110);actions->InsertEndChild(arrow);
+    }));
+    Vec2 target=s.view().toDocument(s.view().viewportCenter);
+    Box box=boundsOf(s.selected);
+    require(!box.empty(),"the AI turn inserted selectable content");
+    require(closeEnough((box.min.x+box.max.x)*.5,target.x)&&closeEnough((box.min.y+box.max.y)*.5,target.y),"molecule, caption and arrow are centred on the viewport centre after pan/zoom");
+    require(s.doc.texts().get(keep)->position==keepPosition,"existing user content is not moved by the centring");
+    require(std::abs(s.view().scale-1.7)<1e-9,"a fitting result never zooms the canvas");
+    require(s.undo().ok()&&s.doc.digest()==beforeDigest,"the centred AI turn is a single undo step");
+    require(s.undo(true).ok(),"redo restores the centred turn");
+    log<<"centred_after_pan=true\nexisting_untouched=true\nsingle_undo=true\n";
+
+    // (b) the reply also edits/moves the existing selection: only the new caption may be moved to
+    // the centre, the requested move of the user's structure must stay exactly as asked.
+    reset();setView(Vec2(-120,40),1.2,760,520);
+    ObjectId left,right,bond;require(s.doc.addAtom(Vec2(-160,40),6,&left).ok(),"selection fixture atom");require(s.doc.addAtom(Vec2(-130,40),6,&right).ok(),"selection fixture atom 2");require(s.doc.addBond(left,right,&bond).ok(),"selection fixture bond");s.refresh();
+    auto leftPosition=s.doc.atoms().get(left)->position;auto selectionDigest=s.doc.digest();
+    s.selected={ObjectRef(ObjectKind::Atom,left),ObjectRef(ObjectKind::Atom,right)};aiContext();
+    auto movedView=s.view();movedView.center=Vec2(60,-30);movedView.scale=1.4;s.setView(movedView);
+    applyAI("<result ok='true'><actions><move_selection dx='25' dy='-10'/><add_text x='0' y='0'>新标注</add_text></actions></result>");
+    require(s.doc.atoms().get(left)->position==leftPosition+Vec2(25,-10),"the requested move of the existing selection is applied exactly once");
+    target=s.view().toDocument(s.view().viewportCenter);box=boundsOf(s.selected);
+    require(!box.empty()&&closeEnough((box.min.x+box.max.x)*.5,target.x)&&closeEnough((box.min.y+box.max.y)*.5,target.y),"only the new caption is centred; the edited selection is not carried along");
+    require(s.undo().ok()&&s.doc.digest()==selectionDigest,"centring a caption on top of a selection edit stays one undo step");
+    log<<"selection_not_carried=true\n";
+
+    // (c) docked pane: the canvas is narrower and the view centre/scale changed between request
+    // and reply. The viewport centre must still be the anchor after the anamorphic resize.
+    reset();setView(Vec2(-60,30),1.35,520,420);
+    s.selected.clear();aiContext();
+    auto dockedView=s.view();dockedView.center=Vec2(90,55);dockedView.scale=0.7;dockedView.viewportCenter=Vec2(260,210);s.setView(dockedView);
+    auto dockedDigest=s.doc.digest();
+    applyAI(resultXml([&](tinyxml2::XMLElement* actions){moleculeAction(actions,40,-20);auto text=actions->GetDocument()->NewElement("add_text");text->SetAttribute("x",-30);text->SetAttribute("y",60);text->SetText("停靠后");actions->InsertEndChild(text);}));
+    target=s.view().toDocument(s.view().viewportCenter);
+    require(closeEnough(target.x,s.view().center.x)&&closeEnough(target.y,s.view().center.y),"the viewport centre is the document-space anchor");
+    box=boundsOf(s.selected);
+    require(!box.empty()&&closeEnough((box.min.x+box.max.x)*.5,target.x)&&closeEnough((box.min.y+box.max.y)*.5,target.y),"a docked/narrow canvas still centres the AI turn");
+    require(s.undo().ok()&&s.doc.digest()==dockedDigest,"the docked-canvas turn is one undo step");
+    log<<"docked_centre=true\n";
+
+    // (d) oversized result: it stays centred and is only shrunk enough to remain visible; the
+    // canvas is never zoomed in for a small result (asserted in (a)).
+    reset();setView(Vec2(0,0),1,300,220);
+    s.selected.clear();aiContext();
+    auto smallView=s.view();smallView.center=Vec2(-15,12);s.setView(smallView);
+    applyAI(resultXml([&](tinyxml2::XMLElement* actions){
+        auto path=actions->GetDocument()->NewElement("draw_path");path->SetAttribute("closed",false);
+        const double pts[][2]={{-220,-160},{220,-160},{220,160},{-220,160}};
+        for(const auto& pt:pts){auto point=path->GetDocument()->NewElement("point");point->SetAttribute("x",pt[0]+15);point->SetAttribute("y",pt[1]-12);path->InsertEndChild(point);}
+        actions->InsertEndChild(path);
+    }));
+    target=s.view().toDocument(s.view().viewportCenter);box=boundsOf(s.selected);
+    require(!box.empty()&&closeEnough((box.min.x+box.max.x)*.5,target.x)&&closeEnough((box.min.y+box.max.y)*.5,target.y),"an oversized result is still centred after adaptation");
+    require(s.view().scale<0.999,"an oversized result is shrunk just enough to stay visible");
+    log<<"oversized_centred=true\n";
+    reset();s.dirty=false;ai.storageOverride=previousStorage;
+    log<<"passed\n";
+    std::ofstream(dir+"/ai-ux-checks.json")<<"{\"passed\":true,\"banner_visible\":true,\"config_route\":true,\"half_config\":true,\"banner_hides\":true,\"send_prompts\":true,\"narrow_visible\":true,\"docked_visible\":true,\"centred_after_pan\":true,\"existing_untouched\":true,\"selection_not_carried\":true,\"docked_centre\":true,\"oversized_centred\":true,\"single_undo\":true}";
+}

@@ -7,6 +7,13 @@ struct AiWindow {
     // blitted per paint; GDI+ repainting the whole client for a 40x20 update cost ~90 ms.
     HDC bgMem=nullptr;HBITMAP bgDib=nullptr;HGDIOBJ bgOld=nullptr;int bgW=0,bgH=0;bool bgValid=false;int bgLanguage=-1;
     HWND hwnd=0,owner=0;HFONT font=0;bool imageTemporary=false;std::string apiStatus="尚未测试连接";float dockScale=1;bool docked=false;RECT floating={0,0,0,0};
+    // Task 7: when the API is incomplete (address, model or key missing - the key may live
+    // encrypted in credential.bin and is read through load()/get()), a warning bar above the
+    // chat explains that and a 配置 API button jumps straight to 设置 → AI 与 API. The bar is a
+    // STATIC control with its own background brush, so it also reads as a bar when the pane is
+    // docked or narrow; the button is a native push button and stays focusable.
+    bool configPromptVisible=false,configurationAlert=false;
+    static const int configMessageId=727,configButtonId=728;
     std::function<void()> openSettings,dockChanged,configurationChanged;
     HANDLE process=0,job=0;
     std::wstring directory,resultPath,storageOverride,imagePath,screenshotPath;std::string lastProgress,pendingPrompt,imageName,imageMime;bool testMode=false,modelsMode=false,pluginLogged=false;
@@ -21,6 +28,20 @@ struct AiWindow {
     static std::wstring controlText(HWND h){int n=studio_i18n::getWindowTextLength(h);std::wstring v(size_t(n)+1,L'\0');studio_i18n::getWindowText(h,&v[0],n+1);v.resize(n);return v;}
     std::string get(int id)const{return U(controlText(GetDlgItem(hwnd,id)));}
     void set(int id,const std::string& value){if(id==710&&value.empty())chat.clear();studio_i18n::setDlgItemText(hwnd,id,W(value).c_str());}
+    static std::string trimmed(const std::string& value){size_t begin=0,end=value.size();while(begin<end&&(unsigned char)value[begin]<=' ')++begin;while(end>begin&&(unsigned char)value[end-1]<=' ')--end;return value.substr(begin,end-begin);}
+    // An incomplete configuration is any of address / model / key blank. The model combo
+    // defaults to "auto" (a valid request value) so the usual first-run state is "key missing".
+    bool configurationComplete()const{if(!IsWindow(hwnd))return false;return !trimmed(get(702)).empty()&&!trimmed(get(704)).empty()&&!trimmed(get(706)).empty();}
+    void refreshConfiguration(bool relayout=false){
+        bool missing=!IsWindow(hwnd)||!configurationComplete();
+        bool changed=missing!=configPromptVisible;
+        configPromptVisible=missing;if(!missing)configurationAlert=false;
+        if(!IsWindow(hwnd))return;
+        ShowWindow(GetDlgItem(hwnd,configMessageId),missing?SW_SHOWNA:SW_HIDE);
+        auto button=GetDlgItem(hwnd,configButtonId);
+        ShowWindow(button,missing?SW_SHOWNA:SW_HIDE);EnableWindow(button,missing?TRUE:FALSE);
+        if(changed||relayout)layout();
+    }
     void syncImageStatus(){if(!IsWindow(hwnd))return;set(709,imagePath.empty()?"绘图风格可在 设置 → AI 预设 中修改 · Ctrl+Enter 发送":"已附加图片："+imageName);}
     void clearImage(){if(imageTemporary&&!imagePath.empty())DeleteFileW(imagePath.c_str());imageTemporary=false;imagePath.clear();imageMime.clear();imageName.clear();syncImageStatus();}
     void chooseImage(){
@@ -76,6 +97,7 @@ struct AiWindow {
     void load(){
         if(storageOverride.empty()){wchar_t local[32768]={};GetEnvironmentVariableW(L"LOCALAPPDATA",local,32768);directory=std::wstring(local)+L"\\MoleculeStudio";CreateDirectoryW(directory.c_str(),0);directory+=L"\\AI";}else directory=storageOverride;CreateDirectoryW(directory.c_str(),0);
         try{tinyxml2::XMLDocument xml;auto bytes=chemservice::read(directory+L"\\settings.xml");if(xml.Parse(bytes.c_str())==tinyxml2::XML_SUCCESS)if(auto root=xml.RootElement()){if(auto p=root->FirstChildElement("preset")){if(p->GetText()&&strlen(p->GetText())<=24000)preset=p->GetText();if(preset==legacyDefaultPreset())preset=defaultPreset();}if(auto e=root->Attribute("endpoint"))set(702,e);if(auto m=root->Attribute("model"))set(704,m);if(root->BoolAttribute("remember")){auto key=protect(chemservice::read(directory+L"\\credential.bin"),false);set(706,key);SecureZeroMemory(&key[0],key.size());CheckDlgButton(hwnd,707,BST_CHECKED);}if(root->BoolAttribute("advanced"))CheckDlgButton(hwnd,725,BST_CHECKED);}}catch(const std::exception&){}
+        refreshConfiguration();
     }
     void save(){
         bool remember=IsDlgButtonChecked(hwnd,707)==BST_CHECKED;tinyxml2::XMLDocument xml;auto root=xml.NewElement("ai");root->SetAttribute("endpoint",get(702).c_str());root->SetAttribute("model",get(704).c_str());root->SetAttribute("remember",remember);root->SetAttribute("advanced",IsDlgButtonChecked(hwnd,725)==BST_CHECKED);auto preferences=xml.NewElement("preset");preferences->SetText(preset.c_str());root->InsertEndChild(preferences);xml.InsertEndChild(root);tinyxml2::XMLPrinter p;xml.Print(&p);chemservice::write(directory+L"\\settings.xml",p.CStr());
@@ -96,6 +118,15 @@ struct AiWindow {
     }
     void start(bool testing,bool fetchingModels=false){
         if(process)return;
+        // Pressing 发送并绘制 / 测试连接 with an incomplete configuration must not leave only
+        // one line of status text: surface the same bar as the passive state and put keyboard
+        // focus on 配置 API so the user can go straight to the setting. The detailed error
+        // ("请先填写 API Key" ...) is still produced below and still does not crash.
+        if(!configurationComplete()){
+            configurationAlert=true;configPromptVisible=true;
+            if(IsWindow(hwnd)){layout();auto button=GetDlgItem(hwnd,configButtonId);if(button)SetFocus(button);}
+            log("尚未配置 AI 助手 API，配置后才能生成结构。点击“配置 API”前往设置。");
+        }
         if(testing)apiStatus=fetchingModels?"正在获取模型…":"正在测试连接…";
         try{
             if(get(706).empty())throw std::runtime_error("请先填写 API Key");
@@ -157,7 +188,16 @@ struct AiWindow {
         int m=px(10);bool compact=h<px(420);int header=px(68),promptH=px(compact?54:70),promptY=h-px(compact?144:164);bool narrow=w<px(430);if(narrow)promptY-=px(28);
         move(720,w-m-px(176),px(8),px(52),px(28));move(726,w-m-px(120),px(8),px(64),px(28));move(722,w-m-px(52),px(8),px(52),px(28));
         move(721,w-m-px(82),px(38),px(82),px(24));move(723,m,px(39),w-2*m-px(90),px(22));
-        chat.scale=scale;move(730,m,header,w-2*m,std::max(px(30),promptY-header-px(26)));move(710,m,header,w-2*m,std::max(px(30),promptY-header-px(26)));ShowWindow(GetDlgItem(hwnd,710),SW_HIDE);
+        // Task 7 banner. It lives between the header and the transcript so it is the first
+        // thing read, and it is laid out from the client width: docked (dockScale), floating,
+        // and narrow layouts all keep the button inside the visible area.
+        int configH=configPromptVisible?px(34):0;
+        move(configMessageId,m,header+px(4),std::max(px(40),w-2*m-px(96)),px(26));
+        move(configButtonId,w-m-px(88),header+px(4),px(88),px(26));
+        ShowWindow(GetDlgItem(hwnd,configMessageId),configPromptVisible?SW_SHOWNA:SW_HIDE);
+        ShowWindow(GetDlgItem(hwnd,configButtonId),configPromptVisible?SW_SHOWNA:SW_HIDE);
+        int contentTop=header+configH;
+        chat.scale=scale;move(730,m,contentTop,w-2*m,std::max(px(30),promptY-contentTop-px(26)));move(710,m,contentTop,w-2*m,std::max(px(30),promptY-contentTop-px(26)));ShowWindow(GetDlgItem(hwnd,710),SW_HIDE);
         move(709,m,promptY-px(23),w-2*m,px(20));move(711,m,promptY,w-2*m,promptH);
         int attach=promptY+promptH+px(4);move(719,m,attach,px(86),px(24));move(725,m+px(90),attach,px(150),px(24));move(717,m+px(244),attach,px(48),px(24));move(724,m+px(296),attach,px(66),px(24));move(718,m+px(366),attach,px(44),px(24));
         if(narrow){move(717,m,attach+px(28),px(48),px(24));move(724,m+px(54),attach+px(28),px(66),px(24));move(718,m+px(126),attach+px(28),px(44),px(24));}
@@ -205,17 +245,24 @@ struct AiWindow {
         case WM_GETMINMAXINFO:{auto info=(MINMAXINFO*)l;UINT dpi=GetDpiForWindow(h);info->ptMinTrackSize={MulDiv(420,dpi?dpi:96,96),MulDiv(480,dpi?dpi:96,96)};return 0;}
         case WM_DPICHANGED:{if(!self->docked){auto r=(RECT*)l;SetWindowPos(h,0,r->left,r->top,r->right-r->left,r->bottom-r->top,SWP_NOZORDER|SWP_NOACTIVATE);}self->updateFont();self->layout();return 0;}
         case WM_COMMAND:{int id=LOWORD(w);
-            if(id==702&&HIWORD(w)==EN_CHANGE){auto current=self->get(704);studio_i18n::sendDlgItemMessage(h,704,CB_RESETCONTENT,0,0);studio_i18n::sendDlgItemMessage(h,704,CB_ADDSTRING,0,(LPARAM)L"auto");self->set(704,current.empty()?"auto":current);}
+            if(id==702&&HIWORD(w)==EN_CHANGE){auto current=self->get(704);studio_i18n::sendDlgItemMessage(h,704,CB_RESETCONTENT,0,0);studio_i18n::sendDlgItemMessage(h,704,CB_ADDSTRING,0,(LPARAM)L"auto");self->set(704,current.empty()?"auto":current);self->refreshConfiguration();}
+            else if(id==706&&HIWORD(w)==EN_CHANGE)self->refreshConfiguration();
+            else if(id==704&&(HIWORD(w)==CBN_EDITCHANGE||HIWORD(w)==CBN_SELCHANGE))self->refreshConfiguration();
+            else if(id==configButtonId){self->configurationAlert=false;self->refreshConfiguration(true);if(self->openSettings)self->openSettings();}
             else if(id==720){if(self->openSettings)self->openSettings();}else if(id==725){if(IsDlgButtonChecked(h,725)==BST_CHECKED){int answer=studio_i18n::messageBox(h,L"高级绘图通过多轮规划与校验，处理更复杂的绘图任务。\n\n· 完成时间更长，具体取决于任务复杂度\n· token 消耗高于普通绘图\n· 使用当前 AI 设置里的服务和模型\n\n是否启用？",L"高级绘图",MB_YESNO|MB_ICONWARNING|MB_DEFBUTTON2);if(answer!=IDYES)CheckDlgButton(h,725,BST_UNCHECKED);}try{self->save();}catch(...){}}
             else if(id==726){if(!self->paneLocked&&!self->docked)self->toggleDock();self->paneLocked=!self->paneLocked;self->set(726,self->paneLocked?"已固定":"固定");self->layout();}
             else if(id==721)self->toggleDock();else if(id==722||id==IDCANCEL)self->hide();
             else if(id==716)self->start(true,true);else if(id==712)self->start(false);else if(id==708)self->start(true);else if(id==713)self->stop();else if(id==724)self->pasteImage();else if(id==717)self->chooseImage();else if(id==718)self->clearImage();
             else if(id==714){self->history.clear();self->set(710,"");self->clearImage();self->log("新对话\n描述结构、反应条件或排版要求，也可以上传图片作为参考。");}return 0;}
+        // Settings saves write the AI controls directly (WM_SETTEXT does not raise EN_CHANGE),
+        // so re-evaluate the banner whenever the pane is activated or shown again.
+        case WM_ACTIVATE:case WM_SHOWWINDOW:self->refreshConfiguration();return 0;
         case WM_TIMER:self->poll();return 0;case WM_CLOSE:self->hide();return 0;
         case WM_DESTROY:self->stop(false);self->hwnd=0;return 0;
         case WM_ERASEBKGND:return 1;case WM_PAINT:self->paint();return 0;
         case WM_DRAWITEM:if(studio_ui::button((DRAWITEMSTRUCT*)l,LOWORD(w)==712,false,self->docked?self->dockScale:GetDpiForWindow(h)/96.f))return TRUE;break;
-        case WM_CTLCOLORSTATIC:case WM_CTLCOLORBTN:{SetTextColor((HDC)w,RGB(105,121,133));SetBkColor((HDC)w,RGB(245,248,249));static HBRUSH bg=CreateSolidBrush(RGB(245,248,249));return (LRESULT)bg;}
+        case WM_CTLCOLORSTATIC:{auto control=(HWND)l;if(control&&GetDlgCtrlID(control)==configMessageId){SetTextColor((HDC)w,self->configurationAlert?RGB(176,32,32):RGB(133,84,16));auto color=self->configurationAlert?RGB(255,232,226):RGB(255,246,226);SetBkColor((HDC)w,color);static HBRUSH alert=CreateSolidBrush(RGB(255,232,226)),calm=CreateSolidBrush(RGB(255,246,226));return (LRESULT)(self->configurationAlert?alert:calm);}SetTextColor((HDC)w,RGB(105,121,133));SetBkColor((HDC)w,RGB(245,248,249));static HBRUSH bg=CreateSolidBrush(RGB(245,248,249));return (LRESULT)bg;}
+        case WM_CTLCOLORBTN:{SetTextColor((HDC)w,RGB(105,121,133));SetBkColor((HDC)w,RGB(245,248,249));static HBRUSH bg=CreateSolidBrush(RGB(245,248,249));return (LRESULT)bg;}
         }
         return DefWindowProcW(h,m,w,l);
     }
@@ -235,8 +282,11 @@ struct AiWindow {
         child(L"RICHEDIT50W",L"",ES_MULTILINE|ES_READONLY|ES_AUTOVSCROLL|WS_VSCROLL,710);child(L"RICHEDIT50W",L"",WS_TABSTOP|ES_MULTILINE|ES_AUTOVSCROLL|ES_WANTRETURN|WS_VSCROLL,711);
         child(L"BUTTON",L"发送并绘制",WS_TABSTOP|BS_OWNERDRAW,712);child(L"BUTTON",L"取消",WS_TABSTOP|BS_OWNERDRAW,713);child(L"BUTTON",L"新对话",WS_TABSTOP|BS_OWNERDRAW,714);child(L"BUTTON",L"上传",WS_TABSTOP|BS_OWNERDRAW,717);child(L"BUTTON",L"粘贴图片",WS_TABSTOP|BS_OWNERDRAW,724);child(L"BUTTON",L"清除",WS_TABSTOP|BS_OWNERDRAW,718);child(L"STATIC",L"",0,715);
         chat.create(hwnd,730);child(L"BUTTON",L"固定",WS_TABSTOP|BS_OWNERDRAW,726);child(L"BUTTON",L"设置",WS_TABSTOP|BS_OWNERDRAW,720);child(L"BUTTON",L"停靠右侧",WS_TABSTOP|BS_OWNERDRAW,721);child(L"BUTTON",L"收起",WS_TABSTOP|BS_OWNERDRAW,722);child(L"STATIC",L"模型 · auto",0,723);
+        // Task 7: passive warning + one-click route to 设置 → AI 与 API. IDs 727/728 were unused
+        // by the AI pane (701-708/716 are the hidden API fields, 709-726 the visible chrome).
+        child(L"STATIC",L"尚未配置 AI 助手 API，配置后才能生成结构",SS_CENTERIMAGE|SS_ENDELLIPSIS,configMessageId);child(L"BUTTON",L"配置 API",WS_TABSTOP|BS_PUSHBUTTON,configButtonId);
         SetWindowSubclass(GetDlgItem(hwnd,711),promptProc,1,(DWORD_PTR)this);studio_i18n::sendDlgItemMessage(hwnd,706,EM_SETLIMITTEXT,512,0);studio_i18n::sendDlgItemMessage(hwnd,711,EM_EXLIMITTEXT,0,6000);studio_i18n::sendDlgItemMessage(hwnd,710,EM_EXLIMITTEXT,0,200000);
-        updateFont();load();layout();busy(false);CheckDlgButton(hwnd,719,BST_CHECKED);syncImageStatus();
+        updateFont();load();layout();busy(false);CheckDlgButton(hwnd,719,BST_CHECKED);syncImageStatus();refreshConfiguration();
         log("从一个想法开始\n\n绘制分子与反应式、整理多步流程，或按元素修改画布。\n例如：画出阿司匹林，在结构下方添加名称。\n\nAPI 与模型可在右上角“设置”中配置。");
         }
         if(!prompt.empty())set(711,prompt);
