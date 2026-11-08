@@ -40,4 +40,4 @@
 - 原 Core 同时带 `python/`（CPython 3.12）与 `chemistry_python/`（CPython 3.10 + RDKit/torch）两个解释器，AI 助手与化学后端各用一个，rdkit/PIL 等依赖被重复安装。
 - 验证 `chemistry_python` 已包含 AI 所需全部依赖（rdkit 2024.09.6、PIL 12.3、pypdfium2、nispo 路径）后，`chemistry_backend.ini` 的 `Python` 与 `ChemistryPython` 统一指向 `chemistry_python\python.exe`，从 Core 包中彻底移除 `python/`。
 - 结果：Core 解压减少约 338 MB，压缩包从 1,256.9 MB 降到 1,115.2 MB；合并 AI/OCSR 后四组件安装自检全绿，AI 脚本在 3.10 运行时导入/运行正常。
-- 2026-11-08 二次打包（主程序修复中文路径 + 安装器内置哈希刷新）后压缩包为 1,115,231,537 B（1.04 GB），解压体积不变。
+- 2026-11-08 二次打包（主程序修复中文路径 + 安装器内置哈希刷新）后压缩包为 1,115,233,626 B（1.04 GB），解压体积不变。

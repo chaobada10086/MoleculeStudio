@@ -86,8 +86,16 @@ struct AiWindow {
         CHARFORMAT2W fmt={};fmt.cbSize=sizeof(fmt);fmt.dwMask=CFM_COLOR|CFM_BOLD;fmt.crTextColor=text.find("你：")==0?RGB(24,117,112):RGB(48,64,76);fmt.dwEffects=text.find("你：")==0?CFE_BOLD:0;
         studio_i18n::sendMessage(box,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&fmt);studio_i18n::sendMessage(box,EM_REPLACESEL,FALSE,(LPARAM)value.c_str());studio_i18n::sendMessage(box,EM_SCROLLCARET,0,0);
     }
+    static bool dshAvailable(){
+        wchar_t exe[32768]={};GetModuleFileNameW(0,exe,32768);std::wstring dir=exe;auto slash=dir.find_last_of(L"\\/");if(slash!=std::wstring::npos)dir=dir.substr(0,slash);
+        return GetFileAttributesW((dir+L"\\ai_dsh.py").c_str())!=INVALID_FILE_ATTRIBUTES
+            && GetFileAttributesW((dir+L"\\dsh_proxy.py").c_str())!=INVALID_FILE_ATTRIBUTES
+            && GetFileAttributesW((dir+L"\\ai\\node.exe").c_str())!=INVALID_FILE_ATTRIBUTES;
+    }
+    void syncAdvanced(bool running){auto advanced=GetDlgItem(hwnd,725);if(!advanced)return;if(!dshAvailable()){CheckDlgButton(hwnd,725,BST_UNCHECKED);EnableWindow(advanced,FALSE);}else EnableWindow(advanced,!running);}
     void busy(bool running){
         for(int id:{702,704,706,707,708,712,714,716,717,718,719,724,725})EnableWindow(GetDlgItem(hwnd,id),!running);
+        syncAdvanced(running);
         EnableWindow(GetDlgItem(hwnd,713),running);set(712,running?"正在绘制…":"发送并绘制");
         set(715,running?"正在处理 · 你可以继续查看画布":"就绪 · 本轮绘图可按 Ctrl+Z 撤销");
         set(723,"模型 · "+get(704));if(configurationChanged)configurationChanged();
@@ -288,6 +296,7 @@ struct AiWindow {
         SetWindowSubclass(GetDlgItem(hwnd,711),promptProc,1,(DWORD_PTR)this);studio_i18n::sendDlgItemMessage(hwnd,706,EM_SETLIMITTEXT,512,0);studio_i18n::sendDlgItemMessage(hwnd,711,EM_EXLIMITTEXT,0,6000);studio_i18n::sendDlgItemMessage(hwnd,710,EM_EXLIMITTEXT,0,200000);
         updateFont();load();layout();busy(false);CheckDlgButton(hwnd,719,BST_CHECKED);syncImageStatus();refreshConfiguration();
         log("从一个想法开始\n\n绘制分子与反应式、整理多步流程，或按元素修改画布。\n例如：画出阿司匹林，在结构下方添加名称。\n\nAPI 与模型可在右上角“设置”中配置。");
+        if(!dshAvailable())log("\n提示：未安装 AI 高级，高级绘图不可用；基础对话与绘图不受影响。");
         }
         if(!prompt.empty())set(711,prompt);
         if(reveal){ShowWindow(hwnd,docked?SW_SHOW:SW_SHOWNORMAL);if(dockChanged)dockChanged();if(!docked)SetForegroundWindow(hwnd);SetFocus(GetDlgItem(hwnd,711));}

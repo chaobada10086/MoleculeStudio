@@ -62,7 +62,7 @@ class OnlineInstaller {
   string ocsrName="MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip";
   return new[]{
    BuiltinPackage("Core","0.95-20261108",coreName,
-    "fc57187a45dc1b45cbcc17ca2741312dedab5c8fa968c483c37a476550287c71",1115231537L,
+    "58a1354cac26f5c863a79fab0e710888f264c8d23facaa16a9dab11a4754769b",1115233626L,
     ReleaseBase+"v0.9.6.0.0/"+coreName,true,null),
    BuiltinPackage("AIBasic","0.95-20261108",basicName,
     "c47ab5d456143342ca9efedd8535a0a7270fab13706a22be308cdb14e48ace78",75242L,

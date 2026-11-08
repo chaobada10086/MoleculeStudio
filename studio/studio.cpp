@@ -220,6 +220,12 @@ static bool aiFolderAvailable(){
     DWORD attr=GetFileAttributesW(dir.c_str());
     return attr!=INVALID_FILE_ATTRIBUTES&&(attr&FILE_ATTRIBUTE_DIRECTORY);
 }
+// The in-app assistant needs the AI 基础 bridge (ai_assistant.py) plus a Python
+// runtime; the DSH folder is optional and only powers advanced drawing. Requiring
+// the DSH folder here hid the whole AI tab on "Core + AI 基础" installs.
+static bool aiAssistantAvailable(){
+    return fileExists(executableDirectory()+L"\\ai_assistant.py")||aiFolderAvailable();
+}
 // The AI assistant runs on the Python interpreter named by chemistry_backend.ini
 // (after the single-runtime migration that is chemistry_python\python.exe). The
 // old check for a separate python\python.exe hid "开始 AI 绘图" on every install
@@ -247,7 +253,7 @@ static bool aiDrawingAvailable(){
     return aiFolderAvailable()&&!backendPythonPath().empty()&&fileExists(executableDirectory()+L"\\ai_plugins\\plugin.xml");
 }
 static bool aiRecognitionAvailable(){
-    return aiFolderAvailable()&&ocsrRuntimeAvailable();
+    return aiAssistantAvailable()&&ocsrRuntimeAvailable();
 }
 struct App : TextEditHost {
     void textEditChanged()override;void textEditSelectionChanged()override;void textEditCompositionChanged(bool on)override;void textEditFinishing()override;
@@ -330,10 +336,10 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
             groups.erase(std::remove_if(groups.begin(),groups.end(),[](const Group& g){return g.items.empty();}),groups.end());
         }
         for(auto& group:aiGroups){
-            if(!aiFolderAvailable())group.items.erase(std::remove_if(group.items.begin(),group.items.end(),[](const Button& b){return b.id=="ai.open"||b.id=="ai.example"||b.id=="ai.settings"||b.id=="ai.ocsr";}),group.items.end());
+            if(!aiAssistantAvailable())group.items.erase(std::remove_if(group.items.begin(),group.items.end(),[](const Button& b){return b.id=="ai.open"||b.id=="ai.example"||b.id=="ai.settings"||b.id=="ai.ocsr";}),group.items.end());
             else{
                 if(!aiRecognitionAvailable())group.items.erase(std::remove_if(group.items.begin(),group.items.end(),[](const Button& b){return b.id=="ai.ocsr";}),group.items.end());
-                if(!aiDrawingAvailable())group.items.erase(std::remove_if(group.items.begin(),group.items.end(),[](const Button& b){return b.id=="ai.open"||b.id=="ai.example";}),group.items.end());
+                if(!aiDrawingAvailable())group.items.erase(std::remove_if(group.items.begin(),group.items.end(),[](const Button& b){return b.id=="ai.example";}),group.items.end());
             }
         }
         aiGroups.erase(std::remove_if(aiGroups.begin(),aiGroups.end(),[](const Group& g){return g.items.empty();}),aiGroups.end());
@@ -355,7 +361,7 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
     void showRibbonGroup(size_t index){if(index>=visibleGroups().size())return;auto group=visibleGroups()[index];for(auto& b:group.items)if(b.cmd=="@addCustomTemplate")b.enabled=!s.selected.empty();for(size_t i=0,n=group.items.size();i<n;++i)if(group.items[i].cmd=="chooseTLCPlateTool")group.items.insert(group.items.begin()+i+1,Button("tlcSetup","薄层板点样设置…","table","@tlcMenu"));HMENU menu=CreatePopupMenu();for(size_t i=0;i<group.items.size();i++){const auto& item=group.items[i];auto title=W(item.label);auto shortcut=shortcutFor(item);if(!shortcut.empty())title+=L"\t"+W(shortcut);studio_i18n::appendMenu(menu,MF_STRING|(item.enabled?0:MF_GRAYED),UINT_PTR(i+1),title.c_str());}POINT at={int(group.r.X*scale),int(group.r.GetBottom()*scale)};ClientToScreen(h,&at);int result=TrackPopupMenu(menu,TPM_RETURNCMD|TPM_LEFTALIGN,at.x,at.y,0,h,nullptr);DestroyMenu(menu);if(result>0&&size_t(result)<=group.items.size())execute(group.items[size_t(result)-1]);}
 
     std::vector<Group> graphicsGroups=makeExpandedTools(false),textGroups=makeExpandedTools(true),aiGroups=makeAITools(),tableGroups=makeTableTools(),templateGroups=makeTemplateTools();
-    std::vector<Button> ribbonTabs={Button("tabHome","开始","","@tab",0),Button("tabGraphics","图形","","@tab",1),Button("tabText","文字","","@tab",2),Button("tabAI","AI","","@tab",3),Button("tabTable","表格","","@tab",4),Button("tabTemplates","模板","","@tab",5)};bool aiTabVisible=aiFolderAvailable();
+    std::vector<Button> ribbonTabs={Button("tabHome","开始","","@tab",0),Button("tabGraphics","图形","","@tab",1),Button("tabText","文字","","@tab",2),Button("tabAI","AI","","@tab",3),Button("tabTable","表格","","@tab",4),Button("tabTemplates","模板","","@tab",5)};bool aiTabVisible=aiAssistantAvailable();
     std::vector<Group>& visibleGroups(){return ribbonTab==1?graphicsGroups:ribbonTab==2?textGroups:ribbonTab==3?aiGroups:ribbonTab==4?tableGroups:ribbonTab==5?templateGroups:groups;}
     const std::vector<Group>& visibleGroups()const{return ribbonTab==1?graphicsGroups:ribbonTab==2?textGroups:ribbonTab==3?aiGroups:ribbonTab==4?tableGroups:ribbonTab==5?templateGroups:groups;}
     void switchTab(int tab){expandPending=false;if(tab==3&&!aiTabVisible)return;if(textEditor.active&&!finishText(true))return;if(tab<0||size_t(tab)>=ribbonTabs.size()||(tab==ribbonTab&&ribbonVisible))return;ribbonVisible=true;ribbonTab=tab;hover.clear();layout();invalidate();}
