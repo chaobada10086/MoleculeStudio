@@ -9,8 +9,11 @@ inline Color teal(){return Color(255,24,117,112);}
 inline Color ink(){return Color(255,34,48,59);}
 inline Color muted(){return Color(255,105,121,133);}
 inline Color background(){return Color(255,245,248,249);}
+inline void roundPath(GraphicsPath& path,RectF r,float radius){
+    float d=radius*2;path.AddArc(r.X,r.Y,d,d,180,90);path.AddArc(r.GetRight()-d,r.Y,d,d,270,90);path.AddArc(r.GetRight()-d,r.GetBottom()-d,d,d,0,90);path.AddArc(r.X,r.GetBottom()-d,d,d,90,90);path.CloseFigure();
+}
 inline void round(Graphics& g,RectF r,float radius,Color fill){
-    GraphicsPath path;float d=radius*2;path.AddArc(r.X,r.Y,d,d,180,90);path.AddArc(r.GetRight()-d,r.Y,d,d,270,90);path.AddArc(r.GetRight()-d,r.GetBottom()-d,d,d,0,90);path.AddArc(r.X,r.GetBottom()-d,d,d,90,90);path.CloseFigure();SolidBrush brush(fill);g.FillPath(&brush,&path);
+    GraphicsPath path;roundPath(path,r,radius);SolidBrush brush(fill);g.FillPath(&brush,&path);
 }
 inline void label(Graphics& g,const std::wstring& text,RectF r,float size,Color color,bool bold=false,bool center=false){
     if(!g.IsVisible(r))return;Font* f=cachedFont(size,bold);SolidBrush b(color);StringFormat format;format.SetFormatFlags(StringFormatFlagsNoWrap|(studio_i18n::rtl()?StringFormatFlagsDirectionRightToLeft:0));format.SetLineAlignment(StringAlignmentCenter);format.SetTrimming(StringTrimmingEllipsisCharacter);if(studio_i18n::rtl())format.SetAlignment(StringAlignmentFar);if(center)format.SetAlignment(StringAlignmentCenter);auto localized=studio_i18n::tr(text);g.DrawString(localized.c_str(),int(localized.size()),f,r,&format,&b);
@@ -19,9 +22,14 @@ inline bool button(DRAWITEMSTRUCT* item,bool primary=false,bool selected=false,f
     if(item->CtlType!=ODT_BUTTON)return false;Graphics g(item->hDC);g.SetSmoothingMode(SmoothingModeAntiAlias);g.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);
     float dpi=customScale>0?customScale:GetDpiForWindow(item->hwndItem)/96.f;RectF r(0,0,float(item->rcItem.right),float(item->rcItem.bottom));SolidBrush bg(background());g.FillRectangle(&bg,r);
     bool disabled=(item->itemState&ODS_DISABLED)!=0,pressed=(item->itemState&ODS_SELECTED)!=0;
-    Color fill=primary?teal():selected?Color(255,225,241,239):Color(255,255,255,255);
-    if(pressed)fill=Color(255,207,229,226);if(disabled)fill=Color(255,232,237,239);
-    round(g,RectF(1,1,r.Width-2,r.Height-2),6*dpi,fill);
+    // Secondary buttons must read as buttons, not as plain text: give them a tinted
+    // surface and a visible outline on the white settings pages.
+    Color fill=primary?teal():selected?Color(255,225,241,239):Color(255,232,241,238);
+    Color border=primary?Color(255,15,94,84):Color(255,186,207,201);
+    if(pressed)fill=Color(255,207,229,226);if(disabled){fill=Color(255,232,237,239);border=Color(255,214,224,220);}
+    GraphicsPath shape;roundPath(shape,RectF(1,1,r.Width-2,r.Height-2),6*dpi);
+    SolidBrush brush(fill);g.FillPath(&brush,&shape);
+    Pen outline(border,1*dpi);g.DrawPath(&outline,&shape);
     int n=studio_i18n::getWindowTextLength(item->hwndItem);std::wstring value(size_t(n)+1,0);studio_i18n::getWindowText(item->hwndItem,&value[0],n+1);value.resize(n);
     float size=12*dpi;auto localized=studio_i18n::tr(value);RectF bounds;StringFormat measure;measure.SetFormatFlags(StringFormatFlagsNoWrap);
     g.MeasureString(localized.c_str(),int(localized.size()),cachedFont(size,primary||selected),PointF(0,0),&measure,&bounds);

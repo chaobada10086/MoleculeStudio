@@ -434,7 +434,14 @@ private:
         pythonPath = runtimeDir + L"\\venv\\Scripts\\python.exe";
         scriptPath = appDir + L"\\ocsr_service.py";
         modelsDir = runtimeDir + L"\\models";
-        cacheDir = appDir + L"\\OCSRCache";
+        // OpenCV (inside MolScribe) cannot read image files under non-ASCII paths on
+        // Windows, so model input must live in an ASCII temp directory. Keep records
+        // next to the application so the user can find review artifacts.
+        wchar_t temporary[32768]{};
+        DWORD temporaryLength = GetTempPathW(32768, temporary);
+        cacheDir = (temporaryLength && temporaryLength < 32768)
+                       ? std::wstring(temporary, temporaryLength) + L"MoleculeStudio-OCSR-cache"
+                       : appDir + L"\\OCSRCache";
         recordsDir = appDir + L"\\recognition_records";
     }
 

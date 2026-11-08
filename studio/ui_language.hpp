@@ -27,6 +27,7 @@
 #include <vector>
 #include <cwctype>
 namespace studio_i18n {
+#include "ui_language_extra.hpp"
 inline std::wstring& pathOverride(){static std::wstring p;return p;}
 inline std::wstring path(){if(!pathOverride().empty())return pathOverride();wchar_t p[32768]={};GetModuleFileNameW(0,p,32768);std::wstring s=p;return s.substr(0,s.find_last_of(L"\\/"))+L"\\interface.ini";}
 inline const wchar_t* code(int i){static const wchar_t* v[]={L"zh-CN",L"zh-TW",L"en",L"ja",L"ko",L"fr",L"de",L"es",L"ru",L"pt",L"it",L"ar",L"hi",L"id",L"vi"};return v[i>=0&&i<15?i:0];}
@@ -2501,10 +2502,11 @@ L"谱图与标注结构 (PNG)\037光譜與標註結構 (PNG)\037Spectrum and lab
 L"高清 PNG (*.png)\037高解析度 PNG (*.png)\037High-resolution PNG (*.png)\037高解像度 PNG (*.png)\037고해상도 PNG (*.png)\037Haute résolution PNG (*.png)\037Hohe Auflösung PNG (*.png)\037Alta resolución PNG (*.png)\037Высокое разрешение PNG (*.png)\037Alta resolução PNG (*.png)\037Alta risoluzione PNG (*.png)\037دقة عالية PNG (*.png)\037उच्च रिज़ॉल्यूशन PNG (*.png)\037Resolusi tinggi PNG (*.png)\037Độ phân giải cao PNG (*.png)\036";return data;}
 inline const std::map<std::wstring,Row>& catalog(){
  static const std::map<std::wstring,Row> data=[](){
-  static std::vector<std::vector<std::wstring>> storage;
-  const wchar_t* p=translationBlob();const wchar_t* start=p;std::vector<std::wstring> fields;
-  for(;*p;++p){if(*p==0x1f||*p==0x1e){fields.emplace_back(start,p);start=p+1;if(*p==0x1e){storage.push_back(std::move(fields));fields.clear();}}}
-  std::map<std::wstring,Row> result;for(auto& values:storage){if(values.size()!=15)continue;Row row={};for(int i=0;i<15;++i)row.text[i]=values[i].c_str();result.emplace(values[0],row);}return result;
+  static std::vector<std::vector<std::wstring>> storage;std::map<std::wstring,Row> result;
+  auto parse=[&](const wchar_t* blob){const wchar_t* p=blob;const wchar_t* start=p;std::vector<std::wstring> fields;
+   for(;*p;++p){if(*p==0x1f||*p==0x1e){fields.emplace_back(start,p);start=p+1;if(*p==0x1e){storage.push_back(std::move(fields));fields.clear();}}}};
+  parse(extraTranslationBlob());parse(translationBlob());
+  for(auto& values:storage){if(values.size()!=15)continue;Row row={};for(int i=0;i<15;++i)row.text[i]=values[i].c_str();result.emplace(values[0],row);}return result;
  }();return data;
 }
 

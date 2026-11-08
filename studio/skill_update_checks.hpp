@@ -36,6 +36,12 @@ void App::skillUpdateCheck(const std::string& dir){
     require(sw.category==8,"update page can be selected");
     require(IsWindowVisible(GetDlgItem(sw.hwnd,928)),"updater button visible on its own page");
     require(insideClient(928)&&insideClient(983)&&insideClient(984),"update page controls stay inside small windows");
+    {wchar_t cls[32]={};GetClassNameW(GetDlgItem(sw.hwnd,984),cls,32);require(_wcsicmp(cls,L"BUTTON")==0,"update page skill export is a button");}
+    std::wstring target2=base+L"\\skill-export-page8";skillexport::removeTree(target2);skillexport::ensureDirectory(target2);
+    SetEnvironmentVariableW(L"MOLECULE_STUDIO_SKILL_EXPORT_DIR",target2.c_str());
+    SendMessageW(sw.hwnd,WM_COMMAND,MAKEWPARAM(984,BN_CLICKED),0);
+    require(GetFileAttributesW((target2+L"\\moleculestudio-draw\\SKILL.md").c_str())!=INVALID_FILE_ATTRIBUTES,"update page button exports the skill");
+    SetEnvironmentVariableW(L"MOLECULE_STUDIO_SKILL_EXPORT_DIR",target.c_str());
     require(GetFileAttributesW(log.c_str())==INVALID_FILE_ATTRIBUTES,"switching pages never starts the updater");
     SendMessageW(sw.hwnd,WM_COMMAND,MAKEWPARAM(928,BN_CLICKED),0);
     require(GetFileAttributesW(log.c_str())!=INVALID_FILE_ATTRIBUTES,"explicit updater click resolves the bundled downloader");
@@ -43,9 +49,29 @@ void App::skillUpdateCheck(const std::string& dir){
      require(file!=INVALID_HANDLE_VALUE,"updater log readable");
      DWORD size=GetFileSize(file,nullptr);std::string bytes(size,'\0');DWORD read=0;ReadFile(file,&bytes[0],size,&read,nullptr);CloseHandle(file);
      require(bytes.find("MoleculeStudio-OnlineSetup.exe")!=std::string::npos,"updater log points at the bundled installer");}
+    {   // Visual evidence: capture the update page so the button styling can be reviewed.
+        RECT wr;GetWindowRect(sw.hwnd,&wr);
+        int width=wr.right-wr.left,height=wr.bottom-wr.top;
+        HDC screen=GetDC(nullptr),memory=CreateCompatibleDC(screen);
+        HBITMAP bitmap=CreateCompatibleBitmap(screen,width,height);
+        HGDIOBJ previous=SelectObject(memory,bitmap);
+        PrintWindow(sw.hwnd,memory,2);
+        SelectObject(memory,previous);DeleteDC(memory);ReleaseDC(nullptr,screen);
+        Bitmap shot(bitmap,nullptr);
+        CLSID encoder={0x557cf406,0x1a04,0x11d3,{0x9a,0x73,0x00,0x00,0xf8,0x1e,0xf3,0x2e}};
+        shot.Save((W(dir)+L"\\settings-update-page.png").c_str(),&encoder,nullptr);
+        DeleteObject(bitmap);
+        require(GetFileAttributesW((W(dir)+L"\\settings-update-page.png").c_str())!=INVALID_FILE_ATTRIBUTES,"settings screenshot written");
+    }
     SetEnvironmentVariableW(L"MOLECULE_STUDIO_SKILL_EXPORT_DIR",nullptr);
     SetEnvironmentVariableW(L"MOLECULE_STUDIO_TEST_UPDATER",nullptr);
     SetEnvironmentVariableW(L"MOLECULE_STUDIO_TEST_UPDATER_LOG",nullptr);
+    {int saved=studio_i18n::current();studio_i18n::current()=2;
+     require(studio_i18n::tr(L"打开更新下载器…")==L"Open update downloader…","English catalog covers the new update strings");
+     require(studio_i18n::tr(L"复制为 PNG")==L"Copy as PNG","English catalog covers copy as PNG");
+     studio_i18n::current()=1;
+     require(studio_i18n::tr(L"打开更新下载器…")==L"開啟更新下載器…","Traditional Chinese catalog covers the new update strings");
+     studio_i18n::current()=saved;}
     sw.select(1);ShowWindow(sw.hwnd,SW_HIDE);
     std::ofstream(dir+"/skill-update-checks.json")<<"{\"skill_export\":true,\"skill_hash_matches\":true,\"updater_manual_only\":true,\"updater_path\":true,\"update_category\":true}";
 }

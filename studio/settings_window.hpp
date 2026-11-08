@@ -203,7 +203,7 @@ struct StudioSettingsWindow {
         // row band as 测试连接 so the page does not get taller and stays inside small windows.
         move(927,right-px(240),px(352),px(240),px(32));
         // Task 10: "更新与关于" page. Only the button can start the downloader.
-        move(928,x,px(140),px(260),px(36));move(983,x,px(196),content,px(96));move(984,x,px(310),content,px(64));
+        move(928,x,px(140),px(260),px(36));move(983,x,px(196),content,px(96));move(984,x,px(310),px(460),px(38));
         move(940,x,px(145),px(200),px(230));move(941,x+px(220),px(145),px(144),px(120));
         move(942,x,px(222),px(160),px(32));move(943,x+px(204),px(222),px(160),px(32));
         move(944,x,px(305),px(160),px(32));move(945,x+px(204),px(305),px(160),px(32));
@@ -233,7 +233,7 @@ struct StudioSettingsWindow {
         auto label=[&](const wchar_t* text,int x,int y,int width=300){studio_ui::label(g,text,RectF(float(x),float(y),float(width),24),12,studio_ui::ink());};
         if(category==0){label(L"投稿标准 / 期刊样式",202,82,540);label(L"字体",202,144,220);label(L"字号（pt）",452,144,100);label(L"键长（pt）",202,218);label(L"线宽（pt）",406,218);label(L"选择 ACS Document 1996 或期刊标准会自动填入键长、线宽、字体和字号。",202,374,540);label(L"键长用于后续绘制；已有结构坐标不缩放，单独设置过样式的对象保留原格式。",202,400,540);}
         if(category==1){label(L"API 基础地址 · 兼容 Chat Completions",202,104,540);label(L"API Key",202,172);label(L"模型",202,278);label(L"AI 绘图 Skill 随 Core 内置，可另存后用外部 AI 调用（无需安装 AI 模组）。",202,354,400);}
-        if(category==8){label(L"更新与关于",202,104,540);label(L"更新只在点击下方按钮时启动下载器；本程序启动、打开设置或空闲时都不会联网检查更新。",202,196,560);label(L"AI 绘图 Skill 不依赖任何 AI 模组；可在“AI 与 API”页另存到任意文件夹。",202,310,560);label(L"当前下载器路径：程序目录\\MoleculeStudio-OnlineSetup.exe（随 Core 提供）。",202,398,560);}
+        if(category==8){label(L"更新只在点击下方按钮时启动下载器；本程序启动、打开设置或空闲时都不会联网检查更新。",202,196,560);label(L"当前下载器路径：程序目录\\MoleculeStudio-OnlineSetup.exe（随 Core 提供）。",202,398,560);}
         if(category==5){label(L"添加自定义缩写：输入 别名=标准写法，选中文字设置格式",202,h-264,620);}
         if(category==2){label(L"纸张尺寸",202,114);label(L"方向",422,114);label(L"宽度（mm）",202,191);label(L"高度（mm）",406,191);label(L"横向张数",202,274);label(L"纵向张数",406,274);label(L"页面设置应用到当前文档，可按 Ctrl+Z 撤销。",202,390,540);studio_ui::label(g,L"勾选后，新建文档沿用这套纸张与张数；取消勾选则新建文档回到 A4。",RectF(202,414,620,24),12,studio_ui::muted());}
     }
@@ -304,6 +304,7 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
             if(id==924||id==925){if(self->syncAPI()){self->ai->start(true,id==924);self->waiting=true;self->poll();}return 0;}
             if(id==927&&event==BN_CLICKED){self->exportSkillNow();return 0;}
             if(id==928&&event==BN_CLICKED){self->launchUpdaterNow();return 0;}
+            if(id==984&&event==BN_CLICKED){self->exportSkillNow();return 0;}
             if(self->loading)return 0;
             if(id==917&&event==BN_CLICKED){self->completionDirty=true;if(GetDlgItem(h,969))CheckDlgButton(h,969,IsDlgButtonChecked(h,917));return 0;}
             int g=group(id);if(g>=0&&g<5&&(event==EN_CHANGE||event==CBN_EDITCHANGE||event==CBN_SELCHANGE||event==BN_CLICKED))self->dirty[g]=true;
@@ -345,7 +346,7 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
         edit(L"https://api.deepseek.com",920);edit(L"",921,ES_PASSWORD);studio_i18n::sendDlgItemMessage(hwnd,921,EM_SETLIMITTEXT,512,0);child(L"BUTTON",L"在这台电脑记住密钥（Windows 加密保存）",922,WS_TABSTOP|BS_AUTOCHECKBOX);
         child(L"COMBOBOX",L"",923,WS_TABSTOP|CBS_DROPDOWN|CBS_AUTOHSCROLL|WS_VSCROLL);studio_i18n::sendDlgItemMessage(hwnd,923,CB_LIMITTEXT,120,0);button(L"获取模型",924);button(L"测试连接",925);child(L"STATIC",L"尚未测试连接",926);
         button(L"另存 AI 绘图 Skill…",927);
-        button(L"打开更新下载器…",928);child(L"STATIC",L"更新仅在点击上方按钮时手动启动：本程序不会自动检查更新，也不会自动联网。",983);child(L"STATIC",L"AI 绘图 Skill 随 Core 提供，不安装任何 AI 模组也能导出；更新下载器位于程序目录。",984);
+        button(L"打开更新下载器…",928);child(L"STATIC",L"更新仅在点击上方按钮时手动启动：本程序不会自动检查更新，也不会自动联网。",983);button(L"另存 AI 绘图 Skill…（无需安装 AI 模组）",984);
         button(L"编辑快捷键…",930);edit(L"",931,ES_MULTILINE|ES_READONLY|WS_VSCROLL);child(L"STATIC",L"支持修改、清除与恢复 默认快捷键。",932);
         child(L"COMBOBOX",L"",940,WS_TABSTOP|CBS_DROPDOWNLIST|WS_VSCROLL);for(auto name:{L"A4",L"A3",L"A5",L"B5 (ISO)",L"US Letter",L"US Legal",L"自定义"})studio_i18n::sendDlgItemMessage(hwnd,940,CB_ADDSTRING,0,(LPARAM)name);
         child(L"COMBOBOX",L"",941,WS_TABSTOP|CBS_DROPDOWNLIST);for(auto name:{L"纵向",L"横向"})studio_i18n::sendDlgItemMessage(hwnd,941,CB_ADDSTRING,0,(LPARAM)name);
