@@ -26,3 +26,6 @@ Release 手工上传四个 ZIP。四个 ZIP 都包含同名 `MoleculeStudio/` �
 
 ## 外部 AI 绘图 skill
 不使用内置 AI 时，可使用 [moleculestudio-draw](skills/moleculestudio-draw/SKILL.md) 生成可编辑 CDXML。基础文件绘图只需 Core；参见 [安装与使用说明](docs/EXTERNAL_AI_SKILL.md)。
+## 字体与系统 API
+
+软件不内置、不分发任何字体文件。界面与画布文字使用系统已安装字体，通过 GDI+ 按字体族名调用（默认 Arial 10，与 ChemDraw 默认一致），避免字体再分发与侵权风险；用户系统缺少指定字体时由系统字体回退，文档仍保留原字体名。
