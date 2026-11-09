@@ -312,7 +312,7 @@ class OnlineInstaller {
   for(int i=0;i<Count;i++)picks[i].IsEnabled=enabled&&(packages[i].Available||states[i]!=0);
   OpenButton(enabled);Buttons();if(!enabled){start.IsEnabled=false;uninstall.IsEnabled=false;}
  }
- static void Detect(){if(busy)return;string root=folder.Text;Work(()=>{Recover(root);LoadFeed();Cards(root);Report(feedStatus,100);});}
+ static void Detect(){if(busy)return;string root=folder.Text;Work(()=>{Recover(root);LoadFeed();Cards(root);EnsureShortcut(root);Report(feedStatus,100);});}
  static void Batch(bool remove){
   if(busy)return;string root=folder.Text;Cards(root);
   if(SelectionMode(Selection(),states)!=(remove?2:1)){Report("当前选择不能执行此操作，请只选安装项或只选卸载项。",0);return;}
@@ -454,7 +454,7 @@ class OnlineInstaller {
  static string Download(Package p,bool mirrors,int job=-1){
   if(!p.Available||string.IsNullOrEmpty(p.Hash)||p.Bytes<=0)throw new IOException(p.Display+" 需要联网获取新版清单后才能安装。");
   if(testSource!=null){string local=Path.Combine(testSource,p.Name);if(File.Exists(local))return local;}
-  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){JobReport(job,"校验已下载的 "+p.Display,-1,MutedB);if(CachedHash(path)==p.Hash)return path;}
+  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){JobReport(job,"复用已校验的压缩包 · "+p.Display,-1,MutedB);if(CachedHash(path,job,p.Display)==p.Hash)return path;}
   string url=p.Url;var sources=new List<string>();
   if(mirrors){sources.Add("https://ghfast.top/"+url);sources.Add("https://gh-proxy.com/"+url);sources.Add("https://ghproxy.net/"+url);}
   sources.Add(url);
@@ -465,8 +465,8 @@ class OnlineInstaller {
     if(File.Exists(partial))try{File.Delete(partial);}catch{}
     JobReport(job,"连接 "+host+" · "+p.Display+(attempt>0?" · 第 "+(attempt+1)+" 次尝试":""),-1,MutedB);
     DownloadFile(source,partial,job,p.Display);
-    JobReport(job,"校验 "+p.Display+" 的 SHA-256",-1,MutedB);
-    if(Hash(partial)!=p.Hash)throw new IOException("SHA-256 校验不匹配");
+    JobReport(job,"校验压缩包 SHA-256 · "+p.Display,-1,MutedB);
+    if(HashFileProgress(partial,job,p.Display)!=p.Hash)throw new IOException("SHA-256 校验不匹配");
     if(File.Exists(path))File.Delete(path);
     File.Move(partial,path);
     try{var info=new FileInfo(path);File.WriteAllText(path+".sha256",p.Hash+" "+info.Length+" "+info.LastWriteTimeUtc.Ticks);}catch{}
@@ -578,10 +578,25 @@ class OnlineInstaller {
   }catch{}
   return map;
  }
- static string CachedHash(string path){
+ static string HashFileProgress(string path,int job,string label){
+  var info=new FileInfo(path);long total=info.Length;byte[] buffer=new byte[1048576];long done=0,last=0;
+  using(var sha=SHA256.Create()){
+   using(var stream=File.OpenRead(path)){
+    int n;var watch=Stopwatch.StartNew();
+    while((n=stream.Read(buffer,0,buffer.Length))>0){
+     sha.TransformBlock(buffer,0,n,buffer,0);done+=n;
+     long now=watch.ElapsedMilliseconds;
+     if(now-last>300){JobReport(job,"校验压缩包 · "+label+" · "+(done/1048576)+" MB / "+(total/1048576)+" MB",total>0?100.0*done/total:-1,MutedB);last=now;}
+    }
+   }
+   sha.TransformFinalBlock(new byte[0],0,0);
+   return BitConverter.ToString(sha.Hash).Replace("-","").ToLowerInvariant();
+  }
+ }
+ static string CachedHash(string path,int job,string label){
   string meta=path+".sha256";var info=new FileInfo(path);
   if(File.Exists(meta)){try{var parts=File.ReadAllText(meta).Split(' ');if(parts.Length==3&&long.Parse(parts[1])==info.Length&&long.Parse(parts[2])==info.LastWriteTimeUtc.Ticks)return parts[0];}catch{}}
-  string hash=Hash(path);
+  string hash=HashFileProgress(path,job,label);
   try{File.WriteAllText(meta,hash+" "+info.Length+" "+info.LastWriteTimeUtc.Ticks);}catch{}
   return hash;
  }
@@ -660,9 +675,18 @@ class OnlineInstaller {
    }
    CommitTransaction();
   }catch{RollbackTransaction();throw;}
-  if(health){File.WriteAllText(LastRoot,Path.GetFullPath(root));if(shortcut)Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),false);}
+  File.WriteAllText(LastRoot,Path.GetFullPath(root));
+  if(shortcut)Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),false);
   foreach(var file in archives)if(file!=null&&File.Exists(file))File.Delete(file);
   Report("已完成安装："+Names(plan)+(shortcut?" · 桌面快捷方式已就绪":""),100);
+ }
+ static void EnsureShortcut(string root){
+  try{
+   if(desktopShortcut==null||desktopShortcut.IsChecked!=true)return;
+   if(State(root,packages[0])!=1)return;
+   string desktop=Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+   if(!File.Exists(ShortcutPath(root,desktop,false)))Shortcut(root,desktop,false);
+  }catch{}
  }
  static void CoreHealth(string root){
   string exe=Path.Combine(root,"chemistry_python/python.exe");if(!File.Exists(exe))throw new IOException("缺少化学解释器");
