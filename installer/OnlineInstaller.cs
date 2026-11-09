@@ -79,7 +79,7 @@ class OnlineInstaller {
  static Button start,scan,uninstall; static CheckBox mirror,desktopShortcut; static bool busy,managed; static string cache;
  static long saved; static bool cancelled;
  static Grid[] jobRows; static ProgressBar[] jobBars; static TextBlock[] jobInfos;
- static string[] jobZips=new string[Count]; static string testSource; static readonly object installGate=new object();
+ static string[] jobZips=new string[Count]; static string testSource; static readonly object installGate=new object(); static volatile string currentStage="";
  static readonly Brush MutedB=new SolidColorBrush(Color.FromRgb(0x56,0x71,0x6C));
  static readonly Brush DoneB=new SolidColorBrush(Color.FromRgb(0x15,0x7D,0x70));
  static readonly Brush FailedB=new SolidColorBrush(Color.FromRgb(0xA0,0x47,0x32));
@@ -343,6 +343,9 @@ class OnlineInstaller {
  static void CommitTransaction(){committed=true;Journal();CleanupTransaction();}
  static void RollbackTransaction(){if(undo==null)return;if(committed){CleanupTransaction();return;}Report("正在恢复更新前的文件……",-1);foreach(var item in undo){string p=Safe(transactionRoot,item.Key);NoLinks(transactionRoot,p);if(File.Exists(p))File.Delete(p);if(item.Value!=null){Directory.CreateDirectory(DirName(p));File.Copy(Safe(backupRoot,item.Value),p);}}CleanupTransaction();}
  static void Recover(string root){string path=Safe(root,".installer-transaction.json");if(!File.Exists(path))return;var d=Json().Deserialize<Dictionary<string,object>>(File.ReadAllText(path));string name=(string)d["backup"];if(!Regex.IsMatch(name,"^\\.installer-backup-[a-f0-9]{32}$"))throw new IOException("恢复记录无效，已停止操作");transactionRoot=Path.GetFullPath(root);backupRoot=Safe(root,name);undo=new Dictionary<string,string>();foreach(string line in File.ReadLines(Safe(root,".installer-undo.jsonl"))){var e=Json().Deserialize<Dictionary<string,object>>(line);string relative=(string)e["path"];Safe(root,relative);string copy=e["backup"] as string;if(copy!=null&&!Regex.IsMatch(copy,"^[0-9]+\\.bin$"))throw new IOException("恢复文件记录无效");undo.Add(relative,copy);}committed=(bool)d["committed"];if(committed)CleanupTransaction();else RollbackTransaction();}
+ static void LogInstall(string text){try{File.AppendAllText(Path.Combine(Path.GetTempPath(),"MoleculeStudio-install.log"),DateTime.Now.ToString("HH:mm:ss.fff")+" "+text+"\n");}catch{}}
+ static void MoveRetry(string source,string destination){Exception last=null;for(int i=0;i<6;i++){try{File.Move(source,destination);return;}catch(Exception error){last=error;CheckCancel();System.Threading.Thread.Sleep(200);}}throw new IOException(last==null?"移动文件失败":last.Message,last);}
+ static void DeleteRetry(string path){if(!File.Exists(path))return;for(int i=0;i<6;i++){try{File.Delete(path);return;}catch(Exception error){if(i==5)throw new IOException(error.Message,error);CheckCancel();System.Threading.Thread.Sleep(200);}}}
  static string DirName(string path){
   if(path!=null&&path.StartsWith(@"\\?\",StringComparison.Ordinal)){int i=path.LastIndexOf('\\');return i>6?path.Substring(0,i):path;}
   return Path.GetDirectoryName(path);
@@ -614,19 +617,20 @@ class OnlineInstaller {
   try{File.WriteAllText(meta,hash+" "+info.Length+" "+info.LastWriteTimeUtc.Ticks);}catch{}
   return hash;
  }
- static void Extract(string zip,string root,Package package){
+ static void Extract(string zip,string root,Package package,int job=-1){
   var previous=Inventory(root,package);var records=new Dictionary<string,string>();
   using(var z=ZipFile.OpenRead(zip)){
-   int n=0,total=z.Entries.Count;
+   int n=0,total=z.Entries.Count; var progressWatch=Stopwatch.StartNew();long lastProgress=0;
    foreach(var e in z.Entries){
     CheckCancel();if(e.FullName.EndsWith("/"))continue;
     if(!e.FullName.StartsWith("MoleculeStudio/"))throw new IOException("未知压缩包结构");
     string rel=e.FullName.Substring(15),dest=Safe(root,rel);
+    currentStage=package.Key+" "+n+"/"+total+" "+rel;
     if(rel.StartsWith(".installer-",StringComparison.OrdinalIgnoreCase)||rel.StartsWith("MANIFEST-AI.json",StringComparison.OrdinalIgnoreCase)&&package.Key=="AIBasic")throw new IOException("发布包包含保留的安装器记录路径");
     Directory.CreateDirectory(DirName(dest));
     string received="size:"+e.Length;
     if(GeneratedConfig(package,rel)){
-     Track(rel);if(File.Exists(dest))File.Delete(dest);File.WriteAllText(dest,RuntimeConfig(root),new System.Text.UTF8Encoding(false));records[rel]="size:"+new FileInfo(dest).Length;n++;continue;
+     Track(rel);if(File.Exists(dest))DeleteRetry(dest);File.WriteAllText(dest,RuntimeConfig(root),new System.Text.UTF8Encoding(false));records[rel]="size:"+new FileInfo(dest).Length;n++;continue;
     }
     bool generatedBytecode=rel.EndsWith(".pyc",StringComparison.OrdinalIgnoreCase)||rel.IndexOf("/__pycache__/",StringComparison.OrdinalIgnoreCase)>=0;
     if(generatedBytecode&&File.Exists(dest)){n++;continue;}
@@ -641,10 +645,10 @@ class OnlineInstaller {
     else{
      string temp=dest+".installing";
      using(var input=e.Open())using(var output=File.Create(temp))input.CopyTo(output);
-     File.Move(temp,dest);
+     MoveRetry(temp,dest);
     }
     records[rel]=received;
-    if(++n%200==0)Report("安装 "+package.Display+" · "+n+" / "+total,100.0*n/total);
+    { long now=progressWatch.ElapsedMilliseconds; if(now-lastProgress>200||n==total){JobReport(job,"安装 "+package.Display+" · "+n+" / "+total+" · "+BaseName(rel),100.0*n/total,MutedB);lastProgress=now;} }
    }
   }
   if(undo!=null){
@@ -681,11 +685,16 @@ class OnlineInstaller {
    }
    foreach(var thread in threads)thread.Join();
    foreach(int i in plan)if(errors[i]!=null)throw errors[i];
+   var installWatch=Stopwatch.StartNew(); bool installDone=false;
+   var watchdog=new Thread(()=>{while(!installDone&&installWatch.ElapsedMilliseconds<60*60*1000){LogInstall("stage "+currentStage);System.Threading.Thread.Sleep(5000);}}){IsBackground=true};watchdog.Start();
+   LogInstall("downloaded "+Names(plan));
    foreach(int i in plan){
     JobReport(i,"准备安装……",0,MutedB);
-    Extract(archives[i],root,packages[i]);
+    LogInstall("extract start "+packages[i].Key);
+    Extract(archives[i],root,packages[i],i);LogInstall("extract done "+packages[i].Key);
     if(health){JobReport(i,"校验运行时环境……",-1,MutedB);Health(root,packages[i],true);}
     JobReport(i,"已安装 · 完成",100,DoneB);
+   installDone=true;
    }
    CommitTransaction();
   }catch{RollbackTransaction();throw;}
