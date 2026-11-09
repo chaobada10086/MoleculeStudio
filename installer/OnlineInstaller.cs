@@ -109,7 +109,7 @@ class OnlineInstaller {
    if(schema==2&&!IsKey(key))throw new IOException("版本清单包含未知组件："+(id??"")); 
    if(string.IsNullOrEmpty(key)||found.ContainsKey(key))throw new IOException("版本清单包含重复组件");
    string name=Text(row,"name"),hash=Text(row,"sha256"),url=Text(row,"url"),version=Text(row,"version");
-   if(string.IsNullOrEmpty(version)||string.IsNullOrEmpty(name)||name!=Path.GetFileName(name)||name.IndexOfAny(Path.GetInvalidFileNameChars())>=0||!name.EndsWith(".zip",StringComparison.OrdinalIgnoreCase))throw new IOException("版本清单内容无效");
+   if(string.IsNullOrEmpty(version)||string.IsNullOrEmpty(name)||name!=BaseName(name)||name.IndexOfAny(Path.GetInvalidFileNameChars())>=0||!name.EndsWith(".zip",StringComparison.OrdinalIgnoreCase))throw new IOException("版本清单内容无效");
    if(hash==null||!Regex.IsMatch(hash,"^[0-9a-f]{64}$"))throw new IOException("版本清单内容无效");
    if(url==null||!url.StartsWith(ReleaseBase,StringComparison.Ordinal)||!url.EndsWith("/"+name,StringComparison.Ordinal))throw new IOException("版本清单内容无效");
    long bytes=row.ContainsKey("bytes")?Convert.ToInt64(row["bytes"]):0;
@@ -336,14 +336,22 @@ class OnlineInstaller {
  static string Hash(Stream s){using(var h=SHA256.Create())return BitConverter.ToString(h.ComputeHash(s)).Replace("-","").ToLowerInvariant();}
  static string Hash(string path){using(var s=File.OpenRead(path))return Hash(s);}
  static string transactionRoot,backupRoot;static Dictionary<string,string> undo;static bool committed;
- static void Journal(){string path=Safe(transactionRoot,".installer-transaction.json"),temp=path+".tmp";File.WriteAllText(temp,Json().Serialize(new{backup=Path.GetFileName(backupRoot),committed=committed}));if(File.Exists(path))File.Replace(temp,path,null);else File.Move(temp,path);}
+ static void Journal(){string path=Safe(transactionRoot,".installer-transaction.json"),temp=path+".tmp";File.WriteAllText(temp,Json().Serialize(new{backup=BaseName(backupRoot),committed=committed}));if(File.Exists(path))File.Replace(temp,path,null);else File.Move(temp,path);}
  static void BeginTransaction(string root){transactionRoot=Path.GetFullPath(root);Directory.CreateDirectory(transactionRoot);backupRoot=Safe(transactionRoot,".installer-backup-"+Guid.NewGuid().ToString("N"));NoLinks(transactionRoot,backupRoot);Directory.CreateDirectory(backupRoot);undo=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);committed=false;File.WriteAllText(Safe(transactionRoot,".installer-undo.jsonl"),"");Journal();}
  static void Track(string relative){if(undo==null)return;string p=Safe(transactionRoot,relative);NoLinks(transactionRoot,p);if(undo.ContainsKey(relative))return;string copy=null;if(File.Exists(p)){copy=undo.Count.ToString()+".bin";File.Copy(p,Safe(backupRoot,copy));}File.AppendAllText(Safe(transactionRoot,".installer-undo.jsonl"),Json().Serialize(new{path=relative,backup=copy})+"\n");undo.Add(relative,copy);}
  static void CleanupTransaction(){foreach(string backup in undo.Values)if(backup!=null){string p=Safe(backupRoot,backup);if(File.Exists(p))File.Delete(p);}if(Directory.Exists(backupRoot)&&Directory.GetFileSystemEntries(backupRoot).Length==0)Directory.Delete(backupRoot);File.Delete(Safe(transactionRoot,".installer-transaction.json"));File.Delete(Safe(transactionRoot,".installer-undo.jsonl"));undo=null;}
  static void CommitTransaction(){committed=true;Journal();CleanupTransaction();}
- static void RollbackTransaction(){if(undo==null)return;if(committed){CleanupTransaction();return;}Report("正在恢复更新前的文件……",-1);foreach(var item in undo){string p=Safe(transactionRoot,item.Key);NoLinks(transactionRoot,p);if(File.Exists(p))File.Delete(p);if(item.Value!=null){Directory.CreateDirectory(Path.GetDirectoryName(p));File.Copy(Safe(backupRoot,item.Value),p);}}CleanupTransaction();}
+ static void RollbackTransaction(){if(undo==null)return;if(committed){CleanupTransaction();return;}Report("正在恢复更新前的文件……",-1);foreach(var item in undo){string p=Safe(transactionRoot,item.Key);NoLinks(transactionRoot,p);if(File.Exists(p))File.Delete(p);if(item.Value!=null){Directory.CreateDirectory(DirName(p));File.Copy(Safe(backupRoot,item.Value),p);}}CleanupTransaction();}
  static void Recover(string root){string path=Safe(root,".installer-transaction.json");if(!File.Exists(path))return;var d=Json().Deserialize<Dictionary<string,object>>(File.ReadAllText(path));string name=(string)d["backup"];if(!Regex.IsMatch(name,"^\\.installer-backup-[a-f0-9]{32}$"))throw new IOException("恢复记录无效，已停止操作");transactionRoot=Path.GetFullPath(root);backupRoot=Safe(root,name);undo=new Dictionary<string,string>();foreach(string line in File.ReadLines(Safe(root,".installer-undo.jsonl"))){var e=Json().Deserialize<Dictionary<string,object>>(line);string relative=(string)e["path"];Safe(root,relative);string copy=e["backup"] as string;if(copy!=null&&!Regex.IsMatch(copy,"^[0-9]+\\.bin$"))throw new IOException("恢复文件记录无效");undo.Add(relative,copy);}committed=(bool)d["committed"];if(committed)CleanupTransaction();else RollbackTransaction();}
- static string Safe(string root,string rel){string p=Path.GetFullPath(Path.Combine(root,rel.Replace('/',Path.DirectorySeparatorChar)));if(!p.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase))throw new IOException("压缩包路径越界");if(p.Length>230&&!p.StartsWith(@"\\?\"))return p.StartsWith(@"\\")?@"\\?\UNC\"+p.Substring(2):@"\\?\"+p;return p;}
+ static string DirName(string path){
+  if(path!=null&&path.StartsWith(@"\\?\",StringComparison.Ordinal)){int i=path.LastIndexOf('\\');return i>6?path.Substring(0,i):path;}
+  return Path.GetDirectoryName(path);
+ }
+ static string BaseName(string path){
+  if(path!=null&&path.StartsWith(@"\\?\",StringComparison.Ordinal)){int i=path.LastIndexOf('\\');return i>=0?path.Substring(i+1):path;}
+  return Path.GetFileName(path);
+ }
+ static string Safe(string root,string rel){string p=Path.GetFullPath(Path.Combine(root,rel.Replace('/',Path.DirectorySeparatorChar)));if(!p.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase))throw new IOException("压缩包路径越界");if(p.Length>=260)throw new IOException("安装路径过长（超过 259 个字符）："+p+"。请把安装位置换到更短的目录，例如 D:\\MoleculeStudio。");return p;}
  static void CheckCancel(){if(cancelled)throw new OperationCanceledException("已取消。已安装文件保留；重新安装会跳过校验通过的文件。");}
  static void Report(string text,double value){if(window!=null)window.Dispatcher.BeginInvoke((Action)(()=>{status.Text=text;bar.IsIndeterminate=value<0;if(value>=0)bar.Value=value;}));else Console.WriteLine(text);}
  static string Mb(long bytes){if(bytes>=1073741824L)return ((double)bytes/1073741824.0).ToString("0.00")+" GB";if(bytes>=1048576L)return ((double)bytes/1048576.0).ToString("0.0")+" MB";return (bytes/1024L)+" KB";}
@@ -377,7 +385,7 @@ class OnlineInstaller {
    }
   }
  }
- static void NoLinks(string root,string file){string stop=Path.GetFullPath(root).TrimEnd('\\');string p=Path.GetDirectoryName(file);while(p!=null){if(Directory.Exists(p)&&(File.GetAttributes(p)&FileAttributes.ReparsePoint)!=0)throw new IOException("安装目录包含目录链接，已停止移除："+p);if(string.Equals(p.TrimEnd('\\'),stop,StringComparison.OrdinalIgnoreCase))break;p=Path.GetDirectoryName(p);}}
+ static void NoLinks(string root,string file){string stop=Path.GetFullPath(root).TrimEnd('\\');string p=DirName(file);while(p!=null){if(Directory.Exists(p)&&(File.GetAttributes(p)&FileAttributes.ReparsePoint)!=0)throw new IOException("安装目录包含目录链接，已停止移除："+p);if(string.Equals(p.TrimEnd('\\'),stop,StringComparison.OrdinalIgnoreCase))break;p=DirName(p);}}
  static void EnsureClosed(string root){string prefix=Path.GetFullPath(root).TrimEnd('\\')+"\\";foreach(var process in Process.GetProcesses())using(process){string exe=null;try{exe=process.MainModule.FileName;}catch{}if(exe!=null&&exe.StartsWith(prefix,StringComparison.OrdinalIgnoreCase))throw new IOException("请先关闭此安装目录中的程序，再更改组件或卸载。");}}
 
  static int Remove(string root,Package package){
@@ -394,14 +402,14 @@ class OnlineInstaller {
   int preserved=0,n=0;var dirs=new HashSet<string>();
   foreach(var item in files){
    CheckCancel();if(shared.Contains(item.Key))continue;string p=Safe(root,item.Key);
-   if(File.Exists(p)){if(FileMatches(p,item.Value)||ValidGeneratedConfig(root,package,item.Key)){File.Delete(p);dirs.Add(Path.GetDirectoryName(p));}else preserved++;}
+   if(File.Exists(p)){if(FileMatches(p,item.Value)||ValidGeneratedConfig(root,package,item.Key)){File.Delete(p);dirs.Add(DirName(p));}else preserved++;}
    if(++n%200==0)Report("移除 "+package.Display+" · "+n+" / "+files.Count,100.0*n/files.Count);
   }
   foreach(string key in package.Key=="AIBasic"?LegacyAIKeys:new[]{package.Key})
    foreach(string prefix in new[]{".installer-","MANIFEST-"}){string metadata=Safe(root,prefix+key+".json");if(File.Exists(metadata))File.Delete(metadata);}
   // Only remove empty directories, and only ancestors of files owned by this component.
   foreach(string dir in dirs){string d=dir;while(d!=null&&!string.Equals(d.TrimEnd('\\'),root.TrimEnd('\\'),StringComparison.OrdinalIgnoreCase)&&d.StartsWith(root+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase)){
-   if(!Directory.Exists(d)||Directory.GetFileSystemEntries(d).Length!=0)break;Directory.Delete(d);d=Path.GetDirectoryName(d);}}
+   if(!Directory.Exists(d)||Directory.GetFileSystemEntries(d).Length!=0)break;Directory.Delete(d);d=DirName(d);}}
   return preserved;
  }
  static bool GeneratedConfig(Package package,string rel){return package.Key=="OCSR"&&string.Equals(rel.Replace('\\','/'),"ocsr_runtime/venv/pyvenv.cfg",StringComparison.OrdinalIgnoreCase);}
@@ -615,7 +623,7 @@ class OnlineInstaller {
     if(!e.FullName.StartsWith("MoleculeStudio/"))throw new IOException("未知压缩包结构");
     string rel=e.FullName.Substring(15),dest=Safe(root,rel);
     if(rel.StartsWith(".installer-",StringComparison.OrdinalIgnoreCase)||rel.StartsWith("MANIFEST-AI.json",StringComparison.OrdinalIgnoreCase)&&package.Key=="AIBasic")throw new IOException("发布包包含保留的安装器记录路径");
-    Directory.CreateDirectory(Path.GetDirectoryName(dest));
+    Directory.CreateDirectory(DirName(dest));
     string received="size:"+e.Length;
     if(GeneratedConfig(package,rel)){
      Track(rel);if(File.Exists(dest))File.Delete(dest);File.WriteAllText(dest,RuntimeConfig(root),new System.Text.UTF8Encoding(false));records[rel]="size:"+new FileInfo(dest).Length;n++;continue;
@@ -720,7 +728,7 @@ class OnlineInstaller {
  static void Work(Action action){
   if(busy)return;string root=folder.Text;busy=true;cancelled=false;HideJobs();EnableActions(false);
   new Thread(()=>{
-   try{action();}catch(Exception error){Report(error.Message,0);}
+   try{action();}catch(Exception error){try{File.AppendAllText(Path.Combine(Path.GetTempPath(),"MoleculeStudio-installer-error.log"),DateTime.Now.ToString("s")+" "+error+"\n\n");}catch{}Report(error.Message,0);}
    finally{
     try{Cards(root);}catch(Exception refreshError){
      window.Dispatcher.Invoke((Action)(()=>{
@@ -735,7 +743,7 @@ class OnlineInstaller {
   }){IsBackground=true}.Start();
  }
 
- static string LastRoot{get{return Path.Combine(Path.GetDirectoryName(cache),"installation.txt");}}
+ static string LastRoot{get{return Path.Combine(DirName(cache),"installation.txt");}}
 
  static object ComGet(object obj,string name){return obj.GetType().InvokeMember(name,BindingFlags.GetProperty,null,obj,null);}
  static void ComSet(object obj,string name,object value){obj.GetType().InvokeMember(name,BindingFlags.SetProperty,null,obj,new object[]{value});}
@@ -819,7 +827,7 @@ class OnlineInstaller {
   if(args.Length>0&&args[0]!="--preview"&&args[0]!="--ui-lifecycle-test"&&args[0]!="--small-screen-test"){try{
    if(args[0]=="--ocsr-config-test"){
     string root=Path.Combine(Path.GetTempPath(),"MoleculeStudio-ocsr-config-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
-    string rel="ocsr_runtime/venv/pyvenv.cfg",cfg=Safe(root,rel);Directory.CreateDirectory(Path.GetDirectoryName(cfg));
+    string rel="ocsr_runtime/venv/pyvenv.cfg",cfg=Safe(root,rel);Directory.CreateDirectory(DirName(cfg));
     string leftover="home = C:\\old-install\\python\ninclude-system-site-packages = false\nversion_info = 3.10\n";File.WriteAllText(cfg,leftover);
     string zip=Path.Combine(root,"fixture.zip");
     using(var z=ZipFile.Open(zip,ZipArchiveMode.Create))using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/"+rel).Open()))w.Write("home = ..\\python\\cpython-3.10-windows-x86_64-none\ninclude-system-site-packages = false\nversion_info = 3.10\n");
@@ -899,7 +907,7 @@ class OnlineInstaller {
     BeginTransaction(root);Extract(zip2,root,pkg);CommitTransaction();
     if(File.ReadAllText(Path.Combine(root,"settings.ini"))!="new settings payload")return 72;
     // A runtime-regenerated .pyc must not block the install.
-    string pyc=Path.Combine(root,"Lib","__pycache__","base.cpython-310.pyc");Directory.CreateDirectory(Path.GetDirectoryName(pyc));File.WriteAllText(pyc,"old bytecode");
+    string pyc=Path.Combine(root,"Lib","__pycache__","base.cpython-310.pyc");Directory.CreateDirectory(DirName(pyc));File.WriteAllText(pyc,"old bytecode");
     var receipt2=new Dictionary<string,string>{{"MoleculeStudio.exe",Hash(Path.Combine(root,"MoleculeStudio.exe"))},{"Lib/__pycache__/base.cpython-310.pyc",Hash(pyc)}};
     File.WriteAllText(Path.Combine(root,".installer-Core.json"),Json().Serialize(new{packageHash="test",files=receipt2}));
     File.WriteAllText(pyc,"regenerated bytecode");
