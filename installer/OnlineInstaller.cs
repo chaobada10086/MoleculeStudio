@@ -648,6 +648,7 @@ class OnlineInstaller {
      MoveRetry(temp,dest);
     }
     records[rel]=received;
+    n++;
     { long now=progressWatch.ElapsedMilliseconds; if(now-lastProgress>200||n==total){JobReport(job,"安装 "+package.Display+" · "+n+" / "+total+" · "+BaseName(rel),100.0*n/total,MutedB);lastProgress=now;} }
    }
   }
@@ -1037,6 +1038,11 @@ class OnlineInstaller {
      if(!File.Exists(Path.Combine(install,"Core-0.txt"))||!File.Exists(Path.Combine(install,"OCSR-39.txt")))return 94;
     }finally{packages=originalPackages;cache=originalCache;testSource=null;}
     return 0;
+   }
+   if(args[0]=="--install-test"&&args.Length>=3){
+    var plan=new List<int>();foreach(string part in args[2].Split(',')){int index=int.Parse(part);if(index<0||index>=Count)return 3;plan.Add(index);}
+    try{InstallAll(args[1],plan.ToArray(),false,false,false);return 0;}
+    catch(Exception error){Console.Error.WriteLine(error.ToString());return 1;}
    }
    if(args[0]=="--download-test"&&args.Length==4){
     var download=new Package{Key="Download",Name="download-test-"+Guid.NewGuid().ToString("N")+".zip",Hash=args[2],Bytes=long.Parse(args[3]),Available=true,Url=args[1],Display="下载测试"};
