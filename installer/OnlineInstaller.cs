@@ -454,7 +454,7 @@ class OnlineInstaller {
  static string Download(Package p,bool mirrors,int job=-1){
   if(!p.Available||string.IsNullOrEmpty(p.Hash)||p.Bytes<=0)throw new IOException(p.Display+" 需要联网获取新版清单后才能安装。");
   if(testSource!=null){string local=Path.Combine(testSource,p.Name);if(File.Exists(local))return local;}
-  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){JobReport(job,"复用已校验的压缩包 · "+p.Display,-1,MutedB);if(CachedHash(path,job,p.Display)==p.Hash)return path;}
+  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){string sidecar=SidecarHash(path);if(sidecar!=null){JobReport(job,"复用已校验的压缩包 · "+p.Display,-1,MutedB);if(sidecar==p.Hash)return path;}else{JobReport(job,"校验压缩包 SHA-256 · "+p.Display,-1,MutedB);string verified=HashFileProgress(path,job,p.Display);try{var cacheInfo=new FileInfo(path);File.WriteAllText(path+".sha256",verified+" "+cacheInfo.Length+" "+cacheInfo.LastWriteTimeUtc.Ticks);}catch{}if(verified==p.Hash)return path;}}
   string url=p.Url;var sources=new List<string>();
   if(mirrors){sources.Add("https://ghfast.top/"+url);sources.Add("https://gh-proxy.com/"+url);sources.Add("https://ghproxy.net/"+url);}
   sources.Add(url);
@@ -592,6 +592,12 @@ class OnlineInstaller {
    sha.TransformFinalBlock(new byte[0],0,0);
    return BitConverter.ToString(sha.Hash).Replace("-","").ToLowerInvariant();
   }
+ }
+ static string SidecarHash(string path){
+  string meta=path+".sha256";var info=new FileInfo(path);
+  if(!File.Exists(meta))return null;
+  try{var parts=File.ReadAllText(meta).Split(' ');if(parts.Length==3&&long.Parse(parts[1])==info.Length&&long.Parse(parts[2])==info.LastWriteTimeUtc.Ticks)return parts[0];}catch{}
+  return null;
  }
  static string CachedHash(string path,int job,string label){
   string meta=path+".sha256";var info=new FileInfo(path);
