@@ -9,7 +9,7 @@
   <StackPanel x:Name="Header">
    <TextBlock Text="MOLECULE STUDIO" FontSize="12" FontWeight="Bold" Foreground="#268C80"/>
    <TextBlock x:Name="HeaderTitle" Text="让灵感，成为结构。" FontSize="30" FontWeight="SemiBold" Margin="0,8,0,7"/>
-   <TextBlock Text="勾选要操作的组件，再点击安装或卸载。依赖组件会自动按顺序处理。" Foreground="#637B78" FontSize="13" TextWrapping="Wrap"/>
+   <TextBlock Text="勾选要操作的组件，再点击安装或卸载。所选组件同时下载，每个下载完成即刻安装。" Foreground="#637B78" FontSize="13" TextWrapping="Wrap"/>
   </StackPanel>
   <ScrollViewer x:Name="ContentScroll" Grid.Row="1" Margin="0,16,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,6,0">
    <StackPanel x:Name="Content">
@@ -31,6 +31,10 @@
    </StackPanel>
   </ScrollViewer>
   <StackPanel Grid.Row="2" Margin="0,6,0,0">
+   <Grid x:Name="Job0" Margin="0,0,0,4" Visibility="Collapsed"><Grid.ColumnDefinitions><ColumnDefinition Width="96"/><ColumnDefinition Width="*"/><ColumnDefinition Width="250"/></Grid.ColumnDefinitions><TextBlock Text="核心工作台" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#174C47"/><ProgressBar x:Name="Bar0" Grid.Column="1" Height="5" Foreground="#1B9684" Background="#DFEBE7" BorderThickness="0" VerticalAlignment="Center" Margin="0,0,10,0"/><TextBlock x:Name="Job0Info" Grid.Column="2" FontSize="11" Foreground="#56716C" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/></Grid>
+   <Grid x:Name="Job1" Margin="0,0,0,4" Visibility="Collapsed"><Grid.ColumnDefinitions><ColumnDefinition Width="96"/><ColumnDefinition Width="*"/><ColumnDefinition Width="250"/></Grid.ColumnDefinitions><TextBlock Text="AI 基础" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#174C47"/><ProgressBar x:Name="Bar1" Grid.Column="1" Height="5" Foreground="#1B9684" Background="#DFEBE7" BorderThickness="0" VerticalAlignment="Center" Margin="0,0,10,0"/><TextBlock x:Name="Job1Info" Grid.Column="2" FontSize="11" Foreground="#56716C" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/></Grid>
+   <Grid x:Name="Job2" Margin="0,0,0,4" Visibility="Collapsed"><Grid.ColumnDefinitions><ColumnDefinition Width="96"/><ColumnDefinition Width="*"/><ColumnDefinition Width="250"/></Grid.ColumnDefinitions><TextBlock Text="AI 高级" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#174C47"/><ProgressBar x:Name="Bar2" Grid.Column="1" Height="5" Foreground="#1B9684" Background="#DFEBE7" BorderThickness="0" VerticalAlignment="Center" Margin="0,0,10,0"/><TextBlock x:Name="Job2Info" Grid.Column="2" FontSize="11" Foreground="#56716C" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/></Grid>
+   <Grid x:Name="Job3" Margin="0,0,0,4" Visibility="Collapsed"><Grid.ColumnDefinitions><ColumnDefinition Width="96"/><ColumnDefinition Width="*"/><ColumnDefinition Width="250"/></Grid.ColumnDefinitions><TextBlock Text="图片识别" FontSize="11.5" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="#174C47"/><ProgressBar x:Name="Bar3" Grid.Column="1" Height="5" Foreground="#1B9684" Background="#DFEBE7" BorderThickness="0" VerticalAlignment="Center" Margin="0,0,10,0"/><TextBlock x:Name="Job3Info" Grid.Column="2" FontSize="11" Foreground="#56716C" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/></Grid>
    <ProgressBar x:Name="Progress" Height="4" Foreground="#1B9684" Background="#DFEBE7" BorderThickness="0"/>
    <TextBlock x:Name="Status" Text="正在自动检测已有安装……" TextWrapping="Wrap" Foreground="#56716C" FontSize="11.5" Margin="0,7,0,0" MinHeight="20" MaxHeight="46"/>
    <TextBlock x:Name="SelectionInfo" Text="请勾选需要操作的组件" TextWrapping="Wrap" FontSize="11.5" Foreground="#56716C" Margin="0,4,0,5"/>

@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Markup;
+using System.Windows.Media;
 using System.Web.Script.Serialization;
 
 class OnlineInstaller {
@@ -77,6 +78,11 @@ class OnlineInstaller {
  static Window window; static TextBox folder; static TextBlock status; static ProgressBar bar;
  static Button start,scan,uninstall; static CheckBox mirror,desktopShortcut; static bool busy,managed; static string cache;
  static long saved; static bool cancelled;
+ static Grid[] jobRows; static ProgressBar[] jobBars; static TextBlock[] jobInfos;
+ static string[] jobZips=new string[Count]; static string testSource; static readonly object installGate=new object();
+ static readonly Brush MutedB=new SolidColorBrush(Color.FromRgb(0x56,0x71,0x6C));
+ static readonly Brush DoneB=new SolidColorBrush(Color.FromRgb(0x15,0x7D,0x70));
+ static readonly Brush FailedB=new SolidColorBrush(Color.FromRgb(0xA0,0x47,0x32));
  [DllImport("kernel32.dll",CharSet=CharSet.Unicode,SetLastError=true)] static extern bool CreateHardLink(string name,string existing,IntPtr reserved);
  static JavaScriptSerializer Json(){return new JavaScriptSerializer{MaxJsonLength=int.MaxValue};}
 
@@ -267,7 +273,7 @@ class OnlineInstaller {
   start.Content=mode==1?"安装 / 更新所选 ("+add.Length+")":"安装所选";
   uninstall.Content=mode==2?"卸载所选 ("+del.Length+")":"卸载所选";
   long selectedBytes=0;foreach(int i in add)if(packages[i].Available)selectedBytes+=packages[i].Bytes;
-   ((TextBlock)window.FindName("SelectionInfo")).Text=mode==1?"安装顺序："+Names(add)+" · 合计约 "+SizeText(selectedBytes):mode==2?"卸载顺序："+Names(del):add.Length==0&&del.Length==0?"请勾选需要操作的组件":"已混选安装项与卸载项，请分开选择；两个操作均已禁用。";
+   ((TextBlock)window.FindName("SelectionInfo")).Text=mode==1?"将同时下载并安装："+Names(add)+" · 合计约 "+SizeText(selectedBytes):mode==2?"卸载顺序："+Names(del):add.Length==0&&del.Length==0?"请勾选需要操作的组件":"已混选安装项与卸载项，请分开选择；两个操作均已禁用。";
  }
  static string SizeText(long bytes){
   if(bytes>=1073741824L)return (bytes/1073741824.0).ToString("0.##")+" GB";
@@ -320,20 +326,7 @@ class OnlineInstaller {
     if(!Has(root,packages[0])){Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),true);if(File.Exists(LastRoot)&&File.ReadAllText(LastRoot)==Path.GetFullPath(root))File.Delete(LastRoot);}
     Report("所选组件已卸载 · 用户文件已保留"+(kept>0?"，另保留 "+kept+" 个修改文件":""),100);
    }else{
-    var archives=new Dictionary<int,string>();BeginTransaction(root);
-    try{
-     foreach(int i in plan){
-      RequireCore(root,i);
-      archives[i]=Download(packages[i],mirrors);
-      Extract(archives[i],root,packages[i]);
-      Health(root,packages[i]);
-     }
-     CommitTransaction();
-    }catch{RollbackTransaction();throw;}
-    File.WriteAllText(LastRoot,Path.GetFullPath(root));
-    if(shortcut)Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),false);
-    foreach(var file in archives.Values)if(File.Exists(file))File.Delete(file);
-    Report("已完成安装："+Names(plan)+(shortcut?" · 桌面快捷方式已就绪":""),100);
+    InstallAll(root,plan,mirrors,shortcut,true);
    }
    window.Dispatcher.Invoke((Action)(()=>{for(int i=0;i<Count;i++)picks[i].IsChecked=false;}));
   });
@@ -352,6 +345,37 @@ class OnlineInstaller {
  static string Safe(string root,string rel){string p=Path.GetFullPath(Path.Combine(root,rel.Replace('/',Path.DirectorySeparatorChar)));if(!p.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase))throw new IOException("压缩包路径越界");if(p.Length>230&&!p.StartsWith(@"\\?\"))return p.StartsWith(@"\\")?@"\\?\UNC\"+p.Substring(2):@"\\?\"+p;return p;}
  static void CheckCancel(){if(cancelled)throw new OperationCanceledException("已取消。已安装文件保留；重新安装会跳过校验通过的文件。");}
  static void Report(string text,double value){if(window!=null)window.Dispatcher.BeginInvoke((Action)(()=>{status.Text=text;bar.IsIndeterminate=value<0;if(value>=0)bar.Value=value;}));else Console.WriteLine(text);}
+ static string Mb(long bytes){if(bytes>=1073741824L)return ((double)bytes/1073741824.0).ToString("0.00")+" GB";if(bytes>=1048576L)return ((double)bytes/1048576.0).ToString("0.0")+" MB";return (bytes/1024L)+" KB";}
+ static void JobReport(int index,string text,double value,Brush color){
+  if(index<0){Report(text,value);return;}
+  if(window==null){Console.WriteLine("["+index+"] "+text);return;}
+  window.Dispatcher.BeginInvoke((Action)(()=>{if(index>=Count||jobInfos==null||jobInfos[index]==null)return;jobInfos[index].Text=text;jobInfos[index].Foreground=color;jobBars[index].IsIndeterminate=value<0;if(value>=0)jobBars[index].Value=value;}));
+ }
+ static void ShowJobs(int[] plan){
+  if(window==null)return;
+  window.Dispatcher.Invoke((Action)(()=>{
+   for(int i=0;i<Count;i++){bool active=Array.IndexOf(plan,i)>=0;jobRows[i].Visibility=active?Visibility.Visible:Visibility.Collapsed;jobBars[i].IsIndeterminate=false;jobBars[i].Value=0;jobInfos[i].Foreground=MutedB;jobInfos[i].Text=active?"排队中":"";}
+   bar.Visibility=Visibility.Collapsed;bar.IsIndeterminate=false;bar.Value=0;
+  }));
+ }
+ static void HideJobs(){
+  if(window==null)return;
+  for(int i=0;i<Count;i++)jobRows[i].Visibility=Visibility.Collapsed;
+  bar.Visibility=Visibility.Visible;
+ }
+ class DownloadProgress{
+  public long Total,Done,LastDone,LastTick;public Stopwatch Watch=Stopwatch.StartNew();public readonly object Gate=new object();
+  public void Report(int job,string label,int segments){
+   lock(Gate){
+    long now=Watch.ElapsedMilliseconds;if(now-LastTick<400)return;
+    double seconds=Math.Max(0.001,(now-LastTick)/1000.0);double speed=(Done-LastDone)/1048576.0/seconds;
+    double percent=Total>0?100.0*Done/Total:-1;
+    string detail="下载 "+label+" · "+(Done/1048576)+" MB"+(Total>0?" / "+(Total/1048576)+" MB":"")+" · "+speed.ToString("0.0")+" MB/s"+(segments>1?" · "+segments+" 线程":"");
+    JobReport(job,detail,percent,MutedB);
+    LastDone=Done;LastTick=now;
+   }
+  }
+ }
  static void NoLinks(string root,string file){string stop=Path.GetFullPath(root).TrimEnd('\\');string p=Path.GetDirectoryName(file);while(p!=null){if(Directory.Exists(p)&&(File.GetAttributes(p)&FileAttributes.ReparsePoint)!=0)throw new IOException("安装目录包含目录链接，已停止移除："+p);if(string.Equals(p.TrimEnd('\\'),stop,StringComparison.OrdinalIgnoreCase))break;p=Path.GetDirectoryName(p);}}
  static void EnsureClosed(string root){string prefix=Path.GetFullPath(root).TrimEnd('\\')+"\\";foreach(var process in Process.GetProcesses())using(process){string exe=null;try{exe=process.MainModule.FileName;}catch{}if(exe!=null&&exe.StartsWith(prefix,StringComparison.OrdinalIgnoreCase))throw new IOException("请先关闭此安装目录中的程序，再更改组件或卸载。");}}
 
@@ -400,25 +424,21 @@ class OnlineInstaller {
   foreach(var entry in files){CheckCancel();string expected=legacy?(string)((Dictionary<string,object>)entry.Value)["sha256"]:(string)entry.Value;string f=Safe(root,entry.Key);if(!File.Exists(f)||(Hash(f)!=expected&&!ValidGeneratedConfig(root,p,entry.Key)))return false;if(++n%300==0)Report("正在校验已安装的 "+p.Display+" · "+n+" / "+files.Count,100.0*n/files.Count);}
   return true;
  }
- static string Download(Package p,bool mirrors){
+ static string Download(Package p,bool mirrors,int job=-1){
   if(!p.Available||string.IsNullOrEmpty(p.Hash)||p.Bytes<=0)throw new IOException(p.Display+" 需要联网获取新版清单后才能安装。");
-  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){Report("校验已下载的 "+p.Display,-1);if(Hash(path)==p.Hash)return path;}
+  if(testSource!=null){string local=Path.Combine(testSource,p.Name);if(File.Exists(local))return local;}
+  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){JobReport(job,"校验已下载的 "+p.Display,-1,MutedB);if(Hash(path)==p.Hash)return path;}
   string url=p.Url;var sources=new List<string>();
   if(mirrors){sources.Add("https://ghfast.top/"+url);sources.Add("https://gh-proxy.com/"+url);sources.Add("https://ghproxy.net/"+url);}
   sources.Add(url);
   string partial=path+".part";var failures=new List<string>();
   foreach(string source in sources)for(int attempt=0;attempt<3;attempt++){
-   CheckCancel();
-   string host=new Uri(source).Host;
+   CheckCancel();string host=new Uri(source).Host;
    try{
     if(File.Exists(partial))try{File.Delete(partial);}catch{}
-    Report("连接 "+host+" · "+p.Display+(attempt>0?" · 第 "+(attempt+1)+" 次尝试":""),-1);
-    var req=(HttpWebRequest)WebRequest.Create(source);req.UserAgent="MoleculeStudio-Installer/2.0";req.Timeout=20000;req.ReadWriteTimeout=30000;
-    using(var response=req.GetResponse())using(var input=response.GetResponseStream())using(var output=File.Create(partial)){
-     byte[] buffer=new byte[1024*1024];long done=0;int n;var time=Stopwatch.StartNew();long lastUpdate=0;
-     while((n=input.Read(buffer,0,buffer.Length))>0){CheckCancel();output.Write(buffer,0,n);done+=n;if(time.ElapsedMilliseconds-lastUpdate>400){Report("下载 "+p.Display+" · "+(done/1048576)+" MB / "+(response.ContentLength/1048576)+" MB · "+host,response.ContentLength>0?100.0*done/response.ContentLength:-1);lastUpdate=time.ElapsedMilliseconds;}}
-    }
-    Report("校验 "+p.Display+" 的 SHA-256",-1);
+    JobReport(job,"连接 "+host+" · "+p.Display+(attempt>0?" · 第 "+(attempt+1)+" 次尝试":""),-1,MutedB);
+    DownloadFile(source,partial,job,p.Display);
+    JobReport(job,"校验 "+p.Display+" 的 SHA-256",-1,MutedB);
     if(Hash(partial)!=p.Hash)throw new IOException("SHA-256 校验不匹配");
     if(File.Exists(path))File.Delete(path);
     File.Move(partial,path);return path;
@@ -428,7 +448,7 @@ class OnlineInstaller {
     if(reason.Length>140)reason=reason.Substring(0,140)+"…";
     failures.Add(host+"："+reason);
     bool lastAttemptForSource=attempt==2;
-    Report("来源 "+host+" 失败（"+reason+"），"+(lastAttemptForSource?"切换下一个来源…":"重试…"),-1);
+    JobReport(job,"来源 "+host+" 失败（"+reason+"），"+(lastAttemptForSource?"切换下一个来源…":"重试…"),-1,MutedB);
     System.Threading.Thread.Sleep(250);
    }
   }
@@ -436,6 +456,68 @@ class OnlineInstaller {
   foreach(string item in failures)if(!unique.Contains(item))unique.Add(item);
   throw new IOException("所有下载来源均失败，请检查网络/代理后重试（已在 "+sources.Count+" 个来源间自动切换）："+string.Join("；",unique.ToArray()));
  }
+ static void CopyWithProgress(Stream input,Stream output,DownloadProgress progress,int job,string label,int segments){
+  byte[] buffer=new byte[262144];long last=0;int n;
+  while((n=input.Read(buffer,0,buffer.Length))>0){
+   CheckCancel();output.Write(buffer,0,n);Interlocked.Add(ref progress.Done,n);
+   long now=progress.Watch.ElapsedMilliseconds;if(now-last>400){progress.Report(job,label,segments);last=now;}
+  }
+ }
+ static void DownloadFile(string source,string partial,int job,string label){
+  const int MaxSegments=4;const long Chunk=8L*1024*1024;
+  long total=-1;
+  var probe=(HttpWebRequest)WebRequest.Create(source);
+  probe.UserAgent="MoleculeStudio-Installer/2.0";probe.Timeout=20000;probe.ReadWriteTimeout=30000;
+  probe.AddRange(0,Chunk-1);
+  using(var response=probe.GetResponse()){
+   var http=response as HttpWebResponse;string range=response.Headers["Content-Range"];
+   if(http!=null&&(int)http.StatusCode==206&&!string.IsNullOrEmpty(range)){
+    int slash=range.LastIndexOf('/');long parsed;if(slash>=0&&long.TryParse(range.Substring(slash+1),out parsed))total=parsed;
+   }
+   if(total<=0){
+    var single=new DownloadProgress{Total=response.ContentLength};
+    using(var input=response.GetResponseStream())using(var output=File.Create(partial))CopyWithProgress(input,output,single,job,label,1);
+    return;
+   }
+   if(total<=Chunk){
+    var single=new DownloadProgress{Total=total};
+    using(var input=response.GetResponseStream())using(var output=File.Create(partial))CopyWithProgress(input,output,single,job,label,1);
+    if(new FileInfo(partial).Length!=total)throw new IOException("下载长度不完整");
+    return;
+   }
+  }
+  int segments=(int)Math.Min(MaxSegments,(total+Chunk-1)/Chunk);
+  if(segments<2)segments=2;
+  long baseSize=total/segments,remainder=total%segments;
+  long[] starts=new long[segments];long[] sizes=new long[segments];
+  long offset=0;
+  for(int i=0;i<segments;i++){sizes[i]=baseSize+(i<remainder?1:0);starts[i]=offset;offset+=sizes[i];}
+  var progress=new DownloadProgress{Total=total};
+  using(var file=File.Create(partial))file.SetLength(total);
+  Exception failure=null;var gate=new object();var threads=new Thread[segments];
+  for(int i=0;i<segments;i++){
+   int index=i;
+   threads[i]=new Thread(()=>{
+    try{
+     var request=(HttpWebRequest)WebRequest.Create(source);request.UserAgent="MoleculeStudio-Installer/2.0";request.Timeout=20000;request.ReadWriteTimeout=30000;
+     request.AddRange(starts[index],starts[index]+sizes[index]-1);
+     using(var resp=request.GetResponse())using(var input=resp.GetResponseStream())using(var stream=new FileStream(partial,FileMode.Open,FileAccess.Write,FileShare.ReadWrite)){
+      stream.Seek(starts[index],SeekOrigin.Begin);byte[] buffer=new byte[262144];long written=0;int n;long last=0;
+      while((n=input.Read(buffer,0,buffer.Length))>0){
+       CheckCancel();stream.Write(buffer,0,n);written+=n;Interlocked.Add(ref progress.Done,n);
+       long now=progress.Watch.ElapsedMilliseconds;if(now-last>400){progress.Report(job,label,segments);last=now;}
+      }
+      if(written!=sizes[index])throw new IOException("分段长度不完整");
+     }
+    }catch(Exception error){lock(gate){if(failure==null)failure=error;}}
+   });
+   threads[i].IsBackground=true;threads[i].Start();
+  }
+  foreach(var thread in threads)thread.Join();
+  if(failure!=null)throw failure;
+  if(new FileInfo(partial).Length!=total)throw new IOException("下载长度不完整");
+ }
+
  static string Duplicate(string root,string rel){
   const string a="ocsr_runtime/python/cpython-3.10-windows-x86_64-none/",b="ocsr_runtime/venv/Lib/site-packages/";
   if(rel.StartsWith(a))return Safe(root,"chemistry_python/"+rel.Substring(a.Length));
@@ -487,6 +569,40 @@ class OnlineInstaller {
    if(File.Exists(stale)){Track(legacy);File.Delete(stale);}
   }
  }
+ static void InstallAll(string root,int[] plan,bool mirrors,bool shortcut,bool health){
+  var archives=new string[Count];var errors=new Exception[Count];BeginTransaction(root);
+  try{
+   foreach(int i in plan){
+    var dependency=packages[i];
+    if(!dependency.Available)throw new IOException(dependency.Display+" 需要联网获取新版清单后才能安装。");
+    if(i!=0&&State(root,packages[0])!=1&&Array.IndexOf(plan,0)<0)throw new IOException("请先完整安装当前版本的核心工作台。");
+    if(i==2&&State(root,packages[1])!=1&&Array.IndexOf(plan,1)<0)throw new IOException("请先安装 AI 基础，再安装 AI 高级。");
+   }
+   ShowJobs(plan);
+   Report("正在同时下载并安装 "+Names(plan)+" ……",-1);
+   var threads=new Thread[plan.Length];
+   for(int i=0;i<plan.Length;i++){
+    int index=plan[i];
+    threads[i]=new Thread(()=>{
+     try{archives[index]=Download(packages[index],mirrors,index);}
+     catch(Exception error){errors[index]=error;JobReport(index,"失败："+error.Message,0,FailedB);}
+    });
+    threads[i].IsBackground=true;threads[i].Start();
+   }
+   foreach(var thread in threads)thread.Join();
+   foreach(int i in plan)if(errors[i]!=null)throw errors[i];
+   foreach(int i in plan){
+    JobReport(i,"准备安装……",0,MutedB);
+    Extract(archives[i],root,packages[i]);
+    if(health){JobReport(i,"校验运行时环境……",-1,MutedB);Health(root,packages[i]);}
+    JobReport(i,"已安装 · 完成",100,DoneB);
+   }
+   CommitTransaction();
+  }catch{RollbackTransaction();throw;}
+  if(health){File.WriteAllText(LastRoot,Path.GetFullPath(root));if(shortcut)Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),false);}
+  foreach(var file in archives)if(file!=null&&File.Exists(file))File.Delete(file);
+  Report("已完成安装："+Names(plan)+(shortcut?" · 桌面快捷方式已就绪":""),100);
+ }
  static void CoreHealth(string root){
   string exe=Path.Combine(root,"chemistry_python/python.exe");if(!File.Exists(exe))throw new IOException("缺少化学解释器");
   var si=new ProcessStartInfo(exe,"-B -c \"from rdkit.Chem import AllChem,rdDistGeom;import torch,scipy,pandas;import sys;sys.path.append('chemistry_runtime/nmr-ml-site');from csp5 import predict_mols\""){UseShellExecute=false,CreateNoWindow=true,WorkingDirectory=root,RedirectStandardError=true};
@@ -510,7 +626,7 @@ class OnlineInstaller {
   if(!Verify(root,package))throw new IOException("图片识别文件校验失败，请重新安装。");
  }
  static void Work(Action action){
-  if(busy)return;string root=folder.Text;busy=true;cancelled=false;EnableActions(false);
+  if(busy)return;string root=folder.Text;busy=true;cancelled=false;HideJobs();EnableActions(false);
   new Thread(()=>{
    try{action();}catch(Exception error){Report(error.Message,0);}
    finally{
@@ -605,7 +721,7 @@ class OnlineInstaller {
  [STAThread] static int Main(string[] args){
   AppContext.SetSwitch("Switch.System.IO.UseLegacyPathHandling",false);
   AppContext.SetSwitch("Switch.System.IO.BlockLongPaths",false);
-  ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;
+  ServicePointManager.SecurityProtocol=SecurityProtocolType.Tls12;ServicePointManager.DefaultConnectionLimit=16;
   cache=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"MoleculeStudioInstaller","cache");
   Directory.CreateDirectory(cache);
   if(args.Length>0&&args[0]!="--preview"&&args[0]!="--ui-lifecycle-test"&&args[0]!="--small-screen-test"){try{
@@ -758,6 +874,36 @@ class OnlineInstaller {
     Extract(args[2],args[3],packages[i]);return Verify(args[3],packages[i])?0:3;
    }
    if(args[0]=="--health-test"&&(args.Length==2||args.Length==3)){int index=args.Length==3?int.Parse(args[2]):0;if(index<0||index>=Count)return 3;Health(args[1],packages[index]);return 0;}
+   if(args[0]=="--parallel-test"){
+    string root=Path.Combine(Path.GetTempPath(),"MoleculeStudio-parallel-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
+    string zips=Path.Combine(root,"_zips");Directory.CreateDirectory(zips);
+    var originalPackages=packages;string originalCache=cache;
+    var fixtures=new Package[Count];
+    for(int i=0;i<Count;i++){
+     var fixture=new Package{Key=Keys[i],Name=Keys[i]+"-fixture.zip",Hash="",Bytes=1,Available=true,Version="0.0-test",Display=Titles[i]};
+     string file=Path.Combine(zips,fixture.Name);
+     using(var z=ZipFile.Open(file,ZipArchiveMode.Create)){
+      for(int j=0;j<40;j++)using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/"+Keys[i]+"-"+j+".txt").Open()))w.Write(Keys[i]+" entry "+j);
+      using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/shared-"+(i%2)+".txt").Open()))w.Write("shared "+(i%2));
+     }
+     fixture.Hash=Hash(file);fixtures[i]=fixture;
+    }
+    string install=Path.Combine(root,"install");Directory.CreateDirectory(install);
+    packages=fixtures;testSource=zips;cache=Path.Combine(root,"_cache");Directory.CreateDirectory(cache);
+    try{
+     InstallAll(install,new[]{0,1,2,3},false,false,false);
+     for(int i=0;i<Count;i++)if(!Has(install,fixtures[i])||State(install,fixtures[i])!=1)return 90+i;
+     if(!File.Exists(Path.Combine(install,"Core-0.txt"))||!File.Exists(Path.Combine(install,"OCSR-39.txt")))return 94;
+    }finally{packages=originalPackages;cache=originalCache;testSource=null;}
+    return 0;
+   }
+   if(args[0]=="--download-test"&&args.Length==4){
+    var download=new Package{Key="Download",Name="download-test-"+Guid.NewGuid().ToString("N")+".zip",Hash=args[2],Bytes=long.Parse(args[3]),Available=true,Url=args[1],Display="下载测试"};
+    string path=Download(download,false,-1);
+    bool ok=Hash(path)==args[2];
+    if(File.Exists(path))File.Delete(path);
+    return ok?0:1;
+   }
    if(args[0]=="--network-test"){Download(new Package{Key="Network test",Name="MoleculeStudio-0.95-external-ai-skill.zip",Hash="1ce9a37f57069234d0e5c892c74e32cde8963bbb21d769155e69e11e88674a80",Bytes=1,Available=true,Url=ReleaseBase+"v0.9.5.0.0/MoleculeStudio-0.95-external-ai-skill.zip"},true);return 0;}
   }catch(Exception error){Console.Error.WriteLine(error);return 1;}return 2;}
 
@@ -769,6 +915,8 @@ class OnlineInstaller {
   using(var icon=Assembly.GetExecutingAssembly().GetManifestResourceStream("App.ico")){window.Icon=System.Windows.Media.Imaging.BitmapFrame.Create(icon,System.Windows.Media.Imaging.BitmapCreateOptions.None,System.Windows.Media.Imaging.BitmapCacheOption.OnLoad);}
   folder.Text=File.Exists(LastRoot)?File.ReadAllText(LastRoot):Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Programs","MoleculeStudio");
   picks=new CheckBox[Count];badges=new TextBlock[Count];
+  jobRows=new Grid[Count];jobBars=new ProgressBar[Count];jobInfos=new TextBlock[Count];
+  for(int i=0;i<Count;i++){jobRows[i]=(Grid)window.FindName("Job"+i);jobBars[i]=(ProgressBar)window.FindName("Bar"+i);jobInfos[i]=(TextBlock)window.FindName("Job"+i+"Info");}
   for(int i=0;i<Count;i++){picks[i]=(CheckBox)window.FindName("Pick"+i);badges[i]=(TextBlock)window.FindName("State"+i);picks[i].Checked+=(sender,e)=>Buttons();picks[i].Unchecked+=(sender,e)=>Buttons();}
   bool syncing=false;
   // Selecting AIAdvanced implies AIBasic; dropping AIBasic drops AIAdvanced.
@@ -853,9 +1001,10 @@ class OnlineInstaller {
     var match=Regex.Match(args[i],"^(\\d{3,4})x(\\d{3,4})$");
     if(match.Success){window.Width=double.Parse(match.Groups[1].Value);window.Height=double.Parse(match.Groups[2].Value);}
     else if(args[i]=="select"){picks[1].IsChecked=true;picks[2].IsChecked=true;picks[3].IsChecked=true;}
-    else folder.Text=args[i];
+    else if(!args[i].StartsWith("--"))folder.Text=args[i];
    }
    Cards(folder.Text);EnableActions(true);LayoutForSize();status.Text=feedStatus;
+   if(Array.IndexOf(args,"--jobs")>=0){ShowJobs(new[]{0,1,2,3});jobBars[0].Value=76;jobInfos[0].Text="下载 核心工作台 · 812 MB / 1063 MB · 6.4 MB/s · 4 线程";jobBars[1].Value=100;jobInfos[1].Text="下载 AI 基础 · 75 KB · 4 线程";jobBars[2].IsIndeterminate=true;jobInfos[2].Text="连接 ghfast.top · AI 高级";jobBars[3].Value=100;jobInfos[3].Foreground=DoneB;jobInfos[3].Text="已安装 · 完成";status.Text="正在同时下载并安装 4 个组件……";((TextBlock)window.FindName("SelectionInfo")).Text="将同时下载并安装："+Names(new[]{0,1,2,3})+" · 合计约 1.81 GB";}
    window.Show();window.UpdateLayout();
    var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap((int)window.ActualWidth,(int)window.ActualHeight,96,96,System.Windows.Media.PixelFormats.Pbgra32);
    bitmap.Render(window);
