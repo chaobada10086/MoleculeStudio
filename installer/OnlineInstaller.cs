@@ -91,6 +91,10 @@ class OnlineInstaller {
 
  static bool IsKey(string key){return Array.IndexOf(Keys,key)>=0;}
  static bool IsProgramFile(string rel){string ext=Path.GetExtension(rel).ToLowerInvariant();return ext==".exe"||ext==".dll"||ext==".pyd"||ext==".node"||ext==".so"||ext==".dylib";}
+ static bool IsCritical(string rel){
+  string name=BaseName(rel).ToLowerInvariant();
+  return name=="moleculestudio.exe"||name=="moleculestudio-onlinesetup.exe"||name=="python.exe"||name=="chemistry_backend.ini"||name.StartsWith("manifest-",StringComparison.Ordinal)||name.StartsWith(".installer-",StringComparison.Ordinal);
+ }
 
  static Package[] ParseFeed(string text){
   Dictionary<string,object> root;
@@ -637,7 +641,7 @@ class OnlineInstaller {
     // The ZIP itself is verified by SHA-256 before extraction, so per-file hashing is
     // unnecessary here: same-size files are left alone, changed or program files are
     // written inside the transaction (backup available for rollback).
-    if(File.Exists(dest)&&!IsProgramFile(rel)&&new FileInfo(dest).Length==e.Length){records[rel]=received;n++;continue;}
+    if(File.Exists(dest)&&new FileInfo(dest).Length==e.Length&&(!IsProgramFile(rel)||!IsCritical(rel))){records[rel]=received;n++;continue;}
     Track(rel);if(File.Exists(dest))File.Delete(dest);
     string duplicate=Duplicate(root,rel);bool linked=false;
     if(duplicate!=null&&File.Exists(duplicate)&&new FileInfo(duplicate).Length==e.Length)linked=CreateHardLink(dest,duplicate,IntPtr.Zero);
@@ -701,7 +705,6 @@ class OnlineInstaller {
   }catch{RollbackTransaction();throw;}
   File.WriteAllText(LastRoot,Path.GetFullPath(root));
   if(shortcut)Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),false);
-  foreach(var file in archives)if(file!=null&&File.Exists(file))File.Delete(file);
   Report("已完成安装："+Names(plan)+(shortcut?" · 桌面快捷方式已就绪":""),100);
  }
  static void EnsureShortcut(string root){
