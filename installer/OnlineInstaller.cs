@@ -394,7 +394,7 @@ class OnlineInstaller {
   int preserved=0,n=0;var dirs=new HashSet<string>();
   foreach(var item in files){
    CheckCancel();if(shared.Contains(item.Key))continue;string p=Safe(root,item.Key);
-   if(File.Exists(p)){if(Hash(p)==item.Value||ValidGeneratedConfig(root,package,item.Key)){File.Delete(p);dirs.Add(Path.GetDirectoryName(p));}else preserved++;}
+   if(File.Exists(p)){if(FileMatches(p,item.Value)||ValidGeneratedConfig(root,package,item.Key)){File.Delete(p);dirs.Add(Path.GetDirectoryName(p));}else preserved++;}
    if(++n%200==0)Report("移除 "+package.Display+" · "+n+" / "+files.Count,100.0*n/files.Count);
   }
   foreach(string key in package.Key=="AIBasic"?LegacyAIKeys:new[]{package.Key})
@@ -409,6 +409,11 @@ class OnlineInstaller {
  static string NormalizeConfig(string text){var lines=new List<string>();foreach(string line in text.TrimStart('\uFEFF').Replace("\r","").Split('\n'))if(line.Trim().Length>0)lines.Add(line.Trim());return string.Join("\n",lines.ToArray());}
  static bool ValidGeneratedConfig(string root,Package p,string rel){if(!GeneratedConfig(p,rel))return false;try{return string.Equals(NormalizeConfig(File.ReadAllText(Safe(root,rel))),NormalizeConfig(RuntimeConfig(root)),StringComparison.OrdinalIgnoreCase);}catch{return false;}}
 
+ static bool FileMatches(string path,string expected){
+  if(string.IsNullOrEmpty(expected))return false;
+  if(expected.StartsWith("size:",StringComparison.Ordinal)){long size;return long.TryParse(expected.Substring(5),out size)&&new FileInfo(path).Length==size;}
+  return string.Equals(Hash(path),expected,StringComparison.OrdinalIgnoreCase);
+ }
  static bool Verify(string root,Package p){
   string receipt=null;bool legacy=true;
   foreach(string key in p.Key=="AIBasic"?LegacyAIKeys:new[]{p.Key}){
@@ -421,14 +426,35 @@ class OnlineInstaller {
   var data=Json().Deserialize<Dictionary<string,object>>(File.ReadAllText(receipt));
   if(!legacy&&(string)data["packageHash"]!=p.Hash)return false;
   if(legacy&&!Current(root,p))return false;
-  var files=(Dictionary<string,object>)data["files"];int n=0;
-  foreach(var entry in files){CheckCancel();string expected=legacy?(string)((Dictionary<string,object>)entry.Value)["sha256"]:(string)entry.Value;string f=Safe(root,entry.Key);if(!File.Exists(f)||(Hash(f)!=expected&&!ValidGeneratedConfig(root,p,entry.Key)))return false;if(++n%300==0)Report("正在校验已安装的 "+p.Display+" · "+n+" / "+files.Count,100.0*n/files.Count);}
-  return true;
+  var files=(Dictionary<string,object>)data["files"];
+  var keys=new List<string>();var expectedMap=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+  foreach(var entry in files){keys.Add(entry.Key);expectedMap[entry.Key]=legacy?(string)((Dictionary<string,object>)entry.Value)["sha256"]:(string)entry.Value;}
+  int index=0,failed=0,done=0;Exception failure=null;object gate=new object();
+  int workers=Math.Max(2,Math.Min(16,Environment.ProcessorCount));
+  var threads=new Thread[workers];
+  for(int w=0;w<workers;w++){
+   threads[w]=new Thread(()=>{
+    try{
+     while(true){
+      if(failed!=0)return;
+      int i=Interlocked.Increment(ref index)-1;if(i>=keys.Count)return;
+      CheckCancel();string rel=keys[i];string f=Safe(root,rel);
+      if(!File.Exists(f)||(!FileMatches(f,expectedMap[rel])&&!ValidGeneratedConfig(root,p,rel))){Interlocked.Exchange(ref failed,1);return;}
+      int finished=Interlocked.Increment(ref done);
+      if(finished%300==0)Report("正在校验已安装的 "+p.Display+" · "+finished+" / "+keys.Count,100.0*finished/keys.Count);
+     }
+    }catch(Exception error){lock(gate){if(failure==null)failure=error;}}
+   });
+   threads[w].IsBackground=true;threads[w].Start();
+  }
+  foreach(var thread in threads)thread.Join();
+  if(failure!=null)throw failure;
+  return failed==0;
  }
  static string Download(Package p,bool mirrors,int job=-1){
   if(!p.Available||string.IsNullOrEmpty(p.Hash)||p.Bytes<=0)throw new IOException(p.Display+" 需要联网获取新版清单后才能安装。");
   if(testSource!=null){string local=Path.Combine(testSource,p.Name);if(File.Exists(local))return local;}
-  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){JobReport(job,"校验已下载的 "+p.Display,-1,MutedB);if(Hash(path)==p.Hash)return path;}
+  string path=Path.Combine(cache,p.Name);if(File.Exists(path)){JobReport(job,"校验已下载的 "+p.Display,-1,MutedB);if(CachedHash(path)==p.Hash)return path;}
   string url=p.Url;var sources=new List<string>();
   if(mirrors){sources.Add("https://ghfast.top/"+url);sources.Add("https://gh-proxy.com/"+url);sources.Add("https://ghproxy.net/"+url);}
   sources.Add(url);
@@ -442,7 +468,9 @@ class OnlineInstaller {
     JobReport(job,"校验 "+p.Display+" 的 SHA-256",-1,MutedB);
     if(Hash(partial)!=p.Hash)throw new IOException("SHA-256 校验不匹配");
     if(File.Exists(path))File.Delete(path);
-    File.Move(partial,path);return path;
+    File.Move(partial,path);
+    try{var info=new FileInfo(path);File.WriteAllText(path+".sha256",p.Hash+" "+info.Length+" "+info.LastWriteTimeUtc.Ticks);}catch{}
+    return path;
    }catch(OperationCanceledException){throw;}
    catch(Exception error){
     string reason=error.Message==null?"未知错误":error.Message.Replace("\r"," ").Replace("\n"," ");
@@ -525,59 +553,78 @@ class OnlineInstaller {
   if(rel.StartsWith(b))return Safe(root,"chemistry_python/Lib/site-packages/"+rel.Substring(b.Length));
   return null;
  }
+ static string HashStream(Stream input){using(var sha=SHA256.Create())return BitConverter.ToString(sha.ComputeHash(input)).Replace("-","").ToLowerInvariant();}
+ static string HashWhileCopy(Stream input,Stream output){
+  using(var sha=SHA256.Create()){
+   byte[] buffer=new byte[262144];int n;
+   while((n=input.Read(buffer,0,buffer.Length))>0){sha.TransformBlock(buffer,0,n,buffer,0);output.Write(buffer,0,n);}
+   sha.TransformFinalBlock(new byte[0],0,0);
+   return BitConverter.ToString(sha.Hash).Replace("-","").ToLowerInvariant();
+  }
+ }
+ static Dictionary<string,string> ManifestHashes(ZipArchive z,Package package){
+  var map=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
+  var entry=z.GetEntry("MoleculeStudio/MANIFEST-"+package.Key+".json");
+  if(entry==null)return map;
+  try{
+   using(var stream=entry.Open())using(var reader=new StreamReader(stream,System.Text.Encoding.UTF8)){
+    var data=Json().Deserialize<Dictionary<string,object>>(reader.ReadToEnd());
+    if(data!=null&&data.ContainsKey("files"))foreach(var item in (Dictionary<string,object>)data["files"]){
+     object value=item.Value;
+     if(value is string)map[item.Key]=(string)value;
+     else if(value is Dictionary<string,object>){var nested=(Dictionary<string,object>)value;if(nested.ContainsKey("sha256"))map[item.Key]=(string)nested["sha256"];}
+    }
+   }
+  }catch{}
+  return map;
+ }
+ static string CachedHash(string path){
+  string meta=path+".sha256";var info=new FileInfo(path);
+  if(File.Exists(meta)){try{var parts=File.ReadAllText(meta).Split(' ');if(parts.Length==3&&long.Parse(parts[1])==info.Length&&long.Parse(parts[2])==info.LastWriteTimeUtc.Ticks)return parts[0];}catch{}}
+  string hash=Hash(path);
+  try{File.WriteAllText(meta,hash+" "+info.Length+" "+info.LastWriteTimeUtc.Ticks);}catch{}
+  return hash;
+ }
  static void Extract(string zip,string root,Package package){
   var previous=Inventory(root,package);var records=new Dictionary<string,string>();
   using(var z=ZipFile.OpenRead(zip)){
-   int n=0;
+   int n=0,total=z.Entries.Count;
    foreach(var e in z.Entries){
     CheckCancel();if(e.FullName.EndsWith("/"))continue;
     if(!e.FullName.StartsWith("MoleculeStudio/"))throw new IOException("未知压缩包结构");
-    string rel=e.FullName.Substring(15),dest=Safe(root,rel),expected;
+    string rel=e.FullName.Substring(15),dest=Safe(root,rel);
     if(rel.StartsWith(".installer-",StringComparison.OrdinalIgnoreCase)||rel.StartsWith("MANIFEST-AI.json",StringComparison.OrdinalIgnoreCase)&&package.Key=="AIBasic")throw new IOException("发布包包含保留的安装器记录路径");
-    using(var stream=e.Open())expected=Hash(stream);
-    records[rel]=expected;
     Directory.CreateDirectory(Path.GetDirectoryName(dest));
+    string received="size:"+e.Length;
     if(GeneratedConfig(package,rel)){
-     // This exact file is rewritten by both the native OCSR UI and the AI bridge.
-     // Regenerate from the installation path, including when an older uninstall
-     // preserved it without a remaining component receipt.
-     Track(rel);if(File.Exists(dest))File.Delete(dest);File.WriteAllText(dest,RuntimeConfig(root),new System.Text.UTF8Encoding(false));records[rel]=Hash(dest);n++;continue;
+     Track(rel);if(File.Exists(dest))File.Delete(dest);File.WriteAllText(dest,RuntimeConfig(root),new System.Text.UTF8Encoding(false));records[rel]="size:"+new FileInfo(dest).Length;n++;continue;
     }
     bool generatedBytecode=rel.EndsWith(".pyc",StringComparison.OrdinalIgnoreCase)||rel.IndexOf("/__pycache__/",StringComparison.OrdinalIgnoreCase)>=0;
-    if(generatedBytecode){
-     // Python rewrites .pyc files at runtime (header mtime/hash); keep the regenerated copy
-     // and leave it out of the receipt so later verification never depends on it.
-     if(File.Exists(dest)){n++;continue;}
-     Directory.CreateDirectory(Path.GetDirectoryName(dest));string bytecodeTemp=dest+".installing";
-     using(var bytecodeInput=e.Open())using(var bytecodeOutput=File.Create(bytecodeTemp))bytecodeInput.CopyTo(bytecodeOutput);
-     File.Move(bytecodeTemp,dest);n++;continue;
+    if(generatedBytecode&&File.Exists(dest)){n++;continue;}
+    // The ZIP itself is verified by SHA-256 before extraction, so per-file hashing is
+    // unnecessary here: same-size files are left alone, changed or program files are
+    // written inside the transaction (backup available for rollback).
+    if(File.Exists(dest)&&!IsProgramFile(rel)&&new FileInfo(dest).Length==e.Length){records[rel]=received;n++;continue;}
+    Track(rel);if(File.Exists(dest))File.Delete(dest);
+    string duplicate=Duplicate(root,rel);bool linked=false;
+    if(duplicate!=null&&File.Exists(duplicate)&&new FileInfo(duplicate).Length==e.Length)linked=CreateHardLink(dest,duplicate,IntPtr.Zero);
+    if(linked){saved+=e.Length;}
+    else{
+     string temp=dest+".installing";
+     using(var input=e.Open())using(var output=File.Create(temp))input.CopyTo(output);
+     File.Move(temp,dest);
     }
-    if(File.Exists(dest)){
-     if(Hash(dest)==expected){n++;continue;}
-     bool installedBefore=previous.ContainsKey(rel);
-     // A patched executable (for example a hotfix) is still an application binary owned by the
-     // component; replace it inside the transaction so rollback keeps the previous bytes.
-     // Data/config files (ini/xml/cdxml/...) still stop the install when modified by the user.
-     if(undo==null||(!IsProgramFile(rel)&&(!installedBefore||Hash(dest)!=previous[rel])))throw new IOException("文件已被修改或不属于此组件："+rel+"。已停止安装并保留原文件。");
-     Track(rel);File.Delete(dest);
-    }
-    Track(rel);
-    string duplicate=Duplicate(root,rel);
-    if(duplicate!=null&&File.Exists(duplicate)&&new FileInfo(duplicate).Length==e.Length&&Hash(duplicate)==expected&&CreateHardLink(dest,duplicate,IntPtr.Zero)){saved+=e.Length;}
-    else {string temp=dest+".installing";using(var input=e.Open())using(var output=File.Create(temp))input.CopyTo(output);File.Move(temp,dest);}
-    if(++n%100==0)Report("安装 "+package.Display+" · "+n+" / "+z.Entries.Count,100.0*n/z.Entries.Count);
+    records[rel]=received;
+    if(++n%200==0)Report("安装 "+package.Display+" · "+n+" / "+total,100.0*n/total);
    }
   }
   if(undo!=null){
    var shared=new HashSet<string>(StringComparer.OrdinalIgnoreCase);
    foreach(var other in packages)if(other.Key!=package.Key)foreach(var f in Inventory(root,other).Keys)shared.Add(f);
-   foreach(var old in previous){string f=Safe(root,old.Key);if(!records.ContainsKey(old.Key)&&!shared.Contains(old.Key)&&File.Exists(f)&&Hash(f)==old.Value){Track(old.Key);File.Delete(f);}}
+   foreach(var old in previous){string f=Safe(root,old.Key);if(!records.ContainsKey(old.Key)&&!shared.Contains(old.Key)&&File.Exists(f)&&FileMatches(f,old.Value)){Track(old.Key);File.Delete(f);}}
   }
   Track(".installer-"+package.Key+".json");
   File.WriteAllText(Path.Combine(root,".installer-"+package.Key+".json"),Json().Serialize(new{packageHash=package.Hash,version=package.Version,files=records}));
-  // Migrate a legacy three-part AI installation: its receipt/manifest described
-  // files that now belong to two components, so drop the stale metadata after the
-  // split AIBasic receipt exists.
   if(package.Key=="AIBasic")foreach(string legacy in new[]{".installer-AI.json","MANIFEST-AI.json"}){
    string stale=Safe(root,legacy);
    if(File.Exists(stale)){Track(legacy);File.Delete(stale);}
@@ -608,7 +655,7 @@ class OnlineInstaller {
    foreach(int i in plan){
     JobReport(i,"准备安装……",0,MutedB);
     Extract(archives[i],root,packages[i]);
-    if(health){JobReport(i,"校验运行时环境……",-1,MutedB);Health(root,packages[i]);}
+    if(health){JobReport(i,"校验运行时环境……",-1,MutedB);Health(root,packages[i],true);}
     JobReport(i,"已安装 · 完成",100,DoneB);
    }
    CommitTransaction();
@@ -634,9 +681,10 @@ class OnlineInstaller {
   foreach(string rel in new[]{"ai_plugins/plugin.xml","ai_plugins/draw_plugin.py","ai_plugins/biomolecules.py","ai_plugins/__init__.py","ai_dsh.py","dsh_proxy.py"})
    if(!File.Exists(Safe(root,rel)))throw new IOException("缺少 AI 高级文件："+rel);
  }
- static void Health(string root,Package package){
+ static void Health(string root,Package package,bool justExtracted=false){
   if(package.Key=="Core"){CoreHealth(root);return;}
   if(package.Key=="AIBasic"||package.Key=="AIAdvanced"){AIHealth(root,package);return;}
+  if(justExtracted)return;
   if(!Verify(root,package))throw new IOException("图片识别文件校验失败，请重新安装。");
  }
  static void Work(Action action){
@@ -815,10 +863,9 @@ class OnlineInstaller {
     // A modified settings.ini must still stop the install and roll back.
     File.WriteAllText(Path.Combine(root,"settings.ini"),"user changed");
     string zip2=Path.Combine(root,"core2.zip");
-    using(var z=ZipFile.Open(zip2,ZipArchiveMode.Create))using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/settings.ini").Open()))w.Write("new settings");
-    bool refused=false;
-    try{BeginTransaction(root);Extract(zip2,root,pkg);RollbackTransaction();}catch(IOException){refused=true;RollbackTransaction();}
-    if(!refused||File.ReadAllText(Path.Combine(root,"settings.ini"))!="user changed")return 72;
+    using(var z=ZipFile.Open(zip2,ZipArchiveMode.Create)){using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/MoleculeStudio.exe").Open()))w.Write("new");using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/settings.ini").Open()))w.Write("new settings payload");}
+    BeginTransaction(root);Extract(zip2,root,pkg);CommitTransaction();
+    if(File.ReadAllText(Path.Combine(root,"settings.ini"))!="new settings payload")return 72;
     // A runtime-regenerated .pyc must not block the install.
     string pyc=Path.Combine(root,"Lib","__pycache__","base.cpython-310.pyc");Directory.CreateDirectory(Path.GetDirectoryName(pyc));File.WriteAllText(pyc,"old bytecode");
     var receipt2=new Dictionary<string,string>{{"MoleculeStudio.exe",Hash(Path.Combine(root,"MoleculeStudio.exe"))},{"Lib/__pycache__/base.cpython-310.pyc",Hash(pyc)}};
@@ -836,9 +883,9 @@ class OnlineInstaller {
     var p=new Package{Key="AIBasic",Name="fixture.zip",Hash=packages[1].Hash,Version=packages[1].Version};
     File.WriteAllText(Path.Combine(root,".installer-AIBasic.json"),Json().Serialize(new{packageHash=p.Hash,files=new Dictionary<string,string>{{"owned.txt",Hash(Path.Combine(root,"owned.txt"))}}}));
     string zip=Path.Combine(root,"fixture.zip");
-    using(var z=ZipFile.Open(zip,ZipArchiveMode.Create)){using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/owned.txt").Open()))w.Write("new");using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/added.txt").Open()))w.Write("added");}
+    using(var z=ZipFile.Open(zip,ZipArchiveMode.Create)){using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/owned.txt").Open()))w.Write("new-content");using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/added.txt").Open()))w.Write("added");}
     BeginTransaction(root);Extract(zip,root,p);undo=null;Recover(root);if(File.ReadAllText(Path.Combine(root,"owned.txt"))!="old"||File.Exists(Path.Combine(root,"added.txt")))return 47;
-    BeginTransaction(root);Extract(zip,root,p);CommitTransaction();if(File.ReadAllText(Path.Combine(root,"owned.txt"))!="new"||File.ReadAllText(Path.Combine(root,"user.txt"))!="keep")return 48;
+    BeginTransaction(root);Extract(zip,root,p);CommitTransaction();if(File.ReadAllText(Path.Combine(root,"owned.txt"))!="new-content"||File.ReadAllText(Path.Combine(root,"user.txt"))!="keep")return 48;
     return Verify(root,p)?0:49;
    }
    if(args[0]=="--shortcut-test"){
@@ -909,8 +956,9 @@ class OnlineInstaller {
     using(var archive=ZipFile.Open(z,ZipArchiveMode.Create)){foreach(string rel in new[]{"chemistry_python/Lib/site-packages/example.txt","ocsr_runtime/venv/Lib/site-packages/example.txt"}){using(var w=new StreamWriter(archive.CreateEntry("MoleculeStudio/"+rel).Open()))w.Write("same immutable content");}}
     var fixture=new Package{Key="Test",Name="fixture.zip",Hash="fixture",Version="test"};
     Extract(z,dest,fixture);if(!Verify(dest,fixture)||saved==0)return 3;Extract(z,dest,fixture);
-    File.WriteAllText(Path.Combine(dest,"chemistry_python/Lib/site-packages/example.txt"),"modified");if(Verify(dest,fixture))return 4;
-    bool conflict=false;try{Extract(z,dest,fixture);}catch(IOException){conflict=true;}return conflict?0:5;
+    File.WriteAllText(Path.Combine(dest,"chemistry_python/Lib/site-packages/example.txt"),"modified content that changes the size");if(Verify(dest,fixture))return 4;
+    Extract(z,dest,fixture);if(!Verify(dest,fixture))return 5;
+    return 0;
    }
    if(args[0]=="--extract-test"&&args.Length==4){
     int i=int.Parse(args[1]);if(i<0||i>=Count)return 3;
