@@ -241,10 +241,10 @@ class OnlineInstaller {
  }
  static int[] Plan(bool[] selected,int[] actual,bool remove){
   var planned=new bool[Count];
-  for(int i=0;i<Count;i++)planned[i]=selected[i]&&(remove?actual[i]!=0:actual[i]!=1);
+  for(int i=0;i<Count;i++)planned[i]=selected[i]&&(remove?actual[i]==1:actual[i]!=1);
   if(remove){
-   if(planned[0])for(int i=1;i<Count;i++)planned[i]=actual[i]!=0;
-   if(planned[1])planned[2]=actual[2]!=0;
+   if(planned[0])for(int i=1;i<Count;i++)planned[i]=actual[i]==1;
+   if(planned[1])planned[2]=actual[2]==1;
   }else{
    if(planned[2]&&actual[1]!=1)planned[1]=true;
    if((planned[1]||planned[2]||planned[3])&&actual[0]!=1)planned[0]=true;
@@ -870,6 +870,8 @@ class OnlineInstaller {
     if(string.Join(",",Plan(new[]{false,true,false,false},new[]{1,1,1,0},true))!="2,1")return 48;
     if(string.Join(",",Plan(new[]{false,false,false,true},new[]{1,1,1,0},false))!="3")return 49;
     if(!CanInstall(0,0,0)||CanInstall(1,0,0)||CanInstall(2,1,0)||!CanInstall(2,1,1)||!CanInstall(3,1,0)||CanInstall(3,0,0))return 41;
+    if(SelectionMode(new[]{false,true,false,false},new[]{1,2,0,0})!=1)return 75;
+    if(SelectionMode(new[]{true,false,false,false},new[]{1,2,0,0})!=2)return 77;
     return 0;
    }
    if(args[0]=="--repair-test"){
