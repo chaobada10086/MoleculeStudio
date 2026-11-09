@@ -354,7 +354,7 @@ class OnlineInstaller {
   if(path!=null&&path.StartsWith(@"\\?\",StringComparison.Ordinal)){int i=path.LastIndexOf('\\');return i>=0?path.Substring(i+1):path;}
   return Path.GetFileName(path);
  }
- static string Safe(string root,string rel){string p=Path.GetFullPath(Path.Combine(root,rel.Replace('/',Path.DirectorySeparatorChar)));if(!p.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase))throw new IOException("压缩包路径越界");if(p.Length>=260)throw new IOException("安装路径过长（超过 259 个字符）："+p+"。请把安装位置换到更短的目录，例如 D:\\MoleculeStudio。");return p;}
+ static string Safe(string root,string rel){string p;try{p=Path.GetFullPath(Path.Combine(root,rel.Replace('/',Path.DirectorySeparatorChar)));}catch(ArgumentException error){throw new IOException("安装路径不合法："+root+" + "+rel+"（"+error.Message+"）",error);}if(!p.StartsWith(Path.GetFullPath(root)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase))throw new IOException("压缩包路径越界");if(p.Length>=260)throw new IOException("安装路径过长（超过 259 个字符）："+p+"。请把安装位置换到更短的目录，例如 D:\\MoleculeStudio。");return p;}
  static void CheckCancel(){if(cancelled)throw new OperationCanceledException("已取消。已安装文件保留；重新安装会跳过校验通过的文件。");}
  static void Report(string text,double value){if(window!=null)window.Dispatcher.BeginInvoke((Action)(()=>{status.Text=text;bar.IsIndeterminate=value<0;if(value>=0)bar.Value=value;}));else Console.WriteLine(text);}
  static string Mb(long bytes){if(bytes>=1073741824L)return ((double)bytes/1073741824.0).ToString("0.00")+" GB";if(bytes>=1048576L)return ((double)bytes/1048576.0).ToString("0.0")+" MB";return (bytes/1024L)+" KB";}
@@ -737,7 +737,7 @@ class OnlineInstaller {
  static void Work(Action action){
   if(busy)return;string root=folder.Text;busy=true;cancelled=false;HideJobs();EnableActions(false);
   new Thread(()=>{
-   try{action();}catch(Exception error){try{File.AppendAllText(Path.Combine(Path.GetTempPath(),"MoleculeStudio-installer-error.log"),DateTime.Now.ToString("s")+" "+error+"\n\n");}catch{}Report(error.Message,0);}
+   try{action();}catch(Exception error){try{File.AppendAllText(Path.Combine(Path.GetTempPath(),"MoleculeStudio-installer-error.log"),DateTime.Now.ToString("s")+" stage="+currentStage+"\n"+error+"\n\n");}catch{}Report(error.Message+(string.IsNullOrEmpty(currentStage)?"":"（当前："+currentStage+"）"),0);}
    finally{
     try{Cards(root);}catch(Exception refreshError){
      window.Dispatcher.Invoke((Action)(()=>{
