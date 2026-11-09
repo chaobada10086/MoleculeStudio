@@ -90,6 +90,7 @@ class OnlineInstaller {
  static string feedUpgrade;
 
  static bool IsKey(string key){return Array.IndexOf(Keys,key)>=0;}
+ static bool IsProgramFile(string rel){string ext=Path.GetExtension(rel).ToLowerInvariant();return ext==".exe"||ext==".dll"||ext==".pyd"||ext==".node"||ext==".so"||ext==".dylib";}
 
  static Package[] ParseFeed(string text){
   Dictionary<string,object> root;
@@ -544,7 +545,11 @@ class OnlineInstaller {
     }
     if(File.Exists(dest)){
      if(Hash(dest)==expected){n++;continue;}
-     if(undo==null||!previous.ContainsKey(rel)||Hash(dest)!=previous[rel])throw new IOException("文件已被修改或不属于此组件："+rel+"。已停止安装并保留原文件。");
+     bool installedBefore=previous.ContainsKey(rel);
+     // A patched executable (for example a hotfix) is still an application binary owned by the
+     // component; replace it inside the transaction so rollback keeps the previous bytes.
+     // Data/config files (ini/xml/cdxml/...) still stop the install when modified by the user.
+     if(undo==null||(!IsProgramFile(rel)&&(!installedBefore||Hash(dest)!=previous[rel])))throw new IOException("文件已被修改或不属于此组件："+rel+"。已停止安装并保留原文件。");
      Track(rel);File.Delete(dest);
     }
     Track(rel);
@@ -784,6 +789,27 @@ class OnlineInstaller {
     if(string.Join(",",Plan(new[]{false,true,false,false},new[]{1,1,1,0},true))!="2,1")return 48;
     if(string.Join(",",Plan(new[]{false,false,false,true},new[]{1,1,1,0},false))!="3")return 49;
     if(!CanInstall(0,0,0)||CanInstall(1,0,0)||CanInstall(2,1,0)||!CanInstall(2,1,1)||!CanInstall(3,1,0)||CanInstall(3,0,0))return 41;
+    return 0;
+   }
+   if(args[0]=="--repair-test"){
+    string root=Path.Combine(Path.GetTempPath(),"MoleculeStudio-repair-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(root);
+    File.WriteAllText(Path.Combine(root,"MoleculeStudio.exe"),"old");File.WriteAllText(Path.Combine(root,"settings.ini"),"original");
+    var receipt=new Dictionary<string,string>{{"MoleculeStudio.exe",Hash(Path.Combine(root,"MoleculeStudio.exe"))},{"settings.ini",Hash(Path.Combine(root,"settings.ini"))}};
+    File.WriteAllText(Path.Combine(root,".installer-Core.json"),Json().Serialize(new{packageHash="test",files=receipt}));
+    // A patched executable must be replaceable during an update.
+    File.WriteAllText(Path.Combine(root,"MoleculeStudio.exe"),"patched");
+    string zip=Path.Combine(root,"core.zip");
+    using(var z=ZipFile.Open(zip,ZipArchiveMode.Create))using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/MoleculeStudio.exe").Open()))w.Write("new");
+    var pkg=new Package{Key="Core",Name="core.zip",Hash="test",Version="test"};
+    BeginTransaction(root);Extract(zip,root,pkg);CommitTransaction();
+    if(File.ReadAllText(Path.Combine(root,"MoleculeStudio.exe"))!="new")return 71;
+    // A modified settings.ini must still stop the install and roll back.
+    File.WriteAllText(Path.Combine(root,"settings.ini"),"user changed");
+    string zip2=Path.Combine(root,"core2.zip");
+    using(var z=ZipFile.Open(zip2,ZipArchiveMode.Create))using(var w=new StreamWriter(z.CreateEntry("MoleculeStudio/settings.ini").Open()))w.Write("new settings");
+    bool refused=false;
+    try{BeginTransaction(root);Extract(zip2,root,pkg);RollbackTransaction();}catch(IOException){refused=true;RollbackTransaction();}
+    if(!refused||File.ReadAllText(Path.Combine(root,"settings.ini"))!="user changed")return 72;
     return 0;
    }
    if(args[0]=="--rollback-test"){
