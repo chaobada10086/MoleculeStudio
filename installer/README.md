@@ -31,7 +31,7 @@ Windows x64 / .NET Framework 4.8 在线安装器，使用 WPF 界面，无需管
 
 已有安装依据 `.installer-*.json` 或 `MANIFEST-*.json` 逐文件校验 SHA-256，完整组件跳过下载和解压。原始 0.95 Core 识别为可更新版，更新时按旧清单保护文件。清单缺失时仍可复用下载缓存和逐文件相同内容，但不会仅凭目录存在就判为完整。
 
-检查范围是用户选择的安装目录，不扫描或接管系统、Conda、其他软件的 Python。最终执行 RDKit / torch / scipy / pandas / CSP5 导入自检，不修改系统安全设置。
+检查范围是用户选择的安装目录，不扫描或接管系统、Conda、其他软件的 Python。安装过程不再自动执行 RDKit / torch / scipy / pandas / CSP5 导入自检（需要时用 `--health-test` 单独验证），不修改系统安全设置。
 
 OCSR 的基础解释器及 site-packages 与核心 chemistry_python 文件哈希完全相同时使用 NTFS 硬链接节省磁盘空间；不能创建硬链接时复制。不是跨版本混用 Python。共享文件后应由安装器维护，不要直接对共享运行时执行 pip 升级或原地修改二进制。
 

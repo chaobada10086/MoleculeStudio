@@ -327,7 +327,7 @@ class OnlineInstaller {
     if(!Has(root,packages[0])){Shortcut(root,Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),true);if(File.Exists(LastRoot)&&File.ReadAllText(LastRoot)==Path.GetFullPath(root))File.Delete(LastRoot);}
     Report("所选组件已卸载 · 用户文件已保留"+(kept>0?"，另保留 "+kept+" 个修改文件":""),100);
    }else{
-    InstallAll(root,plan,mirrors,shortcut,true);
+    InstallAll(root,plan,mirrors,shortcut,false);
    }
    window.Dispatcher.Invoke((Action)(()=>{for(int i=0;i<Count;i++)picks[i].IsChecked=false;}));
   });
