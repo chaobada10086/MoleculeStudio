@@ -21,6 +21,7 @@ package, so a corrupted or stale ZIP fails loudly instead of shipping.
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -146,30 +147,46 @@ def stage_component(archive, stage, kind, conflicts, allow_overlay):
 
 
 def normalize_backend_ini(stage):
-    """chemistry_backend.ini must not carry the build machine's absolute Python path."""
+    """Point chemistry_backend.ini at the interpreter that actually ships.
+
+    studio/build.py records the build machine's absolute Python path, which does not exist
+    on a user's machine. Rewrite only when an absolute path is found, and keep the file's
+    original encoding and newline style: the app reads it through the Win32 profile APIs,
+    which are picky about both. A shipped relative path is left untouched.
+    """
     ini = stage / 'App' / 'chemistry_backend.ini'
     if not ini.exists():
         return None
-    notes = []
-    for encoding in ('utf-16', 'utf-8-sig', 'utf-8', 'latin-1'):
+    raw = ini.read_bytes()
+    text = None
+    encoding = None
+    for candidate in ('utf-16', 'utf-8-sig', 'utf-8', 'latin-1'):
         try:
-            text = ini.read_text(encoding=encoding)
+            text = raw.decode(candidate)
+            encoding = candidate
+            break
         except (UnicodeError, UnicodeDecodeError):
             continue
-        original = text
-        lines = []
-        for line in text.splitlines():
-            key, sep, value = line.partition('=')
-            if sep and key.strip().lower() in ('python', 'chemistrypython'):
-                if ':' in value and '\\' in value:
-                    relative = 'chemistry_python\\python.exe' if key.strip().lower() == 'chemistrypython' else 'python\\python.exe'
-                    line = key + sep + relative
-                    notes.append(key.strip() + ' -> ' + relative)
-            lines.append(line)
-        text = '\\n'.join(lines) + ('\\n' if original.endswith(('\\n', '\\r\\n')) else '')
-        if text != original:
-            ini.write_text(text, encoding=encoding)
-        break
+    if text is None:
+        return ['chemistry_backend.ini 无法解码，保持原样']
+    newline = '\r\n' if '\r\n' in text else '\n'
+    shipped = (stage / 'App' / 'python' / 'python.exe').exists()
+    default_python = 'python\\python.exe' if shipped else 'chemistry_python\\python.exe'
+    notes = []
+    lines = []
+    for line in text.splitlines():
+        key, sep, value = line.partition('=')
+        if sep and key.strip().lower() in ('python', 'chemistrypython'):
+            stripped = value.strip()
+            absolute = bool(re.match(r'^[A-Za-z]:[\\/]', stripped)) or stripped.startswith('\\\\') or stripped.startswith('//')
+            if absolute:
+                relative = 'chemistry_python\\python.exe' if key.strip().lower() == 'chemistrypython' else default_python
+                line = key + sep + relative
+                notes.append(key.strip() + ' -> ' + relative)
+        lines.append(line)
+    if not notes:
+        return None
+    ini.write_bytes((newline.join(lines) + newline).encode(encoding))
     return notes
 
 

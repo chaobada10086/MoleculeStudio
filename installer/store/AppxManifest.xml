@@ -36,7 +36,7 @@
     <!--
       ==== 注册表写入虚拟化豁免（方案 A） ====
       MSIX 默认把 HKCU 写入重定向到本包私有 hive，包外进程（Word）读不到。
-      studio\ole_embed.hpp 的运行时自注册要真正落到 HKCU\\Software\\Classes，
+      studio\ole_embed.hpp 的运行时自注册要真正落到 HKCU\Software\Classes，
       才能让 Word「插入 → 对象 → 新建」列表出现条目（依赖 CLSID 的 Insertable 键），
       并与 comServer 扩展互为备份。
         * Windows 11+：只豁免下面三个键（virtualization:ExcludedKeys）
@@ -89,12 +89,12 @@
           OLE 服务器登记（方案 B，Word / PowerPoint 里插入、双击编辑可编辑结构）。
           comServer 扩展由 Windows 在安装时登记到真实注册表，对包外进程（Word）可见，
           不依赖运行时自注册；即使注册表豁免（方案 A）被审核退回，这条仍然生效。
-          这里的 CLSID / ProgID 必须与 studio\\ole_embed.hpp 里的
+          这里的 CLSID / ProgID 必须与 studio/ole_embed.hpp 里的
           kDocClsid / kProgId / kProgIdVerInd 完全一致。
         -->
         <com:Extension Category="windows.comServer">
           <com:ComServer>
-            <com:ExeServer Executable="App\\MoleculeStudio.exe" Arguments="-Embedding" DisplayName="Molecule Studio 2D Structure">
+            <com:ExeServer Executable="App/MoleculeStudio.exe" Arguments="-Embedding" DisplayName="Molecule Studio 2D Structure">
               <com:Class Id="C000BC8C-8C39-4722-B93C-D40D3319E7B5" DisplayName="Molecule Studio 2D Structure" />
             </com:ExeServer>
             <com:ProgId Id="MoleculeStudio.Document.1" Clsid="C000BC8C-8C39-4722-B93C-D40D3319E7B5" />
