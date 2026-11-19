@@ -1,9 +1,0 @@
-undo_ok=1 history=0 original=18404420326790004682 undone=18404420326790004682
-single_selection=true
-collapse=true
-custom_roundtrip=true
-R_endpoint=true
-repaint_without_click=true
-templates_entry=true
-Delete_key=true
-passed

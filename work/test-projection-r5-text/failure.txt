@@ -1,1 +1,0 @@
-auto-italic mismatch: (R)-2-butanol -> ............. (expected .^..........., text '(R)-2-butanol')

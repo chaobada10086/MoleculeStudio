@@ -1,1 +1,0 @@
-load=1 message= handle=0xffffffffdc461ff1 header=108 bits=1496 triangles=18 scene=9 bounds=-45.3,-39.2711,45.3,39.2711 status=chooseSelectionTool_Marquee | standalone; host unbound

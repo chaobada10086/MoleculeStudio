@@ -1,2 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<result model="deepseek-flash" ok="true" tokens="27821"><message>本轮未生成绘图动作。</message><actions /><plugin name="绘图增强" version="" ok="true" tools="22" /></result>

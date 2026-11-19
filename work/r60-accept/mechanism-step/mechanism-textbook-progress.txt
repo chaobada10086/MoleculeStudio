@@ -1,5 +1,0 @@
-A002-B product correct; 2 native arrows; undo and redo verified
-A040-B product correct; 3 native arrows; undo and redo verified
-A047-B product correct; 2 native arrows; undo and redo verified
-A064-A generation failed: 产物的新键附近过于拥挤，请先调整反应物的布局。
-B018-C product correct; 2 native arrows; undo and redo verified

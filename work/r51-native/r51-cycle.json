@@ -1,1 +1,0 @@
-{"tools": [{"tool": "draw_smiles", "args": {"smiles": "C", "x": 0, "y": 40}}, {"tool": "draw_smiles", "args": {"smiles": "CC", "x": 60, "y": 40}}, {"tool": "draw_smiles", "args": {"smiles": "CCC", "x": 120, "y": 40}}, {"tool": "arrange_catalytic_cycle", "args": {"refs": ["new:1/atom:10", "new:2/atom:10", "new:3/atom:10"], "x": 100, "y": 100}}]}

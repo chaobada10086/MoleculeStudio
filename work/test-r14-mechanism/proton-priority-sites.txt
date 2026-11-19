@@ -1,9 +1,0 @@
-9 source=0 z=6 q=0 H=0
-10 source=1 z=8 q=0 H=0
-11 source=2 z=8 q=0 H=0
-12 source=3 z=6 q=0 H=1
-13 source=4 z=6 q=0 H=2
-14 source=5 z=6 q=0 H=2
-15 source=6 z=6 q=0 H=1
-16 source=7 z=6 q=0 H=2
-17 source=8 z=8 q=-1 H=0

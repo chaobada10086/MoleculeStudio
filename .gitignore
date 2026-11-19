@@ -61,3 +61,18 @@ venv/
 *.tmp
 Thumbs.db
 .DS_Store
+
+
+# Scratch/working area: local build probes, one-off patch scripts, test exports,
+# r*-backup snapshots and release candidate logs. Never part of the product.
+/work/
+/outputs/
+/staging-*/
+
+# Local, machine-specific artefacts that must never be tracked
+*.lnk
+*.r62doc
+*.t01doc
+*.pickle
+*.err
+*.log.txt

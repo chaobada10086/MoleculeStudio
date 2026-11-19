@@ -1,1 +1,0 @@
-spot identity, position, colour and tail opacity survive lane reordering

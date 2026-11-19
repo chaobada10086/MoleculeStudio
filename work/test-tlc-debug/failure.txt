@@ -1,1 +1,0 @@
-first click defers TLC deposit without document or undo edits

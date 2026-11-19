@@ -1,1 +1,0 @@
-movable=2 attempted=0 changed=0 shape=0.031770 crowd=0.000000

@@ -1,1 +1,0 @@
-catalytic: reaction connectors are distinct from electron arrows

@@ -1,1 +1,0 @@
-projection: projection view and stereo metadata survive CDXML/CDX

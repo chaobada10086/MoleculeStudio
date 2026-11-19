@@ -1,6 +1,0 @@
-movable=0 attempted=0 changed=0 
-movable=6 attempted=0 changed=0 shape=0.000004 crowd=0.000000
-movable=2 attempted=0 changed=0 shape=0.000000 crowd=0.000000
-movable=2 attempted=0 changed=0 shape=0.148737 crowd=0.000000
-movable=6 attempted=1 changed=0 shape=2.349047 crowd=0.000000 motion limit
-movable=2 attempted=1 changed=0 shape=1.058509 crowd=0.000000 motion limit

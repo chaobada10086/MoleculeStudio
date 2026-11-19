@@ -1,1 +1,0 @@
-fixture has visible stroke

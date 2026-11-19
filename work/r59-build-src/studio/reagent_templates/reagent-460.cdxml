@@ -1,2 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<CDXML BondLength="22" LabelSize="10" LineWidth="0.6"><page id="1"><fragment id="2"><n id="10" p="27.726610285 -6.927126539" Element="6" NumHydrogens="3" /><n id="11" p="11.908455677 8.362935095" Element="6" NumHydrogens="2" /><n id="12" p="-9.242203428 2.309042180" Element="6" NumHydrogens="0" /><n id="13" p="-30.392862533 -3.744850735" Element="7" NumHydrogens="0" /><b id="1000" B="10" E="11" Order="1" /><b id="1001" B="11" E="12" Order="1" /><b id="1002" B="12" E="13" Order="3" /></fragment></page></CDXML>

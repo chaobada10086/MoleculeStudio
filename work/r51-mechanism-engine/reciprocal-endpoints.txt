@@ -1,1 +1,0 @@
-2 0 -> 1 1 expected bond 0 atom 1

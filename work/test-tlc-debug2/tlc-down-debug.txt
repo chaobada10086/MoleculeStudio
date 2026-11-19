@@ -1,1 +1,0 @@
-down=1 element=3 id=25 actual=-30.2513,55.1306 active=chooseTLCPlateTool selecting=0 spots=19

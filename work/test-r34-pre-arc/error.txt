@@ -1,1 +1,0 @@
-arrow style audit: double-arc heads meet their own shafts

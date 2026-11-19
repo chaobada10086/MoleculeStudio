@@ -1,1 +1,0 @@
-pending=0 digest=1 cursor=3 expected=3 tool=chooseTLCPlateTool point=-30.24,55 pixel=661.033,472.62 pick=9 label=薄层板加点 flags=00000

@@ -1,7 +1,0 @@
-#include "next/integration/session.hpp"
-#include "engine/catalytic.hpp"
-#include "engine/arrow_crossings.hpp"
-#include <iostream>
-using namespace r62;using namespace core;using namespace studio::catalytic;
-int main(){integration::Session s;std::vector<ObjectId> nodes;for(int i=0;i<6;++i){ObjectId id;s.doc.addAtom(Vec2(i*40,20),46,&id);s.doc.setAtomLabel(id,"Pd");auto sem=s.doc.atoms().alive(id)->semantics;sem.showLabel=true;sem.implicitHydrogens=0;s.doc.setAtomSemantics(id,sem);nodes.push_back(id);}std::vector<ObjectRef> links;auto e=arrange(s.doc,nodes,Vec2(300,300),185,140,true,&links,true,.3);if(!e.ok())return 1;for(auto ref:links){arrows::ArrowParams p;bool ok=false;arrows::readArrow(s.doc,ref.id,&p,&ok);for(auto q:arrows::routedPoints(p)){auto v=q-Vec2(300,300);double x=v.x*std::cos(.3)+v.y*std::sin(.3),y=-v.x*std::sin(.3)+v.y*std::cos(.3);if(std::abs(x*x/(185*185)+y*y/(140*140)-1)>1e-8)return 2;}}
-Document d;auto a=arrows::resolvePreset(58,Vec2(40,130),Vec2(230,130),.6);a.arcSagitta=-65;ObjectId first,later;arrows::addArrow(d,a,.6,&first);auto b=arrows::resolvePreset(58,Vec2(130,30),Vec2(130,230),.6);b.arcSagitta=65;arrows::addArrow(d,b,.6,&later);e=studio::arrow_crossings::update(d);arrows::ArrowParams p;bool ok=false;arrows::readArrow(d,later,&p,&ok);if(!e.ok()||!ok||p.route.size()<60){std::cerr<<"S points="<<p.route.size();return 3;}s.doc=d;if(!s.save("work/test-r41-v2/S-crossing-demo.cdxml",true).ok())return 4;std::cout<<"shared rotated ellipse and S crossing passed\n";}

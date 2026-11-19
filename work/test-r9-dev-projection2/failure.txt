@@ -1,1 +1,0 @@
-projection spacing: gap changed: Times New Roman size 8.000000 view 4 tip 4: 2.124073 -> 1.605618
