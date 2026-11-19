@@ -7,6 +7,8 @@
 | 文件 | 用途 |
 | --- | --- |
 | [RELEASE.md](RELEASE.md) | 发版流程、包组成与在线清单（stable.json）规则 |
+| [STORE_PUBLISH.md](STORE_PUBLISH.md) | 发布到 Microsoft Store 的完整流程：账号、打包、政策对照、提交清单、过审风险 |
+| [privacy.html](privacy.html) | 中英隐私声明页面，可直接部署（商店必填） |
 | [CODE_SIGNING.md](CODE_SIGNING.md) | 代码签名现状、自签名与商业证书选型 |
 | [EXTERNAL_AI_SKILL.md](EXTERNAL_AI_SKILL.md) | 外部 AI 绘图 skill 的安装与使用 |
 | [AI_COMPACT.md](AI_COMPACT.md) | 给 AI 协作用的精简上下文 |

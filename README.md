@@ -11,6 +11,11 @@ Release 手工上传四个 ZIP。四个 ZIP 都包含同名 `MoleculeStudio/` �
 不要把插件解压成 `MoleculeStudio/MoleculeStudio/`。四个包版本必须一致；AI 高级依赖 AI 基础。模型识别会出错，应核对键级、手性和电荷。
 `legal/<包名>/third-party-sources/` 是随包的第三方对应源码，运行时不加载，可归档但再分发时必须保留获取方式及许可资料。
 
+## 微软商店版
+
+商店版以 MSIX 分发，由 Microsoft Store 托管下载与更新，与绿色版/安装器版是两条独立渠道（设置不共享，商店版数据在 `%LOCALAPPDATA%\MoleculeStudio`）。
+打包与提交步骤见 [docs/STORE_PUBLISH.md](docs/STORE_PUBLISH.md)，提交材料（清单模板、隐私声明、商店文案、受限能力理由）见 [installer/store/](installer/store/)。
+
 ## 从源码构建
 安装 Python 3 和 MinGW-w64 g++ / windres（包含 Direct3D 11 开发头文件）。
 运行 `python studio/build.py --dx11 --compiler C:/tools/mingw64/bin/g++.exe --exe MoleculeStudio.exe`。

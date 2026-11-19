@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MoleculeStudio 微软商店 MSIX 包清单（模板，不要手工改完直接提交）
+
+  由 tools/package_store.py 渲染后写入包根目录：
+    {{NAME}}                  Partner Center → 产品管理 → 产品标识 → Package/Identity/Name
+    {{PUBLISHER}}             Package/Identity/Publisher，形如 CN=..., O=..., C=...
+    {{PUBLISHER_DISPLAY_NAME}} Package/Properties/PublisherDisplayName
+    {{VERSION}}               四段纯数字，第四段必须为 0（商店保留）
+
+  关键点：
+  * Windows.Desktop + MinVersion 10.0.19041.0 才能用 uap10:RuntimeBehavior/TrustLevel；
+    这两个属性等价于旧写法 EntryPoint="Windows.FullTrustApplication"，但含义更明确。
+  * runFullTrust 是受限能力，提交时必须在“提交选项 → 受限能力”里写理由。
+  * 文件关联必须写在这里；运行时写 HKCU\Software\Classes 默认会被虚拟化，资源管理器看不到。
+  * 两个受限能力 runFullTrust 与 unvirtualizedResources 都要在提交时写理由。
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
+  xmlns:virtualization="http://schemas.microsoft.com/appx/manifest/virtualization/windows10"
+  IgnorableNamespaces="uap uap10 rescap com desktop6 virtualization">
+
+  <Identity Name="{{NAME}}" Publisher="{{PUBLISHER}}" Version="{{VERSION}}" ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>MoleculeStudio</DisplayName>
+    <PublisherDisplayName>{{PUBLISHER_DISPLAY_NAME}}</PublisherDisplayName>
+    <Description>Windows x64 分子结构与反应机理绘图工具</Description>
+    <Logo>Assets\StoreLogo.png</Logo>
+
+    <!--
+      ==== 注册表写入虚拟化豁免（方案 A） ====
+      MSIX 默认把 HKCU 写入重定向到本包私有 hive，包外进程（Word）读不到。
+      studio\ole_embed.hpp 的运行时自注册要真正落到 HKCU\\Software\\Classes，
+      才能让 Word「插入 → 对象 → 新建」列表出现条目（依赖 CLSID 的 Insertable 键），
+      并与 comServer 扩展互为备份。
+        * Windows 11+：只豁免下面三个键（virtualization:ExcludedKeys）
+        * Windows 10 2004–21H2：只能整包关闭 HKCU 写入虚拟化（desktop6）
+        * 两者都声明时：旧机用 desktop6，新机用 ExcludedKeys
+      需要受限能力 unvirtualizedResources，提交时必须在「提交选项 → 受限能力」
+      填写理由，见 installer/store/CERTIFICATION-NOTES.md。
+    -->
+    <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
+    <virtualization:RegistryWriteVirtualization>
+      <virtualization:ExcludedKeys>
+        <virtualization:ExcludedKey>HKEY_CURRENT_USER\Software\Classes\CLSID\{C000BC8C-8C39-4722-B93C-D40D3319E7B5}</virtualization:ExcludedKey>
+        <virtualization:ExcludedKey>HKEY_CURRENT_USER\Software\Classes\MoleculeStudio.Document</virtualization:ExcludedKey>
+        <virtualization:ExcludedKey>HKEY_CURRENT_USER\Software\Classes\MoleculeStudio.Document.1</virtualization:ExcludedKey>
+      </virtualization:ExcludedKeys>
+    </virtualization:RegistryWriteVirtualization>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="zh-CN" />
+    <Resource Language="en-US" />
+  </Resources>
+
+  <Applications>
+    <Application Id="MoleculeStudio" Executable="App\MoleculeStudio.exe"
+                 uap10:RuntimeBehavior="packagedClassicApp" uap10:TrustLevel="mediumIL">
+      <uap:VisualElements
+          DisplayName="MoleculeStudio"
+          Description="绘制分子结构、反应机理与流程图，保存为可继续编辑的 CDXML 文档。"
+          BackgroundColor="transparent"
+          Square150x150Logo="Assets\Square150x150Logo.png"
+          Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" ShortName="MoleculeStudio" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="moleculestudio-cdxml">
+            <uap:DisplayName>ChemDraw 可编辑结构文档</uap:DisplayName>
+            <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.cdxml</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+        <!--
+          OLE 服务器登记（方案 B，Word / PowerPoint 里插入、双击编辑可编辑结构）。
+          comServer 扩展由 Windows 在安装时登记到真实注册表，对包外进程（Word）可见，
+          不依赖运行时自注册；即使注册表豁免（方案 A）被审核退回，这条仍然生效。
+          这里的 CLSID / ProgID 必须与 studio\\ole_embed.hpp 里的
+          kDocClsid / kProgId / kProgIdVerInd 完全一致。
+        -->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="App\\MoleculeStudio.exe" Arguments="-Embedding" DisplayName="Molecule Studio 2D Structure">
+              <com:Class Id="C000BC8C-8C39-4722-B93C-D40D3319E7B5" DisplayName="Molecule Studio 2D Structure" />
+            </com:ExeServer>
+            <com:ProgId Id="MoleculeStudio.Document.1" Clsid="C000BC8C-8C39-4722-B93C-D40D3319E7B5" />
+            <com:ProgId Id="MoleculeStudio.Document" CurrentVersion="MoleculeStudio.Document.1" />
+          </com:ComServer>
+        </com:Extension>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="moleculestudio-document">
+            <uap:DisplayName>MoleculeStudio 文档</uap:DisplayName>
+            <uap:Logo>Assets\Square44x44Logo.png</uap:Logo>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.r62doc</uap:FileType>
+              <uap:FileType>.t01doc</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- 原生 Win32 分子编辑器，必须有 full trust / mediumIL -->
+    <rescap:Capability Name="runFullTrust" />
+    <!-- 方案 A：允许把 OLE 自注册写到真实 HKCU\Software\Classes，见上方豁免声明 -->
+    <rescap:Capability Name="unvirtualizedResources" />
+  </Capabilities>
+</Package>
