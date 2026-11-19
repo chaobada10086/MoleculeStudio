@@ -1,0 +1,5 @@
+native step created three product atoms: pass
+SN2 connectivity, charge and two bound arrows: pass
+save editable mechanism: pass
+AI mechanism undoes in one step: pass
+invalid reference rolls back preceding reagent: pass

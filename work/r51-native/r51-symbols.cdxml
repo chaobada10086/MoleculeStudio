@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" ChainAngle="120.000000" BondSpacing="18.000000" BoldWidth="2.000000" MarginWidth="1.600000" HashSpacing="2.500000" CreationProgram="Molecule Studio" BoundingBox="330.4378 435.9449 444.1178 501.2949">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+        <color r="0.94901960784313721" g="0.54117647058823526" b="0.72156862745098038"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="6" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="7">
+            <n id="3" p="330.4378 460.9449" color="0"/>
+            <b id="8" B="3" E="4" Order="1" color="0"/>
+            <n id="4" p="344.8378 460.9449" Element="8" NumHydrogens="1" MoleculeStudioLonePairs="1" color="0">
+                <t color="0">
+                    <s font="3" size="10" face="96" color="0">OH</s>
+                </t>
+            </n>
+            <n id="5" p="377.6378 500.9449" Element="1" Charge="1" NumHydrogens="0" LabelDisplay="Shown" color="0">
+                <t color="0">
+                    <s font="3" size="10" face="96" color="0">H</s>
+                    <s font="3" size="10" face="64" color="0">+</s>
+                </t>
+            </n>
+        </fragment>
+        <t id="9" p="402.6378 435.9449" InterpretChemically="no">
+            <s font="3" size="10">δ</s>
+            <s font="3" size="10" face="64">+</s>
+        </t>
+        <graphic id="10" GraphicType="Line" ArrowType="FullHead" BoundingBox="437.6378 463.9289 444.1178 463.9289" LineWidth="0.59999999999999998"/>
+        <graphic id="11" GraphicType="Bracket" BoundingBox="337.6378 460.9449 354.8378 460.9449" LineWidth="0.59999999999999998"/>
+        <graphic id="12" GraphicType="Line" ArrowType="FullHead" BoundingBox="437.6378 465.9449 444.1178 465.9449" LineWidth="0.59999999999999998"/>
+        <graphic id="13" GraphicType="Line" ArrowType="FullHead" BoundingBox="437.6378 467.9609 444.1178 467.9609" LineWidth="0.59999999999999998"/>
+        <arrow id="14" BoundingBox="344.4878 460.5949 377.9878 501.2949" Tail3D="344.8378 460.9449 0" Head3D="377.6378 500.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="2250" ArrowheadCenterSize="1969" ArrowheadWidth="563" LineType="Dashed" MoleculeStudioElectronSource="atom:4" MoleculeStudioElectronTarget="atom:5" MoleculeStudioArrow="v=1;virtualBond=1;mechanism=0;es=-;et=-;sv=0;tv=0;mside=0;preset=0;family=0;size=2;line=2;shafts=1;sweep=0;dir=0;hshape=1;hside=1;hlen=13.5;hwidth=6.75;hend=0;hbegin=0;bx=47.200000000000003;by=40;ex=80;ey=80;sag=0;sep=5.0625;split=0.5;osplit=0.5;scale=1;" color="10"/>
+    </page>
+</CDXML>

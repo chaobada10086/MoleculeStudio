@@ -92,6 +92,12 @@ inline bool plan(Session& s,const ChangeSet& change,Update& update){
     std::vector<ObjectId> todo(update.atoms.begin(),update.atoms.end());
     for(size_t i=0;i<todo.size();++i)for(auto id:edges[todo[i]])if(update.atoms.insert(id).second)todo.push_back(id);
     for(const auto& b:s.doc.bonds().records())if(b.isAlive()&&(update.atoms.count(b.beginAtom)||update.atoms.count(b.endAtom)))update.bonds.insert(b.id);
+    for(const auto& record:s.doc.arrows().records())if(record.isAlive()){
+        arrows::ArrowParams guide;bool valid=false;
+        arrows::readArrow(s.doc,record.id,&guide,&valid);
+        if(guide.virtualBond&&(update.atoms.count(guide.electronSource.id)||update.atoms.count(guide.electronTarget.id)))
+            update.graphics.insert(ObjectRef(ObjectKind::Arrow,record.id));
+    }
     update.owner=&s;return true;
 }
 inline void refresh(Session& s,const ChangeSet& change){

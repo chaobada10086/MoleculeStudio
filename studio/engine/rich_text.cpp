@@ -326,6 +326,7 @@ int classifyDigits(const std::vector<uint32_t>& cps, size_t begin, size_t end) {
     // A sign followed by another number is a range/arithmetic separator,
     // not an ionic charge, even across differently styled text runs.
     if (end < cps.size() && isChargeCp(cps[end])) {
+        if(begin==1&&end==2&&cps[0]=='N'&&cps[1]=='3'&&(cps[end]=='-'||cps[end]==0x2212u))return -1;
         if (end+1 < cps.size() && isAsciiDigit(cps[end+1])) return 0;
         return 1;
     }
@@ -438,6 +439,8 @@ core::Error layoutRichText(const std::vector<core::TextRun>& runs,
             int script = 0;
             if (flags & core::kSuperscript) script = 1;
             else if (flags & core::kSubscript) script = -1;
+            if(formula&&script==0&&formulaContext.size()==3&&formulaContext[0]=='N'&&formulaContext[1]=='3'&&
+               (cp=='-'||cp==0x2212u)&&runOffsets[r]+c==2)script=1;
             if (formula && script == 0 && isAsciiDigit(cp)) {
                 size_t begin = runOffsets[r] + c, e = begin;
                 while (begin > 0 && isAsciiDigit(formulaContext[begin-1])) --begin;

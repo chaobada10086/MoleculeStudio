@@ -1,0 +1,8726 @@
+[
+  {
+    "title": "高锰酸钾",
+    "alias": "KMnO4",
+    "checks": []
+  },
+  {
+    "title": "重铬酸钾",
+    "alias": "K2Cr2O7",
+    "checks": []
+  },
+  {
+    "title": "高碘酸钠",
+    "alias": "NaIO4",
+    "checks": []
+  },
+  {
+    "title": "高碘酸",
+    "alias": "HIO4",
+    "checks": []
+  },
+  {
+    "title": "四氧化锇",
+    "alias": "OsO4",
+    "checks": []
+  },
+  {
+    "title": "二氧化硒",
+    "alias": "SeO2",
+    "checks": []
+  },
+  {
+    "title": "三氧化铬",
+    "alias": "CrO3",
+    "checks": []
+  },
+  {
+    "title": "二氧化锰",
+    "alias": "MnO2",
+    "checks": []
+  },
+  {
+    "title": "四氧化钌",
+    "alias": "RuO4",
+    "checks": []
+  },
+  {
+    "title": "过氧化氢",
+    "alias": "H2O2",
+    "checks": []
+  },
+  {
+    "title": "臭氧",
+    "alias": "O3",
+    "checks": []
+  },
+  {
+    "title": "过硫酸钾",
+    "alias": "K2S2O8",
+    "checks": []
+  },
+  {
+    "title": "次氯酸钠",
+    "alias": "NaClO",
+    "checks": []
+  },
+  {
+    "title": "氯酸钠",
+    "alias": "NaClO3",
+    "checks": []
+  },
+  {
+    "title": "高氯酸钾",
+    "alias": "KClO4",
+    "checks": []
+  },
+  {
+    "title": "溴酸钾",
+    "alias": "KBrO3",
+    "checks": []
+  },
+  {
+    "title": "氯化亚锡",
+    "alias": "SnCl2",
+    "checks": []
+  },
+  {
+    "title": "硼氢化钠",
+    "alias": "NaBH4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "硼氢化锂",
+    "alias": "LiBH4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "氢化铝锂",
+    "alias": "LiAlH4 LAH",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "氰基硼氢化钠",
+    "alias": "NaBH3CN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 2,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "连二亚硫酸钠",
+    "alias": "Na2S2O4",
+    "checks": []
+  },
+  {
+    "title": "碘化钐",
+    "alias": "SmI2",
+    "checks": []
+  },
+  {
+    "title": "氯化亚铬",
+    "alias": "CrCl2",
+    "checks": []
+  },
+  {
+    "title": "锌",
+    "alias": "Zn",
+    "checks": []
+  },
+  {
+    "title": "铁",
+    "alias": "Fe",
+    "checks": []
+  },
+  {
+    "title": "镁",
+    "alias": "Mg",
+    "checks": []
+  },
+  {
+    "title": "氢气",
+    "alias": "H2",
+    "checks": []
+  },
+  {
+    "title": "氢化钠",
+    "alias": "NaH",
+    "checks": []
+  },
+  {
+    "title": "氢化钾",
+    "alias": "KH",
+    "checks": []
+  },
+  {
+    "title": "氢氧化钠",
+    "alias": "NaOH",
+    "checks": []
+  },
+  {
+    "title": "氢氧化钾",
+    "alias": "KOH",
+    "checks": []
+  },
+  {
+    "title": "碳酸钾",
+    "alias": "K2CO3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "碳酸铯",
+    "alias": "Cs2CO3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "碳酸钠",
+    "alias": "Na2CO3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "碳酸氢钠",
+    "alias": "NaHCO3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "氨基钠",
+    "alias": "NaNH2",
+    "checks": []
+  },
+  {
+    "title": "盐酸",
+    "alias": "HCl",
+    "checks": []
+  },
+  {
+    "title": "氢溴酸",
+    "alias": "HBr",
+    "checks": []
+  },
+  {
+    "title": "氢碘酸",
+    "alias": "HI",
+    "checks": []
+  },
+  {
+    "title": "硫酸",
+    "alias": "H2SO4",
+    "checks": []
+  },
+  {
+    "title": "硝酸",
+    "alias": "HNO3",
+    "checks": []
+  },
+  {
+    "title": "磷酸",
+    "alias": "H3PO4",
+    "checks": []
+  },
+  {
+    "title": "三氟化硼",
+    "alias": "BF3",
+    "checks": []
+  },
+  {
+    "title": "三氯化铝",
+    "alias": "AlCl3",
+    "checks": []
+  },
+  {
+    "title": "四氯化钛",
+    "alias": "TiCl4",
+    "checks": []
+  },
+  {
+    "title": "四氯化锡",
+    "alias": "SnCl4",
+    "checks": []
+  },
+  {
+    "title": "氯化锌",
+    "alias": "ZnCl2",
+    "checks": []
+  },
+  {
+    "title": "三氯化铁",
+    "alias": "FeCl3",
+    "checks": []
+  },
+  {
+    "title": "氯化亚铜",
+    "alias": "CuCl",
+    "checks": []
+  },
+  {
+    "title": "碘化亚铜",
+    "alias": "CuI",
+    "checks": []
+  },
+  {
+    "title": "氯化钯",
+    "alias": "PdCl2",
+    "checks": []
+  },
+  {
+    "title": "锇酸钾",
+    "alias": "K2OsO4",
+    "checks": []
+  },
+  {
+    "title": "氯化铈",
+    "alias": "CeCl3",
+    "checks": []
+  },
+  {
+    "title": "硝酸银",
+    "alias": "AgNO3",
+    "checks": []
+  },
+  {
+    "title": "叠氮化钠",
+    "alias": "NaN3",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 2,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "氰化钠",
+    "alias": "NaCN",
+    "checks": []
+  },
+  {
+    "title": "碘化钠",
+    "alias": "NaI",
+    "checks": []
+  },
+  {
+    "title": "氟化钾",
+    "alias": "KF",
+    "checks": []
+  },
+  {
+    "title": "氯化锂",
+    "alias": "LiCl",
+    "checks": []
+  },
+  {
+    "title": "氯气",
+    "alias": "Cl2",
+    "checks": []
+  },
+  {
+    "title": "溴",
+    "alias": "Br2",
+    "checks": []
+  },
+  {
+    "title": "碘",
+    "alias": "I2",
+    "checks": []
+  },
+  {
+    "title": "亚硫酰氯",
+    "alias": "SOCl2",
+    "checks": []
+  },
+  {
+    "title": "三氯氧磷",
+    "alias": "POCl3",
+    "checks": []
+  },
+  {
+    "title": "三溴化磷",
+    "alias": "PBr3",
+    "checks": [
+      {
+        "kind": "trigonal-pyramidal",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "五氯化磷",
+    "alias": "PCl5",
+    "checks": [
+      {
+        "kind": "trigonal-bipyramidal",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "三苯基膦",
+    "alias": "PPh3 Ph3P",
+    "checks": [
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 3,
+          "bold_bonds": 5,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "偶氮二甲酸二乙酯",
+    "alias": "DEAD",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "偶氮二甲酸二异丙酯",
+    "alias": "DIAD",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "二环己基碳二亚胺",
+    "alias": "DCC",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 5,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "二异丙基碳二亚胺",
+    "alias": "DIC",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "碳二亚胺盐酸盐",
+    "alias": "EDCI EDC-HCl",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 3,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "羰基二咪唑",
+    "alias": "CDI",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      }
+    ]
+  },
+  {
+    "title": "羟基苯并三唑",
+    "alias": "HOBt",
+    "checks": []
+  },
+  {
+    "title": "三乙胺",
+    "alias": "Et3N NEt3",
+    "checks": []
+  },
+  {
+    "title": "二异丙基乙胺",
+    "alias": "DIPEA Hunig",
+    "checks": []
+  },
+  {
+    "title": "吡啶",
+    "alias": "Py",
+    "checks": []
+  },
+  {
+    "title": "二甲氨基吡啶",
+    "alias": "DMAP",
+    "checks": []
+  },
+  {
+    "title": "二氮杂双环十一碳烯",
+    "alias": "DBU",
+    "checks": []
+  },
+  {
+    "title": "二氮杂双环壬烯",
+    "alias": "DBN",
+    "checks": []
+  },
+  {
+    "title": "二氮杂双环辛烷",
+    "alias": "DABCO",
+    "checks": []
+  },
+  {
+    "title": "二异丙基氨基锂",
+    "alias": "LDA",
+    "checks": []
+  },
+  {
+    "title": "双三甲硅基氨基锂",
+    "alias": "LiHMDS LHMDS",
+    "checks": []
+  },
+  {
+    "title": "双三甲硅基氨基钠",
+    "alias": "NaHMDS",
+    "checks": []
+  },
+  {
+    "title": "叔丁醇钾",
+    "alias": "KOtBu tBuOK",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 2
+      }
+    ]
+  },
+  {
+    "title": "甲醇钠",
+    "alias": "NaOMe",
+    "checks": []
+  },
+  {
+    "title": "乙醇钠",
+    "alias": "NaOEt",
+    "checks": []
+  },
+  {
+    "title": "正丁基锂",
+    "alias": "nBuLi",
+    "checks": []
+  },
+  {
+    "title": "叔丁基锂",
+    "alias": "tBuLi",
+    "checks": []
+  },
+  {
+    "title": "甲基溴化镁",
+    "alias": "MeMgBr",
+    "checks": []
+  },
+  {
+    "title": "苯基溴化镁",
+    "alias": "PhMgBr",
+    "checks": []
+  },
+  {
+    "title": "二甲基铜锂",
+    "alias": "Me2CuLi Gilman",
+    "checks": []
+  },
+  {
+    "title": "二异丁基氢化铝",
+    "alias": "DIBAL-H DIBAL DIBAH",
+    "checks": []
+  },
+  {
+    "title": "三乙基硅烷",
+    "alias": "Et3SiH",
+    "checks": []
+  },
+  {
+    "title": "三丁基氢化锡",
+    "alias": "Bu3SnH",
+    "checks": []
+  },
+  {
+    "title": "硼烷四氢呋喃",
+    "alias": "BH3-THF BH3.THF",
+    "checks": []
+  },
+  {
+    "title": "三乙酰氧基硼氢化钠",
+    "alias": "NaBH(OAc)3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999994
+      }
+    ]
+  },
+  {
+    "title": "间氯过氧苯甲酸",
+    "alias": "mCPBA MCPBA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "过乙酸",
+    "alias": "AcOOH",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "叔丁基过氧化氢",
+    "alias": "TBHP",
+    "checks": []
+  },
+  {
+    "title": "二甲基二环氧乙烷",
+    "alias": "DMDO",
+    "checks": []
+  },
+  {
+    "title": "四甲基哌啶氧自由基",
+    "alias": "TEMPO",
+    "checks": []
+  },
+  {
+    "title": "N甲基吗啉氧化物",
+    "alias": "NMO",
+    "checks": []
+  },
+  {
+    "title": "二氯二氰基苯醌",
+    "alias": "DDQ",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "苯碘二乙酸酯",
+    "alias": "PIDA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "苯碘双三氟乙酸酯",
+    "alias": "PIFA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "氯铬酸吡啶盐",
+    "alias": "PCC",
+    "checks": []
+  },
+  {
+    "title": "重铬酸吡啶盐",
+    "alias": "PDC",
+    "checks": []
+  },
+  {
+    "title": "N溴代丁二酰亚胺",
+    "alias": "NBS",
+    "checks": []
+  },
+  {
+    "title": "N氯代丁二酰亚胺",
+    "alias": "NCS",
+    "checks": []
+  },
+  {
+    "title": "N碘代丁二酰亚胺",
+    "alias": "NIS",
+    "checks": []
+  },
+  {
+    "title": "二乙氨基三氟化硫",
+    "alias": "DAST",
+    "checks": []
+  },
+  {
+    "title": "对甲苯磺酰氯",
+    "alias": "TsCl",
+    "checks": []
+  },
+  {
+    "title": "甲磺酰氯",
+    "alias": "MsCl",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酸酐",
+    "alias": "Tf2O",
+    "checks": []
+  },
+  {
+    "title": "三甲基氯硅烷",
+    "alias": "TMSCl",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "叔丁基二甲基氯硅烷",
+    "alias": "TBSCl TBDMSCl",
+    "checks": []
+  },
+  {
+    "title": "二碳酸二叔丁酯",
+    "alias": "Boc2O",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "四丁基氟化铵",
+    "alias": "TBAF",
+    "checks": []
+  },
+  {
+    "title": "三氟乙酸",
+    "alias": "TFA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "对甲苯磺酸",
+    "alias": "TsOH pTSA",
+    "checks": []
+  },
+  {
+    "title": "乙酸",
+    "alias": "AcOH",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "偶氮二异丁腈",
+    "alias": "AIBN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 3,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 10,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "过氧化苯甲酰",
+    "alias": "BPO",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "重氮甲烷",
+    "alias": "CH2N2",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "重氮乙酸乙酯",
+    "alias": "EDA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "三甲基硅基重氮甲烷",
+    "alias": "TMSCHN2",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 5,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "四溴化碳",
+    "alias": "CBr4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "三溴甲烷",
+    "alias": "CHBr3",
+    "checks": []
+  },
+  {
+    "title": "三氯甲烷",
+    "alias": "CHCl3",
+    "checks": []
+  },
+  {
+    "title": "劳森试剂",
+    "alias": "Lawesson Lawessons reagent",
+    "checks": []
+  },
+  {
+    "title": "HATU 缩合试剂",
+    "alias": "HATU",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 18
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "HBTU 缩合试剂",
+    "alias": "HBTU",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 18
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "TBTU 缩合试剂",
+    "alias": "TBTU",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "HCTU 缩合试剂",
+    "alias": "HCTU",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 19
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "COMU 缩合试剂",
+    "alias": "COMU",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 21
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999994
+      },
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 180.0
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "PyBOP 缩合试剂",
+    "alias": "PyBOP",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 27
+      }
+    ]
+  },
+  {
+    "title": "BOP 缩合试剂",
+    "alias": "BOP",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 21
+      }
+    ]
+  },
+  {
+    "title": "PyAOP 缩合试剂",
+    "alias": "PyAOP",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 27
+      }
+    ]
+  },
+  {
+    "title": "PyBrOP 缩合试剂",
+    "alias": "PyBrOP",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 18
+      }
+    ]
+  },
+  {
+    "title": "TFFH 氟化甲脒盐",
+    "alias": "TFFH",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 9
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "TCFH 氯化甲脒盐",
+    "alias": "TCFH",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 9
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "TSTU 缩合试剂",
+    "alias": "TSTU",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "HSTU 缩合试剂",
+    "alias": "HSTU",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 16
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "DMTMM 氯化三嗪盐",
+    "alias": "DMTMM",
+    "checks": []
+  },
+  {
+    "title": "氰基羟基亚胺乙酸乙酯",
+    "alias": "OxymaPure Oxyma",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "linear",
+        "atom": 8,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "羟基氮杂苯并三唑",
+    "alias": "HOAt",
+    "checks": []
+  },
+  {
+    "title": "N羟基丁二酰亚胺",
+    "alias": "NHS HOSu",
+    "checks": []
+  },
+  {
+    "title": "N羟基邻苯二甲酰亚胺",
+    "alias": "NHPI",
+    "checks": []
+  },
+  {
+    "title": "N,N二琥珀酰亚胺碳酸酯",
+    "alias": "DSC",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "2氯1甲基吡啶碘盐",
+    "alias": "CMPI Mukaiyama reagent",
+    "checks": []
+  },
+  {
+    "title": "二苯基磷酰叠氮",
+    "alias": "DPPA",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 10,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "伯吉斯试剂",
+    "alias": "Burgess reagent",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "马丁硫烷",
+    "alias": "Martin sulfurane",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "伍林斯试剂",
+    "alias": "Woollins reagent",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酸三甲基硅酯",
+    "alias": "TMSOTf TMS-triflate",
+    "checks": []
+  },
+  {
+    "title": "碘代三甲基硅烷",
+    "alias": "TMSI",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "溴代三甲基硅烷",
+    "alias": "TMSBr",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "三乙基氯硅烷",
+    "alias": "TESCl",
+    "checks": []
+  },
+  {
+    "title": "三异丙基氯硅烷",
+    "alias": "TIPSCl",
+    "checks": []
+  },
+  {
+    "title": "叔丁基二苯基氯硅烷",
+    "alias": "TBDPSCl",
+    "checks": []
+  },
+  {
+    "title": "叔丁基二甲基硅基三氟甲磺酸酯",
+    "alias": "TBSOTf TBDMSOTf",
+    "checks": []
+  },
+  {
+    "title": "三异丙基硅基三氟甲磺酸酯",
+    "alias": "TIPSOTf",
+    "checks": []
+  },
+  {
+    "title": "三乙基硅基三氟甲磺酸酯",
+    "alias": "TESOTf",
+    "checks": []
+  },
+  {
+    "title": "六甲基二硅氮烷",
+    "alias": "HMDS HN(SiMe3)2",
+    "checks": []
+  },
+  {
+    "title": "N,O双三甲基硅基乙酰胺",
+    "alias": "BSA-silylating",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      }
+    ]
+  },
+  {
+    "title": "N,O双三甲基硅基三氟乙酰胺",
+    "alias": "BSTFA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "N甲基N三甲基硅基三氟乙酰胺",
+    "alias": "MSTFA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "三甲基硅基咪唑",
+    "alias": "TMS-imidazole TMSIm",
+    "checks": []
+  },
+  {
+    "title": "甲氧基甲基氯",
+    "alias": "MOMCl",
+    "checks": []
+  },
+  {
+    "title": "2甲氧基乙氧基甲基氯",
+    "alias": "MEMCl",
+    "checks": []
+  },
+  {
+    "title": "2三甲基硅基乙氧基甲基氯",
+    "alias": "SEMCl",
+    "checks": []
+  },
+  {
+    "title": "对甲氧基苄氯",
+    "alias": "PMBCl",
+    "checks": []
+  },
+  {
+    "title": "苄氧羰基氯",
+    "alias": "CbzCl ZCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999994
+      }
+    ]
+  },
+  {
+    "title": "芴甲氧羰基氯",
+    "alias": "FmocCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "芴甲氧羰基琥珀酰亚胺酯",
+    "alias": "FmocOSu",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "烯丙氧羰基氯",
+    "alias": "AllocCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "二氢吡喃",
+    "alias": "DHP",
+    "checks": []
+  },
+  {
+    "title": "2,2二甲氧基丙烷",
+    "alias": "2,2-DMP",
+    "checks": []
+  },
+  {
+    "title": "三氟乙酸酐",
+    "alias": "TFAA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "邻硝基苯磺酰氯",
+    "alias": "oNsCl o-NsCl",
+    "checks": []
+  },
+  {
+    "title": "对硝基苯磺酰氯",
+    "alias": "pNsCl p-NsCl",
+    "checks": []
+  },
+  {
+    "title": "丹磺酰氯",
+    "alias": "DansylCl DNSCl",
+    "checks": []
+  },
+  {
+    "title": "戴斯马丁氧化剂",
+    "alias": "DMP Dess-Martin",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "邻碘酰基苯甲酸",
+    "alias": "IBX",
+    "checks": []
+  },
+  {
+    "title": "四丙基高钌酸铵",
+    "alias": "TPAP",
+    "checks": []
+  },
+  {
+    "title": "过氧化二叔丁基",
+    "alias": "DTBP",
+    "checks": []
+  },
+  {
+    "title": "叔丁基过氧苯甲酸酯",
+    "alias": "TBPB",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "过氧化二枯基",
+    "alias": "DCP",
+    "checks": []
+  },
+  {
+    "title": "N氟代双苯磺酰亚胺",
+    "alias": "NFSI",
+    "checks": []
+  },
+  {
+    "title": "选择性氟化试剂",
+    "alias": "Selectfluor F-TEDA-BF4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      },
+      {
+        "kind": "tetrahedral",
+        "atom": 5
+      }
+    ]
+  },
+  {
+    "title": "德奥索氟试剂",
+    "alias": "Deoxo-Fluor",
+    "checks": []
+  },
+  {
+    "title": "石井氟化试剂",
+    "alias": "XtalFluor-E",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      }
+    ]
+  },
+  {
+    "title": "三氟甲基三甲基硅烷",
+    "alias": "TMSCF3 Ruppert-Prakash",
+    "checks": []
+  },
+  {
+    "title": "氯磺酰异氰酸酯",
+    "alias": "CSI",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 0,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "三溴化吡啶盐",
+    "alias": "PyHBr3 pyridinium-tribromide",
+    "checks": []
+  },
+  {
+    "title": "N溴代乙酰胺",
+    "alias": "NBA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "1,3二溴5,5二甲基海因",
+    "alias": "DBDMH",
+    "checks": []
+  },
+  {
+    "title": "1,3二氯5,5二甲基海因",
+    "alias": "DCDMH",
+    "checks": []
+  },
+  {
+    "title": "1,3二碘5,5二甲基海因",
+    "alias": "DIDMH",
+    "checks": []
+  },
+  {
+    "title": "溴代二甲基硫鎓溴盐",
+    "alias": "BDMS",
+    "checks": []
+  },
+  {
+    "title": "四丁基三溴化铵",
+    "alias": "TBATB",
+    "checks": []
+  },
+  {
+    "title": "三氯异氰尿酸",
+    "alias": "TCCA",
+    "checks": []
+  },
+  {
+    "title": "二氯异氰尿酸钠",
+    "alias": "NaDCC",
+    "checks": []
+  },
+  {
+    "title": "三乙基硼氢化锂",
+    "alias": "LiEt3BH Super-Hydride",
+    "checks": []
+  },
+  {
+    "title": "三仲丁基硼氢化锂",
+    "alias": "L-Selectride",
+    "checks": []
+  },
+  {
+    "title": "三仲丁基硼氢化钾",
+    "alias": "K-Selectride",
+    "checks": []
+  },
+  {
+    "title": "三仲丁基硼氢化钠",
+    "alias": "N-Selectride",
+    "checks": []
+  },
+  {
+    "title": "双2甲氧基乙氧基氢化铝钠",
+    "alias": "Red-Al Vitride",
+    "checks": []
+  },
+  {
+    "title": "硼烷二甲硫醚",
+    "alias": "BH3-SMe2 BMS",
+    "checks": []
+  },
+  {
+    "title": "9硼杂双环壬烷",
+    "alias": "9-BBN 9-BBN-H",
+    "checks": []
+  },
+  {
+    "title": "二叔戊基硼烷",
+    "alias": "Sia2BH disiamylborane",
+    "checks": []
+  },
+  {
+    "title": "儿茶酚硼烷",
+    "alias": "HBcat",
+    "checks": []
+  },
+  {
+    "title": "频哪醇硼烷",
+    "alias": "HBpin",
+    "checks": []
+  },
+  {
+    "title": "苯基硅烷",
+    "alias": "PhSiH3",
+    "checks": []
+  },
+  {
+    "title": "三三甲基硅基硅烷",
+    "alias": "TTMSS",
+    "checks": []
+  },
+  {
+    "title": "汉斯酯",
+    "alias": "Hantzsch ester HEH",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "双频哪醇硼酸酯",
+    "alias": "B2pin2",
+    "checks": []
+  },
+  {
+    "title": "双新戊二醇硼酸酯",
+    "alias": "B2neop2",
+    "checks": []
+  },
+  {
+    "title": "四羟基二硼",
+    "alias": "B2(OH)4",
+    "checks": []
+  },
+  {
+    "title": "三甲氧基硼烷",
+    "alias": "B(OMe)3",
+    "checks": []
+  },
+  {
+    "title": "硼酸三异丙酯",
+    "alias": "B(Oi-Pr)3 B(OiPr)3 硼酸三异丙酯",
+    "checks": []
+  },
+  {
+    "title": "苯硼酸",
+    "alias": "PhB(OH)2",
+    "checks": []
+  },
+  {
+    "title": "苯基三氟硼酸钾",
+    "alias": "PhBF3K",
+    "checks": []
+  },
+  {
+    "title": "双三甲硅基氨基钾",
+    "alias": "KHMDS K[N(SiMe3)2]",
+    "checks": []
+  },
+  {
+    "title": "四甲基哌啶锂",
+    "alias": "LiTMP",
+    "checks": []
+  },
+  {
+    "title": "四甲基哌啶",
+    "alias": "TMP-base",
+    "checks": []
+  },
+  {
+    "title": "1,5,7三氮杂双环癸烯",
+    "alias": "TBD",
+    "checks": []
+  },
+  {
+    "title": "7甲基三氮杂双环癸烯",
+    "alias": "MTBD",
+    "checks": []
+  },
+  {
+    "title": "四甲基胍",
+    "alias": "TMG",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "质子海绵",
+    "alias": "Proton-sponge",
+    "checks": []
+  },
+  {
+    "title": "2,6二甲基吡啶",
+    "alias": "2,6-lutidine",
+    "checks": []
+  },
+  {
+    "title": "2,4,6三甲基吡啶",
+    "alias": "2,4,6-collidine",
+    "checks": []
+  },
+  {
+    "title": "2,6二叔丁基吡啶",
+    "alias": "DTBP-base",
+    "checks": []
+  },
+  {
+    "title": "1甲基咪唑",
+    "alias": "NMI",
+    "checks": []
+  },
+  {
+    "title": "N甲基吗啉",
+    "alias": "NMM",
+    "checks": []
+  },
+  {
+    "title": "叔丁醇钠",
+    "alias": "NaOtBu",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 2
+      }
+    ]
+  },
+  {
+    "title": "叔丁醇锂",
+    "alias": "LiOtBu",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 2
+      }
+    ]
+  },
+  {
+    "title": "环己基异丙基氨基锂",
+    "alias": "LICA",
+    "checks": []
+  },
+  {
+    "title": "樟脑磺酸",
+    "alias": "CSA",
+    "checks": []
+  },
+  {
+    "title": "对甲苯磺酸吡啶盐",
+    "alias": "PPTS",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酸",
+    "alias": "TfOH HOTf",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酰亚胺",
+    "alias": "HNTf2 Tf2NH",
+    "checks": []
+  },
+  {
+    "title": "三氯乙酸",
+    "alias": "TCA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 120.00000000000004
+      }
+    ]
+  },
+  {
+    "title": "乙酰氯",
+    "alias": "AcCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "乙酸酐",
+    "alias": "Ac2O",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "苯甲酰氯",
+    "alias": "BzCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "特戊酰氯",
+    "alias": "PivCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "山口试剂",
+    "alias": "TCBC Yamaguchi",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "三光气",
+    "alias": "BTC triphosgene",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "双光气",
+    "alias": "TCF diphosgene",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 120.00000000000004
+      }
+    ]
+  },
+  {
+    "title": "异硫氰酸苯酯",
+    "alias": "PITC Edman-reagent",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 7,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "甲基乙烯基酮",
+    "alias": "MVK",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "丁炔二酸二甲酯",
+    "alias": "DMAD",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 5,
+        "angle": 180.0
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "丁炔二酸二乙酯",
+    "alias": "DEAD-alkyne DEADC",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "linear",
+        "atom": 5,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "四氰基乙烯",
+    "alias": "TCNE",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 0,
+        "angle": 180.0
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 8,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "四氰基对苯醌二甲烷",
+    "alias": "TCNQ",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "linear",
+        "atom": 12,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 14,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "对甲苯磺酰甲基异腈",
+    "alias": "TosMIC",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 11,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "贝斯特曼奥希拉试剂",
+    "alias": "Bestmann-Ohira",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "吉尔伯特塞弗斯试剂",
+    "alias": "Seyferth-Gilbert",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 5,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "曼德试剂",
+    "alias": "Mander reagent methyl-cyanoformate",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "三甲基磷酰乙酸酯",
+    "alias": "TM-phosphonoacetate",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "三乙基磷酰乙酸酯",
+    "alias": "TEPA triethyl-phosphonoacetate",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "乙氧羰基亚甲基三苯基膦",
+    "alias": "Ph3P=CHCO2Et",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "甲氧羰基亚甲基三苯基膦",
+    "alias": "Ph3P=CHCO2Me",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "甲基三苯基溴化膦",
+    "alias": "MePPh3Br",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "乙基三苯基溴化膦",
+    "alias": "EtPPh3Br",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "三甲基碘化锍",
+    "alias": "Me3SI",
+    "checks": []
+  },
+  {
+    "title": "三甲基碘化亚砜锍",
+    "alias": "Me3SOI",
+    "checks": []
+  },
+  {
+    "title": "三甲基氧鎓四氟硼酸盐",
+    "alias": "Me3OBF4 Meerwein-Me",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      }
+    ]
+  },
+  {
+    "title": "三乙基氧鎓四氟硼酸盐",
+    "alias": "Et3OBF4 Meerwein-Et",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      }
+    ]
+  },
+  {
+    "title": "N,O二甲基羟胺盐酸盐",
+    "alias": "Weinreb-amine MeONHMe-HCl",
+    "checks": []
+  },
+  {
+    "title": "三苯基氧化膦",
+    "alias": "OPPh3 Ph3PO",
+    "checks": [
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 3,
+          "bold_bonds": 5,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "三丁基膦",
+    "alias": "PBu3 Bu3P",
+    "checks": []
+  },
+  {
+    "title": "三环己基膦",
+    "alias": "PCy3",
+    "checks": [
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 3,
+          "bold_bonds": 4,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "三叔丁基膦",
+    "alias": "PtBu3",
+    "checks": []
+  },
+  {
+    "title": "三邻甲苯基膦",
+    "alias": "P(oTol)3",
+    "checks": []
+  },
+  {
+    "title": "双二苯基膦甲烷",
+    "alias": "dppm",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "1,2双二苯基膦乙烷",
+    "alias": "dppe diphos",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "1,3双二苯基膦丙烷",
+    "alias": "dppp",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "1,4双二苯基膦丁烷",
+    "alias": "dppb",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "1,1双二苯基膦二茂铁",
+    "alias": "dppf",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "2,2双二苯基膦联萘",
+    "alias": "BINAP",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "9,9二甲基双二苯基膦氧杂蒽",
+    "alias": "Xantphos",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "4,5双二苯基膦二苯醚",
+    "alias": "DPEphos",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "布赫瓦尔德配体",
+    "alias": "XPhos",
+    "checks": []
+  },
+  {
+    "title": "甲氧基联苯二环己基膦",
+    "alias": "SPhos",
+    "checks": []
+  },
+  {
+    "title": "二叔丁基膦联苯",
+    "alias": "JohnPhos",
+    "checks": []
+  },
+  {
+    "title": "二甲氨基联苯二环己基膦",
+    "alias": "DavePhos",
+    "checks": []
+  },
+  {
+    "title": "二异丙氧基联苯二环己基膦",
+    "alias": "RuPhos",
+    "checks": []
+  },
+  {
+    "title": "布雷特膦",
+    "alias": "BrettPhos",
+    "checks": []
+  },
+  {
+    "title": "叔丁基布雷特膦",
+    "alias": "tBuBrettPhos",
+    "checks": []
+  },
+  {
+    "title": "1,10菲咯啉",
+    "alias": "phen 1,10-phen",
+    "checks": []
+  },
+  {
+    "title": "2,2联吡啶",
+    "alias": "bpy bipy",
+    "checks": []
+  },
+  {
+    "title": "2,2,6,2三联吡啶",
+    "alias": "terpy terpyridine",
+    "checks": []
+  },
+  {
+    "title": "四甲基乙二胺",
+    "alias": "TMEDA",
+    "checks": []
+  },
+  {
+    "title": "五甲基二乙烯三胺",
+    "alias": "PMDTA PMDETA",
+    "checks": []
+  },
+  {
+    "title": "环辛二烯",
+    "alias": "COD 1,5-COD",
+    "checks": []
+  },
+  {
+    "title": "二亚苄基丙酮",
+    "alias": "dba",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "乙二胺四乙酸",
+    "alias": "EDTA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 17,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 17,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 17,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "乙酰丙酮",
+    "alias": "Hacac acacH",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "12冠4",
+    "alias": "12-crown-4",
+    "checks": []
+  },
+  {
+    "title": "15冠5",
+    "alias": "15-crown-5",
+    "checks": []
+  },
+  {
+    "title": "18冠6",
+    "alias": "18-crown-6 18-Cr-6",
+    "checks": []
+  },
+  {
+    "title": "二苯并18冠6",
+    "alias": "DB18C6",
+    "checks": []
+  },
+  {
+    "title": "乙酸钯",
+    "alias": "Pd(OAc)2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "四三苯基膦钯",
+    "alias": "Pd(PPh3)4",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "coordination-formula",
+          "label": "Pd(PPh3)4"
+        }
+      }
+    ]
+  },
+  {
+    "title": "双三苯基膦二氯化钯",
+    "alias": "PdCl2(PPh3)2",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "coordination-formula",
+          "label": "PdCl2(PPh3)2"
+        }
+      }
+    ]
+  },
+  {
+    "title": "双二亚苄基丙酮钯",
+    "alias": "Pd(dba)2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "coordination-formula",
+          "label": "Pd(dba)2"
+        }
+      }
+    ]
+  },
+  {
+    "title": "三二亚苄基丙酮二钯",
+    "alias": "Pd2(dba)3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 26,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 26,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 26,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 44,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 44,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 44,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "coordination-formula",
+          "label": "Pd2(dba)3"
+        }
+      }
+    ]
+  },
+  {
+    "title": "威尔金森催化剂",
+    "alias": "RhCl(PPh3)3 Wilkinson",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "coordination-formula",
+          "label": "RhCl(PPh3)3"
+        }
+      }
+    ]
+  },
+  {
+    "title": "格拉布斯一代催化剂",
+    "alias": "Grubbs-I Grubbs-1",
+    "checks": []
+  },
+  {
+    "title": "格拉布斯二代催化剂",
+    "alias": "Grubbs-II Grubbs-2",
+    "checks": []
+  },
+  {
+    "title": "霍维达格拉布斯二代催化剂",
+    "alias": "Hoveyda-Grubbs-II HG-II",
+    "checks": []
+  },
+  {
+    "title": "施瓦茨试剂",
+    "alias": "Cp2ZrHCl Schwartz",
+    "checks": []
+  },
+  {
+    "title": "特贝试剂",
+    "alias": "Tebbe reagent",
+    "checks": []
+  },
+  {
+    "title": "彼塔西试剂",
+    "alias": "Cp2TiMe2 Petasis",
+    "checks": []
+  },
+  {
+    "title": "乙酰丙酮铁",
+    "alias": "Fe(acac)3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "乙酰丙酮铜",
+    "alias": "Cu(acac)2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "三氟甲磺酸铜",
+    "alias": "Cu(OTf)2",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酸钪",
+    "alias": "Sc(OTf)3",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酸镱",
+    "alias": "Yb(OTf)3",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酸银",
+    "alias": "AgOTf",
+    "checks": []
+  },
+  {
+    "title": "四乙腈六氟磷酸铜",
+    "alias": "Cu(MeCN)4PF6",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 13
+      },
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 2,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 5,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 7,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 8,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 10,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 11,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "四丁基溴化铵",
+    "alias": "TBAB",
+    "checks": []
+  },
+  {
+    "title": "四丁基碘化铵",
+    "alias": "TBAI",
+    "checks": []
+  },
+  {
+    "title": "四丁基氯化铵",
+    "alias": "TBACl",
+    "checks": []
+  },
+  {
+    "title": "四丁基氢氧化铵",
+    "alias": "TBAOH",
+    "checks": []
+  },
+  {
+    "title": "四乙基溴化铵",
+    "alias": "TEAB",
+    "checks": []
+  },
+  {
+    "title": "苄基三乙基氯化铵",
+    "alias": "TEBA BTEAC",
+    "checks": []
+  },
+  {
+    "title": "十六烷基三甲基溴化铵",
+    "alias": "CTAB",
+    "checks": []
+  },
+  {
+    "title": "四苯基溴化膦",
+    "alias": "Ph4PBr",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "2,6二叔丁基4甲基苯酚",
+    "alias": "BHT",
+    "checks": []
+  },
+  {
+    "title": "2,2偶氮双2,4二甲基戊腈",
+    "alias": "AMVN V-65",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "linear",
+        "atom": 16,
+        "angle": 179.99999914622634
+      }
+    ]
+  },
+  {
+    "title": "1,1偶氮双环己烷甲腈",
+    "alias": "ABCN V-40",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 16,
+        "angle": 179.99999914622634
+      }
+    ]
+  },
+  {
+    "title": "N苯基三唑啉二酮",
+    "alias": "PTAD",
+    "checks": []
+  },
+  {
+    "title": "4甲基三唑啉二酮",
+    "alias": "MTAD",
+    "checks": []
+  },
+  {
+    "title": "N甲基N亚硝基对甲苯磺酰胺",
+    "alias": "Diazald",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酰叠氮",
+    "alias": "TfN3",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 4,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "对甲苯磺酰叠氮",
+    "alias": "TsN3",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 11,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "对乙酰氨基苯磺酰叠氮",
+    "alias": "pABSA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "linear",
+        "atom": 14,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "咪唑磺酰叠氮盐酸盐",
+    "alias": "ISA-HCl",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 9,
+        "angle": 179.99999914622634
+      }
+    ]
+  },
+  {
+    "title": "二叔丁基偶氮二甲酸酯",
+    "alias": "DBAD",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "1,1偶氮二甲酰二哌啶",
+    "alias": "ADDP",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "三苯基甲烷醇",
+    "alias": "Ph3COH trityl-alcohol",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "苄基三氯乙酰亚胺酸酯",
+    "alias": "Bn-TCAI",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "四氢呋喃",
+    "alias": "THF",
+    "checks": []
+  },
+  {
+    "title": "2甲基四氢呋喃",
+    "alias": "2-MeTHF",
+    "checks": []
+  },
+  {
+    "title": "二氯甲烷",
+    "alias": "DCM CH2Cl2",
+    "checks": []
+  },
+  {
+    "title": "1,2二氯乙烷",
+    "alias": "DCE 1,2-DCE",
+    "checks": []
+  },
+  {
+    "title": "N,N二甲基甲酰胺",
+    "alias": "DMF",
+    "checks": []
+  },
+  {
+    "title": "N,N二甲基乙酰胺",
+    "alias": "DMAc",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "二甲基亚砜",
+    "alias": "DMSO",
+    "checks": []
+  },
+  {
+    "title": "N甲基吡咯烷酮",
+    "alias": "NMP",
+    "checks": []
+  },
+  {
+    "title": "二甲基丙烯脲",
+    "alias": "DMPU",
+    "checks": []
+  },
+  {
+    "title": "六甲基磷酰三胺",
+    "alias": "HMPA HMPT",
+    "checks": []
+  },
+  {
+    "title": "1,2二甲氧基乙烷",
+    "alias": "DME glyme",
+    "checks": []
+  },
+  {
+    "title": "二甘醇二甲醚",
+    "alias": "diglyme",
+    "checks": []
+  },
+  {
+    "title": "甲基叔丁基醚",
+    "alias": "MTBE",
+    "checks": []
+  },
+  {
+    "title": "环戊基甲醚",
+    "alias": "CPME",
+    "checks": []
+  },
+  {
+    "title": "六氟异丙醇",
+    "alias": "HFIP",
+    "checks": []
+  },
+  {
+    "title": "三氟乙醇",
+    "alias": "TFE",
+    "checks": []
+  },
+  {
+    "title": "乙腈",
+    "alias": "MeCN ACN CH3CN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "乙酸乙酯",
+    "alias": "EtOAc",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "乙酸异丙酯",
+    "alias": "iPrOAc",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "异丙醇",
+    "alias": "iPrOH IPA",
+    "checks": []
+  },
+  {
+    "title": "叔丁醇",
+    "alias": "tBuOH",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "甲醇",
+    "alias": "MeOH",
+    "checks": []
+  },
+  {
+    "title": "乙醇",
+    "alias": "EtOH",
+    "checks": []
+  },
+  {
+    "title": "二乙醚",
+    "alias": "Et2O",
+    "checks": []
+  },
+  {
+    "title": "1,4二氧六环",
+    "alias": "1,4-dioxane",
+    "checks": []
+  },
+  {
+    "title": "二甲基碳酸酯",
+    "alias": "DMC",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "碳酸丙烯酯",
+    "alias": "propylene-carbonate",
+    "checks": []
+  },
+  {
+    "title": "二氧化硫脲",
+    "alias": "TDO FAS",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999994
+      },
+      {
+        "kind": "trigonal",
+        "atom": 0,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "异丙醇铝",
+    "alias": "Al(Oi-Pr)3 Al(OiPr)3 异丙醇铝",
+    "checks": []
+  },
+  {
+    "title": "四异丙氧基钛",
+    "alias": "Ti(Oi-Pr)4 Ti(OiPr)4 四异丙氧基钛 TTIP",
+    "checks": []
+  },
+  {
+    "title": "硝酸铈铵",
+    "alias": "CAN",
+    "checks": []
+  },
+  {
+    "title": "过一硫酸氢钾复合盐",
+    "alias": "Oxone",
+    "checks": []
+  },
+  {
+    "title": "四乙酸铅",
+    "alias": "Pb(OAc)4 LTA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 14,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 14,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 14,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "三氟化硼乙醚",
+    "alias": "BF3-Et2O BF3.OEt2",
+    "checks": []
+  },
+  {
+    "title": "双三氟甲磺酰亚胺锂",
+    "alias": "LiNTf2 LiTFSI",
+    "checks": []
+  },
+  {
+    "title": "六氟磷酸银",
+    "alias": "AgPF6",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "六氟锑酸银",
+    "alias": "AgSbF6",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "四氟硼酸银",
+    "alias": "AgBF4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      }
+    ]
+  },
+  {
+    "title": "六氟磷酸铵",
+    "alias": "NH4PF6",
+    "checks": [
+      {
+        "kind": "octahedral",
+        "atom": 2
+      }
+    ]
+  },
+  {
+    "title": "三氟甲磺酸锂",
+    "alias": "LiOTf",
+    "checks": []
+  },
+  {
+    "title": "甲烷",
+    "alias": "CH4",
+    "checks": []
+  },
+  {
+    "title": "乙烷",
+    "alias": "C2H6",
+    "checks": []
+  },
+  {
+    "title": "乙烯",
+    "alias": "C2H4 ethylene",
+    "checks": []
+  },
+  {
+    "title": "乙炔",
+    "alias": "C2H2 acetylene",
+    "checks": []
+  },
+  {
+    "title": "氧气",
+    "alias": "O2",
+    "checks": []
+  },
+  {
+    "title": "氮气",
+    "alias": "N2",
+    "checks": []
+  },
+  {
+    "title": "丙烯",
+    "alias": "propene",
+    "checks": []
+  },
+  {
+    "title": "丙二烯",
+    "alias": "allene",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "1,3丁二烯",
+    "alias": "butadiene",
+    "checks": []
+  },
+  {
+    "title": "二氧化碳",
+    "alias": "CO2",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "硫酸铜五水合物",
+    "alias": "CuSO4.5H2O CuSO4*5H2O",
+    "checks": []
+  },
+  {
+    "title": "二硫化碳",
+    "alias": "CS2",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "一氧化碳",
+    "alias": "CO",
+    "checks": []
+  },
+  {
+    "title": "水",
+    "alias": "H2O",
+    "checks": []
+  },
+  {
+    "title": "重水",
+    "alias": "D2O",
+    "checks": []
+  },
+  {
+    "title": "氨",
+    "alias": "NH3",
+    "checks": []
+  },
+  {
+    "title": "肼",
+    "alias": "NH2NH2 N2H4",
+    "checks": []
+  },
+  {
+    "title": "羟胺",
+    "alias": "NH2OH",
+    "checks": []
+  },
+  {
+    "title": "磷化氢",
+    "alias": "PH3",
+    "checks": []
+  },
+  {
+    "title": "硫化氢",
+    "alias": "H2S",
+    "checks": []
+  },
+  {
+    "title": "二氧化硫",
+    "alias": "SO2",
+    "checks": []
+  },
+  {
+    "title": "三氧化硫",
+    "alias": "SO3",
+    "checks": []
+  },
+  {
+    "title": "一氧化二氮",
+    "alias": "N2O",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "一氧化氮",
+    "alias": "NO",
+    "checks": []
+  },
+  {
+    "title": "二氧化氮",
+    "alias": "NO2",
+    "checks": []
+  },
+  {
+    "title": "氰化氢",
+    "alias": "HCN",
+    "checks": []
+  },
+  {
+    "title": "硫氰酸",
+    "alias": "HSCN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "异氰酸",
+    "alias": "HNCO",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "羰基硫",
+    "alias": "COS OCS",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "二甲胺",
+    "alias": "Me2NH HNMe2",
+    "checks": []
+  },
+  {
+    "title": "甲胺",
+    "alias": "MeNH2",
+    "checks": []
+  },
+  {
+    "title": "乙胺",
+    "alias": "EtNH2",
+    "checks": []
+  },
+  {
+    "title": "二乙胺",
+    "alias": "Et2NH HNEt2",
+    "checks": []
+  },
+  {
+    "title": "正丙胺",
+    "alias": "nPrNH2",
+    "checks": []
+  },
+  {
+    "title": "异丙胺",
+    "alias": "iPrNH2",
+    "checks": []
+  },
+  {
+    "title": "正丁胺",
+    "alias": "nBuNH2",
+    "checks": []
+  },
+  {
+    "title": "叔丁胺",
+    "alias": "tBuNH2",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "三甲胺",
+    "alias": "Me3N NMe3",
+    "checks": []
+  },
+  {
+    "title": "三正丁胺",
+    "alias": "Bu3N NBu3",
+    "checks": []
+  },
+  {
+    "title": "苯胺",
+    "alias": "PhNH2",
+    "checks": []
+  },
+  {
+    "title": "苄胺",
+    "alias": "BnNH2",
+    "checks": []
+  },
+  {
+    "title": "二苄胺",
+    "alias": "Bn2NH",
+    "checks": []
+  },
+  {
+    "title": "三甲基膦",
+    "alias": "PMe3 Me3P",
+    "checks": [
+      {
+        "kind": "trigonal-pyramidal",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "三乙基膦",
+    "alias": "PEt3 Et3P",
+    "checks": []
+  },
+  {
+    "title": "亚磷酸三甲酯",
+    "alias": "P(OMe)3",
+    "checks": []
+  },
+  {
+    "title": "亚磷酸三乙酯",
+    "alias": "P(OEt)3",
+    "checks": []
+  },
+  {
+    "title": "甲醛",
+    "alias": "HCHO CH2O",
+    "checks": []
+  },
+  {
+    "title": "乙醛",
+    "alias": "MeCHO CH3CHO",
+    "checks": []
+  },
+  {
+    "title": "丙醛",
+    "alias": "EtCHO",
+    "checks": []
+  },
+  {
+    "title": "苯甲醛",
+    "alias": "PhCHO",
+    "checks": []
+  },
+  {
+    "title": "丙酮",
+    "alias": "Me2CO acetone",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "丁酮",
+    "alias": "MEK EtCOMe",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "二苯甲酮",
+    "alias": "Ph2CO",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "苯乙酮",
+    "alias": "PhCOMe",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999994
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "乙二醛",
+    "alias": "glyoxal",
+    "checks": []
+  },
+  {
+    "title": "三氟乙酸酐",
+    "alias": "(CF3CO)2O",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "甲酸",
+    "alias": "HCOOH HCO2H",
+    "checks": []
+  },
+  {
+    "title": "乙酸",
+    "alias": "CH3COOH MeCO2H",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "丙酸",
+    "alias": "EtCO2H",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "苯甲酸",
+    "alias": "PhCO2H",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999994
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "草酸",
+    "alias": "HO2CCO2H",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "甲磺酸",
+    "alias": "MsOH MeSO3H",
+    "checks": []
+  },
+  {
+    "title": "三氟甲磺酸",
+    "alias": "CF3SO3H",
+    "checks": []
+  },
+  {
+    "title": "甲硫醇",
+    "alias": "MeSH",
+    "checks": []
+  },
+  {
+    "title": "乙硫醇",
+    "alias": "EtSH",
+    "checks": []
+  },
+  {
+    "title": "苯硫酚",
+    "alias": "PhSH",
+    "checks": []
+  },
+  {
+    "title": "二甲硫醚",
+    "alias": "Me2S DMS",
+    "checks": []
+  },
+  {
+    "title": "二乙硫醚",
+    "alias": "Et2S",
+    "checks": []
+  },
+  {
+    "title": "二甲基二硫醚",
+    "alias": "MeSSMe DMDS",
+    "checks": []
+  },
+  {
+    "title": "二苯基二硫醚",
+    "alias": "PhSSPh",
+    "checks": []
+  },
+  {
+    "title": "二甲基砜",
+    "alias": "Me2SO2",
+    "checks": []
+  },
+  {
+    "title": "硫脲",
+    "alias": "thiourea SC(NH2)2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "尿素",
+    "alias": "urea CO(NH2)2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "丙腈",
+    "alias": "EtCN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 2,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "苯甲腈",
+    "alias": "PhCN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "丙二腈",
+    "alias": "CH2(CN)2",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 3,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "硝基甲烷",
+    "alias": "MeNO2 CH3NO2",
+    "checks": []
+  },
+  {
+    "title": "硝基乙烷",
+    "alias": "EtNO2",
+    "checks": []
+  },
+  {
+    "title": "乙酸甲酯",
+    "alias": "MeOAc AcOMe",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "乙酸乙酯",
+    "alias": "AcOEt",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "乙酸叔丁酯",
+    "alias": "tBuOAc",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "四氯化碳",
+    "alias": "CCl4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "二氯乙烷",
+    "alias": "ClCH2CH2Cl",
+    "checks": []
+  },
+  {
+    "title": "氯苯",
+    "alias": "PhCl",
+    "checks": []
+  },
+  {
+    "title": "溴苯",
+    "alias": "PhBr",
+    "checks": []
+  },
+  {
+    "title": "碘苯",
+    "alias": "PhI",
+    "checks": []
+  },
+  {
+    "title": "氟苯",
+    "alias": "PhF",
+    "checks": []
+  },
+  {
+    "title": "苯",
+    "alias": "benzene C6H6",
+    "checks": []
+  },
+  {
+    "title": "甲苯",
+    "alias": "PhMe toluene",
+    "checks": []
+  },
+  {
+    "title": "均三甲苯",
+    "alias": "mesitylene",
+    "checks": []
+  },
+  {
+    "title": "环己烷",
+    "alias": "cHexH cyclohexane",
+    "checks": []
+  },
+  {
+    "title": "正己烷",
+    "alias": "nHexH hexane",
+    "checks": []
+  },
+  {
+    "title": "正戊烷",
+    "alias": "nPentH pentane",
+    "checks": []
+  },
+  {
+    "title": "正庚烷",
+    "alias": "nHeptH heptane",
+    "checks": []
+  },
+  {
+    "title": "正丙醇",
+    "alias": "nPrOH",
+    "checks": []
+  },
+  {
+    "title": "正丁醇",
+    "alias": "nBuOH",
+    "checks": []
+  },
+  {
+    "title": "仲丁醇",
+    "alias": "sBuOH",
+    "checks": []
+  },
+  {
+    "title": "异丁醇",
+    "alias": "iBuOH",
+    "checks": []
+  },
+  {
+    "title": "苄醇",
+    "alias": "BnOH PhCH2OH",
+    "checks": []
+  },
+  {
+    "title": "苯酚",
+    "alias": "PhOH",
+    "checks": []
+  },
+  {
+    "title": "乙二醇",
+    "alias": "HOCH2CH2OH EG",
+    "checks": []
+  },
+  {
+    "title": "甘油",
+    "alias": "glycerol",
+    "checks": []
+  },
+  {
+    "title": "三氟乙醇",
+    "alias": "CF3CH2OH",
+    "checks": []
+  },
+  {
+    "title": "叔丁基甲醚",
+    "alias": "tBuOMe",
+    "checks": []
+  },
+  {
+    "title": "二异丙醚",
+    "alias": "iPr2O DIPE",
+    "checks": []
+  },
+  {
+    "title": "三甘醇二甲醚",
+    "alias": "triglyme",
+    "checks": []
+  },
+  {
+    "title": "四甘醇二甲醚",
+    "alias": "tetraglyme",
+    "checks": []
+  },
+  {
+    "title": "二甲基甲酰胺",
+    "alias": "HCONMe2",
+    "checks": []
+  },
+  {
+    "title": "二甲基乙酰胺",
+    "alias": "AcNMe2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "1,3二甲基咪唑烷酮",
+    "alias": "DMI",
+    "checks": []
+  },
+  {
+    "title": "环丁砜",
+    "alias": "sulfolane",
+    "checks": []
+  },
+  {
+    "title": "碳酸乙烯酯",
+    "alias": "EC ethylene-carbonate",
+    "checks": []
+  },
+  {
+    "title": "乙酰氯",
+    "alias": "MeCOCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "苯甲酰氯",
+    "alias": "PhCOCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999994
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "草酰氯",
+    "alias": "(COCl)2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "氯甲酸甲酯",
+    "alias": "ClCO2Me",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "氯甲酸乙酯",
+    "alias": "ClCO2Et",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "碳酸二甲酯",
+    "alias": "(MeO)2CO",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "碳酸二乙酯",
+    "alias": "DEC (EtO)2CO",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "甲磺酸酐",
+    "alias": "Ms2O",
+    "checks": []
+  },
+  {
+    "title": "甲基碘",
+    "alias": "MeI CH3I",
+    "checks": []
+  },
+  {
+    "title": "甲基溴",
+    "alias": "MeBr CH3Br",
+    "checks": []
+  },
+  {
+    "title": "乙基碘",
+    "alias": "EtI",
+    "checks": []
+  },
+  {
+    "title": "乙基溴",
+    "alias": "EtBr",
+    "checks": []
+  },
+  {
+    "title": "正丁基溴",
+    "alias": "nBuBr",
+    "checks": []
+  },
+  {
+    "title": "叔丁基溴",
+    "alias": "tBuBr",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "苄溴",
+    "alias": "BnBr",
+    "checks": []
+  },
+  {
+    "title": "苄氯",
+    "alias": "BnCl",
+    "checks": []
+  },
+  {
+    "title": "烯丙基溴",
+    "alias": "allyl-Br",
+    "checks": []
+  },
+  {
+    "title": "溴代乙酸乙酯",
+    "alias": "BrCH2CO2Et",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "丙二酸二乙酯",
+    "alias": "DEM EtO2CCH2CO2Et",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "乙酰乙酸乙酯",
+    "alias": "EAA MeCOCH2CO2Et",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "氰乙酸乙酯",
+    "alias": "NCCH2CO2Et",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "三甲基硅烷",
+    "alias": "Me3SiH",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "甲基硼酸",
+    "alias": "MeB(OH)2",
+    "checks": []
+  },
+  {
+    "title": "苯硼酸频哪醇酯",
+    "alias": "PhBpin",
+    "checks": []
+  },
+  {
+    "title": "苯乙烯",
+    "alias": "styrene PhCH=CH2",
+    "checks": []
+  },
+  {
+    "title": "苯乙炔",
+    "alias": "PhCCH PhC#CH",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 1,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "三异丙基硅烷",
+    "alias": "iPr3SiH TIPS-H",
+    "checks": []
+  },
+  {
+    "title": "三苯基硅烷",
+    "alias": "Ph3SiH",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "六甲基二硅烷",
+    "alias": "Me3SiSiMe3",
+    "checks": []
+  },
+  {
+    "title": "六甲基二硅氧烷",
+    "alias": "Me3SiOSiMe3 HMDSO",
+    "checks": []
+  },
+  {
+    "title": "三甲基氢化锡",
+    "alias": "Me3SnH",
+    "checks": []
+  },
+  {
+    "title": "三苯基氢化锡",
+    "alias": "Ph3SnH",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "三正丁基氯化锡",
+    "alias": "Bu3SnCl",
+    "checks": []
+  },
+  {
+    "title": "六正丁基二锡",
+    "alias": "Bu3SnSnBu3",
+    "checks": []
+  },
+  {
+    "title": "三甲基氯化锡",
+    "alias": "Me3SnCl",
+    "checks": []
+  },
+  {
+    "title": "苄基三苯基氯化膦",
+    "alias": "BnPPh3Cl",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 4,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "甲氧羰基亚甲基三苯基膦",
+    "alias": "Ph3PCHCO2Me",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "乙氧羰基亚甲基三苯基膦",
+    "alias": "Ph3PCHCO2Et",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "氯化铵",
+    "alias": "NH4Cl",
+    "checks": []
+  },
+  {
+    "title": "氯化钠",
+    "alias": "NaCl",
+    "checks": []
+  },
+  {
+    "title": "溴化钠",
+    "alias": "NaBr",
+    "checks": []
+  },
+  {
+    "title": "氯化钾",
+    "alias": "KCl",
+    "checks": []
+  },
+  {
+    "title": "溴化锂",
+    "alias": "LiBr",
+    "checks": []
+  },
+  {
+    "title": "硫酸钠",
+    "alias": "Na2SO4",
+    "checks": []
+  },
+  {
+    "title": "硫酸镁",
+    "alias": "MgSO4",
+    "checks": []
+  },
+  {
+    "title": "硫酸铜",
+    "alias": "CuSO4",
+    "checks": []
+  },
+  {
+    "title": "硫代硫酸钠",
+    "alias": "Na2S2O3",
+    "checks": []
+  },
+  {
+    "title": "碳酸钙",
+    "alias": "CaCO3",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "硫酸氢钠",
+    "alias": "NaHSO4",
+    "checks": []
+  },
+  {
+    "title": "亚硫酸氢钠",
+    "alias": "NaHSO3",
+    "checks": []
+  },
+  {
+    "title": "氟化铯",
+    "alias": "CsF",
+    "checks": []
+  },
+  {
+    "title": "氟化钠",
+    "alias": "NaF",
+    "checks": []
+  },
+  {
+    "title": "乙酸钠",
+    "alias": "NaOAc AcONa",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "乙酸钾",
+    "alias": "KOAc AcOK",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "氰酸钾",
+    "alias": "KOCN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 2,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "硫氰酸钾",
+    "alias": "KSCN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 2,
+        "angle": 180.0
+      }
+    ]
+  },
+  {
+    "title": "三丁基锡自由基",
+    "alias": "Bu3Sn· Bu3Sn• Bu3Sn. Bu3Sn*",
+    "checks": []
+  },
+  {
+    "title": "三甲基锡自由基",
+    "alias": "Me3Sn· Me3Sn• Me3Sn. Me3Sn*",
+    "checks": []
+  },
+  {
+    "title": "三苯基锡自由基",
+    "alias": "Ph3Sn· Ph3Sn• Ph3Sn. Ph3Sn*",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "三乙基硅自由基",
+    "alias": "Et3Si· Et3Si• Et3Si. Et3Si*",
+    "checks": []
+  },
+  {
+    "title": "三甲基硅自由基",
+    "alias": "Me3Si· Me3Si• Me3Si. Me3Si*",
+    "checks": []
+  },
+  {
+    "title": "三苯基硅自由基",
+    "alias": "Ph3Si· Ph3Si• Ph3Si. Ph3Si*",
+    "checks": [
+      {
+        "kind": "compact-depiction",
+        "layout": {
+          "kind": "terminal-phenyl-abbreviations",
+          "phenyl_groups": 3,
+          "diphenylphosphino_groups": 0
+        }
+      }
+    ]
+  },
+  {
+    "title": "二甲基吡咯啉氮氧化物",
+    "alias": "DMPO",
+    "checks": []
+  },
+  {
+    "title": "苯基叔丁基硝酮",
+    "alias": "PBN",
+    "checks": []
+  },
+  {
+    "title": "吡啶氧化物叔丁基硝酮",
+    "alias": "POBN 4-POBN",
+    "checks": []
+  },
+  {
+    "title": "二乙氧基磷酰基甲基吡咯啉氮氧化物",
+    "alias": "DEPMPO",
+    "checks": []
+  },
+  {
+    "title": "叔丁氧羰基甲基吡咯啉氮氧化物",
+    "alias": "BMPO BocMPO",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "4-羟基TEMPO自由基",
+    "alias": "TEMPOL 4-OH-TEMPO",
+    "checks": []
+  },
+  {
+    "title": "4-氧代TEMPO自由基",
+    "alias": "TEMPONE 4-oxo-TEMPO",
+    "checks": []
+  },
+  {
+    "title": "4-羧基TEMPO自由基",
+    "alias": "4-COOH-TEMPO 4-carboxy-TEMPO",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "N,N′-二环己基脲",
+    "alias": "DCU",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "氧化三甲胺",
+    "alias": "TMAO",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 1
+      }
+    ]
+  },
+  {
+    "title": "四甲基脲",
+    "alias": "TMU",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "三羟甲基氨基甲烷",
+    "alias": "Tris tromethamine THAM",
+    "checks": []
+  },
+  {
+    "title": "羟乙基哌嗪乙磺酸",
+    "alias": "HEPES",
+    "checks": []
+  },
+  {
+    "title": "吗啉乙磺酸",
+    "alias": "MES",
+    "checks": []
+  },
+  {
+    "title": "吗啉丙磺酸",
+    "alias": "MOPS",
+    "checks": []
+  },
+  {
+    "title": "哌嗪二乙磺酸",
+    "alias": "PIPES",
+    "checks": []
+  },
+  {
+    "title": "双羟乙基甘氨酸",
+    "alias": "Bicine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "三羟甲基甲基甘氨酸",
+    "alias": "Tricine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "三羟甲基甲氨基丙磺酸",
+    "alias": "TAPS",
+    "checks": []
+  },
+  {
+    "title": "环己氨基丙磺酸",
+    "alias": "CAPS",
+    "checks": []
+  },
+  {
+    "title": "环己氨基乙磺酸",
+    "alias": "CHES",
+    "checks": []
+  },
+  {
+    "title": "双羟乙基氨基三羟甲基甲烷",
+    "alias": "Bis-Tris bisTris",
+    "checks": []
+  },
+  {
+    "title": "(2R,3R)-二硫苏糖醇",
+    "alias": "DTT dithiothreitol",
+    "checks": []
+  },
+  {
+    "title": "三羧乙基膦盐酸盐",
+    "alias": "TCEP-HCl",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "2-巯基乙醇",
+    "alias": "BME beta-mercaptoethanol",
+    "checks": []
+  },
+  {
+    "title": "十二烷基硫酸钠",
+    "alias": "SDS sodium-dodecyl-sulfate",
+    "checks": []
+  },
+  {
+    "title": "CHAPS两性去污剂",
+    "alias": "CHAPS",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "正辛基β-D-吡喃葡萄糖苷",
+    "alias": "OctylGlc octyl-glucoside",
+    "checks": []
+  },
+  {
+    "title": "异丙基β-D-硫代半乳糖苷",
+    "alias": "IPTG",
+    "checks": []
+  },
+  {
+    "title": "邻硝基苯基β-D-半乳糖苷",
+    "alias": "ONPG",
+    "checks": []
+  },
+  {
+    "title": "对硝基苯磷酸二钠",
+    "alias": "pNPP-Na2",
+    "checks": []
+  },
+  {
+    "title": "碘乙酰胺",
+    "alias": "IAM iodoacetamide",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "N-乙基马来酰亚胺",
+    "alias": "NEM",
+    "checks": []
+  },
+  {
+    "title": "双琥珀酰亚胺基辛二酸酯",
+    "alias": "DSS disuccinimidyl-suberate",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "双琥珀酰亚胺基二硫代丙酸酯",
+    "alias": "DSP-crosslinker",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 16,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "L-抗坏血酸",
+    "alias": "AscorbicAcid vitamin-C",
+    "checks": []
+  },
+  {
+    "title": "烟酰胺",
+    "alias": "Nicotinamide niacinamide",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "烟酸",
+    "alias": "NicotinicAcid niacin",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "D-泛酸",
+    "alias": "PantothenicAcid vitamin-B5",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "吡哆醇",
+    "alias": "Pyridoxine vitamin-B6",
+    "checks": []
+  },
+  {
+    "title": "吡哆醛",
+    "alias": "Pyridoxal",
+    "checks": []
+  },
+  {
+    "title": "叶酸",
+    "alias": "FolicAcid vitamin-B9",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 12,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "R-硫辛酸",
+    "alias": "R-LipoicAcid",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "辅酶Q10",
+    "alias": "CoQ10 ubiquinone-10",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 120.00000000000021
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 15,
+        "angle": 119.99999999999982
+      },
+      {
+        "kind": "trigonal",
+        "atom": 20,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 20,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 20,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 25,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 25,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 25,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 35,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 35,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 35,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 40,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 40,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 40,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 45,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 45,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 45,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 50,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 50,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 50,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 55,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 55,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 55,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 60,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 60,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 60,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "肌酸",
+    "alias": "Creatine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "肌酐",
+    "alias": "Creatinine",
+    "checks": []
+  },
+  {
+    "title": "L-肉碱",
+    "alias": "L-Carnitine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 7,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "乙酰L-肉碱",
+    "alias": "Acetyl-L-carnitine ALCAR",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "牛磺酸",
+    "alias": "Taurine",
+    "checks": []
+  },
+  {
+    "title": "甜菜碱",
+    "alias": "Betaine trimethylglycine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 5,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "胆碱阳离子",
+    "alias": "Choline",
+    "checks": []
+  },
+  {
+    "title": "乙醇胺",
+    "alias": "Ethanolamine",
+    "checks": []
+  },
+  {
+    "title": "亚精胺",
+    "alias": "Spermidine",
+    "checks": []
+  },
+  {
+    "title": "精胺",
+    "alias": "Spermine",
+    "checks": []
+  },
+  {
+    "title": "腐胺",
+    "alias": "Putrescine",
+    "checks": []
+  },
+  {
+    "title": "L-鸟氨酸",
+    "alias": "L-Ornithine Orn",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "L-瓜氨酸",
+    "alias": "L-Citrulline Cit",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "L-胱氨酸",
+    "alias": "L-Cystine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 2,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "肌氨酸",
+    "alias": "Sarcosine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "马尿酸",
+    "alias": "HippuricAcid",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "尿酸",
+    "alias": "UricAcid",
+    "checks": []
+  },
+  {
+    "title": "黄嘌呤",
+    "alias": "Xanthine",
+    "checks": []
+  },
+  {
+    "title": "次黄嘌呤",
+    "alias": "Hypoxanthine",
+    "checks": []
+  },
+  {
+    "title": "尿苷二磷酸",
+    "alias": "UDP",
+    "checks": []
+  },
+  {
+    "title": "胞苷二磷酸",
+    "alias": "CDP",
+    "checks": []
+  },
+  {
+    "title": "肌苷单磷酸",
+    "alias": "IMP inosine-monophosphate",
+    "checks": []
+  },
+  {
+    "title": "脱氧腺苷三磷酸",
+    "alias": "dATP",
+    "checks": []
+  },
+  {
+    "title": "脱氧胞苷三磷酸",
+    "alias": "dCTP",
+    "checks": []
+  },
+  {
+    "title": "脱氧鸟苷三磷酸",
+    "alias": "dGTP",
+    "checks": []
+  },
+  {
+    "title": "脱氧胸苷三磷酸",
+    "alias": "dTTP",
+    "checks": []
+  },
+  {
+    "title": "UDP-α-D-葡萄糖",
+    "alias": "UDP-Glc UDP-glucose",
+    "checks": []
+  },
+  {
+    "title": "S-腺苷L-同型半胱氨酸",
+    "alias": "SAH AdoHcy",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "咖啡因",
+    "alias": "Caffeine",
+    "checks": []
+  },
+  {
+    "title": "茶碱",
+    "alias": "Theophylline",
+    "checks": []
+  },
+  {
+    "title": "可可碱",
+    "alias": "Theobromine",
+    "checks": []
+  },
+  {
+    "title": "姜黄素",
+    "alias": "Curcumin",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 13,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "反式白藜芦醇",
+    "alias": "trans-Resveratrol",
+    "checks": []
+  },
+  {
+    "title": "槲皮素",
+    "alias": "Quercetin",
+    "checks": []
+  },
+  {
+    "title": "胆酸",
+    "alias": "CholicAcid",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "脱氧胆酸",
+    "alias": "DeoxycholicAcid",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "麦角甾醇",
+    "alias": "Ergosterol",
+    "checks": []
+  },
+  {
+    "title": "睾酮",
+    "alias": "Testosterone",
+    "checks": []
+  },
+  {
+    "title": "17β-雌二醇",
+    "alias": "Estradiol",
+    "checks": []
+  },
+  {
+    "title": "孕酮",
+    "alias": "Progesterone",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      }
+    ]
+  },
+  {
+    "title": "氢化可的松",
+    "alias": "Cortisol hydrocortisone",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 19,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "4-二甲氨基吡啶氮氧化物",
+    "alias": "DMAPO",
+    "checks": []
+  },
+  {
+    "title": "4-吡咯烷基吡啶",
+    "alias": "PPY",
+    "checks": []
+  },
+  {
+    "title": "乙二醇二甲基丙烯酸酯",
+    "alias": "EGDMA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 11,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "甲基丙烯酸2-羟乙酯",
+    "alias": "HEMA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "甲基丙烯酸缩水甘油酯",
+    "alias": "GMA",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 1,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      }
+    ]
+  },
+  {
+    "title": "2-溴异丁酰溴",
+    "alias": "BiBB",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 3,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "4-氰基-4-戊酸二硫代苯甲酸酯",
+    "alias": "CPADB",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 4,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "linear",
+        "atom": 7,
+        "angle": 180.0
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 10,
+        "angle": 119.99999999999999
+      }
+    ]
+  },
+  {
+    "title": "香豆素",
+    "alias": "Coumarin",
+    "checks": []
+  },
+  {
+    "title": "荧光素",
+    "alias": "Fluorescein",
+    "checks": []
+  },
+  {
+    "title": "曙红Y二钠盐",
+    "alias": "EosinY-Na2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 26,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 26,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 26,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 2,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "4CzIPN有机光催化剂",
+    "alias": "4CzIPN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 19,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 60,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 5,
+          "bold_bonds": 18,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "4DPAIPN有机光催化剂",
+    "alias": "4DPAIPN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 19,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 60,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 9,
+          "bold_bonds": 16,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "3DPAFIPN有机光催化剂",
+    "alias": "3DPAFIPN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 19,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 48,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 7,
+          "bold_bonds": 12,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "4CzTPN有机光催化剂",
+    "alias": "4CzTPN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 32,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 60,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 5,
+          "bold_bonds": 16,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "2CzPN有机光催化剂",
+    "alias": "2CzPN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 19,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "linear",
+        "atom": 21,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 3,
+          "bold_bonds": 7,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "5CzBN有机光催化剂",
+    "alias": "5CzBN",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 71,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 6,
+          "bold_bonds": 19,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9-均三甲苯基-10-甲基吖啶鎓四氟硼酸盐",
+    "alias": "Mes-Acr-MeBF4 MesAcrBF4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 3,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "2,4,6-三苯基吡喃鎓四氟硼酸盐",
+    "alias": "TPP-BF4",
+    "checks": [
+      {
+        "kind": "tetrahedral",
+        "atom": 0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 4,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "10-苯基吩噻嗪",
+    "alias": "N-Phenylphenothiazine PTH",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 3,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "10-苯基吩噁嗪",
+    "alias": "N-Phenylphenoxazine PPO",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 3,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "吩噻嗪",
+    "alias": "Phenothiazine",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 4,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "10-甲基吩噻嗪",
+    "alias": "N-Methylphenothiazine",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 4,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9,10-二氰基蒽",
+    "alias": "DCA 9,10-DCA",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 14,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 16,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9-氰基蒽",
+    "alias": "9-CNA 9-cyanoanthracene",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 14,
+        "angle": 180.0
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "蒽",
+    "alias": "Anthracene",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "芘",
+    "alias": "Pyrene",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 7,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "苝",
+    "alias": "Perylene",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 9,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9,10-双(苯乙炔基)蒽",
+    "alias": "BPEA",
+    "checks": [
+      {
+        "kind": "linear",
+        "atom": 6,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 7,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 22,
+        "angle": 180.0
+      },
+      {
+        "kind": "linear",
+        "atom": 23,
+        "angle": 179.99999914622634
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 3,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "硫杂蒽酮",
+    "alias": "Thioxanthone TX",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "2-异丙基硫杂蒽酮",
+    "alias": "2-ITX",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 4,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "2,4-二乙基硫杂蒽酮",
+    "alias": "DETX",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "氧杂蒽酮",
+    "alias": "Xanthone",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9,10-蒽醌",
+    "alias": "Anthraquinone AQ AQN",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "2-乙基蒽醌",
+    "alias": "2-EAQ",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "2-叔丁基蒽醌",
+    "alias": "2-tBuAQ",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "联苯甲酰",
+    "alias": "Benzil",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 6,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 8,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 3,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "4,4′-双二甲氨基二苯甲酮",
+    "alias": "Michlers-ketone",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 9,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 2,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "玫瑰红二钠盐",
+    "alias": "RoseBengal-Na2 RB-Na2",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 120.00000000000007
+      },
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 2,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "亚甲基蓝氯化物",
+    "alias": "MethyleneBlue-Cl MB-Cl",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 4,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "罗丹明B氯化物",
+    "alias": "RhodamineB RhoB",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 120.00000000000004
+      },
+      {
+        "kind": "trigonal",
+        "atom": 30,
+        "angle": 119.99999999999997
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 2,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "罗丹明6G氯化物",
+    "alias": "Rhodamine6G R6G",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 28,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 28,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 28,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 2,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "曙红Y游离酸",
+    "alias": "EosinY-acid",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 9,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "荧光素二钠盐",
+    "alias": "Fluorescein-Na2 Uranine",
+    "checks": [
+      {
+        "kind": "trigonal",
+        "atom": 22,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 22,
+        "angle": 120.00000000000001
+      },
+      {
+        "kind": "trigonal",
+        "atom": 22,
+        "angle": 119.99999999999999
+      },
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 2,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "曙红B二钠盐",
+    "alias": "EosinB-Na2",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 9,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9-芴酮",
+    "alias": "Fluorenone",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 1,
+          "bold_bonds": 5,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9,10-二苯基蒽",
+    "alias": "DPA-anthracene",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 3,
+          "bold_bonds": 6,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "9-均三甲苯基-10-甲基吖啶鎓高氯酸盐",
+    "alias": "Mes-Acr-MeClO4 MesAcrClO4",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      },
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "ring-perspective",
+          "ring_systems": 2,
+          "bold_bonds": 3,
+          "compression": 0.78
+        }
+      }
+    ]
+  },
+  {
+    "title": "二氧化碳自由基阴离子",
+    "alias": "CO2RA CO2-radical-anion CO2.- CO2*- CO2•- CO2·- CO2•− CO2·− CO2-• CO2-· CO2-* CO₂•⁻ CO₂·⁻",
+    "checks": [
+      {
+        "kind": "full-depiction-clearance",
+        "result": {
+          "close_atoms": [],
+          "crossing_bonds": [],
+          "atoms_on_bonds": []
+        }
+      }
+    ]
+  },
+  {
+    "title": "面式三(2-苯基吡啶)铱(III)",
+    "alias": "Ir(ppy)3 fac-Ir(ppy)3 Irppy3",
+    "checks": [
+      {
+        "kind": "spatial-template",
+        "layout": {
+          "kind": "fac-octahedral",
+          "solid_wedges": 2,
+          "hashed_wedges": 2
+        }
+      }
+    ]
+  },
+  {
+    "title": "甲醇铝",
+    "alias": "Al(OMe)3 甲醇铝",
+    "checks": []
+  },
+  {
+    "title": "乙醇铝",
+    "alias": "Al(OEt)3 乙醇铝",
+    "checks": []
+  },
+  {
+    "title": "叔丁醇铝",
+    "alias": "Al(Ot-Bu)3 Al(OtBu)3 叔丁醇铝",
+    "checks": []
+  },
+  {
+    "title": "四乙氧基钛",
+    "alias": "Ti(OEt)4 四乙氧基钛",
+    "checks": []
+  },
+  {
+    "title": "四叔丁氧基钛",
+    "alias": "Ti(Ot-Bu)4 Ti(OtBu)4 四叔丁氧基钛",
+    "checks": []
+  },
+  {
+    "title": "四异丙氧基锆",
+    "alias": "Zr(Oi-Pr)4 Zr(OiPr)4 四异丙氧基锆",
+    "checks": []
+  },
+  {
+    "title": "四叔丁氧基锆",
+    "alias": "Zr(Ot-Bu)4 Zr(OtBu)4 四叔丁氧基锆",
+    "checks": []
+  }
+]

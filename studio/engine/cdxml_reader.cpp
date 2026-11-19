@@ -1,4 +1,7 @@
+#include "engine/projection_export.hpp"
+#include "engine/projection_migration.hpp"
 #include "engine/cdxml_id_repair.hpp"
+#include "engine/projection_interop.hpp"
 #include "engine/atom_runs.hpp"
 #include "engine/name_link.hpp"
 #include "persistence.hpp"
@@ -668,7 +671,9 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
         "Radical", "LabelDisplay", "LabelFont", "LabelSize", "LabelFace",
         "LabelColor", "LineWidth", "Color", "BoundingBox", "Warning",
         "ExternalConnectionType", "ExternalConnectionNum", "Z", "Geometry",
-        "AS", "Alkyl", "AttachedLabels", "SupersededBy"
+        "AS", "Alkyl", "AttachedLabels", "SupersededBy",
+        "MoleculeStudioChargePosition", "MoleculeStudioRadicalPosition", "MoleculeStudioLiteralLabel",
+        "MoleculeStudioLonePairPositions", "MoleculeStudioChargeCircle"
     };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);
@@ -693,6 +698,13 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
     }
 
     core::AtomSemantics semantics;
+    std::string genericRole=element->Attribute("MoleculeStudioRole")?element->Attribute("MoleculeStudioRole"):"";
+    for(auto tag=element->FirstChildElement("objecttag");tag;tag=tag->NextSiblingElement("objecttag")){
+        const std::string name=tag->Attribute("Name")?tag->Attribute("Name"):"";
+        const std::string prefix="MoleculeStudio.GenericRole.";
+        if(name.compare(0,prefix.size(),prefix)==0)genericRole=name.substr(prefix.size());
+    }
+    if(genericRole!="base"&&genericRole!="nucleophile"&&genericRole!="nucleophile-neutral")genericRole.clear();
     if (element->Attribute("NodeType")) {
         core::NodeType nodeType = core::NodeType::Element;
         if (!nodeTypeFromCdxml(element->Attribute("NodeType"), &nodeType))
@@ -746,6 +758,21 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
     if (ctx.report) ++ctx.report->nodes;
 
     const ObjectRef ref(ObjectKind::Atom, id);
+    if(const char* type=element->Attribute("NodeType"))ctx.document.extensions(ref).set("studio.cdxml.NodeType",type);
+    for(const char* key:{"ElementList","GenericNickname","GenericList","SubstituentsUpTo","SubstituentsExactly","UnsaturatedBonds","RingBondCount","IgnoreWarnings"})
+        if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
+    // These atom-owned semantics must not remain only in the document-wide
+    // unknown-attribute bag created before the atom id was allocated.
+    if(const char* pairs=element->Attribute("MoleculeStudioLonePairs")){
+        long long count=0;r=parseInteger(pairs,"MoleculeStudioLonePairs",0,4,&count);if(!r.ok())return r;
+        ctx.document.extensions(ref).set("pst.attr.MoleculeStudioLonePairs",std::to_string(count));
+    }
+    if(const char* value=element->Attribute("MoleculeStudioPerspectiveZ"))ctx.document.extensions(ref).set("pst.attr.MoleculeStudioPerspectiveZ",value);
+    if(const char* role=element->Attribute("MoleculeStudioRole"))ctx.document.extensions(ref).set("pst.attr.MoleculeStudioRole",role);
+    for(const char* key:{"MoleculeStudioChargePosition","MoleculeStudioRadicalPosition","MoleculeStudioLiteralLabel",
+                        "MoleculeStudioLonePairPositions","MoleculeStudioChargeCircle","MoleculeStudioProjection","MoleculeStudioCatalyticMetal","MoleculeStudioCatalyticOxidation","MoleculeStudioCatalyticLigands","MoleculeStudioCatalyticNumerals","MoleculeStudioCatalyticFormat","MoleculeStudioCatalyticExcited"})
+        if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
+
     {std::ostringstream value;value.precision(12);value<<position.x<<' '<<position.y;ctx.document.extensions(ref).set("studio.atom.source.xy",value.str());}
     region.ref = ref;
     if(auto xyz=element->Attribute("xyz")){std::istringstream input(xyz);double x,y,z;if(input>>x>>y>>z&&std::isfinite(z))ctx.document.extensions(ref).set("studio.atom.z",std::to_string(z));}
@@ -786,10 +813,33 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
         captureChildRegion(ctx, child, &labelRegion);
         recordRef(&labelRegion, child, "id");
         TextPiece piece;
-        r = readTextRuns(ctx, labelElement, ctx.labelSize, ref, &piece, true, "t");
+        {auto savedFont=ctx.defaultFont;if(auto f=ctx.document.documentExtensions().findValue("studio.style.LabelFontName"))ctx.defaultFont=*f;r = readTextRuns(ctx, labelElement, ctx.labelSize, ref, &piece, true, "t");ctx.defaultFont=savedFont;}
         if (!r.ok()) return r;
         std::string label;
         for (size_t i = 0; i < piece.runs.size(); ++i) label += piece.runs[i].utf8;
+        // Charges in explicit ChemDraw labels are display text as well as an
+        // atom property. Do not turn B + superscript '-' into a literal "B-"
+        // label and then draw/export the charge a second time.
+        if(!piece.runs.empty()){
+            auto& last=piece.runs.back();const std::string minus="\xE2\x88\x92";
+            for(int q=-15;q<=15;++q){if(!q)continue;
+                const std::string magnitude=std::abs(q)>1?std::to_string(std::abs(q)):std::string();
+                const std::string suffix=magnitude+(q>0?"+":"-");
+                if((semantics.charge==q||(!genericRole.empty()&&!element->Attribute("Charge")))&&
+                   (last.utf8==suffix||(q<0&&last.utf8==magnitude+minus))&&piece.runs.size()>1){
+                    semantics.charge=int8_t(q);piece.runs.pop_back();label.clear();for(const auto& run:piece.runs)label+=run.utf8;break;
+                }
+            }
+        }
+        const bool roleLabel=genericRole=="base"?label=="B":!genericRole.empty()&&(label=="Nu"||label=="Nu:");
+        if(roleLabel){
+            // ChemDraw may reinterpret neutral B-H as elemental boron on save.
+            // Only the persistent explicit role tag authorizes restoring a
+            // generic node; an ordinary elemental B is never changed.
+            semantics.nodeType=uint8_t(core::NodeType::Query);semantics.implicitHydrogens=0;
+            ctx.document.setElement(id,6);ctx.document.extensions(ref).set("pst.attr.MoleculeStudioRole",genericRole);
+        }
+        ctx.document.setAtomSemantics(id,semantics);
         ctx.document.setAtomLabelQuiet(id, label);
         if(elementNumber==6&&label=="C"){semantics.showLabel=true;ctx.document.setAtomSemantics(id,semantics);}
         studioatom::set(ctx.document,id,piece.runs);
@@ -846,7 +896,7 @@ void readBondDeferred(ReaderContext& ctx, const XMLElement* element) {
 Error resolveBond(ReaderContext& ctx, const XMLElement* element, RawRegion* region) {
     AttrTable table;
     const char* const allowed[] = {
-        "id", "B", "E", "Order", "Display", "Stereo", "DoublePosition",
+        "id", "B", "E", "Order", "Display", "Stereo", "DoublePosition", "MoleculeStudioBridgeLayer", "MoleculeStudioUnspecifiedEZ",
         "DoubleBondSpacing", "BS", "LineWidth", "BoldWidth", "HashSpacing", "Color", "BondCircularOrdering",
         "BoundingBox", "SupersededBy", "Begin", "End"
     };
@@ -935,7 +985,9 @@ Error resolveBond(ReaderContext& ctx, const XMLElement* element, RawRegion* regi
     ++ctx.objectCount;
 
     const ObjectRef ref(ObjectKind::Bond, id);
-    for(const char* key:{"DoublePosition","DoubleBondSpacing","LineWidth","BoldWidth","HashSpacing"})if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
+    if(order==core::BondOrder::Double && element->Attribute("MoleculeStudioUnspecifiedEZ","yes"))
+        ctx.document.extensions(ref).set("studio.bond.unspecifiedEZ","yes");
+    for(const char* key:{"DoublePosition","DoubleBondSpacing","LineWidth","BoldWidth","HashSpacing","Visible","MoleculeStudioBridgeLayer","MoleculeStudioPerspectiveFront","MoleculeStudioProjectionBegin","MoleculeStudioProjectionEnd"})if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
     sourceAppearance(ctx,element,ref);
     if (region) {
         region->ref = ref;
@@ -994,6 +1046,9 @@ Error readFreeText(ReaderContext& ctx, const XMLElement* element) {
     const ObjectRef ref(ObjectKind::Text, id);
     if (piece.hasWidth && piece.width > 0.0 && std::isfinite(piece.width))
         ctx.document.extensions(ref).set("studio.text.width", std::to_string(piece.width));
+    // Caption intent must survive copying and text edits as well as raw replay.
+    if(const char* interpret=element->Attribute("InterpretChemically"))
+        ctx.document.extensions(ref).set("pst.attr.InterpretChemically",interpret);
     region.ref = ref;
     sourceAppearance(ctx,element,ref);
     attachSource(ctx, ref, region);
@@ -1191,6 +1246,21 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
         record.closed = (type == "rectangle" || type == "oval");
         if(const char* curve=element->Attribute("CurvePoints")){record.points.clear();std::istringstream input(curve);double x,y;while(input>>x>>y)record.points.push_back(core::Vec2(x,y));record.pointKind.assign(record.points.size(),0);record.closed=(element->IntAttribute("CurveType")&1)!=0;}
         if(const char* vertices=element->Attribute("MoleculeStudioPath")){record.points.clear();std::istringstream input(vertices);double x,y;while(input>>x>>y)record.points.push_back(core::Vec2(x,y));record.pointKind.assign(record.points.size(),0);record.fillEnabled=(element->IntAttribute("CurveType")&128)!=0;record.fillRGBA=element->UnsignedAttribute("MoleculeStudioFill");}
+        // Older exports translated the standard curve but left the private
+        // vertices at the document origin. Both encodings start at the same knot.
+        if(element->Attribute("MoleculeStudioPath") && !record.points.empty()){
+            if(const char* native=element->Attribute("CurvePoints")){
+                double x,y; std::istringstream in(native);
+                if(in>>x>>y){auto delta=core::Vec2(x,y)-record.points.front();
+                    for(auto& pt:record.points)pt=pt+delta;}
+            }
+        }
+        if(const char* value=element->Attribute("MoleculeStudioPathKinds")){
+            std::string flags(value);
+            if(!flags.empty() && flags.size()==record.points.size() && flags.front()=='0' && flags.back()=='0' &&
+               flags.find("11")==std::string::npos && flags.find_first_not_of("01")==std::string::npos)
+                for(size_t i=0;i<flags.size();++i)record.pointKind[i]=flags[i]=='1';
+        }
         record.style.colorRGBA=0x000000ff;
         record.sourceId = sourceId;
         if (element->Attribute("LineWidth")) {
@@ -1204,6 +1274,11 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
             if (ctx.color(color, &rgba)) record.style.colorRGBA = rgba;
         }
         core::ObjectId id = core::kInvalidObjectId;
+        if(element->Attribute("MoleculeStudioRaster"))if(const char* corners=element->Attribute("MoleculeStudioImageCorners")){
+            std::istringstream input(corners);std::vector<core::Vec2> points;double x,y;
+            while(input>>x>>y)if(std::isfinite(x)&&std::isfinite(y))points.push_back(core::Vec2(x,y));
+            if(points.size()==4){record.points=points;record.pointKind.assign(4,0);}
+        }
         r = ctx.document.addPath(record, &id);
         if (!r.ok()) return r;
         ++ctx.objectCount;
@@ -1654,7 +1729,7 @@ Error readInto(const std::string& bytes, core::Document& document,
                                       "UTF-8");
 
     if (const char* name = root->Attribute("Name")) document.setName(name);
-    for(const char* key:{"BondSpacing","MarginWidth","LabelSize","LabelFace","BoldWidth","HashSpacing"})if(const char* value=root->Attribute(key))
+    for(const char* key:{"ChainAngle","BondSpacing","MarginWidth","LabelSize","LabelFace","BoldWidth","HashSpacing"})if(const char* value=root->Attribute(key))
         document.documentExtensions().set(std::string("studio.style.")+key,value);
     if (root->Attribute("BondLength")) {
         double value = 0.0;
@@ -1686,7 +1761,7 @@ Error readInto(const std::string& bytes, core::Document& document,
         ctx.labelSize = value;
     }
     if (const char* font = root->Attribute("CaptionFont")) ctx.defaultFont = font;
-    if (const char* font = root->Attribute("LabelFont")) ctx.defaultFont = font;
+    if (!root->Attribute("CaptionFont"))if (const char* font = root->Attribute("LabelFont")) ctx.defaultFont = font;
     
 
     ctx.palette[0]=0x000000ff;ctx.palette[1]=0xffffffff;
@@ -1710,6 +1785,7 @@ Error readInto(const std::string& bytes, core::Document& document,
         if (!r.ok()) return r;
     }
 
+    {std::string labelFont=root->Attribute("LabelFont")?root->Attribute("LabelFont"):"Arial";char* end=nullptr;auto id=std::strtoul(labelFont.c_str(),&end,10);if(end&&!*end){auto it=ctx.fontNames.find(uint32_t(id));labelFont=it==ctx.fontNames.end()?"Arial":it->second;}document.documentExtensions().set("studio.style.LabelFontName",labelFont);}
         int pageIndex = 0;
     int childIndex = 0;
     if (!ctx.defaultFont.empty()) {
@@ -1794,35 +1870,12 @@ Error readInto(const std::string& bytes, core::Document& document,
     // bytes of trailing newline".
     if (ctx.source && ctx.sourceCursor < ctx.source->size()) {
         const std::string epilogue = ctx.source->substr(ctx.sourceCursor);
-        // Only keep it when the tail contains nothing but container close tags and
-        // whitespace: a tail with real content is content the reader did not model, and
-        // pretending to have preserved it would be worse than regenerating the close.
-        // Scan TAG BY TAG, not character by character: the tail must consist only of
-        // whitespace, container close tags and comments. Anything else is content the
-        // reader did not model, and claiming to have preserved it would be a lie.
-        bool structural = false;
-        size_t scan = 0;
-        while (scan < epilogue.size() && !structural) {
-            const char c = epilogue[scan];
-            if (c == 32 || c == 9 || c == 10 || c == 13) { ++scan; continue; }
-            if (c != 60) { structural = true; break; }
-            const size_t close = epilogue.find(62, scan);
-            if (close == std::string::npos) { structural = true; break; }
-            const std::string tag = epilogue.substr(scan, close - scan + 1);
-            const bool allowed = tag.compare(0, 10, "</fragment") == 0 ||
-                                 tag.compare(0, 6, "</page") == 0 ||
-                                 tag.compare(0, 7, "</CDXML") == 0 ||
-                                 tag.compare(0, 4, "<!--") == 0 ||
-                                 // ChemDraw page metadata (GUID / page name) after
-                                 // the last drawable object belongs to the tail and
-                                 // must survive verbatim, exactly like a close tag.
-                                 tag.compare(0, 11, "<annotation") == 0;
-            if (!allowed) { structural = true; break; }
-            scan = close + 1;
-        }
-        if (!structural)
-            document.documentExtensions().set(std::string(kExtensionPrefix) + "source.epilogue",
-                                              epilogue);
+        // The input has already passed XML parsing, and sourceCursor follows
+        // the last captured object/raw region. Keep all remaining container
+        // closures, empty containers, comments and metadata verbatim. A tag
+        // whitelist discarded valid group tails and invented </fragment>.
+        document.documentExtensions().set(std::string(kExtensionPrefix) + "source.epilogue",
+                                          epilogue);
     }
     if (report) report->objectsImported = ctx.objectCount;
     return document.validate();
@@ -1883,6 +1936,25 @@ static void resolveNameLinks(core::Document& document) {
     }
 }
 
+// Projection diagrams use native CDXML vector groups. Rebuild only these named
+// diagram groups; chemical fragments and arbitrary source envelopes keep their
+// existing lossless import behaviour.
+static void resolveProjectionGroups(const std::string& bytes, core::Document& document) {
+    tinyxml2::XMLDocument xml;if(xml.Parse(bytes.c_str())!=tinyxml2::XML_SUCCESS)return;
+    std::map<int,core::ObjectRef> ids;
+    for(const auto& t:document.texts().records())if(t.isAlive()&&t.sourceId>0)ids[t.sourceId]=core::ObjectRef(core::ObjectKind::Text,t.id);
+    for(const auto& p:document.paths().records())if(p.isAlive()&&p.sourceId>0)ids[p.sourceId]=core::ObjectRef(core::ObjectKind::Path,p.id);
+    for(const auto& a:document.symbols().records())if(a.isAlive()&&a.sourceId>0)ids[a.sourceId]=core::ObjectRef(core::ObjectKind::Symbol,a.id);
+    std::function<void(const tinyxml2::XMLElement*)> visit=[&](const tinyxml2::XMLElement* e){
+        if(!e)return;const std::string name=e->Attribute("Name")?e->Attribute("Name"):"";
+        if(std::string(e->Name())=="group"&&(name=="Fischer projection"||name=="Sawhorse projection"||name=="Newman projection")){
+            core::GroupRecord g;g.label=name;g.sourceId=e->IntAttribute("id",0);
+            std::function<void(const tinyxml2::XMLElement*)> members=[&](const tinyxml2::XMLElement* n){for(;n;n=n->NextSiblingElement()){auto found=ids.find(n->IntAttribute("id",0));if(found!=ids.end())g.members.push_back(found->second);else members(n->FirstChildElement());}};
+            members(e->FirstChildElement());if(g.members.size()>1){core::ObjectId id;document.addGroup(g,&id);}
+        }else for(auto c=e->FirstChildElement();c;c=c->NextSiblingElement())visit(c);
+    };visit(xml.RootElement());
+}
+
 // ---------------------------------------------------------------------------
 // Public entry points
 // ---------------------------------------------------------------------------
@@ -1896,13 +1968,39 @@ core::Error readCdxml(const std::string& bytes, core::Document& document,
     RefusalReport localRefusals;
     // Parse into a scratch document: a refusal must leave the caller untouched.
     core::Document scratch;
-    std::string input=bytes;repairUnreferencedArrowIds(input);std::vector<std::pair<graphics::TableData,std::string>> tables;
+    std::string input=studio_projection_io::normalize(studio_projection_export::strip(bytes));repairUnreferencedArrowIds(input);std::vector<std::pair<graphics::TableData,std::string>> tables;
     std::vector<std::pair<experimental::PlateFigure,experimental::PlateFrame>> figures;std::vector<double> figureDiameters;std::vector<bool> figureRf;
     tinyxml2::XMLDocument tableXml;
     if(tableXml.Parse(input.c_str())==tinyxml2::XML_SUCCESS&&tableXml.RootElement()){
         std::function<Error(tinyxml2::XMLElement*)> scan=[&](tinyxml2::XMLElement* parent)->Error{
             for(auto node=parent->FirstChildElement();node;){auto next=node->NextSiblingElement();
-                if(auto params=node->Attribute("MoleculeStudioTLC")){bool ok=false;auto figure=experimental::decodeFigure(params,&ok);if(!ok||!experimental::validateFigure(figure).ok())return Error(ErrorCode::ParseError,"Invalid TLC metadata");
+                if(std::strcmp(node->Name(),"tlcplate")==0){
+                    auto readPoint=[&](const char* key,core::Vec2* point){const char* value=node->Attribute(key);if(!value)return false;std::istringstream input(value);return bool(input>>point->x>>point->y)&&point->finite();};
+                    core::Vec2 tl,tr,br,bl;if(!readPoint("TopLeft",&tl)||!readPoint("TopRight",&tr)||!readPoint("BottomRight",&br)||!readPoint("BottomLeft",&bl))return Error(ErrorCode::ParseError,"Invalid native TLC corners");
+                    experimental::PlateFrame frame((tl+br)*.5,(tr-tl)*.5,(bl-tl)*.5);if(frame.degenerate())return Error(ErrorCode::ParseError,"Invalid native TLC frame");
+                    experimental::PlateFigure figure=experimental::makeDefaultFigure(experimental::FigureKind::TlcPlate,1);figure.lanes.clear();figure.spots.clear();
+                    figure.originV=1-2*node->DoubleAttribute("OriginFraction",.12);figure.frontV=2*node->DoubleAttribute("SolventFrontFraction",.12)-1;
+                    auto yes=[&](const char* key,bool fallback){auto value=node->Attribute(key);return value?(std::strcmp(value,"yes")==0||std::strcmp(value,"1")==0):fallback;};
+                    figure.originDefined=yes("ShowOrigin",true);figure.frontDefined=yes("ShowSolventFront",true);figure.showLaneBorders=false; // Native ShowBorders is the outer frame, not lane guides.
+                    std::vector<tinyxml2::XMLElement*> nativeLanes;for(auto child=node->FirstChildElement("tlclane");child;child=child->NextSiblingElement("tlclane"))nativeLanes.push_back(child);
+                    bool showRf=false;for(size_t i=0;i<nativeLanes.size();++i){experimental::Lane lane;lane.id=experimental::allocateElementId(&figure);lane.u=nativeLanes.size()==1?0.:-.72+1.44*i/(nativeLanes.size()-1);lane.width=std::min(.5,1.44/std::max(size_t(1),nativeLanes.size())*.55);figure.lanes.push_back(lane);
+                        for(auto child=nativeLanes[i]->FirstChildElement("tlcspot");child;child=child->NextSiblingElement("tlcspot")){experimental::Spot spot;spot.id=experimental::allocateElementId(&figure);spot.laneId=lane.id;spot.u=lane.u;double rf=child->DoubleAttribute("Rf",.5);spot.v=figure.originV-rf*(figure.originV-figure.frontV);auto pointUnits=[](double value){return std::abs(value)>=1024.?value/65536.:value;};spot.radiusU=pointUnits(child->DoubleAttribute("Width",4.))/(2*frame.halfWidth());spot.radiusV=pointUnits(child->DoubleAttribute("Height",4.))/(2*frame.halfHeight());spot.tailLengthV=pointUnits(child->DoubleAttribute("Tail",0.))/frame.halfHeight();figure.spots.push_back(spot);auto flag=child->Attribute("ShowRf");if(flag&&(std::strcmp(flag,"yes")==0||std::strcmp(flag,"1")==0))showRf=true;}
+                    }
+                    for(auto tag=node->FirstChildElement("objecttag");tag;tag=tag->NextSiblingElement("objecttag"))if(auto name=tag->Attribute("Name"))if(std::strcmp(name,"MoleculeStudio/TLC")==0)if(auto payload=tag->Attribute("Value")){
+                        bool valid=false;auto original=experimental::decodeFigure(payload,&valid);
+                        bool unchanged=valid&&original.lanes.size()==figure.lanes.size()&&original.spots.size()==figure.spots.size()
+                            &&std::abs(original.originV-figure.originV)<1e-5&&std::abs(original.frontV-figure.frontV)<1e-5;
+                        if(unchanged)for(size_t laneIndex=0;laneIndex<figure.lanes.size()&&unchanged;++laneIndex){
+                            std::vector<const experimental::Spot*> saved,native;
+                            for(const auto& spot:original.spots)if(spot.laneId==original.lanes[laneIndex].id)saved.push_back(&spot);
+                            for(const auto& spot:figure.spots)if(spot.laneId==figure.lanes[laneIndex].id)native.push_back(&spot);
+                            if(saved.size()!=native.size()){unchanged=false;break;}
+                            for(size_t i=0;i<saved.size();++i){const auto& a=*saved[i];const auto& b=*native[i];if(std::abs(a.v-b.v)>1e-5||std::abs(a.radiusU-b.radiusU)>1e-5||std::abs(a.radiusV-b.radiusV)>1e-5||std::abs(a.tailLengthV-b.tailLengthV)>1e-5){unchanged=false;break;}}
+                        }
+                        if(unchanged)figure=original;
+                    }
+                    if(!experimental::validateFigure(figure).ok())return Error(ErrorCode::ParseError,"Invalid native TLC plate");figureDiameters.push_back(figure.spots.empty()?4.:2*figure.spots.front().radiusU*frame.halfWidth());figureRf.push_back(showRf);figures.push_back({figure,frame});parent->DeleteChild(node);
+                }else if(auto params=node->Attribute("MoleculeStudioTLC")){bool ok=false;auto figure=experimental::decodeFigure(params,&ok);if(!ok||!experimental::validateFigure(figure).ok())return Error(ErrorCode::ParseError,"Invalid TLC metadata");
                     experimental::PlateFrame frame;std::istringstream geometry(node->Attribute("MoleculeStudioFrame")?node->Attribute("MoleculeStudioFrame"):"");
                     if(!(geometry>>frame.centre.x>>frame.centre.y>>frame.axisU.x>>frame.axisU.y>>frame.axisV.x>>frame.axisV.y)||frame.degenerate()||!std::isfinite(frame.centre.x)||!std::isfinite(frame.centre.y)||!std::isfinite(frame.axisU.x)||!std::isfinite(frame.axisU.y)||!std::isfinite(frame.axisV.x)||!std::isfinite(frame.axisV.y))return Error(ErrorCode::ParseError,"Invalid TLC frame");
                     if(auto value=node->Attribute("BoundingBox")){core::Vec2 a,b;std::istringstream bounds(value);if(!(bounds>>a.x>>a.y>>b.x>>b.y)||!a.finite()||!b.finite())return Error(ErrorCode::ParseError,"Invalid TLC bounds");frame.centre=(a+b)*.5;}
@@ -1935,6 +2033,8 @@ core::Error readCdxml(const std::string& bytes, core::Document& document,
             core::ObjectId id;auto e=experimental::addFigure(scratch,item.first,item.second,scratch.defaultLineWidth(),&id);if(!e.ok())return e;scratch.extensions(experimental::figureRef(id)).set("studio.tlc.spotDiameter",std::to_string(figureDiameters[figureIndex]));scratch.extensions(experimental::figureRef(id)).set("studio.tlc.showRf",figureRf[figureIndex++]?"1":"0");
         }
     }
+    resolveProjectionGroups(input,scratch);
+    projection_molecule::migrateLegacy(scratch);
     resolveNameLinks(scratch);
     core::Document::RawState state;
     scratch.captureAll(&state);

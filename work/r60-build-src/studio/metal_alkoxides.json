@@ -1,0 +1,65 @@
+[
+  {
+    "title": "甲醇铝",
+    "alias": "Al(OMe)3 甲醇铝",
+    "category": "金属醇盐",
+    "smiles": "[Al](OC)(OC)OC",
+    "formula": "C3H9AlO3",
+    "inorganic": false,
+    "source": "Project-authored connected alkoxide monomer depiction"
+  },
+  {
+    "title": "乙醇铝",
+    "alias": "Al(OEt)3 乙醇铝",
+    "category": "金属醇盐",
+    "smiles": "[Al](OCC)(OCC)OCC",
+    "formula": "C6H15AlO3",
+    "inorganic": false,
+    "source": "Project-authored connected alkoxide monomer depiction"
+  },
+  {
+    "title": "叔丁醇铝",
+    "alias": "Al(Ot-Bu)3 Al(OtBu)3 叔丁醇铝",
+    "category": "金属醇盐",
+    "smiles": "[Al](OC(C)(C)C)(OC(C)(C)C)OC(C)(C)C",
+    "formula": "C12H27AlO3",
+    "inorganic": false,
+    "source": "Project-authored connected alkoxide monomer depiction"
+  },
+  {
+    "title": "四乙氧基钛",
+    "alias": "Ti(OEt)4 四乙氧基钛",
+    "category": "金属醇盐",
+    "smiles": "[Ti](OCC)(OCC)(OCC)OCC",
+    "formula": "C8H20O4Ti",
+    "inorganic": false,
+    "source": "Project-authored connected alkoxide monomer depiction"
+  },
+  {
+    "title": "四叔丁氧基钛",
+    "alias": "Ti(Ot-Bu)4 Ti(OtBu)4 四叔丁氧基钛",
+    "category": "金属醇盐",
+    "smiles": "[Ti](OC(C)(C)C)(OC(C)(C)C)(OC(C)(C)C)OC(C)(C)C",
+    "formula": "C16H36O4Ti",
+    "inorganic": false,
+    "source": "Project-authored connected alkoxide monomer depiction"
+  },
+  {
+    "title": "四异丙氧基锆",
+    "alias": "Zr(Oi-Pr)4 Zr(OiPr)4 四异丙氧基锆",
+    "category": "金属醇盐",
+    "smiles": "[Zr](OC(C)C)(OC(C)C)(OC(C)C)OC(C)C",
+    "formula": "C12H28O4Zr",
+    "inorganic": false,
+    "source": "Project-authored connected alkoxide monomer depiction"
+  },
+  {
+    "title": "四叔丁氧基锆",
+    "alias": "Zr(Ot-Bu)4 Zr(OtBu)4 四叔丁氧基锆",
+    "category": "金属醇盐",
+    "smiles": "[Zr](OC(C)(C)C)(OC(C)(C)C)(OC(C)(C)C)OC(C)(C)C",
+    "formula": "C16H36O4Zr",
+    "inorganic": false,
+    "source": "Project-authored connected alkoxide monomer depiction"
+  }
+]

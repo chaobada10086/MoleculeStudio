@@ -35,7 +35,7 @@
 
       可用画布工具（由宿主执行）：
       结构：lookup_compound, draw_compound, draw_smiles, draw_template, draw_library_template, search_drawing_templates, draw_compounds, draw_reaction, draw_scheme, list_biomolecules, draw_biomolecule, recognize_and_draw_structure, detect_structure_regions, recognize_regions, insert_recognized_structure
-      图形/文字：draw_shape, draw_arrow, draw_curved_arrow, add_text, add_caption, draw_path, draw_autoshape, draw_diagram
+      图形/文字：draw_shape, draw_arrow, draw_curved_arrow, add_text, add_caption, draw_path, draw_curve, draw_autoshape, draw_diagram
       画布：inspect_document, style_selection, move_selection, style_objects, move_objects, transform_objects, duplicate_objects, delete_objects, edit_text, arrange_objects, align_objects, distribute_objects, layout_grid, repeat_objects, place_relative, connect_objects, layout_report, set_page_layout
       联网：web_search
 

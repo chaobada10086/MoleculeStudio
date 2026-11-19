@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" ChainAngle="120.000000" BondSpacing="18.000000" BoldWidth="2.000000" MarginWidth="1.600000" HashSpacing="2.500000" CreationProgram="Molecule Studio" BoundingBox="296.8378 420.9449 597.6378 560.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+        <color r="0.86274509803921573" g="0.11764705882352941" b="0.11764705882352941"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="4" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="5">
+            <n id="3" p="477.6378 520.9449" Element="8" color="10"/>
+        </fragment>
+        <curve id="6" Closed="no" CurveType="0" CurvePoints="297.6378 540.9449 297.6378 540.9449 297.6378 540.9449 397.6378 560.9449 397.6378 560.9449 397.6378 560.9449" MoleculeStudioPath="0 120 100 140 " MoleculeStudioFill="4278190080" FillType="None" LineWidth="1.5" color="10"/>
+        <graphic id="7" GraphicType="Line" ArrowType="FullHead" BoundingBox="327.6378 440.9449 357.6378 440.9449" LineWidth="1.5" color="10"/>
+        <graphic id="8" GraphicType="Bracket" BoundingBox="482.6378 450.9449 507.6378 450.9449" LineWidth="1.5" color="10"/>
+        <group id="9" MoleculeStudioTable="fx0=240;fy0=0;fx1=300;fy1=60;rows=4;cols=2;rh0=15;rh1=15;rh2=15;rh3=15;cw0=30;cw1=30;outer=1;inner=1;bw=1.5;merged=0;cells=8;c0=0,0,4294967295,4294967295,0,0;c1=0,0,4294967295,4294967295,0,0;c2=0,0,4294967295,4294967295,0,0;c3=0,0,4294967295,4294967295,0,0;c4=0,0,4294967295,4294967295,0,0;c5=0,0,4294967295,4294967295,0,0;c6=0,0,4294967295,4294967295,0,0;c7=0,0,4294967295,4294967295,0,0;" MoleculeStudioStyle="grid" BoundingBox="537.6378 420.9449 597.6378 480.9449" LineWidth="1.5" color="10">
+            <graphic id="10" GraphicType="Line" BoundingBox="537.6378 420.9449 597.6378 420.9449" LineWidth="1.5"/>
+            <graphic id="11" GraphicType="Line" BoundingBox="537.6378 435.9449 597.6378 435.9449" LineWidth="1.5"/>
+            <graphic id="12" GraphicType="Line" BoundingBox="537.6378 450.9449 597.6378 450.9449" LineWidth="1.5"/>
+            <graphic id="13" GraphicType="Line" BoundingBox="537.6378 465.9449 597.6378 465.9449" LineWidth="1.5"/>
+            <graphic id="14" GraphicType="Line" BoundingBox="537.6378 480.9449 597.6378 480.9449" LineWidth="1.5"/>
+            <graphic id="15" GraphicType="Line" BoundingBox="537.6378 420.9449 537.6378 480.9449" LineWidth="1.5"/>
+            <graphic id="16" GraphicType="Line" BoundingBox="567.6378 420.9449 567.6378 480.9449" LineWidth="1.5"/>
+            <graphic id="17" GraphicType="Line" BoundingBox="597.6378 420.9449 597.6378 480.9449" LineWidth="1.5"/>
+        </group>
+        <tlcplate id="18" TopLeft="320 0" TopRight="380 0" BottomRight="380 60" BottomLeft="320 60" OriginFraction="0.20000000000000001" SolventFrontFraction="0.125" ShowOrigin="yes" ShowSolventFront="yes" ShowBorders="no">
+            <objecttag id="19" Name="MoleculeStudio/TLC" TagType="String" Persistent="yes" Value="v|1;kind|TlcPlate;origin|1|0.59999999999999998;front|1|-0.75;title|;board|4294967295|1|0|0.92000000000000004;stroke|0|255|0;next|9;pver|1;lane|1|-0.69999999999999996|0.25666666666666665|0||;lane|2|-0.23333333333333334|0.25666666666666665|0||;lane|3|0.23333333333333328|0.25666666666666665|0||;lane|4|0.69999999999999996|0.25666666666666665|0||;spot|5|1|-0.69999999999999996|-0.075000000000000067|0.066666666666666666|0.066666666666666666|808464639|1|ellipse||0|0.29999999999999999;spot|6|2|-0.23333333333333334|-0.075000000000000067|0.066666666666666666|0.066666666666666666|808464639|1|ellipse||0|0.29999999999999999;spot|7|3|0.23333333333333328|-0.075000000000000067|0.066666666666666666|0.066666666666666666|808464639|1|ellipse||0|0.29999999999999999;spot|8|4|0.69999999999999996|-0.075000000000000067|0.066666666666666666|0.066666666666666666|808464639|1|ellipse||0|0.29999999999999999"/>
+            <tlclane id="20">
+                <tlcspot id="21" CurveType="128" Rf="0.5" Width="262144" Height="262144" ShowRf="no"/>
+            </tlclane>
+            <tlclane id="22">
+                <tlcspot id="23" CurveType="128" Rf="0.5" Width="262144" Height="262144" ShowRf="no"/>
+            </tlclane>
+            <tlclane id="24">
+                <tlcspot id="25" CurveType="128" Rf="0.5" Width="262144" Height="262144" ShowRf="no"/>
+            </tlclane>
+            <tlclane id="26">
+                <tlcspot id="27" CurveType="128" Rf="0.5" Width="262144" Height="262144" ShowRf="no"/>
+            </tlclane>
+        </tlcplate>
+        <graphic id="28" GraphicType="Line" ArrowType="FullHead" BoundingBox="402.6378 445.9449 427.6378 445.9449" LineWidth="1.5" color="10"/>
+        <arrow id="29" BoundingBox="296.8378 496.9449 398.4378 504.9449" Tail3D="297.6378 500.9449 0" Head3D="397.6378 500.9449 0" LineWidth="1.5" FillType="None" ArrowheadType="Angle" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="213" ArrowheadCenterSize="213" ArrowheadWidth="53" ArrowShaftSpacing="213" ArrowEquilibriumRatio="100" MoleculeStudioArrow="v=1;preset=40;family=0;size=2;line=0;shafts=3;sweep=0;dir=0;hshape=8;hside=1;hlen=3.2000000000000002;hwidth=6.4000000000000004;hend=1;hbegin=0;bx=0;by=80;ex=100;ey=80;sag=0;sep=6.4000000000000004;split=0.5;osplit=0.5;scale=1;stroke=1.5;" color="10"/>
+    </page>
+</CDXML>

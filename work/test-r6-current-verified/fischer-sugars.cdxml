@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="20" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="56.0024414062 91.467578125 554.002441406 234.467578125">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="3" BoundingBox="0 0 650 650" Width="650" Height="650" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="650" MoleculeStudioPageHeight="650">
+        <fragment id="4"/>
+        <group id="76" Name="Fischer projection">
+            <graphic id="6" GraphicType="Line" BoundingBox="376.11328125 109.467578125 376.11328125 209.467578125" LineWidth="0.59999999999999998"/>
+            <t id="5" p="376.11328125 106.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CHO</s>
+            </t>
+            <t id="7" p="376.11328125 219.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CH</s>
+                <s font="3" size="10" face="32">2</s>
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="8" GraphicType="Line" BoundingBox="376.11328125 129.467578125 356.11328125 129.467578125" LineWidth="0.59999999999999998"/>
+            <t id="9" p="352.11328125 132.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="10" GraphicType="Line" BoundingBox="376.11328125 129.467578125 396.11328125 129.467578125" LineWidth="0.59999999999999998"/>
+            <t id="11" p="400.11328125 132.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="12" GraphicType="Line" BoundingBox="376.11328125 159.467578125 356.11328125 159.467578125" LineWidth="0.59999999999999998"/>
+            <t id="13" p="352.11328125 162.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="14" GraphicType="Line" BoundingBox="376.11328125 159.467578125 396.11328125 159.467578125" LineWidth="0.59999999999999998"/>
+            <t id="15" p="400.11328125 162.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="16" GraphicType="Line" BoundingBox="376.11328125 189.467578125 356.11328125 189.467578125" LineWidth="0.59999999999999998"/>
+            <t id="17" p="352.11328125 192.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="18" GraphicType="Line" BoundingBox="376.11328125 189.467578125 396.11328125 189.467578125" LineWidth="0.59999999999999998"/>
+            <t id="19" p="400.11328125 192.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+        </group>
+        <group id="77" Name="Fischer projection">
+            <graphic id="20" GraphicType="Line" BoundingBox="80.0024414062 94.467578125 80.0024414062 224.467578125" LineWidth="0.59999999999999998"/>
+            <t id="21" p="80.0024414062 91.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CHO</s>
+            </t>
+            <t id="23" p="80.0024414062 234.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CH</s>
+                <s font="3" size="10" face="32">2</s>
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="22" GraphicType="Line" BoundingBox="80.0024414062 114.467578125 60.0024414062 114.467578125" LineWidth="0.59999999999999998"/>
+            <t id="25" p="56.0024414062 117.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="24" GraphicType="Line" BoundingBox="80.0024414062 114.467578125 100.002441406 114.467578125" LineWidth="0.59999999999999998"/>
+            <t id="27" p="104.002441406 117.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="26" GraphicType="Line" BoundingBox="80.0024414062 144.467578125 60.0024414062 144.467578125" LineWidth="0.59999999999999998"/>
+            <t id="29" p="56.0024414062 147.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">HO</s>
+            </t>
+            <graphic id="28" GraphicType="Line" BoundingBox="80.0024414062 144.467578125 100.002441406 144.467578125" LineWidth="0.59999999999999998"/>
+            <t id="31" p="104.002441406 147.667578125" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="30" GraphicType="Line" BoundingBox="80.0024414062 174.467578125 60.0024414062 174.467578125" LineWidth="0.59999999999999998"/>
+            <t id="33" p="56.0024414062 177.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="32" GraphicType="Line" BoundingBox="80.0024414062 174.467578125 100.002441406 174.467578125" LineWidth="0.59999999999999998"/>
+            <t id="35" p="104.002441406 177.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="34" GraphicType="Line" BoundingBox="80.0024414062 204.467578125 60.0024414062 204.467578125" LineWidth="0.59999999999999998"/>
+            <t id="37" p="56.0024414062 207.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="36" GraphicType="Line" BoundingBox="80.0024414062 204.467578125 100.002441406 204.467578125" LineWidth="0.59999999999999998"/>
+            <t id="39" p="104.002441406 207.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+        </group>
+        <group id="78" Name="Fischer projection">
+            <graphic id="38" GraphicType="Line" BoundingBox="230.002441406 94.467578125 230.002441406 224.467578125" LineWidth="0.59999999999999998"/>
+            <t id="41" p="230.002441406 91.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CHO</s>
+            </t>
+            <t id="43" p="230.002441406 234.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CH</s>
+                <s font="3" size="10" face="32">2</s>
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="40" GraphicType="Line" BoundingBox="230.002441406 114.467578125 210.002441406 114.467578125" LineWidth="0.59999999999999998"/>
+            <t id="45" p="206.002441406 117.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="42" GraphicType="Line" BoundingBox="230.002441406 114.467578125 250.002441406 114.467578125" LineWidth="0.59999999999999998"/>
+            <t id="47" p="254.002441406 117.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="44" GraphicType="Line" BoundingBox="230.002441406 144.467578125 210.002441406 144.467578125" LineWidth="0.59999999999999998"/>
+            <t id="49" p="206.002441406 147.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">HO</s>
+            </t>
+            <graphic id="46" GraphicType="Line" BoundingBox="230.002441406 144.467578125 250.002441406 144.467578125" LineWidth="0.59999999999999998"/>
+            <t id="51" p="254.002441406 147.667578125" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="48" GraphicType="Line" BoundingBox="230.002441406 174.467578125 210.002441406 174.467578125" LineWidth="0.59999999999999998"/>
+            <t id="53" p="206.002441406 177.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">HO</s>
+            </t>
+            <graphic id="50" GraphicType="Line" BoundingBox="230.002441406 174.467578125 250.002441406 174.467578125" LineWidth="0.59999999999999998"/>
+            <t id="55" p="254.002441406 177.667578125" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="52" GraphicType="Line" BoundingBox="230.002441406 204.467578125 210.002441406 204.467578125" LineWidth="0.59999999999999998"/>
+            <t id="57" p="206.002441406 207.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="54" GraphicType="Line" BoundingBox="230.002441406 204.467578125 250.002441406 204.467578125" LineWidth="0.59999999999999998"/>
+            <t id="59" p="254.002441406 207.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+        </group>
+        <group id="79" Name="Fischer projection">
+            <graphic id="56" GraphicType="Line" BoundingBox="530.002441406 94.467578125 530.002441406 224.467578125" LineWidth="0.59999999999999998"/>
+            <t id="61" p="530.002441406 91.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CH</s>
+                <s font="3" size="10" face="32">2</s>
+                <s font="3" size="10">OH</s>
+            </t>
+            <t id="63" p="530.002441406 234.467578125" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CH</s>
+                <s font="3" size="10" face="32">2</s>
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="58" GraphicType="Line" BoundingBox="530.002441406 113.267578125 547.002441406 113.267578125" LineWidth="0.59999999999999998"/>
+            <graphic id="60" GraphicType="Line" BoundingBox="530.002441406 115.667578125 547.002441406 115.667578125" LineWidth="0.59999999999999998"/>
+            <t id="65" p="550.602441406 117.667578125" InterpretChemically="no">
+                <s font="3" size="10">O</s>
+            </t>
+            <graphic id="62" GraphicType="Line" BoundingBox="530.002441406 144.467578125 510.002441406 144.467578125" LineWidth="0.59999999999999998"/>
+            <t id="67" p="506.002441406 147.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">HO</s>
+            </t>
+            <graphic id="64" GraphicType="Line" BoundingBox="530.002441406 144.467578125 550.002441406 144.467578125" LineWidth="0.59999999999999998"/>
+            <t id="69" p="554.002441406 147.667578125" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="66" GraphicType="Line" BoundingBox="530.002441406 174.467578125 510.002441406 174.467578125" LineWidth="0.59999999999999998"/>
+            <t id="71" p="506.002441406 177.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="68" GraphicType="Line" BoundingBox="530.002441406 174.467578125 550.002441406 174.467578125" LineWidth="0.59999999999999998"/>
+            <t id="73" p="554.002441406 177.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="70" GraphicType="Line" BoundingBox="530.002441406 204.467578125 510.002441406 204.467578125" LineWidth="0.59999999999999998"/>
+            <t id="74" p="506.002441406 207.667578125" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="72" GraphicType="Line" BoundingBox="530.002441406 204.467578125 550.002441406 204.467578125" LineWidth="0.59999999999999998"/>
+            <t id="75" p="554.002441406 207.667578125" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+        </group>
+    </page>
+</CDXML>

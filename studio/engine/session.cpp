@@ -1,16 +1,29 @@
+#include "engine/projection_export.hpp"
+#include "projection_molecule.hpp"
 #include "session.hpp"
+#include "engine/projection_interop.hpp"
 #include "interop.hpp"
 #include "ring_geometry.hpp"
 #include "engine/molecular_render.hpp"
+#include "engine/mechanism_electrons.hpp"
+#include "engine/mechanism_visual_anchors.hpp"
+#include "engine/mechanism_follow.hpp"
 #include "engine/cdxml_graphics.hpp"
 #include "source_tools.hpp"
 #include "engine/local_scene_update.hpp"
 #include "engine/valence_warnings.hpp"
+#include "engine/bond_hydrogens.hpp"
+#include "engine/electron_valence.hpp"
+#include "engine/cumulene_layout.hpp"
+#include "engine/diazo.hpp"
+#include "engine/compact_radicals.hpp"
+#include "engine/alcohol_labels.hpp"
 #include "engine/name_link.hpp"
 #include "engine/graphic_style.hpp"
 #include "tlc_preferences.hpp"
 #include "alkyne_sprout.hpp"
 #include "engine/sprout_layout.hpp"
+#include "reactive_centers.hpp"
 #include "next/arrows_curves/render_bridge.hpp"
 #include "next/graphics/render_bridge.hpp"
 #include "next/biodraw/render_bridge.hpp"
@@ -40,7 +53,43 @@ static Box box(Vec2 a,Vec2 b) {return Box(Vec2(std::min(a.x,b.x),std::min(a.y,b.
 static spatial::Box sb(const Box& b){return spatial::Box{b.min.x,b.min.y,b.max.x,b.max.y};}
 static double dist(Vec2 a,Vec2 b){return std::hypot(a.x-b.x,a.y-b.y);}
 static double lineDist(Vec2 p,Vec2 a,Vec2 b){Vec2 v=b-a; double n=v.x*v.x+v.y*v.y; double t=n?((p.x-a.x)*v.x+(p.y-a.y)*v.y)/n:0; return dist(p,a+v*std::max(0.0,std::min(1.0,t)));}
-#include "bond_hydrogens.hpp"
+// A perspective projection may show a rear bond interrupted by a foreground
+// bridge. Split only the ink. The molecular graph still has one intact bond.
+static void clipBridgeCrossing(const Document& doc,const BondRecord& rear,bonds::BondRenderData& data){
+    const char* key="pst.attr.MoleculeStudioBridgeLayer";
+    const auto* layer=doc.extensions(ObjectRef(ObjectKind::Bond,rear.id)).findValue(key);
+    if(!layer||*layer!="back"||rear.order!=BondOrder::Single||rear.display!=BondDisplay::Normal||data.shapes.size()!=1)return;
+    auto& stroke=data.shapes.front();
+    if(stroke.kind!=bonds::BondShapeKind::Stroke||stroke.points.size()!=2)return;
+    const Vec2 start=stroke.points.front(),axis=stroke.points.back()-start;
+    const double span=length(axis);
+    if(span<1e-8)return;
+    const auto cross=[](Vec2 a,Vec2 b){return a.x*b.y-a.y*b.x;};
+    for(ObjectId endpoint:{rear.beginAtom,rear.endAtom})for(auto adjacentId:doc.incidentBonds(endpoint)){
+        const auto* adjacent=doc.bonds().alive(adjacentId);
+        if(!adjacent||adjacent->id==rear.id)continue;
+        const ObjectId neighbor=adjacent->beginAtom==endpoint?adjacent->endAtom:adjacent->beginAtom;
+        for(auto frontId:doc.incidentBonds(neighbor)){
+            const auto* frontLayer=doc.extensions(ObjectRef(ObjectKind::Bond,frontId)).findValue(key);
+            if(!frontLayer||*frontLayer!="front")continue;
+            const auto* front=doc.bonds().alive(frontId);
+            const auto* a=doc.atoms().alive(front->beginAtom);
+            const auto* b=doc.atoms().alive(front->endAtom);
+            if(!a||!b)continue;
+            const Vec2 offset=a->position-start,across=b->position-a->position;
+            const double det=cross(axis,across);
+            if(std::abs(det)<1e-8)continue;
+            const double t=cross(offset,across)/det,u=cross(offset,axis)/det;
+            const double halfGap=std::max(doc.defaultBondLength()*.12,stroke.strokeWidth*1.5)/span;
+            if(u<=0||u>=1||t<=halfGap||t>=1-halfGap)continue;
+            auto right=stroke;
+            stroke.points.back()=start+axis*(t-halfGap);
+            right.points.front()=start+axis*(t+halfGap);
+            data.shapes.push_back(std::move(right));
+            return;
+        }
+    }
+}
 static Error unavailable(const std::string& x){return Error(ErrorCode::NotImplemented,x);}
 // Work from the unmodified drag-start document for both preview and commit.
 // Selected atoms are handles; bond lengths come from the existing drawing.
@@ -114,6 +163,7 @@ static Error cutDelete(void* userData,const std::vector<ObjectRef>& refs){
     Session& s=*static_cast<Session*>(userData);
     return s.submit(commands::deleteObjects(refs),"cut selection");
 }
+constexpr int kAtomLabelZ=10;
 static void appendRich(const text::RichLayout& layout,ObjectRef ref,uint32_t color,uint32_t layer,int z,std::vector<render::Primitive>* out,const std::vector<uint32_t>* colors=nullptr){
     render::Primitive p;p.kind=render::PrimKind::Polygon;p.source=ref;p.layer=render::LayerId(layer);p.z=z;
     p.style.fill=render::Paint(color,true);p.style.stroke.enabled=false;p.style.fillRule=render::FillRule::NonZero;
@@ -196,6 +246,8 @@ Session::Session():dirty(false),fixedLen(true),fixedAngle(true),dragFixedLength(
         uint32_t id;checked(registry.registerPreset(p,&id));checked(registry.bindPlatformCommand(p.id,platform_command::ToolBand+id));
         entries.push_back(std::move(e));
     }
+    {Entry e;e.command="chooseArrowTool_FreeArc";e.category="arrow";e.owner="T10";e.tool.reset(new arrows::ArrowTool(58));entries.push_back(std::move(e));}
+    {Entry e;e.command="chooseArrowTool_MechanismFishhook";e.category="arrow";e.owner="T10";e.tool.reset(new arrows::ArrowTool(57));entries.push_back(std::move(e));}
     input.setRouter(&router);input.setKeymap(&interaction::Keymap::defaults());input.bindDocument(doc.id());setView(view());
     for(auto a:{interaction::HotkeyAction::Undo,interaction::HotkeyAction::Redo,interaction::HotkeyAction::RepeatLastAction,
       interaction::HotkeyAction::EditSelectAll,interaction::HotkeyAction::EditDelete,interaction::HotkeyAction::ActivateMarqueeTool,
@@ -228,14 +280,29 @@ Error Session::submit(const Command& c,const std::string& tag){
         effective=Command(c.name(),c.invalidation(),[c,width,color](CommandContext& context){studio::graphic_style::Counts before(context.document);auto result=c.execute(context);if(!result.ok())return result;auto e=before.styleNew(context.document,width,color);return e.ok()?result:CommandResult::fail(e.code,e.message);});
         command=&effective;
     }
-    if(bond_hydrogens::editing(tag)){
+    if(studio::bond_hydrogens::editing(tag)){
         const Command base=*command;
         effective=Command(base.name(),base.invalidation()|kInvalidateSemantics|kInvalidateAppearance,[base](CommandContext& context){
-            bond_hydrogens::Before before(context.document);auto result=base.execute(context);if(!result.ok())return result;
+            studio::bond_hydrogens::Before before(context.document);auto result=base.execute(context);if(!result.ok())return result;
             auto e=before.apply(context.document);return e.ok()?result:CommandResult::fail(e.code,e.message);
         });command=&effective;
     }
-    CommandContext ctx(doc);ctx.view=&renderView.transform;ctx.tag=tag;const size_t entriesBefore=history.entries();const double tExec0=traceNow();Error e=history.execute(doc,*command,&ctx);const double tExec=traceNow()-tExec0;
+    {
+        const Command base=*command;
+        const bool infer=studio::bond_hydrogens::editing(tag)||tag=="原位文字"||tag=="原位原子标签"||tag=="官能团展开"||tag=="原子快捷键"||base.name()=="atoms.element"||tag=="循环氧氮氢数";
+        effective=Command(base.name(),base.invalidation()|(infer?kInvalidateGeometry:0),[base,infer](CommandContext& context){
+            studio::electron_valence::Before before(context.document);
+            studio::cumulene_layout::Before geometry(context.document);
+            studio::mechanism_follow::Before arrowsBefore(context.document);
+            auto result=base.execute(context);if(!result.ok())return result;
+            auto e=before.apply(context.document,infer);
+            if(e.ok()&&infer)e=geometry.apply(context.document);
+            if(e.ok()&&infer){bool changed=false;e=studio::diazo::normalize(context.document,changed);}
+            if(e.ok())e=arrowsBefore.apply(context.document);
+            return e.ok()?result:CommandResult::fail(e.code,e.message);
+        });command=&effective;
+    }
+    CommandContext ctx(doc);ctx.view=&renderView.transform;ctx.tag=tag;const size_t cursorBefore=history.cursor();const double tExec0=traceNow();Error e=history.execute(doc,*command,&ctx);const double tExec=traceNow()-tExec0;
     if(e.ok()){dirty=true;
         if(orderOnly){
             local_scene::orderCache(*this).owner=nullptr;
@@ -250,10 +317,10 @@ Error Session::submit(const Command& c,const std::string& tag){
         // rebuilding it here would only freeze the UI; skip it unless the
         // command claims it changed structure/geometry without a patch.
         // A no-op command does not create a history entry, so lastChangeSet()
-        // still points at the PREVIOUS edit.  Compare the log length instead of
-        // looking at the patch.
+        // still points at the previous edit. Compare the applied cursor so
+        // replacing a redo entry at the same log length still refreshes.
         const ChangeSet& patch=history.lastChangeSet();
-        const bool noop=history.entries()==entriesBefore;
+        const bool noop=history.cursor()==cursorBefore;
         const uint32_t invalidation=command->invalidation();
         if(orderOnly)refresh(false);
         else if(!(noop&&!(invalidation&(kInvalidateStructure|kInvalidateGeometry))))local_scene::refresh(*this,patch);
@@ -331,42 +398,92 @@ Error Session::buildScene(){
         }
     }
     stamp(0);
-    for(const auto& label:atomLabels)if(wanted(ObjectKind::Atom,label.first)){ObjectRef ref(ObjectKind::Atom,label.first);auto colors=colorsFor(ref);uint32_t color=0x000000ff;if(auto value=static_cast<const Document&>(doc).extensions(ref).findValue("studio.color"))color=uint32_t(std::strtoull(value->c_str(),0,10));appendRich(label.second.layout,ref,color,100,10,&ps,&colors);}
+    for(const auto& label:atomLabels)if(wanted(ObjectKind::Atom,label.first)){ObjectRef ref(ObjectKind::Atom,label.first);auto colors=colorsFor(ref);uint32_t color=0x000000ff;if(auto value=static_cast<const Document&>(doc).extensions(ref).findValue("studio.color"))color=uint32_t(std::strtoull(value->c_str(),0,10));appendRich(label.second.layout,ref,color,100,kAtomLabelZ,&ps,&colors);}
     // Radical electrons are geometry, not a text glyph: one filled dot for a
     // monoradical, two for a diradical. The dot is derived from atom semantics
     // every rebuild, so it follows the atom and cannot be left behind by a move.
     const double radicalEm=molecular::setting(doc,"LabelSize",10);
-    const double radicalRadius=std::max(0.65,radicalEm*0.13);
+
+    for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&mechanism::cumuleneCenter(doc,atom)&&wanted(ObjectKind::Atom,atom.id)){
+        render::Primitive p;p.kind=render::PrimKind::Polygon;p.source=ObjectRef(ObjectKind::Atom,atom.id);
+        p.layer=render::LayerId(100);p.z=12;p.style.fill=render::Paint(0x000000FF,true);p.style.stroke.enabled=false;
+        for(int i=0;i<32;++i){double angle=6.283185307179586*i/32.;p.points.push_back(atom.position+Vec2(std::cos(angle),std::sin(angle))*std::max(.55,radicalEm*.11));}
+        p.bounds=render::geom::computeBounds(p,.6);ps.push_back(p);
+    }
     for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&atom.semantics.radical&&wanted(ObjectKind::Atom,atom.id)){
         ObjectRef ref(ObjectKind::Atom,atom.id);
         uint32_t color=0x000000ff;if(auto value=static_cast<const Document&>(doc).extensions(ref).findValue("studio.color"))color=uint32_t(std::strtoull(value->c_str(),0,10));
-        Vec2 center=atom.position+Vec2(radicalEm*0.55,-radicalEm*0.55);
         auto labelled=atomLabels.find(atom.id);
-        if(labelled!=atomLabels.end()&&!labelled->second.layout.metrics.inkBox.empty()){
-            const Box& ink=labelled->second.layout.metrics.inkBox;
-            center=Vec2(ink.max.x+radicalRadius*1.4,ink.min.y+radicalRadius*0.2);
-        }
-        const bool pair=atom.semantics.radical==uint8_t(Radical::Triplet)||atom.semantics.radical==uint8_t(Radical::Singlet);
-        for(int dot=0;dot<(pair?2:1);++dot){
-            Vec2 c=center;if(pair)c.x+=(dot==0?-radicalRadius*1.65:radicalRadius*1.65);
+        const double radicalRadius=arrows::mechanismRadicalRadius(doc,atom.id);
+        const auto dots=arrows::mechanismRadicalPositions(doc,atom,radicalEm,labelled==atomLabels.end()?nullptr:&labelled->second.layout);
+        for(auto c:dots){
             render::Primitive p;p.kind=render::PrimKind::Polygon;p.source=ref;p.layer=render::LayerId(100);p.z=12;
             p.style.fill=render::Paint(color,true);p.style.stroke.enabled=false;
             for(int i=0;i<32;++i){double t=6.283185307179586*double(i)/32.0;p.points.push_back(c+Vec2(std::cos(t)*radicalRadius,std::sin(t)*radicalRadius));}
             p.bounds=render::geom::computeBounds(p,0.6);ps.push_back(p);
         }
     }
+    for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&wanted(ObjectKind::Atom,atom.id)){
+        ObjectRef ref(ObjectKind::Atom,atom.id);uint32_t color=0x000000ff;if(auto value=static_cast<const Document&>(doc).extensions(ref).findValue("studio.color"))color=uint32_t(std::strtoull(value->c_str(),0,10));
+        if(arrows::drawChargeMarker(doc,atom)){
+            auto labelled=atomLabels.find(atom.id);
+            Vec2 center=arrows::chargeMarkerCenter(doc,atom,radicalEm,labelled==atomLabels.end()?nullptr:&labelled->second.layout);double half=radicalEm*.19;
+            for(int line=0;line<(atom.semantics.charge>0?2:1);++line){render::Primitive p;p.kind=render::PrimKind::Segment;p.source=ref;p.layer=render::LayerId(100);p.z=12;p.style.stroke=render::Paint(color,true);p.style.strokeWidth=std::max(.6,radicalEm*.08);p.style.fill.enabled=false;auto axis=line?Vec2(0,half):Vec2(half,0);p.points={center-axis,center+axis};p.bounds=render::geom::computeBounds(p,.6);ps.push_back(p);}
+            if(molecular::circledElectronCharge(doc,atom.id)){
+                render::Primitive circle;circle.kind=render::PrimKind::Polyline;circle.source=ref;circle.layer=render::LayerId(100);circle.z=12;
+                circle.style.stroke=render::Paint(color,true);circle.style.strokeWidth=std::max(.6,radicalEm*.08);
+                circle.style.fill.enabled=false;const double radius=molecular::electronChargeCircleRadius(radicalEm);
+                for(int k=0;k<=48;++k){double angle=6.283185307179586*k/48;circle.points.push_back(center+Vec2(std::cos(angle),std::sin(angle))*radius);}
+                circle.bounds=render::geom::computeBounds(circle,.6);ps.push_back(std::move(circle));
+            }
+        }
+        if(mechanism::hasPrintedLonePair(doc,atom.id))continue;
+        for(int pair=0;pair<mechanism::lonePairCount(doc,atom.id);++pair){double radius=mechanism::lonePairDotRadius(radicalEm);
+            const auto label=atomLabels.find(atom.id);
+            const auto* layout=label==atomLabels.end()?nullptr:&label->second.layout;
+            for(auto c:mechanism::lonePairDots(doc,atom,pair,radicalEm,layout)){render::Primitive p;p.kind=render::PrimKind::Polygon;p.source=ref;p.layer=render::LayerId(100);p.z=12;p.style.fill=render::Paint(color,true);p.style.stroke.enabled=false;for(int k=0;k<24;++k){double t=6.283185307179586*k/24;p.points.push_back(c+Vec2(std::cos(t),std::sin(t))*radius);}p.bounds=render::geom::computeBounds(p,.6);ps.push_back(p);}
+        }
+    }
+
+    for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&projection_molecule::kind(doc,atom.id)==2&&wanted(ObjectKind::Atom,atom.id)){
+        bool rear=projection_molecule::rear(doc,atom.id);double radius=rear?projection_molecule::radius(doc):std::max(doc.defaultLineWidth(),doc.defaultTextSize()*.055);
+        render::Primitive circle;circle.source=ObjectRef(ObjectKind::Atom,atom.id);circle.kind=rear?render::PrimKind::Polyline:render::PrimKind::Polygon;circle.layer=render::LayerId(100);circle.z=12;circle.style.stroke=render::Paint(0x000000FF,true);circle.style.strokeWidth=doc.defaultLineWidth();circle.style.fill=render::Paint(0x000000FF,!rear);
+        for(int i=0;i<=48;++i){double t=i*6.28318530718/48;circle.points.push_back(atom.position+Vec2(cos(t),sin(t))*radius);}circle.bounds=render::geom::computeBounds(circle,.6);ps.push_back(circle);
+    }
     stamp(1);
     const double tAtomStage=traceNow()-tScene0;
-    for(const auto& b:doc.bonds().records())if(b.isAlive()&&wanted(ObjectKind::Bond,b.id)){
+    for(const auto& storedBond:doc.bonds().records())if(storedBond.isAlive()&&wanted(ObjectKind::Bond,storedBond.id)){
+        auto b=storedBond;
+        if(projection_molecule::axis(doc,b)&&projection_molecule::kind(doc,b.beginAtom)==2)continue;
+
+        auto isBold=[&](const BondRecord& edge){return edge.display==BondDisplay::Bold||static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,edge.id)).findValue("pst.attr.MoleculeStudioPerspectiveFront");};
+        if(b.display==BondDisplay::Normal&&isBold(b))b.display=BondDisplay::Bold;
         const auto* a=doc.atoms().alive(b.beginAtom);const auto* z=doc.atoms().alive(b.endAtom);if(!a||!z)return unavailable("dangling bond");
         bonds::BondAxes axes;axes.order=b.order;axes.display=b.display;axes.semantics=b.semantics;axes.stereo=b.stereo;
         axes.side=bonds::sideOf(static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,b.id)));
-        auto data=rings.build(b);
+        // Standard CDXML Bold doubles retain their inner pi stroke.
+        auto plain=b;if(plain.display==BondDisplay::Bold)plain.display=BondDisplay::Normal;
+        auto data=rings.build(plain);
         molecular::clip(data,b,bondLabels,molecular::setting(doc,"MarginWidth",1.6));
+        clipBridgeCrossing(doc,b,data);
+        for(auto id:{b.beginAtom,b.endAtom})if(projection_molecule::rear(doc,id)){
+            auto center=doc.atoms().alive(id)->position;double radius=projection_molecule::radius(doc);
+            for(auto& shape:data.shapes)for(auto& point:shape.points)if(length(point-center)<radius){auto other=doc.atoms().alive(id==b.beginAtom?b.endAtom:b.beginAtom)->position;auto direction=other-center;double span=length(direction);if(span>1e-8)point=center+direction*(radius/span);}
+        }
+
+        auto widthOf=[&](const BondRecord& edge){const auto& bag=static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,edge.id));auto value=bag.findValue("pst.attr.BoldWidth");return isBold(edge)?(value?std::atof(value->c_str()):(bag.findValue("pst.attr.MoleculeStudioPerspectiveFront")?doc.defaultLineWidth()*2.22:molecular::setting(doc,"BoldWidth",2))):doc.defaultLineWidth();};
+        if(b.display==BondDisplay::Bold&&!data.shapes.empty())data.shapes.front().strokeWidth=widthOf(b);
         bonds::RenderAdapterOptions opts;opts.style.width=opts.viewDefaultWidth=doc.defaultLineWidth();
         if(auto c=static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,b.id)).findValue("studio.color"))opts.color=uint32_t(std::strtoull(c->c_str(),0,10));
         std::vector<render::Primitive> bondPrimitives;
         bonds::toPrimitives(data,ObjectRef(ObjectKind::Bond,b.id),opts,&bondPrimitives);
+        if(b.display==BondDisplay::Bold&&!bondPrimitives.empty()&&bondPrimitives.front().points.size()==2){
+            auto& ink=bondPrimitives.front();Vec2 p=ink.points[0],q=ink.points[1];double half=widthOf(b)*.5;
+            auto offset=[&](ObjectId id,ObjectId other,Vec2 origin,Vec2 toward){Vec2 u=toward-origin;double len=length(u);if(len<1e-8)return Vec2();u=u*(1/len);Vec2 n(-u.y,u.x),answer=n*half;
+                for(auto bid:doc.incidentBonds(id)){const auto* edge=doc.bonds().alive(bid);if(edge->id==b.id||!isBold(*edge))continue;auto adjacent=edge->beginAtom==id?edge->endAtom:edge->beginAtom;Vec2 v=doc.atoms().alive(adjacent)->position-doc.atoms().alive(id)->position;double vl=length(v);if(vl<1e-8)continue;v=v*(1/vl);Vec2 m(-v.y,v.x);double det=n.x*m.y-n.y*m.x;if(std::abs(det)<.05)continue;double h2=-widthOf(*edge)*.5;Vec2 join((half*m.y-n.y*h2)/det,(n.x*h2-half*m.x)/det);if(length(join)<half*4)answer=join;break;}return answer;};
+            auto l=offset(b.beginAtom,b.endAtom,p,q),r=offset(b.endAtom,b.beginAtom,q,p);
+            ink.kind=render::PrimKind::Polygon;ink.points={p+l,q-r,q+r,p-l};ink.style.fill=ink.style.stroke;ink.style.stroke.enabled=false;ink.bounds=render::geom::computeBounds(ink,.6);
+        }
         ps.insert(ps.end(),bondPrimitives.begin(),bondPrimitives.end());
     }
     stamp(2);
@@ -436,7 +553,14 @@ Error Session::buildScene(){
             // document: one preserved path used to blank every other object.
             if(p.points.size()<2)continue;
             render::Primitive q;q.kind=p.closed?render::PrimKind::Polygon:render::PrimKind::Polyline;
-            q.points=p.points;q.source=ref;q.layer=render::LayerId(100);q.z=p.closed&&p.fillEnabled?5:10;
+            q.points=p.points;
+            if(std::find(kinds.begin(),kinds.end(),1)!=kinds.end()){
+                arrows::CurveGeometry geometry;
+                const auto* plain=arrows::curveStyleByCommand("curveStyle_Plain");
+                if(plain && arrows::buildCurveGeometry(pts,kinds,closed,*plain,doc.defaultLineWidth(),arrows::Tessellation(),&geometry).ok()
+                   && !geometry.contours.empty())q.points=geometry.contours.front();
+            }
+            q.source=ref;q.layer=render::LayerId(100);q.z=p.closed&&p.fillEnabled?5:10;
             q.style=render::styleFromLineStyle(p.style,doc.defaultLineWidth());
             q.style.fill.enabled=p.closed&&p.fillEnabled!=0;
             if(q.style.fill.enabled)q.style.fill=render::Paint(p.fillRGBA,true);
@@ -555,10 +679,25 @@ void Session::refresh(bool rebuildGeometry){
     const double tGpu=traceNow()-tGpu0;
     const double tSpatial0=traceNow();
     std::vector<spatial::Box> ob,cb;objectRefs.clear();candidates.clear();
-    for(const auto& p:scene.primitives())if(p.source.valid()&&!p.bounds.empty()) {ob.push_back(sb(p.bounds));objectRefs.push_back(p.source);}
+    std::unordered_map<ObjectId,Box> labelBounds;
+    for(const auto& p:scene.primitives())if(p.source.valid()&&!p.bounds.empty()){
+        ob.push_back(sb(p.bounds));objectRefs.push_back(p.source);
+        // Only the atom label is a bond hotspot. Its annotations and electron
+        // markers have separate draw orders in the atom's scene geometry.
+        if(p.source.kind==ObjectKind::Atom&&p.layer.value==100&&p.z==kAtomLabelZ){
+            auto label=labelBounds.emplace(p.source.id,p.bounds);
+            if(!label.second){label.first->second.add(p.bounds.min);label.first->second.add(p.bounds.max);}
+        }
+    }
     for(const auto& a:doc.atoms().records())if(a.isAlive()){
         auto r=ObjectRef(ObjectKind::Atom,a.id);Box b(a.position,a.position);ob.push_back(sb(b));objectRefs.push_back(r);
-        candidates.push_back(interaction::SnapCandidate(r,a.position));cb.push_back(sb(b));
+        interaction::SnapCandidate candidate(r,a.position);
+        const auto label=labelBounds.find(a.id);
+        if(label!=labelBounds.end()){
+            candidate.hasHitBox=true;candidate.hitBox=label->second;
+            b.add(candidate.hitBox.min);b.add(candidate.hitBox.max);
+        }
+        candidates.push_back(candidate);cb.push_back(sb(b));
     }
     for(const auto& b:doc.bonds().records())if(b.isAlive()){
         auto a=doc.atoms().alive(b.beginAtom),z=doc.atoms().alive(b.endAtom);if(!a||!z)continue;
@@ -571,7 +710,11 @@ void Session::refresh(bool rebuildGeometry){
 ObjectId Session::nearestAtom(const Vec2& p,double rad) const{
     double r=view().deviceRadiusToDocument(rad),best=r;ObjectId id=kInvalidObjectId;
     for(size_t k:candidateIndex.query(sb(Box(p-Vec2(r,r),p+Vec2(r,r))))){const auto& c=candidates[k];
-        if(c.ref.kind==ObjectKind::Atom&&dist(p,c.point)<=best){best=dist(p,c.point);id=c.ref.id;}}
+        if(c.ref.kind!=ObjectKind::Atom)continue;
+        const double distance=c.hitDistance(p);
+        if(distance<best||(distance==best&&(id==kInvalidObjectId||
+           dist(p,c.point)<dist(p,doc.atoms().alive(id)->position)))){best=distance;id=c.ref.id;}
+    }
     return id;
 }
 ObjectId Session::nearestBond(const Vec2& p,double rad) const{
@@ -605,7 +748,7 @@ std::vector<ObjectRef> Session::objectsInPolygon(const std::vector<Vec2>& pts) c
 void Session::query(const Box& b,std::vector<interaction::SnapCandidate>* out,interaction::QueryStats* qs){
     spatial::QueryStats s;Vec2 p=(b.min+b.max)*.5;
     auto nearby=candidateIndex.query(sb(b),&s);bool atomPriority=false;
-    for(size_t k:nearby)if(candidates[k].ref.kind==ObjectKind::Atom&&dist(candidates[k].point,p)<=view().deviceRadiusToDocument(snapRadiusDevice())){atomPriority=true;break;}
+    for(size_t k:nearby)if(candidates[k].ref.kind==ObjectKind::Atom&&candidates[k].hitDistance(p)<=view().deviceRadiusToDocument(snapRadiusDevice())){atomPriority=true;break;}
     for(size_t k:nearby){auto c=candidates[k];
         if(atomPriority&&c.ref.kind==ObjectKind::Bond)continue;
         if(c.ref.kind==ObjectKind::Bond){auto bond=doc.bonds().alive(c.ref.id);if(!bond)continue;
@@ -636,9 +779,29 @@ std::vector<ObjectRef> Session::topLevelSelection(const std::vector<ObjectRef>& 
     return out;
 }
 ObjectRef Session::pick(Vec2 p) const {
-    auto a=nearestAtom(p,8);if(a!=kInvalidObjectId)return topLevelRef(ObjectRef(ObjectKind::Atom,a));
+    auto a=nearestAtom(p,8);
+    if(a!=kInvalidObjectId){
+        const auto& tool=entries[activeIndex];
+        if(tool.owner=="T05"&&tool.command.find("Eraser")==std::string::npos){
+            // A short bond's middle can be inside both endpoint hit radii
+            // at normal zoom. Give the middle of its ink to the bond.
+            const auto* edge=doc.bonds().alive(nearestBond(p,1.5));
+            if(edge&&(edge->beginAtom==a||edge->endAtom==a)){
+                const auto start=doc.atoms().alive(edge->beginAtom)->position;
+                const auto axis=doc.atoms().alive(edge->endAtom)->position-start;
+                const double span=length(axis);
+                if(span>1e-8){
+                    const double along=dot(p-start,axis)/span;
+                    const double endGuard=std::min(span*.28,view().deviceRadiusToDocument(4));
+                    if(along>endGuard&&span-along>endGuard)
+                        return topLevelRef(ObjectRef(ObjectKind::Bond,edge->id));
+                }
+            }
+        }
+        return topLevelRef(ObjectRef(ObjectKind::Atom,a));
+    }
     auto b=nearestBond(p,7);if(b!=kInvalidObjectId)return topLevelRef(ObjectRef(ObjectKind::Bond,b));
-    double r=view().deviceRadiusToDocument(4);auto refs=objectsInBox(Box(p-Vec2(r,r),p+Vec2(r,r)));
+    double r=view().deviceRadiusToDocument(6);auto refs=objectsInBox(Box(p-Vec2(r,r),p+Vec2(r,r)));
     // Atom/bond bounds are only a broad-phase box. A diagonal bond's empty
     // rectangle must not become a hit after the precise distance test failed.
     refs.erase(std::remove_if(refs.begin(),refs.end(),[](ObjectRef r){return r.kind==ObjectKind::Atom||r.kind==ObjectKind::Bond;}),refs.end());
@@ -647,14 +810,45 @@ ObjectRef Session::pick(Vec2 p) const {
 }
 void Session::fit(){auto b=scene.bounds();if(doc.atoms().size())for(const auto& a:doc.atoms().records())if(a.isAlive())b.add(a.position);
     ViewTransform v=view();v.center=(b.min+b.max)*.5;v.scale=std::min((renderView.widthPx-40)/std::max(20.0,b.width()),(renderView.heightPx-40)/std::max(20.0,b.height()))/v.dpiScale;setView(v);}
-void Session::cancel(){if(activeIndex<entries.size()&&entries[activeIndex].tool)entries[activeIndex].tool->cancelGesture(*this);selecting=moving=bondDrawing=false;bondHysteresis.clear();ghost.clear();if(dragBaseActive){doc=dragBase;dragBaseActive=false;refresh();}input.unwind("T19 cancel");}
+void Session::cancel(){if(activeIndex<entries.size()&&entries[activeIndex].tool)entries[activeIndex].tool->cancelGesture(*this);selecting=moving=bondDrawing=tlcSpotDragging=arrowMiddleDragging=false;arrowMiddleId=kInvalidObjectId;bondHysteresis.clear();ghost.clear();if(dragBaseActive){doc=dragBase;dragBaseActive=false;refresh();}input.unwind("T19 cancel");}
 bool Session::activateCommand(const std::string& c){for(size_t i=0;i<entries.size();++i)if(entries[i].command==c)return activate(i);reportUnsupported(c);return false;}
 bool Session::activate(size_t n){if(n>=entries.size())return false;cancel();activeIndex=n;auto& e=entries[n];input.notifyToolChanged(e.command);
     if(!e.limitation.empty()){reportUnsupported(e.command+": "+e.limitation);return false;}
     if(e.tool){e.tool->activate(*this);} status=e.command+" | standalone; host unbound";return true;}
 Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
-    if(auto tool=dynamic_cast<arrows::ArrowTool*>(entries[activeIndex].tool.get()))tool->setStrokeWidth(graphicsWidth);
+    if(auto tool=dynamic_cast<arrows::ArrowTool*>(entries[activeIndex].tool.get())){tool->setStrokeWidth(graphicsWidth);tool->setHeadTier(arrowHeadTier);tool->setArcBendLock(arcBendLocked,arcBendRatio);tool->setArcCurvatureLock(arcCurvatureLocked,arcCurvature,arcCurvatureMajor);}
     Entry& e=entries[activeIndex];if(!e.limitation.empty())return unavailable(e.limitation);
+    if(phase==PointerPhase::Down&&(e.owner=="T05"||e.command=="chooseTLCPlateTool")){
+        auto hit=pick(p);if(experimental::isFigureObject(doc,hit)){
+            experimental::PlateFigure plate;experimental::PlateFrame frame;
+            if(experimental::readFigureAndFrame(doc,hit.id,&plate,&frame,0).ok()&&plate.kind==experimental::FigureKind::TlcPlate){
+                auto element=experimental::pickElement(plate,frame,p,view().deviceRadiusToDocument(8));
+                if(element.kind==experimental::ElementKind::Spot)if(auto spot=experimental::findSpot(plate,element.id)){
+                    press=p;tlcFigure=hit.id;tlcSpotId=spot->id;tlcSpotStart=*spot;tlcSpotCopy=(mods&kModControl)!=0;tlcSpotDragging=true;
+                    selected={hit};ghost.clear();return Error();
+                }
+            }
+        }
+    }
+    if(tlcSpotDragging){
+        experimental::PlateFigure plate;experimental::PlateFrame frame;
+        if(!experimental::readFigureAndFrame(doc,tlcFigure,&plate,&frame,0).ok()){tlcSpotDragging=false;ghost.clear();return Error();}
+        double startU=0,startV=0,endU=0,endV=0;
+        if(!frame.relativeOf(press,&startU,&startV)||!frame.relativeOf(p,&endU,&endV)){tlcSpotDragging=false;ghost.clear();return Error();}
+        double u=std::max(-1.+tlcSpotStart.radiusU,std::min(1.-tlcSpotStart.radiusU,tlcSpotStart.u+endU-startU));
+        double v=std::max(plate.frontV,std::min(plate.originV,tlcSpotStart.v+endV-startV));
+        auto targetLane=std::min_element(plate.lanes.begin(),plate.lanes.end(),[&](const experimental::Lane& a,const experimental::Lane& b){return std::abs(a.u-u)<std::abs(b.u-u);});
+        if(targetLane==plate.lanes.end())return Error();u=targetLane->u;
+        if(phase==PointerPhase::Move){ghost.clear();PreviewItem preview;preview.primitive=PreviewPrimitive::Circle;preview.points={frame.pointAt(u,v),Vec2(std::max(tlcSpotStart.radiusU*frame.halfWidth(),tlcSpotStart.radiusV*frame.halfHeight()),0)};preview.style.colorRGBA=0x16867CFFu;ghost.add(preview);return Error();}
+        if(phase==PointerPhase::Up){tlcSpotDragging=false;ghost.clear();if(dist(p,press)<view().deviceRadiusToDocument(2))return Error();
+            auto lane=std::min_element(plate.lanes.begin(),plate.lanes.end(),[&](const experimental::Lane& a,const experimental::Lane& b){return std::abs(a.u-u)<std::abs(b.u-u);});
+            if(lane==plate.lanes.end())return Error();
+            if(tlcSpotCopy){size_t count=0;for(const auto& item:plate.spots)if(item.laneId==lane->id)++count;if(count>=30)return unavailable("样品列最多容纳 30 个斑点");auto copy=tlcSpotStart;copy.id=experimental::allocateElementId(&plate);copy.laneId=lane->id;copy.u=u;copy.v=v;plate.spots.push_back(copy);}
+            else if(auto spot=experimental::mutableSpot(&plate,tlcSpotId)){spot->laneId=lane->id;spot->u=u;spot->v=v;}
+            ObjectId id=tlcFigure;return submit(Command(tlcSpotCopy?"复制薄层板斑点":"移动薄层板斑点",kInvalidateStructure|kInvalidateGeometry,[id,plate](CommandContext& context){auto result=experimental::writeFigure(context.document,id,plate);return result.ok()?CommandResult::success():CommandResult::fail(result.code,result.message);}),"薄层板斑点拖动");
+        }
+        return Error();
+    }
     if(const bonds::BondPreset* preset=bonds::presetForCommand(e.command)){
         if(phase==PointerPhase::Down){
             press=p;bondDrawing=true;bondHysteresis.clear();bondOrigin=bonds::BondEndpoint();bondOrigin.point=p;
@@ -664,15 +858,65 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         }
         if(!bondDrawing)return Error();
         bool click=dist(p,press)<view().deviceRadiusToDocument(4);
+        if(click&&clickBond!=kInvalidObjectId){
+            ghost.clear();
+            if(phase!=PointerPhase::Up)return Error();
+            bondDrawing=false;
+            if(e.command=="chooseBondTool_Solid"){
+                const auto& b=*doc.bonds().alive(clickBond);bonds::BondAxes axes;axes.order=b.order;axes.display=b.display;axes.semantics=b.semantics;axes.stereo=b.stereo;axes.side=bonds::sideOf(static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,b.id)));
+                return submit(bonds::setBondAxesCommand({clickBond},bonds::nextClickAxes(axes)),"click bond");
+            }
+            return submit(bonds::applyBondPresetCommand({clickBond},e.command),"apply bond preset");
+        }
         Vec2 target=p;
         if(click){double angle=-30;
-            if(bondOrigin.joined){auto direction=sprout_layout::resolve(doc,bondOrigin.target.id,angle);if(!direction.ok){ghost.clear();status=direction.rejectReason;if(phase==PointerPhase::Up)bondDrawing=false;return unavailable(status);}angle=direction.directionDeg;}
+            if(bondOrigin.joined){auto direction=sprout_layout::resolve(doc,bondOrigin.target.id,angle);if(!direction.ok){ghost.clear();status=direction.rejectReason;if(phase==PointerPhase::Up)bondDrawing=false;return unavailable(status);}angle=direction.directionDeg;
+                const auto& links=doc.incidentBonds(bondOrigin.target.id);
+                if(preset->axes.order==BondOrder::Double&&links.size()==1){
+                    const auto* old=doc.bonds().alive(links.front());
+                    const auto* center=doc.atoms().alive(bondOrigin.target.id);
+                    if(old&&old->order==BondOrder::Double&&center&&
+                       (center->element==6||center->element==7)){
+                        const auto other=old->beginAtom==bondOrigin.target.id?old->endAtom:old->beginAtom;
+                        angle=core::angleOf(bondOrigin.point-doc.atoms().alive(other)->position);
+                    }
+                }
+            }
             target=bondOrigin.point+core::direction(angle)*doc.defaultBondLength();
         }
+        bool chairExact=false;
+        if(bondOrigin.joined&&preset->axes.order==BondOrder::Single&&!(mods&kModAlt)&&(click||fixedAngle)){
+            // Intentional atom joins retain normal capture. Otherwise use the
+            // chair's two projected valences, without re-rounding to 15 degrees.
+            auto hit=nearestAtom(p,snapRadiusDevice());
+            if(click||hit==kInvalidObjectId||hit==bondOrigin.target.id){
+                auto chair=chair_layout::target(doc,bondOrigin.target.id,p,click);
+                if(chair.recognized&&chair.available){
+                    target=chair.end;chairExact=true;
+                    if(!click&&!fixedLen){auto v=target-bondOrigin.point;target=bondOrigin.point+v*(length(p-bondOrigin.point)/length(v));}
+                }
+            }
+        }
+        bool linearDouble=false;
+        if(bondOrigin.joined&&preset->axes.order==BondOrder::Double){
+            const auto id=bondOrigin.target.id;const auto* center=doc.atoms().alive(id);const auto links=doc.incidentBonds(id);
+            if(center&&(center->element==6||center->element==7)&&links.size()==1){
+                const auto* b=doc.bonds().alive(links.front());
+                if(b&&b->order==BondOrder::Double&&b->semantics==BondSemantics::Normal){
+                    auto other=b->beginAtom==id?b->endAtom:b->beginAtom;
+                    target=bondOrigin.point+(bondOrigin.point-doc.atoms().alive(other)->position);linearDouble=true;
+                }
+            }
+        }
         auto profile=input.profile();profile.fixedLength=fixedLen;profile.fixedAngles=fixedAngle;
+        // Try the mouse first, then the actual end of a constrained preview.
+        // A deliberate drag can close a ring at either of these positions.
+        profile.captureRadiusDevice=std::max(12.0,profile.captureRadiusDevice);
+        profile.releaseRadiusDevice=std::max(profile.captureRadiusDevice+3.0,profile.releaseRadiusDevice);
+        profile.snapConstrainedEndpoint=!click&&!(mods&kModAlt)&&(fixedLen||fixedAngle);
         // Automatic growth must not be rounded into an obstacle or snapped to
         // an unintended atom after the placement algorithm has checked it.
-        if(click&&bondOrigin.joined){bondSnap=interaction::SnapResult();bondSnap.endpoint=target;}
+        if((click||linearDouble||chairExact)&&bondOrigin.joined){bondSnap=interaction::SnapResult();bondSnap.endpoint=target;}
         else bondSnap=interaction::SnapResolver::resolveBond(profile,bondOrigin.point,target,doc.defaultBondLength(),1/view().docPerDevice(),*this,mods,bondOrigin.target,bondHysteresis,0);
         bondHysteresis.previous=bondSnap.target;bondHysteresis.previousKind=bondSnap.joined?interaction::HotspotKind::Atom:interaction::HotspotKind::None;
         bondHysteresis.documentId=doc.id();bondHysteresis.geometrySerial=serial;
@@ -681,13 +925,6 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         auto data=bonds::buildBondGeometry(bondOrigin.point,bondSnap.endpoint,preset->axes,bondOptions);
         for(const auto& shape:data.shapes){PreviewItem q;q.points=shape.fill?shape.outline:shape.points;q.primitive=shape.fill?PreviewPrimitive::Polygon:PreviewPrimitive::Polyline;q.style.width=shape.strokeWidth;q.style.colorRGBA=graphicsColor;q.fillRGBA=graphicsColor;q.fillEnabled=shape.fill;ghost.add(q);}
         if(phase==PointerPhase::Up){bondDrawing=false;ghost.clear();
-            if(click&&clickBond!=kInvalidObjectId){
-                if(e.command=="chooseBondTool_Solid"){
-                    const auto& b=*doc.bonds().alive(clickBond);bonds::BondAxes axes;axes.order=b.order;axes.display=b.display;axes.semantics=b.semantics;axes.stereo=b.stereo;axes.side=bonds::sideOf(static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,b.id)));
-                    return submit(bonds::setBondAxesCommand({clickBond},bonds::nextClickAxes(axes)),"click bond");
-                }
-                return submit(bonds::applyBondPresetCommand({clickBond},e.command),"apply bond preset");
-            }
             return submit(bonds::addBondFromSnapCommand(bondOrigin,bondSnap,preset->axes,6,0),"resolved bond");
         }
         status=bondSnap.joined?"Snap: exact atom join (green)":"Preview: fixed length / 15 degree angle; Alt releases constraints";
@@ -718,6 +955,8 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
                 auto element=experimental::pickElement(figure,frame,p,view().deviceRadiusToDocument(6));
                 uint32_t lane=element.kind==experimental::ElementKind::Lane?element.id:0u;
                 if(!lane&&!figure.lanes.empty())lane=std::min_element(figure.lanes.begin(),figure.lanes.end(),[u](const experimental::Lane& a,const experimental::Lane& b){return std::abs(a.u-u)<std::abs(b.u-u);})->id;
+                auto target=experimental::findLane(figure,lane);if(!target)return Error();u=target->u;
+                v=std::max(figure.frontV,std::min(figure.originV,v));
                 uint32_t spotId=0;auto added=experimental::figureAddSpot(&figure,lane,u,v,&spotId);if(!added.ok())return added;
                 auto spot=experimental::mutableSpot(&figure,spotId);
                 double diameter=studio_tlc::preferences().diameter;if(auto saved=static_cast<const Document&>(doc).extensions(experimental::figureRef(tlcFigure)).findValue("studio.tlc.spotDiameter"))diameter=std::atof(saved->c_str());
@@ -771,7 +1010,25 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         return placed;
     }
     if(e.owner!="T05")return unavailable(e.command);
+    if(arrowMiddleDragging){
+        arrows::ArrowParams arrow;bool valid=false;
+        if(!arrows::readArrow(doc,arrowMiddleId,&arrow,&valid).ok()||!valid){arrowMiddleDragging=false;ghost.clear();return Error();}
+        if(phase==PointerPhase::Move||phase==PointerPhase::Up){
+            if(dist(p,press)<view().deviceRadiusToDocument(2)){if(phase==PointerPhase::Up){arrowMiddleDragging=false;ghost.clear();}return Error();}
+            arrow.route.clear();arrow.arcSagitta=arrows::sagittaFromHandleDrag(arrow.begin,arrow.end,
+                arrows::arcMidpoint(arrow.begin,arrow.end,arrow.arcSagitta)+p-press);
+            arrow.family=std::abs(arrow.arcSagitta)>1e-7?arrows::ArrowFamily::Arc:arrows::ArrowFamily::Straight;
+            arrow.sweep=arrow.family==arrows::ArrowFamily::Arc?arrows::ArcSweep::Free:arrows::ArcSweep::Straight;
+            if(phase==PointerPhase::Move){ghost.clear();PreviewItem preview;preview.primitive=PreviewPrimitive::Polyline;arrows::flattenArc(arrow.begin,arrow.end,arrow.arcSagitta,arrows::Tessellation(),&preview.points);preview.style.width=std::max(.6,arrow.strokeWidth);preview.style.colorRGBA=0x16867CFFu;ghost.add(preview);return Error();}
+            arrowMiddleDragging=false;ghost.clear();auto id=arrowMiddleId;arrowMiddleId=kInvalidObjectId;
+            return submit(Command("调整箭头弧度",kInvalidateGeometry|kInvalidateAppearance,[id,arrow](CommandContext& context){auto result=arrows::writeArrow(context.document,id,arrow,context.document.defaultLineWidth());if(result.ok()){auto ref=ObjectRef(ObjectKind::Arrow,id);context.document.noteTouchedExtensions(ref,false);context.document.extensions(ref).erase("studio.cdxml.graphic");}return result.ok()?CommandResult::success():CommandResult::fail(result.code,result.message);}),"调整箭头弧度");
+        }
+    }
     if(phase==PointerPhase::Down){press=p;lasso.clear();lasso.push_back(p);ObjectRef hit=pick(p);
+        if(hit.kind==ObjectKind::Arrow){arrows::ArrowParams arrow;bool valid=false;if(arrows::readArrow(doc,hit.id,&arrow,&valid).ok()&&valid&&!arrows::isMechanismArrow(arrow)&&!arrow.virtualBond){
+            Vec2 middle=arrows::arcMidpoint(arrow.begin,arrow.end,arrow.arcSagitta);
+            if(dist(p,middle)<=view().deviceRadiusToDocument(8)){arrowMiddleDragging=true;arrowMiddleId=hit.id;selected={hit};moving=selecting=false;ghost.clear();return Error();}
+        }}
         if(e.command.find("Eraser")!=std::string::npos){if(!hit.valid())return Error();return submit(commands::deleteObjects(std::vector<ObjectRef>(1,hit)),"erase");}
         // The interior of the visible selection frame is draggable, including
         // empty space between atoms. An outside hit still starts a new selection.
@@ -780,30 +1037,70 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         if(moving&&hit.valid()&&!within&&std::find(selected.begin(),selected.end(),hit)==selected.end()){if(!(mods&kModShift))selected.clear();addToSelection({hit});}
         else if(selecting&&!(mods&kModShift))selected.clear();
         if(moving){movingRefs=studioio::expanded(doc,selected);
-            dragScene=gpuScene;if(dragFixedLength){dragBase=doc;dragBaseActive=true;}
+            dragScene=gpuScene;deferredDragArrows.clear();dragCatalytic=false;
             movingSlots.clear();movingBoundary=false;
             std::set<ObjectId> movingAtoms;
             for(auto ref:movingRefs)if(ref.kind==ObjectKind::Atom)movingAtoms.insert(ref.id);
-            for(size_t i=0;i<scene.size();++i)if(movingRefs.count(scene.primitives()[i].source))
-                movingSlots[scene.primitives()[i].source].push_back(i);
             // expanded() closes the selection over its bonds, so every bond that
             // is selected has both ends selected. The bond that leaves a dragged
             // fragment is therefore NOT selected, although one of its atoms is
             // moving: it has to be stretched during the drag, not left behind.
             for(const auto& b:doc.bonds().records())if(b.isAlive()&&
                 bool(movingAtoms.count(b.beginAtom))!=bool(movingAtoms.count(b.endAtom))){movingBoundary=true;break;}
+            auto movingEnds=[&](ObjectRef ref){
+                if(ref.kind==ObjectKind::Atom)return movingAtoms.count(ref.id)?2:0;
+                ObjectId a,b;
+                if(auto edge=ref.kind==ObjectKind::Bond?doc.bonds().alive(ref.id):nullptr){a=edge->beginAtom;b=edge->endAtom;}
+                else if(!virtual_bonds::endpoints(doc,ref,a,b))return 0;
+                return int(movingAtoms.count(a)+movingAtoms.count(b));
+            };
+            for(const auto& record:doc.arrows().records())if(record.isAlive()){
+                ObjectRef ref(ObjectKind::Arrow,record.id);
+                dragCatalytic|=static_cast<const Document&>(doc).extensions(ref).findValue(studio::catalytic::key())!=nullptr;
+                arrows::ArrowParams arrow;bool ok=false;arrows::readArrow(doc,record.id,&arrow,&ok);
+                if(!ok||!arrow.mechanism)continue;
+                int from=movingEnds(arrow.electronSource),to=movingEnds(arrow.electronTarget);
+                if(from==2&&to==2)movingRefs.insert(ref);
+                else if(from||to){deferredDragArrows.insert(ref);movingRefs.erase(ref);}
+            }
+            if((dragFixedLength&&movingBoundary)||dragCatalytic){dragBase=doc;dragBaseActive=true;}
+            deferredDragSlots.clear();
+            for(size_t i=0;i<scene.size();++i){
+                const auto ref=scene.primitives()[i].source;
+                if(movingRefs.count(ref))movingSlots[ref].push_back(i);
+                else if(deferredDragArrows.count(ref))deferredDragSlots.push_back(i);
+            }
         }
     } else if(phase==PointerPhase::Move){if(selecting){if(e.command.find("Lasso")==std::string::npos&&lasso.size()>1)lasso.back()=p;else lasso.push_back(p);}ghost.clear();
         if(selecting){PreviewItem x;x.primitive=PreviewPrimitive::Rect;x.points={press,p};ghost.add(x);}
         if(moving){Vec2 delta=p-press;
             if(dist(p,press)<view().deviceRadiusToDocument(2))delta=Vec2();
-            if(dragFixedLength&&dragBaseActive&&movingBoundary){
+            if(dragBaseActive){
                 doc=dragBase;
-                Error result=fixedLengthDrag(doc,selected,delta);
+                Error result=dragFixedLength?fixedLengthDrag(doc,selected,delta):translateDocumentObjects(doc,selected,delta);
+                if(result.ok()&&dragCatalytic)result=studio::catalytic::update(doc);
                 if(!result.ok()){doc=dragBase;refresh();dragScene=gpuScene;return result;}
+                // Constrained moves can also displace unselected neighbours.
+                // Compare actual anchors; the routing solver runs only on commit.
+                if(length(delta)>0)for(const auto& rec:dragBase.arrows().records())if(rec.isAlive()){
+                    arrows::ArrowParams arrow;bool ok=false;arrows::readArrow(dragBase,rec.id,&arrow,&ok);
+                    if(!ok||!arrow.mechanism)continue;
+                    auto displacement=[&](ObjectRef ref){Vec2 a,b;
+                        return arrows::mechanismAnchorPoint(dragBase,ref,&a)&&arrows::mechanismAnchorPoint(doc,ref,&b)?b-a:Vec2();};
+                    Vec2 ds=displacement(arrow.electronSource),dt=displacement(arrow.electronTarget);
+                    if(length(ds-dt)>1e-8)doc.removeObject(ObjectRef(ObjectKind::Arrow,rec.id));
+                    else if(length(ds)>1e-8){arrow.begin=arrow.begin+ds;arrow.end=arrow.end+ds;arrows::writeArrow(doc,rec.id,arrow,doc.defaultLineWidth());}
+                }
                 refresh();dragScene=gpuScene;
                 return Error();
             }
+            auto maskDeferred=[&](){
+                for(size_t i:deferredDragSlots){
+                    auto& slot=dragScene.mutablePrimitives()[i+2];
+                    if(length(delta)<1e-9)slot=gpuScene.primitives()[i+2];
+                    else{slot.points.clear();slot.subpaths.clear();slot.style.stroke.enabled=false;slot.style.fill.enabled=false;slot.version=gpuScene.primitives()[i+2].version^0x80000000u;}
+                }
+            };
             std::set<ObjectRef> emitted;
             const bool boundary=movingBoundary;
             if(!boundary&&dragScene.size()==gpuScene.size()){
@@ -815,7 +1112,7 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
                     q.bounds.min=q.bounds.min+delta;q.bounds.max=q.bounds.max+delta;
                     q.version=versionOf(q,doc.id());q.source=ObjectRef();dragScene.mutablePrimitives()[i+2]=std::move(q);
                 }
-                dragScene.touch();return Error();
+                maskDeferred();dragScene.touch();return Error();
             }
             static const Session* ringOwner=nullptr;static DocumentId ringDocument=0;static uint64_t ringSerial=0;
             static std::unique_ptr<RingGeometry> cachedRings;
@@ -907,12 +1204,13 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
                             dragScene.mutablePrimitives()[i+2]=std::move(q);
                         }
                     };
-                    write(movingSlots);write(boundarySlots);
+                    write(movingSlots);write(boundarySlots);maskDeferred();
                     dragScene.touch();return Error();
                 }
             }
             dragScene.clear();for(const auto& bg:gpuScene.primitives())if(bg.layer.value==0)dragScene.add(bg);
             for(size_t i=0;i<scene.size();++i){const auto& original=scene.primitives()[i];auto ref=original.source;
+                if(deferredDragArrows.count(ref)&&length(delta)>0)continue;
                 const BondRecord* bond=ref.kind==ObjectKind::Bond?doc.bonds().alive(ref.id):nullptr;
                 if(bond&&bool(movingRefs.count(ObjectRef(ObjectKind::Atom,bond->beginAtom)))!=
                          bool(movingRefs.count(ObjectRef(ObjectKind::Atom,bond->endAtom)))){
@@ -931,7 +1229,14 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         }
     } else if(phase==PointerPhase::Up){
         bool m=moving;moving=selecting=false;ghost.clear();
-        if(m){if(dragFixedLength&&dragBaseActive){doc=dragBase;dragBaseActive=false;refresh();}Vec2 delta=p-press;if(dist(p,press)<view().deviceRadiusToDocument(2)){if(!pick(press).valid()&&!(mods&(kModShift|kModControl)))selected.clear();return Error();}return dragFixedLength?moveFixedLength(selected,delta):move(selected,delta);}
+        if(m){if(dragBaseActive){doc=dragBase;dragBaseActive=false;refresh();}Vec2 delta=p-press;if(dist(p,press)<view().deviceRadiusToDocument(2)){
+            if(!(mods&(kModShift|kModControl))){
+                const auto hit=pick(press);
+                if(!hit.valid())selected.clear();
+                else if(hit.kind==ObjectKind::Bond&&selected.size()>1)selected={hit};
+            }
+            return Error();
+        }return dragFixedLength?moveFixedLength(selected,delta):move(selected,delta);}
         lasso.push_back(p);bool polygon=e.command.find("Lasso")!=std::string::npos&&lasso.size()>2;Box region=box(press,p);auto contains=[&](Vec2 pt){return polygon?selection::polygonContainsPoint(lasso,pt):studioio::inside(region,pt);};auto candidates=polygon?objectsInPolygon(lasso):objectsInBox(region);std::vector<ObjectRef> chosen;for(auto r:candidates){if(r.kind==ObjectKind::Atom){if(contains(doc.atoms().get(r.id)->position))chosen.push_back(r);}else if(r.kind==ObjectKind::Bond){auto b=doc.bonds().alive(r.id);if(b&&contains(doc.atoms().get(b->beginAtom)->position)&&contains(doc.atoms().get(b->endAtom)->position))chosen.push_back(r);}else chosen.push_back(r);}addToSelection(topLevelSelection(chosen));
     }return Error();
 }
@@ -945,55 +1250,78 @@ Error Session::moveFixedLength(const std::vector<ObjectRef>& refs,Vec2 delta){
         return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
     }),"锁定键长拖动");
 }
+const std::map<ObjectId,Box>& Session::valenceWarnings(){
+    if(valenceWarningDocument==doc.id()&&valenceWarningSerial==serial)return valenceWarningBounds;
+    valenceWarningBounds.clear();
+    for(auto id:studio::validation::overValentAtoms(doc)){
+        const Vec2 position=doc.atoms().alive(id)->position;
+        valenceWarningBounds.emplace(id,Box(position,position));
+    }
+    if(!valenceWarningBounds.empty())for(const auto& primitive:scene.primitives()){
+        if(primitive.source.kind!=ObjectKind::Atom||primitive.bounds.empty())continue;
+        const auto found=valenceWarningBounds.find(primitive.source.id);
+        if(found!=valenceWarningBounds.end()){
+            found->second.add(primitive.bounds.min);
+            found->second.add(primitive.bounds.max);
+        }
+    }
+    valenceWarningDocument=doc.id();
+    valenceWarningSerial=serial;
+    return valenceWarningBounds;
+}
 render::OverlayScene Session::overlay(){
-    render::OverlayScene o;if(!moving)studioio::selectionOverlay(*this,o);size_t previewBegin=o.scene().size();builder.buildPreview(ghost,view(),&o);
+    render::OverlayScene o;if(!moving)studioio::selectionOverlay(*this,o);size_t previewBegin=o.scene().size();
+    core::PreviewScene drawingPreview,capturePreview;
+    bool hasAtomCapture=false;
+    const bool mechanismTool=entries[activeIndex].command=="chooseArrowTool_90_CW"||entries[activeIndex].command=="chooseArrowTool_MechanismFishhook";
+    for(const auto& item:ghost.items()){
+        const bool atomCapture=item.subject.kind==ObjectKind::Atom&&item.primitive==PreviewPrimitive::Polyline&&item.points.size()>8;
+        hasAtomCapture|=atomCapture;
+        if((mechanismTool||atomCapture)&&item.subject.valid()&&(item.subject.kind==ObjectKind::Atom||item.subject.kind==ObjectKind::Bond||virtual_bonds::isGuide(doc,item.subject)))capturePreview.add(item);
+        else drawingPreview.add(item);
+    }
+    builder.buildPreview(drawingPreview,view(),&o);
     const auto& command=entries[activeIndex].command;
     bool graphic=command.find("chooseArrowTool_")==0||command.find("chooseDrawingTool_")==0||command.find("choosePenTool_")==0||command.find("chooseBracketTool_")==0||command=="chooseTableTool"||command=="chooseTLCPlateTool"||(!bondDrawing&&entries[activeIndex].owner!="T05"&&entries[activeIndex].owner!="T09");
-    if(graphic)for(size_t i=previewBegin;i<o.scene().size();++i){auto& p=o.scene().mutablePrimitives()[i];p.style.stroke.rgba=graphicsColor;if(command!="chooseTLCPlateTool")p.style.fill.rgba=graphicsColor;if(graphicsWidth>0&&entries[activeIndex].owner!="T07"&&entries[activeIndex].owner!="T08")p.style.strokeWidth=graphicsWidth;p.bounds=render::geom::computeBounds(p,.6);}
-    if(bondDrawing)for(auto& p:o.scene().mutablePrimitives())if(p.kind==render::PrimKind::Polygon&&p.style.fill.enabled)p.style.stroke.enabled=false;
+    if(graphic)for(size_t i=previewBegin;i<o.scene().size();++i){auto& p=o.scene().mutablePrimitives()[i];if(p.style.stroke.rgba==virtual_bonds::color)continue;p.style.stroke.rgba=graphicsColor;if(command!="chooseTLCPlateTool")p.style.fill.rgba=graphicsColor;if(graphicsWidth>0&&entries[activeIndex].owner!="T07"&&entries[activeIndex].owner!="T08")p.style.strokeWidth=graphicsWidth;p.bounds=render::geom::computeBounds(p,.6);}
+    if(bondDrawing||command.find("chooseArrowTool_")==0)for(auto& p:o.scene().mutablePrimitives())if(p.kind==render::PrimKind::Polygon&&p.style.fill.enabled)p.style.stroke.enabled=false;
+    const size_t captureBegin=o.scene().size();
+    builder.buildPreview(capturePreview,view(),&o);
+    for(size_t i=captureBegin;i<o.scene().size();++i){
+        auto& p=o.scene().mutablePrimitives()[i];
+        if(p.kind==render::PrimKind::Text){
+            p.textSize=view().deviceRadiusToDocument(14.);
+            p.bounds=Box(p.points.front(),p.points.front()+Vec2(p.textSize*p.text.size(),p.textSize*1.2));
+        }
+    }
     auto ring=[&](Vec2 p,bool joined){
-        render::Primitive q;q.kind=render::PrimKind::Polyline;q.style.stroke=render::Paint(joined?0x15803DFF:0x2563EBFF,true);q.style.fill.enabled=false;q.style.strokeWidth=view().deviceRadiusToDocument(1.5);q.layer=render::LayerId(900);q.z=100;
-        double r=view().deviceRadiusToDocument(joined?8:6);
+        render::Primitive q;q.kind=render::PrimKind::Polyline;q.style.stroke=render::Paint(joined?0x15803DFF:0x2563EBFF,true);q.style.fill.enabled=false;q.style.strokeWidth=view().deviceRadiusToDocument(2.5);q.layer=render::LayerId(900);q.z=100;
+        double r=view().deviceRadiusToDocument(joined?11:9);
         for(int i=0;i<=40;++i)q.points.push_back(p+Vec2(std::cos(i*6.283185307/40),std::sin(i*6.283185307/40))*r);
-        q.bounds=render::geom::computeBounds(q,.6);o.scene().add(q);
+        q.bounds=render::geom::computeBounds(q,.6);
+        auto halo=q;halo.style.stroke.rgba=0xFFFFFFFF;halo.style.strokeWidth=view().deviceRadiusToDocument(5);halo.bounds=render::geom::computeBounds(halo,.6);o.scene().add(halo);o.scene().add(q);
         if(joined){q.kind=render::PrimKind::Segment;q.points={p-Vec2(r*.5,0),p+Vec2(r*.5,0)};o.scene().add(q);q.points={p-Vec2(0,r*.5),p+Vec2(0,r*.5)};o.scene().add(q);}
     };
     const auto& hs=input.hotspot();
-    if(hs.valid()&&!moving&&!selecting){
+    if(hs.valid()&&!moving&&!selecting&&!mechanismTool&&!hasAtomCapture){
         if(hs.kind==interaction::HotspotKind::Atom)ring(hs.point,false);
         else if(auto b=doc.bonds().alive(hs.object.id)){
             Vec2 a=doc.atoms().get(b->beginAtom)->position,z=doc.atoms().get(b->endAtom)->position,u=z-a;double len=dist(a,z);
-            if(len>0){Vec2 n(-u.y/len,u.x/len);double r=view().deviceRadiusToDocument(4);
-                render::Primitive q;q.kind=render::PrimKind::Polyline;q.points={a+n*r,z+n*r,z-n*r,a-n*r,a+n*r};q.style.stroke=render::Paint(0x2563EBFF,true);q.style.fill.enabled=false;q.style.strokeWidth=view().deviceRadiusToDocument(1);q.layer=render::LayerId(900);q.z=100;q.bounds=render::geom::computeBounds(q,.6);o.scene().add(q);}
+            if(len>0){Vec2 n(-u.y/len,u.x/len);double r=view().deviceRadiusToDocument(6);
+                render::Primitive q;q.kind=render::PrimKind::Polyline;q.points={a+n*r,z+n*r,z-n*r,a-n*r,a+n*r};q.style.stroke=render::Paint(0x2563EBFF,true);q.style.fill.enabled=false;q.style.strokeWidth=view().deviceRadiusToDocument(2.5);q.layer=render::LayerId(900);q.z=100;q.bounds=render::geom::computeBounds(q,.6);auto halo=q;halo.style.stroke.rgba=0xFFFFFFFF;halo.style.strokeWidth=view().deviceRadiusToDocument(5);halo.bounds=render::geom::computeBounds(halo,.6);o.scene().add(halo);o.scene().add(q);}
         }
     }
-    if(bondDrawing){ring(bondOrigin.point,false);ring(bondSnap.endpoint,bondSnap.joined);}
-    // Recheck only after document edits, not on every mouse move or zoom.
-    static const Session* warningOwner=nullptr;static DocumentId warningDocument=0;
-    static uint64_t warningSerial=0;static std::vector<ObjectId> warningAtoms;
-    static std::map<ObjectId,Box> warningBounds;
-    if(warningOwner!=this||warningDocument!=doc.id()||warningSerial!=serial){
-        warningAtoms=studio::validation::overValentAtoms(doc);
-        warningBounds.clear();
-        for(auto id:warningAtoms){Vec2 p=doc.atoms().alive(id)->position;warningBounds.emplace(id,Box(p,p));}
-        // Include the actual element glyphs (and attached charge/isotope) so
-        // the hollow square encloses labels as well as unlabelled vertices.
-        for(const auto& q:scene.primitives())if(q.source.kind==ObjectKind::Atom){
-            auto found=warningBounds.find(q.source.id);if(found!=warningBounds.end()){
-                found->second.add(q.bounds.min);found->second.add(q.bounds.max);
-            }
-        }
-        warningOwner=this;warningDocument=doc.id();warningSerial=serial;
-    }
-    for(auto id:warningAtoms){
-        const auto* atom=doc.atoms().alive(id);if(!atom)continue;
-        const Box bounds=studio::validation::warningSquare(warningBounds.at(id));
+    if(bondDrawing&&!ghost.items().empty()){ring(bondOrigin.point,false);ring(bondSnap.endpoint,bondSnap.joined);}
+    for(const auto& warning:valenceWarnings()){
+        const auto id=warning.first;
+        const Box bounds=studio::validation::warningSquare(warning.second);
         Vec2 p=(bounds.min+bounds.max)*.5;
         if(moving&&movingRefs.count(ObjectRef(ObjectKind::Atom,id))&&!lasso.empty())p=p+lasso.back()-press;
         double radius=(bounds.max.x-bounds.min.x)*.5;
         render::Primitive q;q.kind=render::PrimKind::Polyline;
         q.points={p+Vec2(-radius,-radius),p+Vec2(radius,-radius),p+Vec2(radius,radius),p+Vec2(-radius,radius),p+Vec2(-radius,-radius)};
-        q.style.fill.enabled=false;q.style.stroke=render::Paint(0xE02020FF,true);q.style.strokeWidth=.65;
+        q.style.fill.enabled=false;q.style.stroke=render::Paint(0xE02020FF,true);
+        q.style.strokeWidth=std::max(.65,view().deviceRadiusToDocument(1.5));
         q.layer=render::LayerId(950);q.z=200;q.bounds=render::geom::computeBounds(q,q.style.strokeWidth);
         o.scene().add(q);
     }
@@ -1034,19 +1362,28 @@ render::OverlayScene Session::overlay(){
 }
 Error Session::open(const std::string& path){
     Document scratch;std::string bytes;Error e=persistence::readFileBytes(path,&bytes);if(!e.ok())return e;
+    if(bytes.compare(0,8,"VjCD0100")==0){std::string xml,why;if(!cdxbinary::toXml(bytes,xml,why))return Error(ErrorCode::InvalidArgument,"ChemDraw CDX 解码失败："+why);bytes=std::move(xml);}
     // ChemDraw XML may arrive as UTF-16 from Windows editors.
     if(bytes.size()>2 && ((unsigned char)bytes[0]==0xFF||(unsigned char)bytes[0]==0xFE)){
         bool little=(unsigned char)bytes[0]==0xFF;std::wstring wide;for(size_t i=2;i+1<bytes.size();i+=2){unsigned a=(unsigned char)bytes[i],b=(unsigned char)bytes[i+1];wide.push_back(wchar_t(little?(a|(b<<8)):(b|(a<<8))));}
         int n=WideCharToMultiByte(CP_UTF8,0,wide.data(),int(wide.size()),0,0,0,0);bytes.resize(n);WideCharToMultiByte(CP_UTF8,0,wide.data(),int(wide.size()),&bytes[0],n,0,0);
         auto enc=bytes.find("UTF-16");if(enc==std::string::npos)enc=bytes.find("utf-16");if(enc!=std::string::npos)bytes.replace(enc,6,"UTF-8");
     }
-    if(bytes.find("<CDXML")!=std::string::npos){persistence::repairUnreferencedArrowIds(bytes);e=persistence::readCdxml(bytes,scratch);if(e.ok()){studioio::readPage(bytes,scratch);e=studioio::readArrows(bytes,scratch);}}
+    if(bytes.find("<CDXML")!=std::string::npos){bytes=studio_projection_io::normalize(studio_projection_export::strip(bytes));persistence::repairUnreferencedArrowIds(bytes);e=persistence::readCdxml(bytes,scratch);if(e.ok()){studioio::readPage(bytes,scratch);e=studioio::readArrows(bytes,scratch);}}
     else {std::istringstream in(bytes);e=loadSafeNative(scratch,in);}
     if(!e.ok())return e;
-    cancel();doc=std::move(scratch);sourcePath=path;history.clear();selected.clear();dirty=false;
+    bool repaired=false;
+    e=studio::bond_hydrogens::repairCondensedHydroxyls(scratch,repaired);
+    if(!e.ok())return e;
+    e=studio::compact_radicals::upgrade(scratch,glyphs,repaired);if(!e.ok())return e;
+    e=studio::alcohol_labels::upgrade(scratch,repaired);if(!e.ok())return e;
+    e=studio::diazo::normalize(scratch,repaired);if(!e.ok())return e;
+    cancel();doc=std::move(scratch);sourcePath=path;history.clear();selected.clear();dirty=repaired;
     input.bindDocument(doc.id());refresh();fit();return Error();
 }
 Error Session::save(const std::string& path,bool cdxml){
+    auto dot=path.find_last_of('.');auto extension=dot==std::string::npos?std::string():path.substr(dot);for(auto& c:extension)c=char(std::tolower(static_cast<unsigned char>(c)));
+    if(extension==".cdxml")cdxml=true;
     std::ostringstream out;std::string xml;Error e;if(cdxml){e=studioio::exportXml(doc,&xml);out<<xml;}else e=saveSafeNative(doc,out);
     if(!e.ok()){return e;} persistence::AtomicWriteOptions opts;opts.sourcePath=sourcePath;
     e=persistence::writeFileAtomic(path,out.str(),opts);if(e.ok())dirty=false;return e;
@@ -1087,7 +1424,3 @@ interaction::RouterOutcome Session::action(void* v,const interaction::ActionRequ
     if(!err.ok()){s.status=err.message;return interaction::RouterOutcome::Rejected;}return interaction::RouterOutcome::Handled;
 }
 } }
-
-
-
-

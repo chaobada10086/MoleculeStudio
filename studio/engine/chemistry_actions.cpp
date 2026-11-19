@@ -74,6 +74,7 @@ interaction::RouterOutcome chemistryAction(Session& s,const interaction::ActionR
         auto dir=sprout_layout::resolve(s.doc,id,-30);if(!dir.ok){s.status=dir.rejectReason;return R::Rejected;}
         bonds::BondEndpoint start;start.joined=true;start.target=req.hotspot.object;start.point=atom->position;
         interaction::SnapResult end;end.endpoint=start.point+core::direction(dir.directionDeg)*s.doc.defaultBondLength();
+        auto chair=chair_layout::target(s.doc,id,Vec2(),true);if(chair.available)end.endpoint=chair.end;
         bonds::BondAxes axes;axes.display=req.action==A::SproutWedge?BondDisplay::Wedge:req.action==A::SproutHashWedge?BondDisplay::WedgeHash:BondDisplay::Normal;
         err=s.submit(bonds::addBondFromSnapCommand(start,end,axes,6,0),"sprout bond");break;}
     default:return R::NotHandled;

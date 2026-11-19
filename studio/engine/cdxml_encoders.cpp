@@ -186,6 +186,10 @@ static void appendAtomSignature(const core::Document& document, const core::Atom
     out->push_back('\x1f');
     out->append(cdxml::numberToText(static_cast<double>(atom.semantics.showLabel ? 1 : 0)));
     out->push_back('\x1f');
+    const auto& attributes=document.extensions(core::ObjectRef(core::ObjectKind::Atom,atom.id));
+    for(const char* key:{"pst.attr.MoleculeStudioChargePosition","pst.attr.MoleculeStudioRadicalPosition","pst.attr.MoleculeStudioLiteralLabel",
+                        "pst.attr.MoleculeStudioLonePairPositions","pst.attr.MoleculeStudioChargeCircle"})
+        if(auto value=attributes.findValue(key)){out->append(key);out->append(*value);out->push_back('\x1f');}
     out->append(document.atomLabel(atom.id));
     out->push_back('\x1f');
     const std::vector<core::TextRun>& runs = studioatom::runs(document,atom.id);

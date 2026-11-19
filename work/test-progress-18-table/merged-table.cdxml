@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" ChainAngle="120.000000" BondSpacing="18.000000" BoldWidth="2.000000" MarginWidth="1.600000" HashSpacing="2.500000" CreationProgram="Molecule Studio" BoundingBox="180.6378 368.9449 360.7878 456.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="3" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="4"/>
+        <t id="5" p="203.5128 383.2449" Justification="Center">
+            <s font="3" size="11">Entry</s>
+        </t>
+        <group id="16" MoleculeStudioTable="fx0=-117;fy0=-52;fx1=63.150000000000006;fy1=36;rows=4;cols=3;rh0=22;rh1=22;rh2=22;rh3=22;cw0=45.75;cw1=60.049999999999997;cw2=74.350000000000009;outer=1;inner=1;bw=0.59999999999999998;merged=1;m0=1,0,1,2;cells=12;c0=1,0,4294967295,5,0,0;c1=1,0,4294967295,6,0,0;c2=1,0,4294967295,7,0,0;c3=1,0,4294967295,8,0,0;c4=0,0,4294967295,4294967295,0,0;c5=1,0,4294967295,9,0,0;c6=1,0,4294967295,10,0,0;c7=1,0,4294967295,11,0,0;c8=1,0,4294967295,12,0,0;c9=1,0,4294967295,13,0,0;c10=1,0,4294967295,14,0,0;c11=1,0,4294967295,15,0,0;" MoleculeStudioStyle="three" BoundingBox="180.6378 368.9449 360.7878 456.9449">
+            <graphic id="17" GraphicType="Line" BoundingBox="180.6378 368.9449 360.7878 368.9449" LineWidth="1.2"/>
+            <graphic id="18" GraphicType="Line" BoundingBox="180.6378 390.9449 360.7878 390.9449" LineWidth="0.59999999999999998"/>
+            <graphic id="19" GraphicType="Line" BoundingBox="180.6378 456.9449 360.7878 456.9449" LineWidth="1.2"/>
+        </group>
+        <t id="6" p="256.4128 383.2449" Justification="Center">
+            <s font="3" size="11">Solvent</s>
+        </t>
+        <t id="7" p="323.6128 383.2449" Justification="Center">
+            <s font="3" size="11">Yield (%)</s>
+        </t>
+        <t id="8" p="233.5378 398.6949" Justification="Center">
+            <s font="3" size="10">1
+Ethanol</s>
+        </t>
+        <t id="9" p="323.6128 404.9449" Justification="Center">
+            <s font="3" size="10">95</s>
+        </t>
+        <t id="10" p="203.5128 426.9449" Justification="Center">
+            <s font="3" size="10">2</s>
+        </t>
+        <t id="11" p="256.4128 426.9449" Justification="Center">
+            <s font="3" size="10">Water</s>
+        </t>
+        <t id="12" p="323.6128 426.9449" Justification="Center">
+            <s font="3" size="10">88</s>
+        </t>
+        <t id="13" p="203.5128 448.9449" Justification="Center">
+            <s font="3" size="10">3</s>
+        </t>
+        <t id="14" p="256.4128 448.9449" Justification="Center">
+            <s font="3" size="10">Acetone</s>
+        </t>
+        <t id="15" p="323.6128 448.9449" Justification="Center">
+            <s font="3" size="10">91</s>
+        </t>
+    </page>
+</CDXML>

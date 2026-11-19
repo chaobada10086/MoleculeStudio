@@ -1,0 +1,51 @@
+<CDXML BondLength="14.3999938965" LineWidth="0.600006103516" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" ChainAngle="120" BondSpacing="18" BoldWidth="2" MarginWidth="1.60000610352" HashSpacing="2.5" CreationProgram="Molecule Studio" BoundingBox="0 0 595.275604248 841.889801025">
+    <fonttable>
+        <font id="3" charset="utf-8" name="Arial"/>
+    </fonttable>
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <page id="3" BoundingBox="0 0 595.275604248 841.889801025" Width="595.275604248" Height="841.889801025" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36">
+        <fragment id="4"/>
+        <tlcplate id="5" TopLeft="130 150" TopRight="270 150" BottomRight="270 350" BottomLeft="130 350" OriginFraction="0.2" SolventFrontFraction="0.125" ShowOrigin="yes" ShowSolventFront="yes" ShowBorders="yes">
+            <objecttag id="6" Name="MoleculeStudio/TLC" TagType="String" Persistent="yes"/>
+            <tlclane id="7">
+                <tlcspot id="8" CurveType="128" Rf="0.333333333333" Width="327680" Height="327680" Tail="786432"/>
+                <tlcspot id="9" CurveType="128" Rf="0.666666666667" Width="327680" Height="327680"/>
+                <tlcspot id="10" CurveType="128" Rf="0.75" Width="327680" Height="327680"/>
+            </tlclane>
+            <tlclane id="11">
+                <tlcspot id="12" CurveType="128" Rf="0.333333333333" Width="327680" Height="327680"/>
+                <tlcspot id="13" CurveType="128" Rf="0.666666666667" Width="327680" Height="327680"/>
+                <tlcspot id="14" CurveType="128" Rf="0.75" Width="327680" Height="327680"/>
+            </tlclane>
+            <tlclane id="15">
+                <tlcspot id="16" CurveType="128" Rf="0.333333333333" Width="327680" Height="327680"/>
+                <tlcspot id="17" CurveType="128" Rf="0.666666666667" Width="327680" Height="327680"/>
+                <tlcspot id="18" CurveType="128" Rf="0.75" Width="327680" Height="327680"/>
+            </tlclane>
+            <tlclane id="19">
+                <tlcspot id="20" CurveType="128" Rf="0.333333333333" Width="327680" Height="327680"/>
+                <tlcspot id="21" CurveType="128" Rf="0.666666666667" Width="327680" Height="327680"/>
+                <tlcspot id="22" CurveType="128" Rf="0.75" Width="327680" Height="327680"/>
+            </tlclane>
+            <tlclane id="23">
+                <tlcspot id="24" CurveType="128" Rf="0.25" Width="327680" Height="327680"/>
+                <tlcspot id="25" CurveType="128" Rf="0.5" Width="327680" Height="327680"/>
+                <tlcspot id="26" CurveType="128" Rf="0.75" Width="327680" Height="327680"/>
+            </tlclane>
+            <tlclane id="27">
+                <tlcspot id="28" CurveType="128" Rf="0.25" Width="327680" Height="327680"/>
+                <tlcspot id="29" CurveType="128" Rf="0.5" Width="327680" Height="327680"/>
+                <tlcspot id="30" CurveType="128" Rf="0.75" Width="327680" Height="327680"/>
+            </tlclane>
+        </tlcplate>
+    </page>
+</CDXML>

@@ -57,7 +57,7 @@ struct ChatTranscript {
         Font font(L"Microsoft YaHei UI",13,FontStyleRegular,UnitPixel);StringFormat format;format.SetFormatFlags(StringFormatFlagsLineLimit);
         for(const auto& item:items){if(item.bounds.GetBottom()*scale<scroll||item.bounds.Y*scale>scroll+r.bottom)continue;const auto& message=messages[item.index];bool user=message.role==L"你",status=message.role==L"状态";
             bool chosen=int(item.index)==selected;studio_ui::round(g,item.bounds,10,chosen?Color(255,224,244,240):user?Color(255,220,239,234):status?Color(255,235,240,242):Color(255,255,255,255));
-            studio_ui::label(g,message.role,RectF(item.bounds.X+12,item.bounds.Y+5,item.bounds.Width-24,23),11,user?studio_ui::teal():studio_ui::muted(),true);
+            studio_ui::label(g,message.role,RectF(item.bounds.X+12,item.bounds.Y+5,item.bounds.Width-24,23),11,user?studio_ui::accent():studio_ui::muted(),true);
             auto shown=message.localizable?studio_i18n::tr(message.text):message.text;SolidBrush text(status?studio_ui::muted():studio_ui::ink());g.DrawString(shown.c_str(),int(shown.size()),&font,item.body,&format,&text);
         }}
         GdiFlush();cacheScroll=scroll;cacheScale=scale;cacheValid=true;

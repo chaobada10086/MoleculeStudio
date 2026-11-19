@@ -6,7 +6,7 @@
 void App::tableCheck(const std::string& dir){
     if(GetFileAttributesW(W(dir+"/hydrogen-defaults").c_str())!=INVALID_FILE_ATTRIBUTES){hydrideDefaultCheck(dir);return;}
     using namespace r62::graphics;auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
-    s.dirty=false;execute(Button("","","","@new"));require(ribbonTabs.size()==5,"five ribbon tabs");switchTab(4);require(ribbonTab==4&&visibleGroups().size()==6,"table tab commands available");
+    s.dirty=false;execute(Button("","","","@new"));require(ribbonTabs.size()==7,"seven ribbon tabs");switchTab(4);require(ribbonTab==4&&visibleGroups().size()==6,"table tab commands available");
     auto id=insertTable(3,3,true);require(id!=kInvalidObjectId,"create editable three-line table");auto empty=s.doc.digest();
     require(tableEditor.paste(L"序号\t条件\t产率\n1\t乙醇\t95%\n2\t水\t88%"),"paste tabular data");auto populated=s.doc.digest();require(s.undo().ok()&&s.doc.digest()==empty,"paste single-step undo");require(s.undo(true).ok()&&s.doc.digest()==populated,"paste exact redo");
     auto read=[&](){TableData d;bool used=false;require(readTable(s.doc,id,&d,&used).ok(),"read native table");return d;};auto text=[&](uint32_t r,uint32_t c){std::string value;require(cellText(s.doc,id,r,c,&value,nullptr).ok(),"read cell text");return value;};

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CDXML CreationProgram="MoleculeStudio 0.9.3.2" BoundingBox="0 0 500 500" LabelFont="3" LabelSize="10" BondLength="14.4" color="0" bgcolor="1">
+<fonttable><font id="3" charset="iso-8859-1" name="Arial"/></fonttable>
+<colortable><color r="1" g="1" b="1"/><color r="0" g="0" b="0"/></colortable>
+<page id="100" BoundingBox="0 0 500 500" WidthPages="1" HeightPages="1">
+<fragment id="101">
+<n id="102" p="100 100" FreeSites="1" AS="N"><objecttag TagType="Unknown" Name="query"><t p="98 104" CaptionLineHeight="variable"><s font="3" size="8.1" color="0">*</s></t></objecttag></n>
+</fragment>
+<annotation Keyword="GUID" Content="00000000-0000-0000-0000-000000000000"/>
+<annotation Keyword="Name" Content="Test Page"/>
+</page>
+</CDXML>

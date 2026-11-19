@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="30" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="397.6378 480.002613659 553.014561664 649.602144518">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="18" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="19">
+            <n id="3" p="457.6378 505.983375773"/>
+            <b id="20" B="3" E="4" Order="2"/>
+            <n id="4" p="442.6378 531.964137886"/>
+            <b id="21" B="4" E="5" Order="1"/>
+            <n id="5" p="412.6378 531.964137886"/>
+            <b id="22" B="5" E="6" Order="2"/>
+            <n id="6" p="397.6378 505.983375773"/>
+            <b id="23" B="6" E="7" Order="1"/>
+            <n id="7" p="412.6378 480.002613659"/>
+            <b id="24" B="7" E="8" Order="2"/>
+            <n id="8" p="442.6378 480.002613659"/>
+            <b id="25" B="8" E="3" Order="1"/>
+            <n id="9" p="457.6378 557.9449"/>
+            <b id="26" B="4" E="9" Order="1"/>
+            <n id="10" p="487.6378 557.9449" Element="8"/>
+            <b id="27" B="9" E="10" Order="2"/>
+            <n id="11" p="442.6378 583.925662114" Element="7" NumHydrogens="1"/>
+            <b id="28" B="9" E="11" Order="1"/>
+            <n id="12" p="457.6378 609.906424227" Element="7" NumHydrogens="2"/>
+            <b id="29" B="11" E="12" Order="1"/>
+            <n id="13" p="446.210649637 638.460424227" Element="7" Charge="1" NumHydrogens="3" MoleculeStudioChargePosition="1.4 0" MoleculeStudioChargeCircle="yes">
+                <t>
+                    <s font="3" size="10" face="96">NH3</s>
+                </t>
+            </n>
+            <b id="30" B="13" E="14" Order="1"/>
+            <n id="14" p="474.064950363 649.602144518" Element="7" NumHydrogens="2"/>
+            <b id="31" B="15" E="16" Order="1"/>
+            <n id="15" p="525.160260937 637.377517977" Element="7" NumHydrogens="2"/>
+            <n id="16" p="553.014561664 648.519238268" Element="7" NumHydrogens="2"/>
+            <n id="17" p="547.6378 585.9449" Element="35"/>
+        </fragment>
+        <graphic id="32" GraphicType="Symbol" SymbolType="CirclePlus" BoundingBox="460.210649637 638.460424227 466.960649637 638.460424227" LineWidth="1">
+            <represent object="13" attribute="Charge"/>
+        </graphic>
+    </page>
+</CDXML>

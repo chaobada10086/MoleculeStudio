@@ -2,6 +2,7 @@
 #define STUDIO_TEXT_TIDY_HPP
 #include "chem_completion.hpp"
 #include "chem_italic.hpp"
+#include "text_tidy_backup.hpp"
 #include <cctype>
 // "文字整理": apply the existing group-label pipeline (chemcompletion) to text
 // that is already in the document. The inline editor runs this pipeline only
@@ -99,7 +100,7 @@ inline std::vector<TextRun> buildRuns(const std::vector<Piece>& pieces,const std
             }
             if(piece.script<0)run.flags=uint16_t((run.flags&~kFormula)|kSubscript);
             else if(piece.script>0)run.flags=uint16_t((run.flags&~kFormula)|kSuperscript);
-            else if(atom)run.flags=uint16_t(run.flags|kFormula);
+            else if(atom)run.flags=uint16_t(run.flags&~kFormula);
             size_t sourceIndex=std::min(canonicalAt+used,canonical.size());
             size_t maskIndex=codepointAt[sourceIndex];
             if(customFormat.size()==canonical.size()&&sourceIndex<customFormat.size()){run.flags&=~kItalic;if((customFormat[sourceIndex]-'0')&4)run.flags|=kItalic;}else if(maskIndex<italic.size()&&italic[maskIndex])run.flags=uint16_t(run.flags|kItalic);
@@ -172,7 +173,7 @@ inline bool embeddedPieces(const std::string& text,std::vector<Piece>* pieces,st
         bool allLower=true,allUpper=true,hasLetter=false;
         for(unsigned char c:token)if(std::isalpha(c)){hasLetter=true;if(c>='a'&&c<='z')allUpper=false;if(c>='A'&&c<='Z')allLower=false;}
         std::string spelling=token;
-        if(hasLetter&&(allLower||allUpper))spelling=chemcompletion::normalize(token,true);
+        if(hasLetter&&(allLower||allUpper))spelling=chemcompletion::canonicalFormula(chemcompletion::normalize(token,true));
         auto segments=chemcompletion::segments(spelling,true);
         if(segments.empty())pieces->push_back({token,0,range.first});
         else for(const auto& segment:segments)pieces->push_back({segment.text,segment.script,range.first});
@@ -182,25 +183,42 @@ inline bool embeddedPieces(const std::string& text,std::vector<Piece>* pieces,st
     for(const auto& piece:*pieces)*canonical+=piece.text;
     return true;
 }
-// atom=true marks baseline pieces as kFormula, like the committed atom label
-// path; captions keep the flags they already had.
+// Keep the computed scripts explicit on atom labels.
 inline Tidy tidy(const std::string& text,bool caption,const std::vector<TextRun>& oldRuns,const std::vector<uint32_t>& oldColors,bool atom){
     Tidy out;
     std::vector<Piece> pieces;std::string canonical;bool built=false;
     if(caption){
-        std::string whole=chemcompletion::chemicalToken(text,true);
-        if(!whole.empty()){
-            auto segments=chemcompletion::segments(whole,true);
+        for(size_t start=0;;){
+            const auto end=text.find('\n',start);
+            const auto line=text.substr(start,end-start);
+            const auto whole=chemcompletion::hyphenatedGroup(chemcompletion::chemicalToken(line,true));
+            const auto segments=chemcompletion::segments(whole,true);
             if(!segments.empty()){
                 size_t offset=0;
-                for(const auto& segment:segments){pieces.push_back({segment.text,segment.script,std::min(offset,text.empty()?0:text.size()-1)});offset+=segment.text.size();}
-                canonical=whole;built=true;
+                for(const auto& segment:segments){
+                    pieces.push_back({segment.text,segment.script,start+std::min(offset,line.size()-1)});
+                    offset+=segment.text.size();
+                }
+                canonical+=whole;
+            }else{
+                std::vector<Piece> embedded;
+                std::string result;
+                if(embeddedPieces(line,&embedded,&result)){
+                    for(auto& piece:embedded){piece.source+=start;pieces.push_back(piece);}
+                    canonical+=result;
+                }else{
+                    pieces.push_back({line,0,start});
+                    canonical+=line;
+                }
             }
+            if(end==std::string::npos)break;
+            pieces.push_back({"\n",0,end});
+            canonical+='\n';
+            start=end+1;
         }
-        if(!built)built=embeddedPieces(text,&pieces,&canonical);
-        if(!built){pieces.push_back({text,0,0});canonical=text;built=true;}
+        built=true;
     }else{
-        canonical=chemcompletion::normalize(text,true);
+        canonical=chemcompletion::hyphenatedGroup(chemcompletion::canonicalFormula(chemcompletion::normalize(text,true)));
         auto segments=chemcompletion::segments(canonical,true);
         if(!segments.empty()){
             size_t offset=0;
@@ -215,7 +233,19 @@ inline Tidy tidy(const std::string& text,bool caption,const std::vector<TextRun>
     // A label that is already spelled correctly and has nothing to raise,
     // lower or italicise must not create an undo entry just to restate its
     // formatting.
-    if(canonical==text&&!hasScript&&!hasItalic)return out;
+    bool oldScript=false;
+    for(size_t start=0;!oldScript&&!oldRuns.empty();){
+        auto end=text.find('\n',start);
+        auto line=text.substr(start,end-start);
+        const size_t leading=chemcompletion::leadingNumber(line);
+        if(leading&&!chemcompletion::isotopePrefix(line,leading)){
+            for(size_t i=0;i<leading;++i)
+                if(oldRuns[runAt(oldRuns,start+i)].flags&(kSubscript|kSuperscript))oldScript=true;
+        }
+        if(end==std::string::npos)break;
+        start=end+1;
+    }
+    if(canonical==text&&!hasScript&&!hasItalic&&!oldScript)return out;
     out.runs=buildRuns(pieces,oldRuns,oldColors,atom,canonical,&out.colors);
     out.hasColors=!oldColors.empty();
     out.plain=canonical;
@@ -243,6 +273,7 @@ inline Error tidyAtom(Document& doc,ObjectId id,bool* changed){
     std::vector<uint32_t> colors=readColors(doc,ref);
     Tidy result=tidy(plain,false,old,colors,true);
     if(!result.changed||result.runs.empty())return Error();
+    textbackup::save(doc,ref,plain,old,writeColors(colors));
     Error e=doc.setAtomLabel(id,result.plain);
     if(!e.ok())return e;
     studioatom::set(doc,id,result.runs);
@@ -262,6 +293,7 @@ inline Error tidyText(Document& doc,ObjectId id,bool* changed){
     std::vector<uint32_t> colors=readColors(doc,ref);
     Tidy result=tidy(plain,true,old,colors,false);
     if(!result.changed||result.runs.empty())return Error();
+    textbackup::save(doc,ref,plain,old,writeColors(colors));
     Error e=doc.setTextRuns(id,result.runs);
     if(!e.ok())return e;
     if(result.hasColors)doc.extensions(ref).set("studio.text.colors",writeColors(result.colors));

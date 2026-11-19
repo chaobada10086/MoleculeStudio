@@ -108,7 +108,7 @@ struct TabHost {
         if(scroll>maxScroll)scroll=maxScroll;
     }
     void paintBand(Graphics& g,float w){
-        SolidBrush bg(Color(255,241,243,241));
+        SolidBrush bg(studio_ui::skinColors().tab);
         g.FillRectangle(&bg,0.f,0.f,w,bandH);
         auto clip=g.Save();
         g.SetClip(RectF(tabsLeft,0.f,std::max(0.f,tabsRight-tabsLeft),bandH));
@@ -123,7 +123,7 @@ struct TabHost {
                 SolidBrush accent(teal);
                 g.FillRectangle(&accent,r.X,0.f,r.Width,2.f);
             }else{
-                SolidBrush sep(Color(255,214,220,216));
+                SolidBrush sep(studio_ui::skinColors().border);
                 g.FillRectangle(&sep,r.GetRight()-1.f,11.f,1.f,bandH-22.f);
             }
             rawTxt(g,U(displayName(i)),RectF(r.X+13.f,0.f,r.Width-44.f,bandH),13.f,act?ink:muted,act);
@@ -141,18 +141,18 @@ struct TabHost {
         }
         g.Restore(clip);
         bool plusHot=hover=="plus";
-        if(plusHot){SolidBrush hot(Color(255,228,234,229));g.FillRectangle(&hot,plusRect.X,plusRect.Y,plusRect.Width,plusRect.Height);}
+        if(plusHot){SolidBrush hot(studio_ui::skinColors().hover);g.FillRectangle(&hot,plusRect.X,plusRect.Y,plusRect.Width,plusRect.Height);}
         Pen plus(ink,1.5f);
         float px=plusRect.X+plusRect.Width*.5f,py=plusRect.Y+plusRect.Height*.5f;
         g.DrawLine(&plus,px-6.f,py,px+6.f,py);
         g.DrawLine(&plus,px,py-6.f,px,py+6.f);
         bool listHot=hover=="list";
-        if(listHot){SolidBrush hot(Color(255,228,234,229));g.FillRectangle(&hot,listRect.X,listRect.Y,listRect.Width,listRect.Height);}
+        if(listHot){SolidBrush hot(studio_ui::skinColors().hover);g.FillRectangle(&hot,listRect.X,listRect.Y,listRect.Width,listRect.Height);}
         Pen chevron(ink,1.5f);
         float lx=listRect.X+listRect.Width*.5f,ly=listRect.Y+listRect.Height*.5f;
         g.DrawLine(&chevron,lx-4.f,ly-2.f,lx,ly+2.f);
         g.DrawLine(&chevron,lx,ly+2.f,lx+4.f,ly-2.f);
-        Pen bottom(Color(255,221,227,222));
+        Pen bottom(studio_ui::skinColors().border);
         g.DrawLine(&bottom,0.f,bandH-.5f,w,bandH-.5f);
     }
     Hit hitBand(float x,float y){
@@ -447,7 +447,7 @@ struct TabHost {
             RegisterClassW(&wc);
             registered=true;
         }
-        hwnd=studio_i18n::createWindowEx(0,L"MoleculeStudioTabs",L"Molecule Studio 0.95",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,this);
+        hwnd=studio_i18n::createWindowEx(0,L"MoleculeStudioTabs",L"Molecule Studio 0.9.6.0.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,this);
         scale=GetDpiForWindow(hwnd)/96.f;
         DragAcceptFiles(hwnd,TRUE);
     }

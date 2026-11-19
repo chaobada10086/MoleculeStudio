@@ -1,7 +1,7 @@
 # MoleculeStudio AI 绘图工具（当前版）
 
-适配 MoleculeStudio 0.95，绘图增强插件 1.5.0，更新于 2026-11-01。
-基础工具 24 个，插件工具 18 个，合计 42 个；完整参数由实际函数 schema 生成在 AI_TOOL_REFERENCE.json，运行时提示词也从同一套 schema 生成。
+适配 MoleculeStudio 0.95，绘图增强插件 1.9.0，更新于 2026-11-18。
+基础工具 32 个，插件工具 24 个，合计 56 个；完整参数由实际函数 schema 生成在 AI_TOOL_REFERENCE.json，运行时提示词也从同一套 schema 生成。
 
 ## 使用流程
 
@@ -25,6 +25,20 @@ AI 可以绘制、查询、移动、缩放、旋转、复制、删除、排版�
 
 旧 draw_template 的 36 个常用模板继续兼容，与新增的 112 个原生环变体是两个目录，不是把所有旧模板名称硬映射到新编号。
 
+## r52 多步机理排版
+
+在 `draw_reaction` 或 `draw_scheme.steps` 的每一步中，用 `electron_moves` 提供本步反应物之间的电子移动。端点以 1 起始，`2:1` 指第二个反应物的第一个原子，`2:1-3` 指该反应物的第一个和第三个原子之间已有的键。工具为电子箭头和标签预留空间，再排列下一行。标题用 title，条件用 conditions 和 conditions_below。
+
+## r51 机理绘图
+
+用 `inspect_document` 读取结构、原子、键和已有箭头的引用。`draw_mechanism_step` 的每个 move 指定 source、target 和 electrons（1 或 2），同一步的箭头一起提交。默认调用桌面“生成下一步”，只要箭头时传 `generate:false`。对已有箭头可直接传 refs。proton_transfer 和 deprotonate 分别调用质子转移和去质子化；arrow_style 支持单向及三种可逆箭头。生成的中间体可在应用后的下一轮按真实对象引用继续编辑。
+
+`add_mechanism_reagent` 插入 B⁻、Nu⁻、中性 Nu 或 H⁺。`search_reagent_library` 和 `draw_library_reagent` 使用随程序提供的试剂库。`mark_electron_state` 操作原子电子状态。`draw_mechanism_symbol` 插入部分电荷、等同符号、待成键或过渡态括号。`arrange_catalytic_cycle` 将指定的独立中间体按顺序排成循环。
+
+醇盐夺取羰基 α-H 时，可在 `draw_reaction` 或 `draw_scheme.steps` 传入 `{"reactants":["smiles:CC[O-]","smiles:CCOC(=O)CCCCC(=O)OCC"],"enolate":{}}`。工具会画出参与转移的氢、三支电子箭头及两种产物。若底物有不等价位点，在 `enolate` 中按底物 SMILES 顺序指定从 1 起算的 `alpha` 和 `carbonyl`。
+
+经典 Mitsunobu 酯化可直接调用 `draw_mitsunobu({"alcohol":"CC(O)C","acid":"CC(=O)O"})`。其他极性机理可在反应物 SMILES 中标记位点，如 `[O-:7]`，在 `electron_moves` 中用 `1:@7` 指定原子、`2:@3-@4` 指定键。每行使用一个标题，双电子移动用完整箭头。
+
 ## 实际工具目录
 
 | 函数 | 用途 |
@@ -34,7 +48,7 @@ AI 可以绘制、查询、移动、缩放、旋转、复制、删除、排版�
 | `draw_smiles` | 绘制用户提供的 SMILES 或用户明确请求的假想结构。真实已命名分子应检索数据库。 |
 | `set_page_layout` | 调整当前文档的纸张尺寸、方向和拼接张数。宽高单位 mm；省略的参数保持当前值。 |
 | `draw_shape` | 绘制基本图形。x,y 为左上角，x2,y2 为右下角；直线则是两端。 |
-| `draw_arrow` | 绘制箭头，x,y 到 x2,y2。 |
+| `draw_arrow` | 绘制箭头。机理箭头优先指定 source 和 target 的原子或键引用；坐标靠近分子时会吸附至端点。 |
 | `add_text` | 添加文字标签，x,y 是文字基线位置。 |
 | `recognize_and_draw_structure` | 调用本地图片转结构识别附件或path指定的本地图片/PDF选区，将结果暂存为可编辑结构；返回原子、键、置信度及立体校验警告。需要对照原图核对，勿把置信度当正确率。 |
 | `detect_structure_regions` | 自动检测附件或path指定的本地PDF页或图片上的候选化学结构区域。返回每个区域的 [左,上,宽,高] 0–1 坐标、像素框、评分、路径数和预览图路径；用于整页/多条合成路线，不需要凭肉眼猜 crop。 |
@@ -42,6 +56,13 @@ AI 可以绘制、查询、移动、缩放、旋转、复制、删除、排版�
 | `insert_recognized_structure` | 插入用户在“文献结构识别（OCSR）”窗口中确认过的最近一个结构；只读取程序目录内的固定审核记录，不接受任意文件路径。返回 PDF 来源、页码、裁剪区域和审核状态。 |
 | `style_selection` | 更改已选中结构的颜色和/或线宽。 |
 | `move_selection` | 平移已选中对象。dx,dy 是相对偏移（磅）。 |
+| `arrange_catalytic_cycle` | 按顺序排列 3–12 个独立中间体并连接原生催化箭头。每个中间体指定一个 atom 引用。最终布局在桌面应用时计算。 |
+| `search_reagent_library` | 按名称、别名、分子式或类别查找本机试剂库，返回可绘制的条目 ID。 |
+| `draw_library_reagent` | 按搜索所得 ID 插入工具栏的试剂模板。返回可编辑分子引用。 |
+| `draw_mechanism_symbol` | 插入原生机理符号。virtual_bond 需要两个原子 refs；transition_state 需要被括起的结构 refs；部分电荷和等同符号需要 x、y。 |
+| `add_mechanism_reagent` | 插入有化学语义的试剂原子，返回可直接作为电子端点的 ref。 |
+| `mark_electron_state` | 在指定原子上调用编辑器的孤对电子、自由基或离子工具。正负离子和自由基按工具栏规则处理氢数。 |
+| `draw_mechanism_step` | 绘制原生机理箭头。已有结构上补一支或多支弯箭头：提交同一步的 moves，并传 generate=false。推演下一步时传 generate=true。省略 generate 时，补箭头请求默认只画箭头，其他请求沿用生成下一步；refs 可指定已有箭头及参与结构。产物引用在应用后的下一轮可读。 |
 | `inspect_document` | 查看当前画布及本轮已暂存对象，返回纸张尺寸和张数、引用、元素、坐标、包围盒、分子分组及匹配数量。编辑前用它确定对象；所有坐标相对本轮插入点。 |
 | `style_objects` | 按范围/元素/类型/文本筛选后改色或线宽。只改匹配对象，不自动给相邻键改色。无需用户手选。 |
 | `move_objects` | 平移匹配对象。移动整个分子请使用 molecule 引用，避免只拉动局部原子。 |
@@ -51,11 +72,12 @@ AI 可以绘制、查询、移动、缩放、旋转、复制、删除、排版�
 | `edit_text` | 修改现有文字内容、字号、字体、粗体、斜体和颜色；自动限于 text 类型，未指定属性保持原样。 |
 | `arrange_objects` | 按 refs 的顺序将独立分子/图形/文字横排或竖排，gap 为包围盒之间的间距；x,y 为第一项左边/顶部的位置和排列中心线。 |
 | `draw_path` | 绘制折线或闭合多边形，可填色，用于自定义示意图、框线和图案。返回可继续编辑的引用。 |
+| `draw_curve` | 绘制可编辑的平滑二次贝塞尔曲线。points 依次为起点、控制点、终点，继续追加控制点和终点。可设置线宽、颜色或闭合填充。 |
 | `search_drawing_templates` | 查询与新版软件结构库同步的 110 类母体、112 个环变体；支持中文、英文、别名和分类。返回准确模板 ID，离线可用。 |
 | `draw_library_template` | 按查询返回的模板 ID 绘制新版环库的精确二维骨架，保持原子、键级、楔键和当前文档键长。返回可继续编辑的引用。 |
 | `layout_report` | 查看当前画布的顶层对象组、包围盒、组间重叠、建议插入位置和 ASCII 布局图。排版、检查遮挡或落笔前使用；不会修改文档。 |
 | `draw_reaction` | 一次绘制完整反应式：反应物 + 反应箭头 + 产物 + 条件 + 可选名称，自动横向排版并留出间距。反应物/产物项支持 name:名称、smiles:SMILES、cid:CID；中文常用名可直接写；可用 reactant_labels/product_labels 指定 1a 等编号。优先用它画反应式，不要逐个手摆分子和箭头。 |
-| `draw_curved_arrow` | 绘制弯曲的电子转移/机理箭头，带实心箭头头部。bend 控制弯曲方向和幅度，正负值方向相反；可加 label。 |
+| `draw_curved_arrow` | 绘制原生可编辑机理箭头，自动避开键和文字。优先用 source/target 原子或键引用精确定位，也可传坐标。fishhook=true 为单电子；route=false 固定 bend。 |
 | `draw_template` | 绘制内置的常见环/杂环/稠环/骨架模板，避免手写 SMILES 出错。模板名称见 enum；需要取代基时再用 draw_smiles 或后续编辑。 |
 | `add_caption` | 在指定分子/图形/文字的包围盒旁边添加文字标签，自动按 below/above/right/left 定位；下方/上方会避开同列已有文字标签。用于编号、名称、产率等标注。 |
 | `align_objects` | 把多个顶层对象按左/中/右/上/中/下边缘对齐。refs 应为分子/图形/文字顶层引用，不能是单个原子或键。 |
@@ -63,10 +85,16 @@ AI 可以绘制、查询、移动、缩放、旋转、复制、删除、排版�
 | `layout_grid` | 把多个顶层对象排成网格（按给定顺序），自动以最大宽高对齐单元格。用于“排成 2×2”“整理成阵列”。 |
 | `web_search` | 用 DeepSeek 联网搜索最新信息，返回标题、URL、摘要和较长的 summary。用于试剂、反应条件、文献、价格、产品等当前事实；需要 DeepSeek API Key。 |
 | `repeat_objects` | 把一个顶层对象复制成 rows×cols 网格，保留格式并返回所有新引用。用于化合物系列、对照图。 |
-| `draw_scheme` | 一次绘制多步流程：统一三列中心、箭头长度和行距，自动避开已有文档。顶层可设置 label_size、labels、arrow、color、width、gap 作为整组默认值，每步可覆盖；每一步支持 draw_reaction 的结构、条件和标签参数。 |
+| `inspect_reaction_sites` | 在绘制基元步骤前读取反应物的原子、电荷与实际键。返回可直接复制到 electron_moves.source/target 的地址。支持 SMILES 和上一调用的 next_reactant。 |
+| `draw_mitsunobu` | 以 PPh₃、DEAD、醇和羧酸绘制常见 Mitsunobu 酯化路径。给定醇、酸 SMILES 后自动生成四行可编辑机理，含双电子箭头、质子转移、烷氧基鏻盐、酯和氧化膦；已指定的醇碳构型按 SN2 翻转。支持单一适用位点的甲醇、伯醇或仲醇与羧酸。步骤 3 合并表示醇活化。 |
+| `draw_scheme` | 一次绘制多步流程：统一三列中心、箭头长度和行距，自动避开已有文档。顶层可设置 label_size、labels、arrow、color、width、gap 作为整组默认值，每步可覆盖；每步可从 electron_moves 推演产物；下一步可用 previous:N 引用该行第 N 个产物。 |
+| `revise_scheme_plan` | 只校正尚未落笔的完整机理草稿。按行替换、插入或追加失败步骤，整体验证成功后一次绘入画布。 |
 | `draw_compounds` | 一次绘制一组化合物，自动按行/列/网格排列，统一编号字号并避免覆盖已有对象。任一结构失败则撤回本次整组绘图。返回每项结构及标签的引用和最终 bounds。 |
 | `place_relative` | 将一个已有顶层对象放到另一个对象的上/下/左/右方，按真实包围盒计算间距，连同本轮关联标签一起移动。默认沿放置方向继续避让其他对象，无需手算 dx/dy。 |
 | `connect_objects` | 在两个顶层对象之间连接箭头，自动从包围盒边缘留出间隙，可指定箭头样式和标注。不会移动结构；空间不足时返回扩大间距的建议。连接关系按本次坐标生成，后续移动需重新连接。 |
+| `draw_cycle_atlas` | 多个金属催化循环的首选工具；一次提交全部主环与紧随其后的辅环，自动让交换步骤面对面。每个步骤的输入输出属于从本节点出发的边。 |
+| `draw_catalytic_cycle` | 从空白一次创建真实可编辑的中间体并调用机理绘制选项卡的原生催化循环排版。每次一个环，多个环连续调用。 |
+| `draw_poster` | 一次排版多个可编辑图文面板、闭合催化循环或比较表。无需提供坐标。 |
 | `draw_autoshape` | 绘制 PPT 风格可编辑图案，22 种形状，可填色、设置边框和居中文字。宽高会自动扩大容纳文字；未给坐标时避开已有内容。 |
 | `draw_diagram` | 一次绘制可编辑流程图或步骤图。nodes 按输入顺序紧凑排列，edges 通过节点 id 连接，支持跨节点外侧折线路由。自动容纳文字、统一节点尺寸、避开原有画布。 |
 | `list_biomolecules` | 列出已验证的生物分子组件及支持的构象；无需联网。 |

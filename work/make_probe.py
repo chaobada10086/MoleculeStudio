@@ -1,0 +1,2 @@
+from pathlib import Path
+s=Path('work/build-r7-dev.py').read_text();s=s.replace("obj=root/'work/r7-dev-main.o'","obj=root/'work/r7-probe.o'").replace("if not obj.exists() or '--main' in sys.argv:","if True:").replace("'studio/studio.cpp'","'work/projection_read_probe.cpp'").replace("'-mwindows',",'').replace("out/'MoleculeStudio-r7-native-dev.exe'","root/'work/projection-read-probe.exe'");Path('work/build-r7-probe.py').write_text(s)

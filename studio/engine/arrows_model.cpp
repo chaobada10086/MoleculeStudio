@@ -102,12 +102,17 @@ core::ObjectRef parseRef(const std::string& text) {
     if (text == "-" || text.empty()) return core::ObjectRef();
     const size_t colon = text.find(':');
     if (colon == std::string::npos) return core::ObjectRef();
-    const int kindN = std::atoi(text.substr(0, colon).c_str());
-    const long long idN = std::strtoll(text.substr(colon + 1).c_str(), 0, 10);
+    const std::string kindText=text.substr(0,colon),idText=text.substr(colon+1);
+    if(kindText.empty()||idText.empty())return core::ObjectRef();
+    char* stop=0;
+    const long long kindN=std::strtoll(kindText.c_str(),&stop,10);
+    if(!stop||*stop||kindN<=0||kindN>255)return core::ObjectRef();
+    const long long idN=std::strtoll(idText.c_str(),&stop,10);
+    if(!stop||*stop)return core::ObjectRef();
     // ObjectId 0 is a LEGAL slab index, so "id > 0" is the wrong test. The only
     // invalid id is kInvalidObjectId, which is also what the "-" spelling (an
     // absent reference) produces.
-    if (idN < 0 || static_cast<unsigned long long>(idN) ==
+    if (idN < 0 || static_cast<unsigned long long>(idN) >=
                        static_cast<unsigned long long>(core::kInvalidObjectId))
         return core::ObjectRef();
     return core::ObjectRef(static_cast<core::ObjectKind>(kindN),
@@ -126,6 +131,9 @@ core::ObjectRef parseRef(const std::string& text) {
 std::string encodeArrowParams(const ArrowParams& p) {
     std::ostringstream o;
     o << "v=1;";
+    if(p.virtualBond)put(o,"virtualBond","1");
+    if(p.mechanism||p.virtualBond||p.electronSource.valid()||p.electronTarget.valid()){put(o,"mechanism",p.mechanism?"1":"0");put(o,"es",refText(p.electronSource));put(o,"et",refText(p.electronTarget));put(o,"sv",fmtInt(p.sourceVisualAnchor));put(o,"tv",fmtInt(p.targetVisualAnchor));put(o,"mside",fmtInt(p.mechanismSide));}
+    if(p.mechanism||p.electronSource.valid()||p.electronTarget.valid()){put(o,"mdx",fmt(p.mechanismDeparture.x));put(o,"mdy",fmt(p.mechanismDeparture.y));put(o,"max",fmt(p.mechanismArrival.x));put(o,"may",fmt(p.mechanismArrival.y));}
     put(o, "preset",  fmtInt(static_cast<long long>(p.presetId)));
     put(o, "family",  fmtInt(static_cast<long long>(p.family)));
     put(o, "size",    fmtInt(static_cast<long long>(p.sizeClass)));
@@ -149,6 +157,7 @@ std::string encodeArrowParams(const ArrowParams& p) {
     put(o, "osplit",  fmt(p.originalSplitRatio));
     put(o, "scale",   fmt(p.scale));
     if(p.strokeWidth>0)put(o,"stroke",fmt(p.strokeWidth));
+    if(!p.route.empty()) {put(o,"rn",fmtInt(p.route.size()));for(size_t i=0;i<p.route.size();++i){put(o,("rx"+fmtInt(i)).c_str(),fmt(p.route[i].x));put(o,("ry"+fmtInt(i)).c_str(),fmt(p.route[i].y));}}
     return o.str();
 }
 
@@ -156,7 +165,13 @@ ArrowParams decodeArrowParams(const std::string& text, bool* ok) {
     ArrowParams out;
     if (ok) *ok = false;
     const Fields f = parse(text);
+    fieldBool(f,"mechanism",&out.mechanism);
+    fieldBool(f,"virtualBond",&out.virtualBond);
+    {auto s=f.find("es"),t=f.find("et");if(s!=f.end())out.electronSource=parseRef(s->second);if(t!=f.end())out.electronTarget=parseRef(t->second);}
 
+    long long side=0;if(fieldLong(f,"mside",&side)&&side>=-1&&side<=1)out.mechanismSide=int(side);
+    fieldDouble(f,"mdx",&out.mechanismDeparture.x);fieldDouble(f,"mdy",&out.mechanismDeparture.y);fieldDouble(f,"max",&out.mechanismArrival.x);fieldDouble(f,"may",&out.mechanismArrival.y);
+    long long site=0;if(fieldLong(f,"sv",&site)&&site>=0&&site<=5)out.sourceVisualAnchor=uint8_t(site);if(fieldLong(f,"tv",&site)&&site>=0&&site<=5)out.targetVisualAnchor=uint8_t(site);
     long long v = 0;
     // The version field is the one field we require: a record without it is not
     // ours and must not be half-read.
@@ -194,6 +209,10 @@ ArrowParams decodeArrowParams(const std::string& text, bool* ok) {
     if (fieldDouble(f, "osplit", &d)) out.originalSplitRatio = d;
     if (fieldDouble(f, "scale",  &d)) out.scale = d;
 
+    if(fieldLong(f,"rn",&n)) {
+        if(n<2||n>4096)return ArrowParams();
+        for(long long i=0;i<n;++i){double x,y;if(!fieldDouble(f,("rx"+fmtInt(i)).c_str(),&x)||!fieldDouble(f,("ry"+fmtInt(i)).c_str(),&y)||std::fabs(x)>100||std::fabs(y)>100)return ArrowParams();out.route.push_back(core::Vec2(x,y));}
+    }
     // The record must describe a VALID arrow, not merely a parseable one. This is
     // the difference between "the bytes were there" and "the arrow is usable".
     const core::Error valid = validateArrowParams(out);
@@ -403,6 +422,12 @@ core::Error readArrow(const core::Document& document, core::ObjectId id,
     const core::ObjectRef ref(core::ObjectKind::Arrow, id);
     const core::ExtensionBag& bag = document.extensions(ref);
     *out = fromAnnotationRecord(*record, bag, ok);
+    if(out->virtualBond){
+        const auto* a=out->electronSource.kind==core::ObjectKind::Atom?document.atoms().alive(out->electronSource.id):nullptr;
+        const auto* b=out->electronTarget.kind==core::ObjectKind::Atom?document.atoms().alive(out->electronTarget.id):nullptr;
+        if(a&&b){out->begin=a->position;out->end=b->position;}
+        else if(ok)*ok=false;
+    }
     return core::Error::success();
 }
 

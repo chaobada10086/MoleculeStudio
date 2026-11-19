@@ -34,9 +34,15 @@ const double kPi = 3.14159265358979323846;
 // must resolve by a smaller stable id'). kind is compared first because a bond
 // and an atom can legitimately share a numeric id in different slabs.
 bool betterCandidate(const SnapCandidate& candidate, double candidateDistance,
-                     const SnapCandidate& best, double bestDistance) {
+                     const SnapCandidate& best, double bestDistance,
+                     const core::Vec2& pointer) {
     if (candidateDistance < bestDistance) return true;
     if (candidateDistance > bestDistance) return false;
+    if (candidate.kind == best.kind && (candidate.hasHitBox || best.hasHitBox)) {
+        const double candidateCenter = core::length(pointer - candidate.point);
+        const double bestCenter = core::length(pointer - best.point);
+        if (candidateCenter != bestCenter) return candidateCenter < bestCenter;
+    }
     if (candidate.kind != best.kind) return candidate.kind < best.kind;
     return candidate.ref.id < best.ref.id;
 }
@@ -164,10 +170,10 @@ Hotspot SnapResolver::findHotspot(const SnapProfile& profile,
         const SnapCandidate& c = candidates[i];
         if (!c.point.finite()) throw std::invalid_argument("Nonfinite candidate");
         if (c.ref.id == core::kInvalidObjectId) continue;
-        const double d = std::hypot(pointer.x - c.point.x, pointer.y - c.point.y);
+        const double d = c.hitDistance(pointer);
         const double capture = effectiveRadius(profile, zoom, c.tolerant);
         if (d > capture) continue;
-        if (!best || betterCandidate(c, d, *best, bestDistance)) {
+        if (!best || betterCandidate(c, d, *best, bestDistance, pointer)) {
             best = &c;
             bestDistance = d;
         }
@@ -184,7 +190,7 @@ Hotspot SnapResolver::findHotspot(const SnapProfile& profile,
             const SnapCandidate& c = candidates[i];
             if (c.ref != previous.previous) continue;
             if (!c.eligible) break;
-            const double d = std::hypot(pointer.x - c.point.x, pointer.y - c.point.y);
+            const double d = c.hitDistance(pointer);
             const double release = releaseRadius(profile, zoom, c.tolerant);
             if (d > release) break;
             result.kind = (c.kind == CandidateKind::Bond) ? HotspotKind::Bond : HotspotKind::Atom;
@@ -262,9 +268,9 @@ SnapResult SnapResolver::resolveBond(const SnapProfile& profile,
         // that is a zero-length bond, which the document refuses, and a preview
         // that shows one is a preview that cannot be committed.
         if (originRef.valid() && c.ref == originRef) continue;
-        const double d = std::hypot(pointer.x - c.point.x, pointer.y - c.point.y);
+        const double d = c.hitDistance(pointer);
         if (d > effectiveRadius(profile, zoom, c.tolerant)) continue;
-        if (!best || betterCandidate(c, d, *best, bestDistance)) {
+        if (!best || betterCandidate(c, d, *best, bestDistance, pointer)) {
             best = &c;
             bestDistance = d;
         }
@@ -280,7 +286,7 @@ SnapResult SnapResolver::resolveBond(const SnapProfile& profile,
             if (c.ref != previous.previous) continue;
             if (!joinable(c)) break;
             if (originRef.valid() && c.ref == originRef) break;
-            const double d = std::hypot(pointer.x - c.point.x, pointer.y - c.point.y);
+            const double d = c.hitDistance(pointer);
             if (d > releaseRadius(profile, zoom, c.tolerant)) break;
             best = &c;
             bestDistance = d;
@@ -344,10 +350,9 @@ SnapResult SnapResolver::resolveBond(const SnapProfile& profile,
                 const SnapCandidate& c = near[i];
                 if (!joinable(c)) continue;
                 if (originRef.valid() && c.ref == originRef) continue;
-                const double d = std::hypot(result.endpoint.x - c.point.x,
-                                            result.endpoint.y - c.point.y);
+                const double d = c.hitDistance(result.endpoint);
                 if (d > effectiveRadius(profile, zoom, c.tolerant)) continue;
-                if (!second || betterCandidate(c, d, *second, secondDistance)) {
+                if (!second || betterCandidate(c, d, *second, secondDistance, result.endpoint)) {
                     second = &c;
                     secondDistance = d;
                 }

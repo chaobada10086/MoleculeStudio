@@ -20,7 +20,7 @@ bool App::textWrapBox(Box* out){
 std::vector<Vec2> App::selectionHandlePoints(){
     if(s.selected.empty())return {};
     // Arrow endpoint handles and table cells retain their own editing tools.
-    if(s.selected.size()==1&&(s.selected[0].kind==ObjectKind::Arrow||s.selected[0].kind==ObjectKind::Table))return {};
+    if(s.selected.size()==1){auto ref=s.selected[0];if(ref.kind==ObjectKind::Table)return {};if(ref.kind==ObjectKind::Arrow){graphics::ShapeParams shape;bool valid=false;graphics::readShape(s.doc,ref.id,&shape,&valid);if(!valid)return {};}}
     auto b=studioio::selectionBounds(s);if(b.empty())return {};
     Box textBox;if(textWrapBox(&textBox)){b.min.x=textBox.min.x;b.max.x=textBox.max.x;}
     double unit=s.view().deviceRadiusToDocument(s.view().dpiScale*.75),pad=unit*3;
@@ -93,12 +93,80 @@ void App::cancelTextWrap(){
 }
 int App::selectionHandleAt(Vec2 pixel){
     auto points=selectionHandlePoints();double radius=6*scale;int result=-1;double best=radius;
-    for(size_t i=0;i<points.size();++i){double d=core::length(s.view().toDevice(points[i])-pixel);if(d<=best){best=d;result=int(i);}}
+    const bool singleBond=s.selected.size()==1&&s.selected.front().kind==ObjectKind::Bond;
+    for(size_t i=singleBond?8:0;i<points.size();++i){double d=core::length(s.view().toDevice(points[i])-pixel);if(d<=best){best=d;result=int(i);}}
     return result;
 }
+bool App::beginBondRotation(Vec2 point){
+    const auto* bond=s.doc.bonds().alive(s.selected.front().id);
+    if(!bond)return false;
+    if(bond->semantics!=BondSemantics::Normal||bond->order!=BondOrder::Single){
+        status="请选择一根可调整方向的单键。";invalidate();return true;
+    }
+    auto branch=[&](ObjectId start,ObjectId fixed){
+        std::vector<ObjectId> ids{start};
+        std::set<ObjectId> seen{start};
+        for(size_t i=0;i<ids.size();++i){
+            for(auto id:s.doc.incidentBonds(ids[i])){
+                if(id==bond->id)continue;
+                const auto* edge=s.doc.bonds().alive(id);
+                if(!edge||edge->semantics==BondSemantics::Hydrogen)continue;
+                auto other=edge->beginAtom==ids[i]?edge->endAtom:edge->beginAtom;
+                if(other==fixed)return std::vector<ObjectId>{};
+                if(seen.insert(other).second)ids.push_back(other);
+            }
+        }
+        return ids;
+    };
+    auto a=s.doc.atoms().alive(bond->beginAtom),b=s.doc.atoms().alive(bond->endAtom);
+    if(!a||!b)return false;
+    auto sideA=branch(a->id,b->id);
+    if(sideA.empty()){status="环内键的两端由环相连，无法单独改变方向。";invalidate();return true;}
+    auto sideB=branch(b->id,a->id);
+    const auto axis=b->position-a->position;
+    const double span=length(axis);
+    if(span<1e-8){status="该键太短，无法旋转。";invalidate();return true;}
+    const double side=dot(point-(a->position+b->position)*.5,axis)/span;
+    const bool nearerA=std::abs(side)<=s.view().deviceRadiusToDocument(1)?sideA.size()<=sideB.size():side<0;
+    // Keep the molecule end fixed when the selected bond is a terminal branch.
+    const bool terminalA=sideA.size()==1,terminalB=sideB.size()==1;
+    const bool moveA=terminalA==terminalB?nearerA:terminalA;
+    transformPivot=moveA?b->position:a->position;
+    bondRotationVector=moveA?axis*(-1.):axis;
+    bondRotationDelta=Vec2();
+    // A connected fragment follows the moving end by translation so the
+    // selected bond is the only one whose direction changes.
+    for(auto id:(moveA?sideA:sideB))bondRotationAtoms.emplace_back(ObjectKind::Atom,id);
+    transformPress=point;transformHandle=8;
+    bondRotationPreviewRevision=~uint64_t(0);
+    s.cancel();
+#ifdef MOLECULE_STUDIO_DX11
+    rotationGpuEligible=false;
+#endif
+    status="旋转单键：一端固定，拖动改变键方向，Shift 按 15° 调整。";
+    SetFocus(canvas);transformDragging=true;SetCapture(canvas);updateCanvasCursor();invalidate();return true;
+}
 bool App::beginSelectionTransform(Vec2 pixel,uint32_t modifiers){
+    if(perspectiveTool)return false;
     const auto& tool=s.entries[s.activeIndex];if(tool.owner!="T05"||tool.command.find("Eraser")!=std::string::npos||textEditor.active||(modifiers&kModControl))return false;
-    int hit=selectionHandleAt(pixel);if(hit<0)return false;
+    int hit=selectionHandleAt(pixel);
+    const auto point=s.view().toDocument(pixel);
+    const bool inSelection=!s.selected.empty()&&
+        studioio::inside(studioio::selectionBounds(s),point,s.view().deviceRadiusToDocument(3));
+    if(s.selected.size()==1&&s.selected.front().kind==ObjectKind::Bond&&(hit==8||inSelection))
+        return beginBondRotation(point);
+    if(hit<0&&!(modifiers&kModShift)&&(!inSelection||
+        (s.selected.size()==1&&s.selected.front().kind==ObjectKind::Atom))){
+        const auto target=s.pick(point);
+        if(target.kind==ObjectKind::Bond){
+            const auto* bond=s.doc.bonds().alive(target.id);
+            if(bond&&bond->order==BondOrder::Single&&bond->semantics==BondSemantics::Normal){
+                s.selected={target};
+                return beginBondRotation(point);
+            }
+        }
+    }
+    if(hit<0||(hit!=8&&inSelection&&s.selected.size()>1&&s.pick(point).kind==ObjectKind::Bond))return false;
     if((hit==3||hit==4)&&beginTextWrap(pixel,hit))return true;
     if(s.dragFixedLength){
         auto refs=studioio::expanded(s.doc,s.selected);std::set<ObjectId> atoms;
@@ -139,9 +207,16 @@ bool App::beginSelectionTransform(Vec2 pixel,uint32_t modifiers){
     SetFocus(canvas);transformDragging=true;SetCapture(canvas);updateCanvasCursor();return true;
 }
 void App::updateSelectionTransform(Vec2 pixel,uint32_t modifiers){
+    if(perspectiveDragging){updateStructurePerspective(pixel,modifiers);return;}
     if(!transformDragging)return;
     auto from=transformPress-transformPivot,to=s.view().toDocument(pixel)-transformPivot;
-    if(transformHandle==8){
+    if(!bondRotationAtoms.empty()){
+        if(length(to)<=s.view().deviceRadiusToDocument(1.5))return;
+        if(length(from)<=s.view().deviceRadiusToDocument(1.5))from=bondRotationVector;
+        double degrees=std::atan2(from.x*to.y-from.y*to.x,dot(from,to))*180./3.141592653589793;
+        if(modifiers&kModShift)degrees=std::round(degrees/15)*15;
+        bondRotationDelta=selection::Affine2::rotation(Vec2(),-degrees).apply(bondRotationVector)-bondRotationVector;
+    }else if(transformHandle==8){
         double degrees=(std::atan2(to.y,to.x)-std::atan2(from.y,from.x))*180/3.141592653589793;
         if(modifiers&kModShift)degrees=std::round(degrees/15)*15;
         transformMatrix=selection::Affine2::rotation(transformPivot,-degrees);
@@ -153,22 +228,54 @@ void App::updateSelectionTransform(Vec2 pixel,uint32_t modifiers){
         factor=std::max(.01,std::min(100.,factor));
         // Chemistry defaults (font and stroke points) stay fixed, as with the
         // numeric scale command. Corners resize the geometry proportionally.
-        transformMatrix=selection::Affine2::scaling(transformPivot,factor,factor);
+        bool graphicOnly=true;for(auto ref:transformRefs)if(ref.kind!=ObjectKind::Arrow&&ref.kind!=ObjectKind::Bracket)graphicOnly=false;
+        double sx=factor,sy=factor;if(graphicOnly){if(transformHandle==1||transformHandle==6)sx=1;else if(transformHandle==3||transformHandle==4)sy=1;}
+        transformMatrix=selection::Affine2::scaling(transformPivot,sx,sy);
     }
     ++transformRevision;invalidate();
 }
 void App::finishSelectionTransform(Vec2 pixel,uint32_t modifiers){
+    if(perspectiveDragging){finishStructurePerspective(pixel,modifiers);return;}
     updateSelectionTransform(pixel,modifiers);auto matrix=transformMatrix;auto refs=transformRefs;
     bool moved=core::length(s.view().toDocument(pixel)-transformPress)>s.view().deviceRadiusToDocument(1);
     transformDragging=false;if(GetCapture()==canvas)ReleaseCapture();
-    if(moved)error(s.submit(Command("选区缩放/旋转",kInvalidateGeometry,[refs,matrix](CommandContext& c){selection::TransformOptions opts;selection::transformObjects(c.document,refs,matrix,opts);return CommandResult::success();}),"选区缩放/旋转"));
+    if(!bondRotationAtoms.empty()){
+        if(moved&&length(bondRotationDelta)>1e-8){
+            const auto delta=bondRotationDelta;
+            const auto atoms=bondRotationAtoms;
+            error(s.submit(Command("旋转单键",kInvalidateGeometry,[atoms,delta](CommandContext& c){
+                auto e=integration::translateDocumentObjects(c.document,atoms,delta);
+                return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
+            }),"旋转单键"));
+        }
+        bondRotationAtoms.clear();bondRotationPreview.reset();
+    }else if(moved)error(s.submit(Command("选区缩放/旋转",kInvalidateGeometry,[refs,matrix](CommandContext& c){std::vector<ObjectRef> other;for(auto ref:refs){
+            auto frame=[&](graphics::ShapeFrame& f){auto origin=f.centre;f.centre=matrix.apply(origin);f.axisU=matrix.apply(origin+f.axisU)-f.centre;f.axisV=matrix.apply(origin+f.axisV)-f.centre;};
+            bool valid=false;Error e;if(ref.kind==ObjectKind::Arrow){graphics::ShapeParams p;graphics::readShape(c.document,ref.id,&p,&valid);if(valid){frame(p.frame);graphics::swapCircleForOval(&p);e=graphics::writeShape(c.document,ref.id,p,c.document.defaultLineWidth());}}
+            else if(ref.kind==ObjectKind::Bracket){graphics::BracketParams p;graphics::readBracket(c.document,ref.id,&p,&valid);if(valid){frame(p.frame);e=graphics::writeBracket(c.document,ref.id,p,c.document.defaultLineWidth());}}
+            if(!e.ok())return CommandResult::fail(e.code,e.message);if(!valid)other.push_back(ref);
+        }selection::TransformOptions opts;selection::transformObjects(c.document,other,matrix,opts);return CommandResult::success();}),"选区缩放/旋转"));
     transformOwned.clear();transformRefs.clear();transformPreview.clear();transformPreviewSlots.clear();transformPreviewDocument=0;updateCanvasCursor();invalidate();
 }
 void App::cancelSelectionTransform(){
-    if(!transformDragging)return;transformDragging=false;transformOwned.clear();transformRefs.clear();transformPreview.clear();transformPreviewSlots.clear();transformPreviewDocument=0;
+    if(!transformDragging)return;perspectiveDragging=false;perspectivePreview.reset();transformDragging=false;
+    bondRotationAtoms.clear();bondRotationPreview.reset();transformOwned.clear();transformRefs.clear();transformPreview.clear();transformPreviewSlots.clear();transformPreviewDocument=0;
     if(GetCapture()==canvas)ReleaseCapture();invalidate();
 }
 const render::Scene& App::selectionTransformScene(){
+    if(perspectiveDragging&&perspectivePreview)return perspectivePreview->gpuScene;
+    if(!bondRotationAtoms.empty()){
+        if(length(bondRotationDelta)<1e-8)return s.gpuScene;
+        if(!bondRotationPreview)bondRotationPreview.reset(new Session());
+        if(bondRotationPreviewRevision!=transformRevision){
+            auto& preview=*bondRotationPreview;
+            preview.doc=s.doc;
+            if(!integration::translateDocumentObjects(preview.doc,bondRotationAtoms,bondRotationDelta).ok())return s.gpuScene;
+            preview.refresh();
+            bondRotationPreviewRevision=transformRevision;
+        }
+        return bondRotationPreview->gpuScene;
+    }
     const auto& originals=s.scene.primitives();
     if(transformPreviewDocument!=s.doc.id()||transformPreviewSerial!=s.serial||transformPreview.size()!=s.gpuScene.size()){
         transformPreview=s.gpuScene;transformPreviewSlots.clear();

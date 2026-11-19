@@ -1,0 +1,1655 @@
+[
+  {
+    "title": "甲烷",
+    "alias": "CH4",
+    "category": "常见有机小分子",
+    "smiles": "C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙烷",
+    "alias": "C2H6",
+    "category": "常见有机小分子",
+    "smiles": "CC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙烯",
+    "alias": "C2H4 ethylene",
+    "category": "常见有机小分子",
+    "smiles": "C=C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙炔",
+    "alias": "C2H2 acetylene",
+    "category": "常见有机小分子",
+    "smiles": "C#C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氧气",
+    "alias": "O2",
+    "category": "常见小分子",
+    "smiles": "O=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氮气",
+    "alias": "N2",
+    "category": "常见小分子",
+    "smiles": "N#N",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙烯",
+    "alias": "propene",
+    "category": "常见有机小分子",
+    "smiles": "CC=C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙二烯",
+    "alias": "allene",
+    "category": "常见有机小分子",
+    "smiles": "C=C=C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "1,3丁二烯",
+    "alias": "butadiene",
+    "category": "常见有机小分子",
+    "smiles": "C=CC=C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二氧化碳",
+    "alias": "CO2",
+    "category": "常见小分子",
+    "smiles": "O=C=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫酸铜五水合物",
+    "alias": "CuSO4.5H2O CuSO4*5H2O",
+    "category": "常见无机盐",
+    "smiles": "[Cu+2].[O-]S(=O)(=O)[O-].O.O.O.O.O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二硫化碳",
+    "alias": "CS2",
+    "category": "常见小分子",
+    "smiles": "S=C=S",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "一氧化碳",
+    "alias": "CO",
+    "category": "常见小分子",
+    "smiles": "[C-]#[O+]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "水",
+    "alias": "H2O",
+    "category": "常见小分子",
+    "smiles": "O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "重水",
+    "alias": "D2O",
+    "category": "常见小分子",
+    "smiles": "[2H]O[2H]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氨",
+    "alias": "NH3",
+    "category": "常见小分子",
+    "smiles": "N",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "肼",
+    "alias": "NH2NH2 N2H4",
+    "category": "常见小分子",
+    "smiles": "NN",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "羟胺",
+    "alias": "NH2OH",
+    "category": "常见小分子",
+    "smiles": "NO",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "磷化氢",
+    "alias": "PH3",
+    "category": "常见小分子",
+    "smiles": "P",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫化氢",
+    "alias": "H2S",
+    "category": "常见小分子",
+    "smiles": "S",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二氧化硫",
+    "alias": "SO2",
+    "category": "常见小分子",
+    "smiles": "O=S=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三氧化硫",
+    "alias": "SO3",
+    "category": "常见小分子",
+    "smiles": "O=S(=O)=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "一氧化二氮",
+    "alias": "N2O",
+    "category": "常见小分子",
+    "smiles": "[N-]=[N+]=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "一氧化氮",
+    "alias": "NO",
+    "category": "常见小分子",
+    "smiles": "[N]=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二氧化氮",
+    "alias": "NO2",
+    "category": "常见小分子",
+    "smiles": "[O]N=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氰化氢",
+    "alias": "HCN",
+    "category": "常见小分子",
+    "smiles": "C#N",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫氰酸",
+    "alias": "HSCN",
+    "category": "常见小分子",
+    "smiles": "SC#N",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "异氰酸",
+    "alias": "HNCO",
+    "category": "常见小分子",
+    "smiles": "N=C=O",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "羰基硫",
+    "alias": "COS OCS",
+    "category": "常见小分子",
+    "smiles": "O=C=S",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲胺",
+    "alias": "Me2NH HNMe2",
+    "category": "有机胺与膦",
+    "smiles": "CNC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲胺",
+    "alias": "MeNH2",
+    "category": "有机胺与膦",
+    "smiles": "CN",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙胺",
+    "alias": "EtNH2",
+    "category": "有机胺与膦",
+    "smiles": "CCN",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二乙胺",
+    "alias": "Et2NH HNEt2",
+    "category": "有机胺与膦",
+    "smiles": "CCNCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正丙胺",
+    "alias": "nPrNH2",
+    "category": "有机胺与膦",
+    "smiles": "CCCN",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "异丙胺",
+    "alias": "iPrNH2",
+    "category": "有机胺与膦",
+    "smiles": "CC(C)N",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正丁胺",
+    "alias": "nBuNH2",
+    "category": "有机胺与膦",
+    "smiles": "CCCCN",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "叔丁胺",
+    "alias": "tBuNH2",
+    "category": "有机胺与膦",
+    "smiles": "CC(C)(C)N",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三甲胺",
+    "alias": "Me3N NMe3",
+    "category": "有机胺与膦",
+    "smiles": "CN(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三正丁胺",
+    "alias": "Bu3N NBu3",
+    "category": "有机胺与膦",
+    "smiles": "CCCCN(CCCC)CCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯胺",
+    "alias": "PhNH2",
+    "category": "有机胺与膦",
+    "smiles": "Nc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苄胺",
+    "alias": "BnNH2",
+    "category": "有机胺与膦",
+    "smiles": "NCc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二苄胺",
+    "alias": "Bn2NH",
+    "category": "有机胺与膦",
+    "smiles": "N(Cc1ccccc1)Cc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三甲基膦",
+    "alias": "PMe3 Me3P",
+    "category": "有机胺与膦",
+    "smiles": "CP(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三乙基膦",
+    "alias": "PEt3 Et3P",
+    "category": "有机胺与膦",
+    "smiles": "CCP(CC)CC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三正丁基膦",
+    "alias": "PBu3 Bu3P",
+    "category": "有机胺与膦",
+    "smiles": "CCCCP(CCCC)CCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "亚磷酸三甲酯",
+    "alias": "P(OMe)3",
+    "category": "有机胺与膦",
+    "smiles": "COP(OC)OC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "亚磷酸三乙酯",
+    "alias": "P(OEt)3",
+    "category": "有机胺与膦",
+    "smiles": "CCOP(OCC)OCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲醛",
+    "alias": "HCHO CH2O",
+    "category": "醛酮与酸酐",
+    "smiles": "C=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙醛",
+    "alias": "MeCHO CH3CHO",
+    "category": "醛酮与酸酐",
+    "smiles": "CC=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙醛",
+    "alias": "EtCHO",
+    "category": "醛酮与酸酐",
+    "smiles": "CCC=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯甲醛",
+    "alias": "PhCHO",
+    "category": "醛酮与酸酐",
+    "smiles": "O=Cc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙酮",
+    "alias": "Me2CO acetone",
+    "category": "溶剂与醇",
+    "smiles": "CC(=O)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丁酮",
+    "alias": "MEK EtCOMe",
+    "category": "溶剂与醇",
+    "smiles": "CCC(C)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二苯甲酮",
+    "alias": "Ph2CO",
+    "category": "醛酮与酸酐",
+    "smiles": "O=C(c1ccccc1)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯乙酮",
+    "alias": "PhCOMe",
+    "category": "醛酮与酸酐",
+    "smiles": "CC(=O)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙二醛",
+    "alias": "glyoxal",
+    "category": "醛酮与酸酐",
+    "smiles": "O=CC=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸酐",
+    "alias": "Ac2O",
+    "category": "醛酮与酸酐",
+    "smiles": "CC(=O)OC(C)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三氟乙酸酐",
+    "alias": "TFAA (CF3CO)2O",
+    "category": "醛酮与酸酐",
+    "smiles": "O=C(OC(=O)C(F)(F)F)C(F)(F)F",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲酸",
+    "alias": "HCOOH HCO2H",
+    "category": "有机酸",
+    "smiles": "OC=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸",
+    "alias": "AcOH CH3COOH MeCO2H",
+    "category": "有机酸",
+    "smiles": "CC(=O)O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙酸",
+    "alias": "EtCO2H",
+    "category": "有机酸",
+    "smiles": "CCC(=O)O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯甲酸",
+    "alias": "PhCO2H",
+    "category": "有机酸",
+    "smiles": "O=C(O)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "草酸",
+    "alias": "HO2CCO2H",
+    "category": "有机酸",
+    "smiles": "OC(=O)C(=O)O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲磺酸",
+    "alias": "MsOH MeSO3H",
+    "category": "有机酸",
+    "smiles": "CS(=O)(=O)O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三氟甲磺酸",
+    "alias": "TfOH CF3SO3H",
+    "category": "有机酸",
+    "smiles": "OS(=O)(=O)C(F)(F)F",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲硫醇",
+    "alias": "MeSH",
+    "category": "含硫小分子",
+    "smiles": "CS",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙硫醇",
+    "alias": "EtSH",
+    "category": "含硫小分子",
+    "smiles": "CCS",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯硫酚",
+    "alias": "PhSH",
+    "category": "含硫小分子",
+    "smiles": "Sc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲硫醚",
+    "alias": "Me2S DMS",
+    "category": "含硫小分子",
+    "smiles": "CSC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二乙硫醚",
+    "alias": "Et2S",
+    "category": "含硫小分子",
+    "smiles": "CCSCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲基二硫醚",
+    "alias": "MeSSMe DMDS",
+    "category": "含硫小分子",
+    "smiles": "CSSC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二苯基二硫醚",
+    "alias": "PhSSPh",
+    "category": "含硫小分子",
+    "smiles": "c1ccc(SSc2ccccc2)cc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲基砜",
+    "alias": "Me2SO2",
+    "category": "含硫小分子",
+    "smiles": "CS(C)(=O)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫脲",
+    "alias": "thiourea SC(NH2)2",
+    "category": "含硫小分子",
+    "smiles": "NC(N)=S",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "尿素",
+    "alias": "urea CO(NH2)2",
+    "category": "常见有机小分子",
+    "smiles": "NC(N)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙腈",
+    "alias": "MeCN CH3CN",
+    "category": "溶剂与醇",
+    "smiles": "CC#N",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙腈",
+    "alias": "EtCN",
+    "category": "溶剂与醇",
+    "smiles": "CCC#N",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯甲腈",
+    "alias": "PhCN",
+    "category": "溶剂与醇",
+    "smiles": "N#Cc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙二腈",
+    "alias": "CH2(CN)2",
+    "category": "常见碳亲核试剂",
+    "smiles": "N#CCC#N",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硝基甲烷",
+    "alias": "MeNO2 CH3NO2",
+    "category": "溶剂与醇",
+    "smiles": "C[N+](=O)[O-]",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硝基乙烷",
+    "alias": "EtNO2",
+    "category": "常见碳亲核试剂",
+    "smiles": "CC[N+](=O)[O-]",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸甲酯",
+    "alias": "MeOAc AcOMe",
+    "category": "溶剂与醇",
+    "smiles": "COC(C)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸乙酯",
+    "alias": "EtOAc AcOEt",
+    "category": "溶剂与醇",
+    "smiles": "CCOC(C)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸异丙酯",
+    "alias": "iPrOAc",
+    "category": "溶剂与醇",
+    "smiles": "CC(=O)OC(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸叔丁酯",
+    "alias": "tBuOAc",
+    "category": "溶剂与醇",
+    "smiles": "CC(=O)OC(C)(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二氯甲烷",
+    "alias": "DCM CH2Cl2",
+    "category": "溶剂与醇",
+    "smiles": "ClCCl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氯仿",
+    "alias": "CHCl3",
+    "category": "溶剂与醇",
+    "smiles": "ClC(Cl)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "四氯化碳",
+    "alias": "CCl4",
+    "category": "溶剂与醇",
+    "smiles": "ClC(Cl)(Cl)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二氯乙烷",
+    "alias": "DCE ClCH2CH2Cl",
+    "category": "溶剂与醇",
+    "smiles": "ClCCCl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氯苯",
+    "alias": "PhCl",
+    "category": "溶剂与醇",
+    "smiles": "Clc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "溴苯",
+    "alias": "PhBr",
+    "category": "芳基与烷基卤化物",
+    "smiles": "Brc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "碘苯",
+    "alias": "PhI",
+    "category": "芳基与烷基卤化物",
+    "smiles": "Ic1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氟苯",
+    "alias": "PhF",
+    "category": "芳基与烷基卤化物",
+    "smiles": "Fc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯",
+    "alias": "benzene C6H6",
+    "category": "溶剂与醇",
+    "smiles": "c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲苯",
+    "alias": "PhMe toluene",
+    "category": "溶剂与醇",
+    "smiles": "Cc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "均三甲苯",
+    "alias": "mesitylene",
+    "category": "溶剂与醇",
+    "smiles": "Cc1cc(C)cc(C)c1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "环己烷",
+    "alias": "cHexH cyclohexane",
+    "category": "溶剂与醇",
+    "smiles": "C1CCCCC1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正己烷",
+    "alias": "nHexH hexane",
+    "category": "溶剂与醇",
+    "smiles": "CCCCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正戊烷",
+    "alias": "nPentH pentane",
+    "category": "溶剂与醇",
+    "smiles": "CCCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正庚烷",
+    "alias": "nHeptH heptane",
+    "category": "溶剂与醇",
+    "smiles": "CCCCCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "异丙醇",
+    "alias": "iPrOH IPA",
+    "category": "溶剂与醇",
+    "smiles": "CC(O)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正丙醇",
+    "alias": "nPrOH",
+    "category": "溶剂与醇",
+    "smiles": "CCCO",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正丁醇",
+    "alias": "nBuOH",
+    "category": "溶剂与醇",
+    "smiles": "CCCCO",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "仲丁醇",
+    "alias": "sBuOH",
+    "category": "溶剂与醇",
+    "smiles": "CCC(C)O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "异丁醇",
+    "alias": "iBuOH",
+    "category": "溶剂与醇",
+    "smiles": "CC(C)CO",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苄醇",
+    "alias": "BnOH PhCH2OH",
+    "category": "溶剂与醇",
+    "smiles": "OCc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯酚",
+    "alias": "PhOH",
+    "category": "溶剂与醇",
+    "smiles": "Oc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙二醇",
+    "alias": "HOCH2CH2OH EG",
+    "category": "溶剂与醇",
+    "smiles": "OCCO",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甘油",
+    "alias": "glycerol",
+    "category": "溶剂与醇",
+    "smiles": "OCC(O)CO",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三氟乙醇",
+    "alias": "TFE CF3CH2OH",
+    "category": "溶剂与醇",
+    "smiles": "OCC(F)(F)F",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "六氟异丙醇",
+    "alias": "HFIP",
+    "category": "溶剂与醇",
+    "smiles": "OC(C(F)(F)F)C(F)(F)F",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "叔丁基甲醚",
+    "alias": "MTBE tBuOMe",
+    "category": "溶剂与醇",
+    "smiles": "COC(C)(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二异丙醚",
+    "alias": "iPr2O DIPE",
+    "category": "溶剂与醇",
+    "smiles": "CC(C)OC(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "环戊基甲醚",
+    "alias": "CPME",
+    "category": "溶剂与醇",
+    "smiles": "COC1CCCC1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲氧基乙烷",
+    "alias": "DME glyme",
+    "category": "溶剂与醇",
+    "smiles": "COCCOC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甘醇二甲醚",
+    "alias": "diglyme",
+    "category": "溶剂与醇",
+    "smiles": "COCCOCCOC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三甘醇二甲醚",
+    "alias": "triglyme",
+    "category": "溶剂与醇",
+    "smiles": "COCCOCCOCCOC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "四甘醇二甲醚",
+    "alias": "tetraglyme",
+    "category": "溶剂与醇",
+    "smiles": "COCCOCCOCCOCCOC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲基甲酰胺",
+    "alias": "DMF HCONMe2",
+    "category": "溶剂与醇",
+    "smiles": "CN(C)C=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲基乙酰胺",
+    "alias": "DMAc AcNMe2",
+    "category": "溶剂与醇",
+    "smiles": "CC(=O)N(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "N甲基吡咯烷酮",
+    "alias": "NMP",
+    "category": "溶剂与醇",
+    "smiles": "CN1CCCC1=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "1,3二甲基咪唑烷酮",
+    "alias": "DMI",
+    "category": "溶剂与醇",
+    "smiles": "CN1CCN(C)C1=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "二甲基丙烯脲",
+    "alias": "DMPU",
+    "category": "溶剂与醇",
+    "smiles": "CN1CCCN(C)C1=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "环丁砜",
+    "alias": "sulfolane",
+    "category": "溶剂与醇",
+    "smiles": "O=S1(=O)CCCC1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "碳酸乙烯酯",
+    "alias": "EC ethylene-carbonate",
+    "category": "溶剂与醇",
+    "smiles": "O=C1OCCO1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酰氯",
+    "alias": "AcCl MeCOCl",
+    "category": "酰化与活化",
+    "smiles": "CC(=O)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯甲酰氯",
+    "alias": "BzCl PhCOCl",
+    "category": "酰化与活化",
+    "smiles": "O=C(Cl)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "草酰氯",
+    "alias": "(COCl)2",
+    "category": "酰化与活化",
+    "smiles": "O=C(Cl)C(=O)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氯甲酸甲酯",
+    "alias": "ClCO2Me",
+    "category": "酰化与活化",
+    "smiles": "COC(=O)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氯甲酸乙酯",
+    "alias": "ClCO2Et",
+    "category": "酰化与活化",
+    "smiles": "CCOC(=O)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "碳酸二甲酯",
+    "alias": "DMC (MeO)2CO",
+    "category": "酰化与活化",
+    "smiles": "COC(=O)OC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "碳酸二乙酯",
+    "alias": "DEC (EtO)2CO",
+    "category": "酰化与活化",
+    "smiles": "CCOC(=O)OCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲磺酰氯",
+    "alias": "MsCl",
+    "category": "酰化与活化",
+    "smiles": "CS(=O)(=O)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲磺酸酐",
+    "alias": "Ms2O",
+    "category": "酰化与活化",
+    "smiles": "CS(=O)(=O)OS(C)(=O)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三氟甲磺酸酐",
+    "alias": "Tf2O",
+    "category": "酰化与活化",
+    "smiles": "O=S(=O)(OS(=O)(=O)C(F)(F)F)C(F)(F)F",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲基碘",
+    "alias": "MeI CH3I",
+    "category": "芳基与烷基卤化物",
+    "smiles": "CI",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲基溴",
+    "alias": "MeBr CH3Br",
+    "category": "芳基与烷基卤化物",
+    "smiles": "CBr",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙基碘",
+    "alias": "EtI",
+    "category": "芳基与烷基卤化物",
+    "smiles": "CCI",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙基溴",
+    "alias": "EtBr",
+    "category": "芳基与烷基卤化物",
+    "smiles": "CCBr",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "正丁基溴",
+    "alias": "nBuBr",
+    "category": "芳基与烷基卤化物",
+    "smiles": "CCCCBr",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "叔丁基溴",
+    "alias": "tBuBr",
+    "category": "芳基与烷基卤化物",
+    "smiles": "CC(C)(C)Br",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苄溴",
+    "alias": "BnBr",
+    "category": "芳基与烷基卤化物",
+    "smiles": "BrCc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苄氯",
+    "alias": "BnCl",
+    "category": "芳基与烷基卤化物",
+    "smiles": "ClCc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "烯丙基溴",
+    "alias": "allyl-Br",
+    "category": "芳基与烷基卤化物",
+    "smiles": "C=CCBr",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "溴代乙酸乙酯",
+    "alias": "BrCH2CO2Et",
+    "category": "常见碳亲核试剂",
+    "smiles": "CCOC(=O)CBr",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "丙二酸二乙酯",
+    "alias": "DEM EtO2CCH2CO2Et",
+    "category": "常见碳亲核试剂",
+    "smiles": "CCOC(=O)CC(=O)OCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酰乙酸乙酯",
+    "alias": "EAA MeCOCH2CO2Et",
+    "category": "常见碳亲核试剂",
+    "smiles": "CCOC(=O)CC(C)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酰丙酮",
+    "alias": "acacH Hacac",
+    "category": "常见碳亲核试剂",
+    "smiles": "CC(=O)CC(C)=O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氰乙酸乙酯",
+    "alias": "NCCH2CO2Et",
+    "category": "常见碳亲核试剂",
+    "smiles": "CCOC(=O)CC#N",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三甲基硅烷",
+    "alias": "Me3SiH",
+    "category": "硅与锡试剂",
+    "smiles": "C[SiH](C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯硼酸",
+    "alias": "PhB(OH)2",
+    "category": "硼试剂",
+    "smiles": "OB(O)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲基硼酸",
+    "alias": "MeB(OH)2",
+    "category": "硼试剂",
+    "smiles": "CB(O)O",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯硼酸频哪醇酯",
+    "alias": "PhBpin",
+    "category": "硼试剂",
+    "smiles": "CC1(C)OB(c2ccccc2)OC1(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯乙烯",
+    "alias": "styrene PhCH=CH2",
+    "category": "烯烃与炔烃",
+    "smiles": "C=Cc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苯乙炔",
+    "alias": "PhCCH PhC#CH",
+    "category": "烯烃与炔烃",
+    "smiles": "C#Cc1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三异丙基硅烷",
+    "alias": "iPr3SiH TIPS-H",
+    "category": "硅与锡试剂",
+    "smiles": "CC(C)[SiH](C(C)C)C(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三苯基硅烷",
+    "alias": "Ph3SiH",
+    "category": "硅与锡试剂",
+    "smiles": "[SiH](c1ccccc1)(c1ccccc1)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "六甲基二硅烷",
+    "alias": "Me3SiSiMe3",
+    "category": "硅与锡试剂",
+    "smiles": "C[Si](C)(C)[Si](C)(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "六甲基二硅氧烷",
+    "alias": "Me3SiOSiMe3 HMDSO",
+    "category": "硅与锡试剂",
+    "smiles": "C[Si](C)(C)O[Si](C)(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "六甲基二硅氮烷",
+    "alias": "HMDS HN(SiMe3)2",
+    "category": "硅与锡试剂",
+    "smiles": "C[Si](C)(C)N[Si](C)(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三甲基氢化锡",
+    "alias": "Me3SnH",
+    "category": "硅与锡试剂",
+    "smiles": "C[SnH](C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三苯基氢化锡",
+    "alias": "Ph3SnH",
+    "category": "硅与锡试剂",
+    "smiles": "[SnH](c1ccccc1)(c1ccccc1)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三正丁基氯化锡",
+    "alias": "Bu3SnCl",
+    "category": "硅与锡试剂",
+    "smiles": "CCCC[Sn](Cl)(CCCC)CCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "六正丁基二锡",
+    "alias": "Bu3SnSnBu3",
+    "category": "硅与锡试剂",
+    "smiles": "CCCC[Sn](CCCC)(CCCC)[Sn](CCCC)(CCCC)CCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三甲基氯化锡",
+    "alias": "Me3SnCl",
+    "category": "硅与锡试剂",
+    "smiles": "C[Sn](C)(C)Cl",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲基三苯基溴化膦",
+    "alias": "MePPh3Br",
+    "category": "膦盐与叶立德",
+    "smiles": "C[P+](c1ccccc1)(c1ccccc1)c1ccccc1.[Br-]",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "苄基三苯基氯化膦",
+    "alias": "BnPPh3Cl",
+    "category": "膦盐与叶立德",
+    "smiles": "[Cl-].c1ccc(C[P+](c2ccccc2)(c2ccccc2)c2ccccc2)cc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "甲氧羰基亚甲基三苯基膦",
+    "alias": "Ph3PCHCO2Me",
+    "category": "膦盐与叶立德",
+    "smiles": "COC(=O)C=P(c1ccccc1)(c1ccccc1)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙氧羰基亚甲基三苯基膦",
+    "alias": "Ph3PCHCO2Et",
+    "category": "膦盐与叶立德",
+    "smiles": "CCOC(=O)C=P(c1ccccc1)(c1ccccc1)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氯化铵",
+    "alias": "NH4Cl",
+    "category": "常见无机盐",
+    "smiles": "[NH4+].[Cl-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氯化钠",
+    "alias": "NaCl",
+    "category": "常见无机盐",
+    "smiles": "[Na+].[Cl-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "溴化钠",
+    "alias": "NaBr",
+    "category": "常见无机盐",
+    "smiles": "[Na+].[Br-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氯化钾",
+    "alias": "KCl",
+    "category": "常见无机盐",
+    "smiles": "[K+].[Cl-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "溴化锂",
+    "alias": "LiBr",
+    "category": "常见无机盐",
+    "smiles": "[Li+].[Br-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫酸钠",
+    "alias": "Na2SO4",
+    "category": "常见无机盐",
+    "smiles": "[Na+].[Na+].[O-]S(=O)(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫酸镁",
+    "alias": "MgSO4",
+    "category": "常见无机盐",
+    "smiles": "[Mg+2].[O-]S(=O)(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫酸铜",
+    "alias": "CuSO4",
+    "category": "常见无机盐",
+    "smiles": "[Cu+2].[O-]S(=O)(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫代硫酸钠",
+    "alias": "Na2S2O3",
+    "category": "常见无机盐",
+    "smiles": "[Na+].[Na+].[S-]S(=O)(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "碳酸钙",
+    "alias": "CaCO3",
+    "category": "常见无机盐",
+    "smiles": "[Ca+2].[O-]C(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫酸氢钠",
+    "alias": "NaHSO4",
+    "category": "常见无机盐",
+    "smiles": "[Na+].OS(=O)(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "亚硫酸氢钠",
+    "alias": "NaHSO3",
+    "category": "常见无机盐",
+    "smiles": "[Na+].OS(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氟化铯",
+    "alias": "CsF",
+    "category": "常见无机盐",
+    "smiles": "[Cs+].[F-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氟化钠",
+    "alias": "NaF",
+    "category": "常见无机盐",
+    "smiles": "[Na+].[F-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸钠",
+    "alias": "NaOAc AcONa",
+    "category": "常见无机盐",
+    "smiles": "[Na+].CC(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "乙酸钾",
+    "alias": "KOAc AcOK",
+    "category": "常见无机盐",
+    "smiles": "[K+].CC(=O)[O-]",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "氰酸钾",
+    "alias": "KOCN",
+    "category": "常见无机盐",
+    "smiles": "[K+].[O-]C#N",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "硫氰酸钾",
+    "alias": "KSCN",
+    "category": "常见无机盐",
+    "smiles": "[K+].[S-]C#N",
+    "inorganic": true,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/"
+  },
+  {
+    "title": "三丁基锡自由基",
+    "alias": "Bu3Sn· Bu3Sn• Bu3Sn. Bu3Sn*",
+    "category": "自由基中间体",
+    "smiles": "CCCC[Sn](CCCC)CCCC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/",
+    "radical_elements": [
+      50
+    ]
+  },
+  {
+    "title": "三甲基锡自由基",
+    "alias": "Me3Sn· Me3Sn• Me3Sn. Me3Sn*",
+    "category": "自由基中间体",
+    "smiles": "C[Sn](C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/",
+    "radical_elements": [
+      50
+    ]
+  },
+  {
+    "title": "三苯基锡自由基",
+    "alias": "Ph3Sn· Ph3Sn• Ph3Sn. Ph3Sn*",
+    "category": "自由基中间体",
+    "smiles": "[Sn](c1ccccc1)(c1ccccc1)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/",
+    "radical_elements": [
+      50
+    ]
+  },
+  {
+    "title": "三乙基硅自由基",
+    "alias": "Et3Si· Et3Si• Et3Si. Et3Si*",
+    "category": "自由基中间体",
+    "smiles": "CC[Si](CC)CC",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/",
+    "radical_elements": [
+      14
+    ]
+  },
+  {
+    "title": "三甲基硅自由基",
+    "alias": "Me3Si· Me3Si• Me3Si. Me3Si*",
+    "category": "自由基中间体",
+    "smiles": "C[Si](C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/",
+    "radical_elements": [
+      14
+    ]
+  },
+  {
+    "title": "三苯基硅自由基",
+    "alias": "Ph3Si· Ph3Si• Ph3Si. Ph3Si*",
+    "category": "自由基中间体",
+    "smiles": "[Si](c1ccccc1)(c1ccccc1)c1ccccc1",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/",
+    "radical_elements": [
+      14
+    ]
+  },
+  {
+    "title": "二甲基吡咯啉氮氧化物",
+    "alias": "DMPO",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "[O-][N+]1=CCCC1(C)C",
+    "inorganic": false,
+    "source": "https://www.caymanchem.com/product/10006436/dmpo"
+  },
+  {
+    "title": "苯基叔丁基硝酮",
+    "alias": "PBN",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "[O-]/[N+](C(C)(C)C)=C\\C1=CC=CC=C1",
+    "inorganic": false,
+    "source": "https://www.caymanchem.com/product/15412/n-tert-butyl-alpha-phenylnitrone"
+  },
+  {
+    "title": "吡啶氧化物叔丁基硝酮",
+    "alias": "POBN 4-POBN",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "[O-][N+]1=CC=C(/C=[N+]([O-])/C(C)(C)C)C=C1",
+    "inorganic": false,
+    "source": "https://www.caymanchem.com/product/20623/pobn"
+  },
+  {
+    "title": "二乙氧基磷酰基甲基吡咯啉氮氧化物",
+    "alias": "DEPMPO",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "[O-][N+]1=CCCC1(P(OCC)(OCC)=O)C",
+    "inorganic": false,
+    "source": "https://www.caymanchem.com/product/10006435/depmpo"
+  },
+  {
+    "title": "叔丁氧羰基甲基吡咯啉氮氧化物",
+    "alias": "BMPO BocMPO",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "CC1(CCC=[N+]1[O-])C(=O)OC(C)(C)C",
+    "inorganic": false,
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/11241066"
+  },
+  {
+    "title": "4-羟基TEMPO自由基",
+    "alias": "TEMPOL 4-OH-TEMPO",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "[O]N1C(C)(C)CC(O)CC1(C)C",
+    "inorganic": false,
+    "source": "https://www.caymanchem.com/product/27051/tempol"
+  },
+  {
+    "title": "4-氧代TEMPO自由基",
+    "alias": "TEMPONE 4-oxo-TEMPO",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "O=C1CC(C)(C)N([O])C(C)(C)C1",
+    "inorganic": false,
+    "source": "https://www.caymanchem.com/product/14877/tempone"
+  },
+  {
+    "title": "4-羧基TEMPO自由基",
+    "alias": "4-COOH-TEMPO 4-carboxy-TEMPO",
+    "category": "自旋捕获剂与氮氧自由基",
+    "smiles": "CC1(C)N([O])C(C)(C)CC(C(O)=O)C1",
+    "inorganic": false,
+    "source": "https://www.caymanchem.com/product/23139/4-carboxy-tempo"
+  },
+  {
+    "title": "N,N′-二环己基脲",
+    "alias": "DCU",
+    "category": "常用试剂及副产物",
+    "smiles": "O=C(NC1CCCCC1)NC1CCCCC1",
+    "formula": "C13H24N2O",
+    "inorganic": false,
+    "source": "https://zhuanlan.zhihu.com/p/683966633"
+  },
+  {
+    "title": "氧化三甲胺",
+    "alias": "TMAO",
+    "category": "常用氧化剂",
+    "smiles": "C[N+](C)(C)[O-]",
+    "formula": "C3H9NO",
+    "inorganic": false,
+    "source": "https://zhuanlan.zhihu.com/p/683966633"
+  },
+  {
+    "title": "四甲基脲",
+    "alias": "TMU",
+    "category": "常用试剂及溶剂",
+    "smiles": "CN(C)C(=O)N(C)C",
+    "formula": "C5H12N2O",
+    "inorganic": false,
+    "source": "https://zhuanlan.zhihu.com/p/683966633"
+  }
+]

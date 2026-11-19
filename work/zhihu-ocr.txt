@@ -1,0 +1,1022 @@
+
+PAGE 1
+
+PAGE 2
+ 655  223 V.LISTOFABBREVIATIONS
+ 323  268 Abbreviation
+ 577  268 ChemicalName
+ 912  268 Chemical Structure
+ 323  356 18-Cr-6
+ 577  356 18-crown-6
+ 322  455 Ac
+ 578  455 acetyl
+ 578  515 acetylacetonyl
+ 323  516 acac
+ 323  595 ad
+ 577  595 adamanty
+ 577  711 1,1'-(azodicarbonyl)dipiperidine
+ 323  712 ADDP
+ 576  817 N,N'-bis(1-methyl-3-oxobutylidene)ethylenediamine
+ 323  819 acaen
+ 323  900 AIBN
+ 577  901 2,2'-azo bisisobutyronitrile
+ 323  977 Alloc
+ 578  977 allyloxycarbonyl
+ 912  982 V人。
+ 323 1036 Am
+ 578 1037 amyl (n-pentyl)
+ 576 1078 p-anisy
+ 323 1080 An
+ 323 1175 AQN
+ 578 1175 anthraquinone
+ 656 1426 AX
+1034 1495 知乎@上海毕得
+
+PAGE 3
+ 578  220 ChemicalName
+ 322  221 Abbreviation
+ 912  222 Chemical Structure
+ 322  293 BINOL
+ 578  293 1,1'-bi-2,2'-naphthol
+ 578  397 biphenyl-4-sulfonyl
+ 323  399 Bip
+ 577  490 2,2-bipyridyl
+ 322  491 bipy.
+ 578  608 1-butyl-3-methylimidazoliumcation
+ 323  609 bmin
+ 910  664 H,8 SMe,
+ 323  668 BMS
+ 577  668 Borane-dimethylsulfidecomplex
+ 323  712 Bn
+ 577  712 benzyl
+ 911  716 Y
+ 323  795 BNAH
+ 578  795 1-benzyl-1,4-dihydronicotinamide
+ 578  883 4-benzyloxybutyryl
+ 323  884 BOB
+ 578  936 t-butoxycarbonyl
+ 323  938 Boc
+ 323 1001 BOM
+ 577 1001 benzyloxymethyl
+ 322 1082 BOP-CI
+ 577 1082 bis(2-oxo-3-oxazolidinyl)phosphinic chloride
+ 323 1187 BPD
+ 577 1187 bis（pinacolato）diboron
+ 324 1273 BPO
+ 578 1273 benzoyl peroxide
+ 323 1341 BPS (TBDPS)
+ 577 1343 t-butyldiphenylsilyl
+ 656 1427 xix
+1034 1495 知乎@上海毕得
+
+PAGE 4
+ 322  221 Abbreviation
+ 577  221 Chemical Name
+ 911  222 Chemical Structure
+ 323  293 ATD
+ 577  293 aluminum tris(2,6-di-tert-butyl-4-methylphenoxide)
+ 323  435 ATPH
+ 577  435 aluminum tris(2,6-diphenylphenoxide)
+ 322  525 BBN(9-BBN)
+ 577  525 9-borabicyclo[3.3.1]nonane (9-BBN)
+ 915  600 足
+ 577  605 9-borabicyclo[3.3.1]nonyl
+ 911  667 ca
+ 323  670 BCME
+ 577  670 bis(chloromethyl)ether
+ 577  748 N-benzyloxycarbonyloxy-5-norbornene-2,3-
+ 323  749 BCN
+ 578  766 dicarboximide
+ 323  826 BDPP
+ 578  826 (2R,4R)or(2S,4S)bis(diphenylphosphino)pentane
+ 323  923 BHT
+ 576  923 2,6-di-t-butyl-p-cresol(butylated hydroxytoluene)
+ 322 1029 BICP
+ 577 1048 dicyclopentane
+ 323 1152 BINAL-H
+ 576 1152 2,2-dihydroxy-1,1-binaphthy lithium aluminum
+ 578 1170 hydride
+ 322 1304 BINAP
+ 577 1305 2,2'-bis(diphenylphosphino)-1,1-binaphthy
+ 950 1306 P
+ 656 1426 xvil
+1035 1495 知乎@上海毕得
+
+PAGE 5
+ 322  220 Abbreviation
+ 577  220 ChemicalName
+ 911  220 Chemical Structure
+ 323  359 CSA
+ 578  360 camphorsufonic acid
+ 323  448 CSI
+ 578  448 chlorosulfonyl isocyanate
+ 323  533 CTAB
+ 578  533 cetyltrimethylammoniumbromide
+ 323  609 CTACI
+ 578  609 cetyl trimethylammoniumchloride
+ 887  624 CH
+ 576  689 cetyl trimethylammoniumpermanganate
+ 323  690 CTAP
+ 878  707 C,H
+ 323  792 DABCO
+ 578  793 1,4-diazabicyclo[2.2.2]octane
+ 323  882 DAST
+ 578  883 diethylaminosulfurtrifluoride
+ 323  966 DATMP
+ 578  966 diethylaluminum2,2,6,6-tetramethylpiperidide
+ 578 1057 dibenzylideneacetone
+ 323 1176 DBAD
+ 578 1176 di-tert-butylazodicarboxylate
+ 323 1312 DBI
+ 578 1312 dibromoisocyanuric acid
+ 656 1426 xxil
+1035 1495 知乎@上海毕得
+
+PAGE 6
+ 578  220 Chemical Name
+ 323  221 Abbreviation
+ 912  222 Chemical Structure
+ 323  276 CA
+ 577  277 chloroacetyl
+ 577  310 cerium(IV)ammoniumnitrate(cericammonium
+ 911  321 Ce(NH,),(NOJ,
+ 323  327 CAN
+ 323  389 CB
+ 578  389 catecholborane
+ 578  472 Corey-Bakshi-Shibata reagent
+ 323  473 CBS
+ 955  478 R=H,alkyl
+ 322  542 Cbz (Z)
+ 578  542 benzyloxycarbonyl
+ 909  547 Y
+ 323  667 CDI
+ 578  667 carbonyl dimidazole
+ 953  737 口
+ 578  748 1,3or1,4-cyclohexadiene
+ 323  749 CHD
+ 871  769 1,3-CHD
+ 954  769 1.4-CHD
+ 323  833 CHIRAPHOS
+ 576  833 2,3-bis（diphenylphosphino)butane
+ 323  901 Chx(Cy)
+ 578  901 cyclohexyl
+ 577  979 2-chloro-1,3-dimethylimidazolidinium
+ 323  980 CIP
+ 578  998 hexafluorophosphate
+ 322 1061 CMMP
+ 577 1061 cyanomethylenetrimethylphosphorane
+ 578 1122 1,5-cyclooctadiene
+ 323 1123 COD
+ 578 1196 1,3,5-cyclooctatriene
+ 323 1197 COT
+ 578 1272 cyclopentadienyl
+ 323 1273 Cp
+ 577 1346 collidinium-p-toluenesulfonate
+ 323 1347 CPTS
+ 657 1427 xxi
+1034 1495 知乎@上海毕得
+
+PAGE 7
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 912  222 Chemical Structure
+ 323  259 BQ
+ 578  259 benzoquinone
+ 578  338 brosyl=
+ 323  339 Bs
+ 578  355 (4-bromobenzenesulfonyl)
+ 324  412 BSA
+ 577  412 N,O-bis(trimethylsilyl)acetamide
+ 578  509 1-or 2-benzotriazolyl
+ 323  511 Bt
+ 323  593 BTAF
+ 578  593 benzyltrimethylammoniumfluoride
+ 578  670 benzyltriethylammonium
+ 323  672 BTEA
+ 577  763 benzyltriethylammonium chloride
+ 322  764 BTEAC
+ 577  841 3-bromo-1,1,1-trifluoro-propan-2-one
+ 323  842 BTFP
+ 323  928 BTMA
+ 577  928 benzyltrimethylammonium
+ 323  984 BTMSA
+ 577  985 bis（trimethylsilyl) acetylene
+ 909  991 ←=
+ 911 1058 XX
+ 323 1068 BTS
+ 577 1068 bis（trimethylsilyl) sulfate
+ 578 1135 benzothiazole 2-sulfonic acid
+ 323 1136 BTSA
+ 323 1210 BTSP
+ 578 1210 bis（trimethysilyl)peroxide
+ 578 1264 benzoyl
+ 323 1266 Bz
+ 323 1329 Bu(Bu)
+ 578 1330 Anq-u
+ 656 1427 Xx
+1034 1495 知乎@上海毕得
+
+PAGE 8
+ 578  220 Chemical Name
+ 322  221 Abbreviation
+ 911  222 Chemical Structure
+ 323  276 DBM
+ 577  276 dibenzoylmethane
+ 322  363 DBN
+ 577  363 1,5-diazabicyclo[4.3.0]non-5-ene
+ 323  455 DBS
+ 577  455 dibenzosuberyl
+ 577  537 1,8-diazabicyclo[5.4.0]undec-7-ene
+ 323  538 DBU
+ 323  644 DCA
+ 577  644 9,10-dicyanoanthracene
+ 578  752 1,2-dichlorobenzene
+ 322  754 DCB
+ 914  831 Y
+ 323  834 DCC
+ 577  834 dicyclohexylcarbodimide
+ 323  901 DCE
+ 579  902 1,1-dichloroethane
+ 323 1003 DCN
+ 578 1003 1,4-dicyanonaphthalene
+ 577 1096 dicyclopropylmethyl
+ 323 1097 Dcpm
+ 323 1169 DCU
+ 577 1169 N,N'-dicyclohexylurea
+ 880 1246 NC
+ 323 1266 DDQ
+ 577 1266 2,3-dichloro-5,6-dicyano-1,4-benzoquinone
+ 880 1282 NC
+ 657 1427 xxil
+1034 1495 知乎@上海毕得
+
+PAGE 9
+ 578  220 Chemical Name
+ 322  221 Abbreviation
+ 911  222 Chemical Structure
+ 323  275 DEAD
+ 577  276 diethylazodicarboxylate
+ 323  358 DEIPS
+ 577  358 diethylisopropylsilyl
+ 322  446 DEPBT
+ 577  446 3-(diethoxyphosphoryloxy)-1,2,3-benzotriazin-
+ 577  464 4(3H)-one
+ 322  538 DET
+ 578  538 diethyl tartrate
+ 323  604 DHP
+ 577  605 3,4-dihydro-2H-pyran
+ 323  709 DHQ
+ 578  710 dihydroquinine
+ 578  828 bis(dihydroquinino)phthalazine
+ 322  829 (DHQ)PHAL
+ 323  971 DHQD
+ 578  972 dihydroquinidine
+ 322 1125 (DHQD)PHAL
+ 578 1125 bis(dihydroquinidino)phthalazine
+ 322 1236 DIAD
+ 578 1237 dlisopropyl azodicarboxylate
+ 323 1318 DIB
+ 577 1320 (diacetoxyiodo)benzene
+ 325 1336 (BAIB orPIDA)
+ 656 1426 xxiv
+1035 1495 知乎@上海毕得
+
+PAGE 10
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 911  221 Chemical Structure
+ 323  258 DIBAL(DIBAH)
+ 578  258 disobutylaluminumhydride
+ 911  262 人人
+ 323  276 DIBAL-H
+ 323  337 DIC
+ 578  338 disopropyl carbodimide
+ 913  430 Xor
+ 576  446 4,5-bis-{（diphenylphosphanyl)methyl]-2,2-dimethyl-
+ 323  449 dop
+ 578  467 [1,3]dioxolane
+ 322  567 DIPAMP
+ 577  567 1,2-bis(o-anisylphenylphosphino)ethane
+ 323  700 DIPEA
+ 578  700 disopropylethylamine
+ 322  718 (Hunig's base)
+ 323  794 DIPT
+ 578  794 disopropyl tarrate
+ 578  876 dilauroylperoxide
+ 323  878 DLP
+ 322  965 DMA(DMAC)
+ 577  966 N,N-dimethylacetamide
+ 323 1046 DMAD
+ 577 1046 dimethyl acetylenedicarboxylate
+ 323 1121 DMAP
+ 577 1121 N,N-4-dimethylaminopyridine
+ 323 1183 DMB
+ 577 1183 m-dimethoxybenzene
+ 912 1191 。
+ 322 1253 DMDO
+ 577 1255 dimethyldioxirane
+ 912 1266 X
+ 577 1338 1.2-dimethoxyethane
+ 323 1339 DME
+ 656 1427 xXV
+1035 1495 知乎@上海毕得
+
+PAGE 11
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 911  222 Chemical Structure
+ 323  276 DMF
+ 577  276 N,N-dimethylformamide
+ 323  381 DMI
+ 578  381 1,3-dimethylimidazolidin-2-one
+ 323  460 DMP
+ 578  460 Dess-Martin periodinane
+ 323  561 DMPS
+ 577  561 dimethyiphenylsilyl
+ 578  617 1,3-dimethyl-3,4,5,6-tetrahydro-2（1H)-pyrimidone
+ 323  634 DMPU
+ 577  651 (N,N-dimethy propylene urea)
+ 578  702 dimethyl(methylthio)sulfonium tetrafluoroborate
+ 322  703 DMTSF
+ 323  766 DMS
+ 578  766 dimethylsulfide
+ 577  851 dimethylsulfoxide
+ 323  852 DMSO
+ 912  852 夏
+ 323  958 DMT
+ 578  959 4,4'-dimethoxytrityl
+ 576 1083 4-(4,6-dimethoxy[1,3,5]triazin-2-yl）-4-
+ 577 1102 methylmorpholinium chloride
+ 323 1206 DMTr
+ 578 1206 4,4'-dimethyltrityl
+ 323 1310 DMTST
+ 577 1311 (dimethylithio)methylsulfonium
+ 577 1328 trifluoromethanesulfonate
+ 656 1426 xxvi
+1035 1495 知乎@上海毕得
+
+PAGE 12
+ 578  220 Chemical Name
+ 911  220 Chemical Structure
+ 322  221 Abbreviation
+ 323  259 DPA(DIPA)
+ 578  259 disopropylamine
+ 577  344 2,2-bis（diphenylphosphino)biphenyl
+ 323  345 DPBP
+ 577  441 disopropyperoxydicarbonate
+ 323  442 DPDC
+ 323  573 DPDM
+ 577  573 diphenyl diazomethane
+ 323  686 DPEDA
+ 578  686 1,2-diamino-1,2-diphenylethane
+ 323  782 DPIBF
+ 578  782 diphenylisobenzofuran
+ 577  899 diphenylphosphoryl azide(diphenylphosphorazidate)
+ 323  900 DPPA
+ 577  977 1,4-bis(diphenylphosphino)butane
+ 322  978 (qdpp)qdda
+ 910  991 PhRpp
+ 911 1059 Pi,pPPh
+ 577 1061 1,2-bis（diphenylphosphino)ethane
+ 322 1062 dppe
+ 933 1120 PPh,
+ 577 1132 1,1'`-bis(diphenylphosphino)ferrocene
+ 321 1135 jddp
+ 932 1150 PPh,
+ 911 1197 Ph,PPPh
+ 578 1204 bis(diphenylphosphino)methane
+ 323 1205 uddp
+ 911 1242 PhRPPh
+ 578 1246 1.3-bis（diphenyiphosphino)propane
+ 322 1248 dddp
+ 323 1303 DPS
+ 323 1321 (alsoTBDPSor
+ 577 1321 t-butyldiphenylsilyl
+ 322 1339 BPS)
+ 657 1427 xxvii
+1034 1495 知乎@上海毕得
+
+PAGE 13
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 912  222 Chemical Structure
+ 323  276 DPTC
+ 578  276 O,O'-di(2'-pyridyl)thiocarbonate
+ 913  309 NA
+ 577  311 diastereomericratio
+ 322  312 dr
+ 577  363 di-tert-butyl azodicarboxylate
+ 322  364 DTBAD(DBAD)
+ 323  446 DTBB
+ 577  446 4,4'-di-tert-butylbiphenyl
+ 911  452 +O0+
+ 323  530 DTBP
+ 577  530 2,6-di-ter-butylpyridine
+ 323  612 DTBMP
+ 577  612 2,6-di-tert-butyl-4-methylpyridine
+ 323  712 DTE
+ 578  712 1,4-dithioerythritol
+ 323  777 DVS
+ 577  777 1,3-diviny-11,33-tetramethyldisiloxane
+ 322  922 EDA
+ 577  922 ethyl diazoacetate
+ 946  985 OAC
+ 323  987 EDDA
+ 578  987 ethylenediamine diacetate
+ 897  991 HN
+ 873 1011 OAC
+ 323 1058 EDC(EDAC)
+ 577 1059 1-ethyl-3-(3-dimethylaminopropyl)carbodimide
+ 578 1077 (ethyldimethylaminopropylcarbodimide)
+ 918 1080 NEC=N
+ 577 1140 1-ethyl-3-(3-dimethylaminopropylcarbodimide
+ 323 1141 EDCI
+ 577 1159 hydrochloride
+ 907 1206 POH
+ 323 1227 EDCP
+ 578 1228 2,3-bis-phosphonopentanedioic acid
+ 868 1231 HOOC
+ 953 1231 COOH
+ 577 1246 (ethylene dicarboxylic 2,3-diphosphonic acid)
+ 922 1248 PO,H.
+ 850 1305 HOOC-
+ 920 1306 HOOC
+ 323 1330 EDTA
+ 578 1331 ethylenediamine tetraaceticacid
+ 903 1352 COOH
+ 970 1353 -COOH
+ 656 1427 xxvii
+1035 1495 知乎@上海毕得
+
+PAGE 14
+ 323  220 Abbreviation
+ 578  221 Chemical Name
+ 912  222 Chemical Structure
+ 577  260 ethoxyethyl
+ 323  278 EE
+ 911  335 HNNH
+ 577  337 ethylenediamine
+ 323  341 en
+ 911  385 >>
+ 323  387 EOM
+ 578  388 ethoxymethyl
+ 578  449 ethyl
+ 323  450 Et
+ 578  490 ethyl trimethylsilylacetate
+ 323  491 ETSA
+ 912  557 >
+ 323  558 EVE
+ 578  559 ethylvinyl ether
+ 577  651 ferrocenyl
+ 322  652 Fc
+ 849  714 H,O,POH,C
+ 949  716 OH
+ 322  738 FDP
+ 577  738 fructose-1,6-diphosphate
+ 972  748 CH,OPO,H,
+ 322  843 FDPP
+ 577  843 pentafluorophenyl diphenylphosphinate
+ 323  968 F1
+ 578  968 fluorenyl
+ 322 1092 Fmoc
+ 577 1092 g-fluorenylmethoxycarbonyl
+ 323 1204 po
+ 576 1204 6,6,7,7,8,8,8-heptafluoro-2,2-dimethyl-3,5-
+ 578 1222 octanedione
+ 322 1325 FTT
+ 578 1325 1-fluoro-2,4,6-trimethylpyridinium triflate
+ 656 1427 xxix
+1034 1495 知乎@上海毕得
+
+PAGE 15
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 912  222 Chemical Structure
+ 323  286 HATU
+ 578  286 O-(7-azabenzotriazol-1-yl)-N,N,N,N-
+ 577  306 tetramethyluroniumhexafluorophosphate
+ 323  429 hfacac
+ 577  430 hexafluoroacetylacetone
+ 578  509 1,1,1,3,3,3-hexafluoro-2-propanol
+ 323  510 HFIP
+ 577  527 (hexafluoroisopropanol)
+ 322  588 HGK
+ 578  589 4-hydroxy-2-ketoglutarate
+ 322  699 Hmb
+ 577  700 2-hydroxy-4-methoxybenzyl
+ 578  752 1,1,1,3,33-hexamethyldisilazan
+ 323  753 HMDS
+ 323  838 HMPA
+ 577  838 hexamethylphosphoricacid triamide
+ 577  856 (hexamethylphosphoramide)
+ 322  926 HMPT
+ 577  926 hexamethylphosphorous triamide
+ 323 1001 HOAt
+ 578 1001 1-hydroxy-7-azabenzotriazole
+ 323 1084 HOBt(HOBT)
+ 578 1084 1-hydroxybenzotriazole
+ 937 1107 R
+ 323 1188 HOSu
+ 577 1188 N-hydroxysuccinimide
+1035 1495 知乎@上海毕得
+
+PAGE 16
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 911  222 Chemical Structure
+ 578  275 2-iodosobenzoicacid
+ 323  276 IBA
+ 323  374 IBX
+ 578  374 o-iodoxybenzoic acid
+ 322  491 IDCP
+ 577  491 bis(2,4,6-collidine)iodonium perchlorate
+ 993  502 CIO
+ 323  595 Imid (m)
+ 578  595 imidazole
+ 323  684 IPA
+ 577  685 isopropylalcohol
+ 908  688 OH
+ 578  763 isopinocamphenyl
+ 323  765 Ipc
+ 323  885 KDA
+ 577  886 potassium disopropylamide
+ 323  954 KHMDS
+ 577  954 potassiumbis(trimethylsilyl)amide
+ 576 1052 Lawesson's reagent(2,4-bis-(4-methoxyphenyl)-
+ 322 1068 L.R.
+ 577 1069 [1,3,2,4]dithiadiphosphetane 2,4-dithion)
+ 910 1142 LiH,NBH,
+ 322 1144 LAB
+ 578 1145 lithiumamidotrihydroborate
+ 911 1175 LiAIH,
+ 322 1180 HT
+ 577 1180 lithium aluminum hydride
+ 323 1258 LDA
+ 577 1258 lithium disopropylamide
+ 323 1345 LDBB
+ 577 1345 lithium4,4'-t-butylbiphenylide
+ 656 1426 xxxi
+1035 1495 知乎@上海毕得
+
+PAGE 17
+ 578  220 Chemical Name
+ 322  221 Abbreviation
+ 912  222 Chemical Structure
+ 322  257 LDE
+ 577  258 lithiumdiethylamide
+ 912  316 LCIO,-ELO
+ 577  320 lithiumperchlorate-diethyletherate
+ 323  321 LDPE
+ 577  390 lithium bis（trimethylsilyl)amide
+ 323  391 LHMDS
+ 323  409 (LiHMDS)
+ 323  469 LICA
+ 577  469 lithium isopropylcyclohexylamide
+ 903  498 Li
+ 909  538 BuLiKO-Bu
+ 322  542 LICKOR(super
+ 577  544 butyllithium-potassium tert-butoxide
+ 322  561 base)
+ 323  614 LiTMP
+ 575  614 lithium2,2,6,6-tetramethylpiperidide
+ 322  633 (LTMP)
+ 576  693 lithiumpyrolidotrihydroborate
+ 322  694 LPT
+ 911  696 LiICH)NBH,
+ 578  712 (lithiumpyrrolidide-borane)
+ 576  781 lithiumtri-sec-butylborohydride
+ 323  782 L-selectride
+ 911  877 Pb(OAC),
+ 577  881 lead tetraacetate
+ 322  882 LTA
+ 576  959 2,6-lutidine
+ 323  960 lut
+ 577 1048 maleic anhydride
+ 323 1049 MA
+ 323 1155 MAD
+ 576 1155 methyl aluminumbis(2,6-di-t-butyl-4-
+ 577 1174 methylphenoxide)
+ 323 1295 MAT
+ 575 1295 methyl aluminum bis(2,4,6-tri-f-butylphenoxide)
+ 657 1427 xxxii
+1035 1495 知乎@上海毕得
+
+PAGE 18
+ 322  221 Abbreviation
+ 578  221 Chemical Name
+ 912  222 Chemical Structure
+ 323  276 MBT
+ 578  276 2-mercaptobenzothiazole
+ 919  330 COOOH
+ 322  356 m-CPBA
+ 578  356 meta chloroperbenzoicacid
+ 911  439 --CH
+ 323  444 Me
+ 578  445 methyl
+ 578  484 (2-methoxyethoxy)methyl
+ 323  486 MEM
+ 323  593 MEPY
+ 576  594 methyl2-pyrrolidone-5(S)-carboxylate
+ 322  713 Mes
+ 577  714 mesityl
+ 577  811 N-methylsalicylaldimine
+ 322  812 mesal
+ 577  877 methylisocyanate
+ 910  877 O=C=N
+ 323  878 MIC
+ 871  953 Mg
+ 323  962 MMPP
+ 578  962 magnesiummonoperoxyphthalate
+ 323  980 (MMPT)
+ 323 1047 MOM
+ 577 1048 methoxymethyl
+ 322 1181 MPD
+ 577 1182 N-methyl-2-pyrrolidinone
+ 322 1198 (NMP)
+ 323 1261 MPM
+ 577 1261 methoxy(phenylithio)methy)
+ 323 1320 MPM
+ 578 1320 p-methoxybenzyl
+ 323 1339 (PMB)
+ 656 1427 xxxii
+1035 1495 知乎@上海毕得
+
+PAGE 19
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 911  221 Chemical Structure
+ 323  276 MPPC
+ 577  276 N-methyl piperidinium chlorochromate
+ 323  349 Ms
+ 577  349 mesyl(methanesulfonyl)
+ 889  453 HO
+ 578  458 methanesulfonic acid
+ 323  460 MSA
+ 323  533 HSW
+ 577  533 o-mesitylenesulfonyl hydroxylamine
+ 322  621 MSTFA
+ 578  621 N-methyl-N-(trimethylsilyl)trifluoroacetamide
+ 323  702 MTAD
+ 578  702 N-methyltriazolinedione
+ 323  766 MTEE
+ 577  767 methylt-butyl ether
+ 322  784 (MTBE)
+ 323  827 MTM
+ 577  828 methylthiomethyl
+ 323  889 MTO
+ 577  889 methyltrioxorhenium
+ 323  961 Mtr
+ 578  962 (4-methoxy-2,3,6-trimethylphenyl)sulfony
+ 323 1043 MVK
+ 577 1045 methyl vinyl ketone
+ 322 1246 NADPH
+ 578 1247 nicotinamide adenine dinucleotidephosphate
+1000 1367 OH
+ 657 1426 xxxiv
+1035 1495 知乎@上海毕得
+
+PAGE 20
+ 322  221 Abbreviation
+ 578  221 Chemical Name
+ 912  222 Chemical Structure
+ 912  250 Nae
+ 323  275 NaHMDS
+ 578  276 sodiumbis(trimethylsilyl)amide
+ 577  353 naphthy
+ 323  354 Naph
+ 323  372 (Np)
+ 577  424 N-bromoacetamide
+ 323  425 NBA
+ 909  476 山
+ 323  479 NBD
+ 578  480 norbormadiene
+ 323  499 (nbd)
+ 323  552 NBS
+ 578  553 N-bromosuccinimide
+ 577  670 N-chlorosuccinimide
+ 323  671 NCS
+ 577  752 nonafluorobutanesulfonyl
+ 323  755 'N
+ 578  833 N-hydroxyphthalimide
+ 323  836 NHPI
+ 323  936 NIS
+ 578  936 N-iodosuccinimide
+ 323 1012 NMM
+ 578 1012 N-methylmorpholine
+ 912 1017 C
+ 577 1090 N-methylmorpholine oxide
+ 322 1091 NMO
+ 322 1162 NMP
+ 578 1162 N-methyl-2-pyrrolidinone
+ 323 1260 NORPHOS
+ 577 1260 bis(diphenylphosphino)bicyclo[2.2.1]-hept-5-ene
+ 911 1347 Ho.
+ 322 1351 Nos
+ 577 1351 4-nitrobenzenesulfonyl
+ 657 1427 xxxv
+1034 1495 知乎@上海毕得
+
+PAGE 21
+ 323  221 Abbreviation
+ 578  221 Chemical Name
+ 912  222 Chemical Structure
+ 323  276 NPM
+ 577  276 N-phenylmaleimide
+ 577  393 2-nitrobenzenesulfonyl
+ 322  395 Ns
+ 911  535 KHSO,
+ 322  542 Oxone
+ 577  542 potassiumperoxymonosulfate
+ 322  619 PAP
+ 577  619 2,8,9-trialkyl-2,5,8,9-tetraaza-
+ 578  638 1-phospha-bicyclo[3.3.3]undecane
+ 323  742 PBP
+ 576  742 pyridinium bromide perbromide
+ 322  817 PCC
+ 578  817 pyridinium chlorochromate
+ 577  909 pyridinium dichromate
+ 323  910 PDC
+ 578 1023 9-phenylfluorenyl
+ 323 1024 Pf
+ 578 1111 perluorobutyrate
+ 323 1112 pfb
+ 577 1182 pheny
+ 323 1183 Ph
+ 322 1243 PHAL
+ 578 1245 phthalazine
+ 577 1329 9,10-phenanthroline
+ 323 1330 phen
+ 657 1427 xxxvi
+1035 1495 知乎@上海毕得
+
+PAGE 22
+ 323  221 Abbreviation
+ 577  221 Chemical Name
+ 912  222 Chemical Structure
+ 323  293 Phth
+ 577  294 phthaloyl
+ 577  376 2-pyridinecarboxylate
+ 323  379 pic
+ 323  470 PIDA
+ 577  470 phenyliodonium diacetate
+ 323  489 (BAIB or DIB)
+ 322  582 PIFA
+ 577  582 phenyliodonium bis（trifluoroacetate)
+ 323  702 Piv
+ 578  703 pivaloyl
+ 323  775 PMB
+ 578  776 p-methoxybenzyl
+ 323  794 (MPM)
+ 322  838 PMP
+ 577  838 4-methoxyphenyl
+ 322  917 PMP
+ 578  917 1,2,2,6,6-pentamethylpiperidne
+ 878  930 Me
+ 323  989 PNB
+ 577  989 p-nitrobenzy
+ 578 1074 p-nitrobenzyloxycarbonyl
+ 323 1075 PNZ
+ 323 1218 PPI
+ 577 1219 2-phenyl-2-(2-pyridyl)-2H-imidazole
+ 323 1313 PPO
+ 577 1314 4-(3-phenylpropyl)pyridine-N-oxide
+ 656 1427 xxvii
+1034 1495 知乎@上海毕得
+
+PAGE 23
+ 578  220 Chemical Name
+ 323  221 Abbreviation
+ 911  221 ChemicalStructure
+ 895  268 i
+ 322  276 PPTS
+ 577  276 pyridiniump-toluenesulfonate
+ 322  340 Pr
+ 577  341 propyl
+ 322  416 PT
+ 578  417 1-phenyl-1H-tetrazol-yl
+ 322  519 PTAB
+ 576  519 phenyltrimethylammoniumperbromide
+ 578  631 (2-phenyl-2-trimethylsilyl)ethyl
+ 322  632 PTMSE
+ 323  674 PTSA
+ 323  691 (orTsOH)
+ 577  691 p-toluenesulfonic acid
+ 911  695 HO,sH
+ 323  789 Py
+ 577  789 pyridine
+ 323  808 (pyr)
+ 323  896 RAMP
+ 577  896 (R)-1-amino-2-(methoxymethyl)pyrrolidine
+ 323 1096 Red-AI
+ 576 1096 sodiumbis(2-methoxyethoxy)aluminum hydride
+ 323 1212 Rham
+ 578 1212 rhamnosyl
+ 904 1276 GF
+ 323 1280 R
+ 577 1280 perluoroalkyl group
+ 656 1425 xxvii
+1035 1495 知乎@上海毕得
+
+PAGE 24
+ 911  220 Chemical Structure
+ 322  221 Abbreviation
+ 577  221 Chemical Name
+ 578  309 2,4,5,7-etraiodo-34'5'6-tetrachlorofluorescein
+ 322  328 Rose Bengal
+ 578  328 disodium salt
+ 322  346 (RB)
+ 580  362 (aphotosensitizer)
+ 322  483 S,S,-chiraphos
+ 578  483 (S,S)-2,3-bis（diphenylphosphino)butane
+ 322  567 Salen
+ 577  567 N,N'ethylenebis(salicylideneiminato)
+ 578  585 bis(salicylidene)ethylenediamine
+ 323  723 salophen
+ 577  723 o-phenylenebis(salicylideneiminato)
+ 323  839 SAMP
+ 577  840 (S)-1-amino-2-(methoxymethyl)pyrrolidine
+1003  946 8Na
+ 323  963 SDS
+ 577  964 sodium dodecylsulfate
+ 577 1084 2-(trimethylsilyl)ethoxymethyl
+ 322 1085 SEM
+ 322 1143 SES
+ 577 1143 2-[(trimethylsilyl)ethyl]sulfonyl
+ 578 1257 1,2-dimethylpropy (secondary isoamyl)
+ 323 1258 Sia
+ 323 1347 SPB
+ 577 1347 sodiumperborate
+ 656 1426 xxxix
+1035 1495 知乎@上海毕得
+
+PAGE 25
+ 323  220 Abbreviation
+ 910  220 Chemical Structure
+ 578  221 Chemical Name
+ 322  275 TADDOL
+ 577  276 2,2-dimethyl-,0,a,a-tetraaryl-1,3-dioxolane-4,5-
+ 578  294 dimethanol
+ 906  369 NEI,
+ 875  386 Et,N-
+ 577  391 tris(diethylamino)sulfonium difluorotrimethylsilicate
+ 323  392 TASF
+ 905  404 NEt
+ 323  483 TBAB
+ 578  483 tetra-n-butylammoniumbromide
+ 577  570 tetra-n-butylammoniumfluoride
+ 911  570 BuNF
+ 323  571 TBAF
+ 577  621 tetra-n-butylammoniumiodide
+ 323  622 TBAI
+ 577  689 tetrabromocyclohexadienone
+ 323  691 TBCO
+ 323  772 TBDMS
+ 577  773 t-butyldimethylsilyl
+ 913  779 -s-
+ 323  791 ()
+ 323  856 TBDPS
+ 577  857 t-butyldiphenylsilyl
+ 323  875 (BPS)
+ 323  931 TBH
+ 578  931 tert-buty hypochlorite
+ 323  992 TBHP
+ 577  992 tert-butyl hydroperoxide
+ 912  996 HO
+ 323 1071 TBP
+ 578 1148 1-tert-butyl-1H-tetrazol-5-yl
+ 323 1149 TBT
+ 904 1169 -Bu
+ 578 1233 tributyltin hydride
+ 322 1346 TBTSP
+ 577 1347 -butytrimethylsilyperoxide
+ 655 1426 A
+1035 1495 知乎@上海毕得
+
+PAGE 26
+ 578  220 ChemicalName
+ 323  221 Abbreviation
+ 912  222 Chemical Structure
+ 576  275 trichloroisocyanuric acid
+ 323  276 TCCA
+ 323  389 TCDI
+ 577  389 thiocarbonyl dimidazole
+ 323  491 TCNE
+ 577  492 tetracyanoethylene
+ 577  578 7,7,8,8-tetracyano-para-quinodimethane
+ 323  579 TCNQ
+ 322  657 TDS
+ 578  657 dimethyl thexylsilyl
+ 323  724 TEA
+ 578  724 triethylamine
+ 578  799 benzyltrimethylammoniumchloride
+ 323  801 TEBACI
+ 576  874 2,2,6,6-tetramethy-1-piperidinyloxyfreeradical
+ 323  876 TEMPO
+ 577  945 2-(trimethylsilyl)ethoxycarbonyl
+ 323  947 Teoc
+ 323 1026 TEP
+ 577 1026 triethyiphosphite
+ 577 1106 triethylsily
+ 323 1108 TES
+ 577 1183 trifluoromethanesulfonyl
+ 323 1184 Tf
+ 578 1257 trifluoroacetic acid
+ 323 1259 TFA
+ 911 1322 大
+ 577 1331 trifluoroacetamide
+ 323 1332 Tfa
+ 656 1426 xli
+1034 1495 知乎@上海毕得
+
+PAGE 27
+ 578  220 Chemical Name
+ 323  221 Abbreviation
+ 912  222 Chemical Structure
+ 322  276 TFAA
+ 577  276 trifluoroacetic anhydride
+ 577  337 2,2,2-trifluoroethanol
+ 324  338 TFE
+ 577  405 trifluoromethanesulfonic acid
+ 323  423 TFMSA
+ 578  426 (triflic acid)
+ 577  514 tris(2-furyl)phosphine
+ 323  515 TFP
+ 578  614 2-thienyl
+ 323  616 Th
+ 910  680 >
+ 578  693 1,1,2-trimethylpropyl
+ 323  694 thexyl
+ 322  738 THF
+ 578  738 tetrahydrofuran
+ 577  798 2-tetrahydropyranyl
+ 322  800 THP
+ 911  806 .
+ 323  884 TIPB
+ 577  884 1,3,5-trisopropylbenzene
+ 323  996 TIPS
+ 578  997 trisopropylsily
+ 323 1071 TMAO(TMANO)
+ 578 1071 trimethylamineN-oxide
+ 323 1168 TMEDA
+ 577 1168 N,N,N,N-tetramethylethyenediamine
+ 578 1257 1,1,3,3-tetramethyguanidine
+ 323 1259 TMG
+ 323 1336 TMGA
+ 578 1336 tetramethylguanidinium azide
+ 925 1357 NHON,
+ 657 1427 xli
+1034 1495 知乎@上海毕得
+
+PAGE 28
+ 322  221 Abbreviation
+ 577  221 Chemical Name
+ 911  222 Chemical Structure
+ 323  293 Tmob
+ 577  293 2,4,6-trimethoxybenzyl
+ 323  400 TMP
+ 576  400 2,2,6,6-tetramethypiperidine
+ 323  463 TMS
+ 578  463 trimethylsilyl
+ 323  530 TMSA
+ 577  530 trimethylsily azide
+ 322  607 TMSEE
+ 578  608 (trimethylsilyl)ethynylether
+ 323  684 TMU
+ 577  684 tetramethylurea
+ 577  762 tetranitromethane
+ 323  763 WNI
+ 323  856 10
+ 578  856 p-tolyl
+ 322  952 tolbinap
+ 577  952 2,2`-bis(di-p-tolylphosphino)-1,1-binaphthyl
+ 323 1075 TPAP
+ 577 1075 tetra-n-propylammoniumperuthenate
+ 323 1164 TPP
+ 577 1164 triphenylphosphine
+ 577 1303 5,10,15,20-tetraphenylporphyrin
+ 322 1304 TPP
+ 657 1426 xli
+1035 1495 知乎@上海毕得
+ 306 1612 发布于2024-02-2614:10·上海
+ 415 1703 药物化学
+ 310 1705 缩写
+ 301 1910 未登录用户
+
+PAGE 29
+1080  265 基础有机化学——有机化合物
+1028  300 的分类、表示和命名
+ 277  313 化学英语基础
+ 276  346 基本有机化合物命名
+1088  352 一、有机化合物的分类1、按碳架分
+ 268  366 carboxylicacidsalcoholsalkanes
+ 264  382 esters andethersaldehydesakenes
+1085  383 类（1）开链化合物（2）环状化合
+ 399  400 alkynes
+1078  414 物①碳环化合物②杂环化合物2、
+1081  446 按官能团分类二、有机化合物的表
+ 278  465 化学英语基础：基本有机化合物
+ 635  465 有机化学系统命名管窥
+1084  477 示方法1、构造式（1）路易斯电子
+1042  508 式（2）蛛网式（3）结..
+ 542  549 小小汤
+ 971  549 雪舞剑霜寒

@@ -1,0 +1,18 @@
+{
+  "E2": {
+    "expected_product": "CC/C(C)=C(\\C)Cl",
+    "matches": 2,
+    "new_UI_generated_product_matches_verified_fixture": true
+  },
+  "SN2": {
+    "expected_product": "CC[C@@](C)(O)[C@@H](C)Cl",
+    "matches": 2,
+    "new_UI_generated_product_matches_verified_fixture": true
+  },
+  "TLC": {
+    "ChemDraw_opened": true,
+    "outer_frame_seen": true,
+    "native_outer_border_roundtrip": true,
+    "spots": 18
+  }
+}

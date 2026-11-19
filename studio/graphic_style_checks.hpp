@@ -3,14 +3,35 @@ void App::graphicStyleCheck(const std::string& dir){
     auto require=[](bool value,const char* message){if(!value)throw std::runtime_error(message);};
     s.dirty=false;execute(Button("","新建","","@new"));s.graphicsWidth=0;s.graphicsColor=0x000000FFu;
     auto draw=[&](const char* command,Vec2 from,Vec2 to){s.selected.clear();require(s.activateCommand(command),"activate graphics fixture tool");require(s.gesture(PointerPhase::Down,from).ok(),"graphics pointer down");require(s.gesture(PointerPhase::Move,to).ok(),"graphics pointer move");require(s.gesture(PointerPhase::Up,to).ok(),"graphics pointer up");};
-    auto checkPaint=[&](Session& session,ObjectRef ref,double width,uint32_t color){bool found=false;for(const auto& p:session.scene.primitives())if(p.source==ref&&p.style.stroke.enabled){found=true;if(std::abs(p.style.strokeWidth-width)>=1e-7){std::ostringstream message;message<<"stroke width "<<int(ref.kind)<<":"<<ref.id<<" expected "<<width<<" got "<<p.style.strokeWidth<<" in "<<session.sourcePath;throw std::runtime_error(message.str());}require(render::resolvePaint(p.style.stroke.rgba)==color,"graphic stroke has chosen color");}require(found,"fixture has visible stroke");};
+    auto checkPaint=[&](Session& session,ObjectRef ref,double width,uint32_t color){bool found=false;for(const auto& p:session.scene.primitives())if(p.source==ref&&p.style.stroke.enabled){found=true;if(std::abs(p.style.strokeWidth-width)>=1e-7){std::ostringstream message;message<<"stroke width "<<int(ref.kind)<<":"<<ref.id<<" expected "<<width<<" got "<<p.style.strokeWidth<<" in "<<session.sourcePath;throw std::runtime_error(message.str());}require(render::resolvePaint(p.style.stroke.rgba)==color,"graphic stroke has chosen color");}if(!found){
+        std::ostringstream why;why<<"missing visible stroke for object "<<int(ref.kind)<<":"<<ref.id<<" in "<<session.sourcePath;
+        for(const auto& p:session.scene.primitives())if(p.source==ref)why<<" primitive="<<int(p.kind)<<" filled="<<int(p.style.fill.enabled);
+        throw std::runtime_error(why.str());
+    }};
     draw("chooseDrawingTool_Rectangle_Hollow",Vec2(0,0),Vec2(60,40));ObjectRef rectangle(ObjectKind::Arrow,ObjectId(s.doc.arrows().size()-1));checkPaint(s,rectangle,.6,0x000000FFu);
     s.selected.clear();require(applyGraphicsStyle(2,0x0046DCFFu,true,true).ok(),"set shared future style");checkPaint(s,rectangle,.6,0x000000FFu);
     draw("chooseDrawingTool_Circle_Hollow",Vec2(80,0),Vec2(130,50));ObjectRef circle(ObjectKind::Arrow,ObjectId(s.doc.arrows().size()-1));checkPaint(s,circle,2,0x0046DCFFu);
     draw("chooseArrowTool_Large_Retrosynthetic",Vec2(0,80),Vec2(100,80));ObjectRef arrow(ObjectKind::Arrow,ObjectId(s.doc.arrows().size()-1));checkPaint(s,arrow,2,0x0046DCFFu);
     arrows::ArrowParams params;bool ok=false;require(arrows::readArrow(s.doc,arrow.id,&params,&ok).ok()&&ok&&std::abs(arrows::arrowStrokeWidth(params,.6)-2)<1e-7,"arrow geometry and committed width agree");
     auto head=params.head;auto begin=params.begin,end=params.end;
-    draw("choosePenTool_DrawCurve",Vec2(0,120),Vec2(100,140));ObjectRef curve(ObjectKind::Path,ObjectId(s.doc.paths().size()-1));checkPaint(s,curve,2,0x0046DCFFu);
+    s.selected.clear();require(s.activateCommand("choosePenTool_DrawCurve"),"activate pen");
+    require(s.gesture(PointerPhase::Down,Vec2(0,120)).ok(),"start pen");
+    for(auto point:{Vec2(25,105),Vec2(50,120),Vec2(75,145)})require(s.gesture(PointerPhase::Move,point).ok(),"sample pen");
+    require(s.gesture(PointerPhase::Up,Vec2(100,140)).ok(),"finish pen");
+    const auto& stroke=s.doc.paths().records().back();
+    require(std::count(stroke.pointKind.begin(),stroke.pointKind.end(),1)>0,"hand drawn stroke retains editable controls");
+    ObjectRef curve(ObjectKind::Path,ObjectId(s.doc.paths().size()-1));checkPaint(s,curve,2,0x0046DCFFu);
+    auto original=s.doc.paths().records().back();
+    require(s.activateCommand("choosePenTool_EditCurve"),"activate curve editor");
+    auto first=original.points.front();
+    require(s.gesture(PointerPhase::Down,first).ok() && s.gesture(PointerPhase::Up,first).ok(),"select pen stroke");
+    auto control=original.points[1], moved=control+Vec2(0,-8);
+    require(s.gesture(PointerPhase::Down,control).ok() && s.gesture(PointerPhase::Move,moved).ok() &&
+            s.gesture(PointerPhase::Up,moved).ok(),"drag curve control");
+    const auto& edited=s.doc.paths().records().back();
+    require(edited.points[1]==moved && edited.points.size()==original.points.size() && edited.closed==original.closed &&
+            edited.pointKind==original.pointKind && edited.style.width==original.style.width &&
+            edited.style.colorRGBA==original.style.colorRGBA,"editing keeps topology and paint");
     draw("chooseBracketTool_SquareBrackets",Vec2(160,0),Vec2(210,60));ObjectRef bracket(ObjectKind::Bracket,ObjectId(s.doc.brackets().size()-1));checkPaint(s,bracket,2,0x0046DCFFu);
     draw("chooseTableTool",Vec2(240,0),Vec2(300,60));ObjectRef table(ObjectKind::Table,ObjectId(s.doc.tables().size()-1));checkPaint(s,table,2,0x0046DCFFu);
     draw("chooseTLCPlateTool",Vec2(320,0),Vec2(380,60));ObjectRef plate(ObjectKind::Symbol,ObjectId(s.doc.symbols().size()-1));checkPaint(s,plate,2,0x0046DCFFu);
@@ -29,7 +50,23 @@ void App::graphicStyleCheck(const std::string& dir){
     ObjectId caption;require(s.doc.addText(Vec2(15,145),12,"Structure color",&caption).ok(),"chemical caption");chemical.push_back(ObjectRef(ObjectKind::Text,caption));
     ObjectId a,b,unselected;require(s.doc.addAtom(Vec2(240,140),6,&a).ok()&&s.doc.addAtom(Vec2(280,140),6,&b).ok()&&s.doc.addBond(a,b,&unselected).ok(),"unselected chemical fixture");s.refresh();s.selected=chemical;before=s.doc.digest();
     require(applyGraphicsStyle(1.5,0x0046DCFFu,true,true).ok(),"apply color while preserving molecular widths");after=s.doc.digest();
-    auto chemicalPaint=[&](Session& session){for(size_t i=0;i<5;++i)checkPaint(session,ObjectRef(ObjectKind::Bond,chemicalBonds[i]),i==4?2.:.6,0x0046DCFFu);for(size_t i=5;i<7;++i){bool filled=false;for(const auto& p:session.scene.primitives())if(p.source==ObjectRef(ObjectKind::Bond,chemicalBonds[i])&&(p.style.fill.enabled||p.style.stroke.enabled)){filled=true;require(render::resolvePaint(p.style.fill.enabled?p.style.fill.rgba:p.style.stroke.rgba)==0x0046DCFFu,"stereo wedges have chosen color");}require(filled,"stereo wedge visible");r62::integration::RingGeometry geometry(session.doc);auto data=geometry.build(*session.doc.bonds().get(chemicalBonds[i]));Box bounds;for(const auto& shape:data.shapes){for(auto point:shape.outline)bounds.add(point);for(auto point:shape.points)bounds.add(point);}require(!bounds.empty()&&bounds.max.y-bounds.min.y>0,"stereo wedge remains visible");}checkPaint(session,ObjectRef(ObjectKind::Bond,unselected),.6,0x000000FFu);bool atom=false,text=false;for(const auto& p:session.scene.primitives())if(p.source.kind==ObjectKind::Atom||p.source==ObjectRef(ObjectKind::Text,caption)){if(p.style.fill.enabled){require(render::resolvePaint(p.style.fill.rgba)==0x0046DCFFu,"molecular label and caption use chosen color");atom|=p.source.kind==ObjectKind::Atom;text|=p.source.kind==ObjectKind::Text;}}require(atom&&text,"molecular labels and caption visible");require(session.doc.bonds().get(chemicalBonds[1])->order==BondOrder::Double&&session.doc.bonds().get(chemicalBonds[5])->stereo==BondStereo::Up&&session.doc.bonds().get(chemicalBonds[6])->stereo==BondStereo::Down,"appearance preserves chemical semantics");};
+    auto chemicalPaint=[&](Session& session){for(size_t i=0;i<4;++i)checkPaint(session,ObjectRef(ObjectKind::Bond,chemicalBonds[i]),.6,0x0046DCFFu);
+        // Bold bonds use a filled outline so adjoining thick bonds meet cleanly.
+        const auto& bold=*session.doc.bonds().alive(chemicalBonds[4]);
+        const Vec2 axis=session.doc.atoms().alive(bold.endAtom)->position-session.doc.atoms().alive(bold.beginAtom)->position;
+        const Vec2 normal=Vec2(-axis.y,axis.x)*(1/length(axis));
+        bool boldVisible=false;
+        for(const auto& p:session.scene.primitives()){
+            if(p.source!=ObjectRef(ObjectKind::Bond,bold.id)||p.kind!=render::PrimKind::Polygon||!p.style.fill.enabled)continue;
+            require(p.points.size()>=3,"bold bond has a filled outline");
+            double lo=dot(p.points.front(),normal),hi=lo;
+            for(auto point:p.points){double across=dot(point,normal);lo=std::min(lo,across);hi=std::max(hi,across);}
+            require(std::abs(hi-lo-2.)<1e-7,"bold bond ink is two points wide");
+            require(render::resolvePaint(p.style.fill.rgba)==0x0046DCFFu,"bold bond fill has chosen color");
+            boldVisible=true;
+        }
+        require(boldVisible,"bold bond visible");
+        for(size_t i=5;i<7;++i){bool filled=false;for(const auto& p:session.scene.primitives())if(p.source==ObjectRef(ObjectKind::Bond,chemicalBonds[i])&&(p.style.fill.enabled||p.style.stroke.enabled)){filled=true;require(render::resolvePaint(p.style.fill.enabled?p.style.fill.rgba:p.style.stroke.rgba)==0x0046DCFFu,"stereo wedges have chosen color");}require(filled,"stereo wedge visible");r62::integration::RingGeometry geometry(session.doc);auto data=geometry.build(*session.doc.bonds().get(chemicalBonds[i]));Box bounds;for(const auto& shape:data.shapes){for(auto point:shape.outline)bounds.add(point);for(auto point:shape.points)bounds.add(point);}require(!bounds.empty()&&bounds.max.y-bounds.min.y>0,"stereo wedge remains visible");}checkPaint(session,ObjectRef(ObjectKind::Bond,unselected),.6,0x000000FFu);bool atom=false,text=false;for(const auto& p:session.scene.primitives())if(p.source.kind==ObjectKind::Atom||p.source==ObjectRef(ObjectKind::Text,caption)){if(p.style.fill.enabled){require(render::resolvePaint(p.style.fill.rgba)==0x0046DCFFu,"molecular label and caption use chosen color");atom|=p.source.kind==ObjectKind::Atom;text|=p.source.kind==ObjectKind::Text;}}require(atom&&text,"molecular labels and caption visible");require(session.doc.bonds().get(chemicalBonds[1])->order==BondOrder::Double&&session.doc.bonds().get(chemicalBonds[5])->stereo==BondStereo::Up&&session.doc.bonds().get(chemicalBonds[6])->stereo==BondStereo::Down,"appearance preserves chemical semantics");};
     chemicalPaint(s);require(s.undo().ok()&&s.doc.digest()==before,"molecular appearance single undo");require(s.undo(true).ok()&&s.doc.digest()==after,"molecular appearance redo");chemicalPaint(s);
     chemicalPaint(s);
     before=s.doc.digest();s.dirty=false;

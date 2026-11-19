@@ -17,6 +17,8 @@ bonds::BondRenderData RingGeometry::build(const BondRecord& b,const std::set<Obj
     bonds::BondAxes axes;axes.order=b.order;axes.display=b.display;axes.semantics=b.semantics;axes.stereo=b.stereo;
     const auto& ext=doc.extensions(ObjectRef(ObjectKind::Bond,b.id));axes.side=bonds::sideOf(ext);
     bonds::BondGeometryOptions opts;opts.lineWidth=doc.defaultLineWidth();
+    auto first=doc.atoms().alive(b.beginAtom),last=doc.atoms().alive(b.endAtom);
+    if(b.order==BondOrder::Double&&first->element==7&&last->element==7&&first->semantics.charge*last->semantics.charge==-1&&length(z-a)>1e-8)opts.spacingPercent*=doc.defaultBondLength()/length(z-a);
     auto data=bonds::buildBondGeometry(a,z,axes,opts);
     if(b.order!=BondOrder::Double||b.display!=BondDisplay::Normal||b.stereo!=BondStereo::None||axes.side!=bonds::DoubleSide::Symmetric)return data;
     // Shortest alternate path, bounded to 8-membered rings / 256 local vertices.

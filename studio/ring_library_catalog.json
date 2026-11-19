@@ -729,6 +729,16 @@
         "bonds": 8,
         "source": "OPSIN 2.9.0 name parser",
         "reference": ""
+      },
+      {
+        "name": "bicyclo[2.2.1]heptane perspective",
+        "title": "透视投影",
+        "smiles": "C1CC2CCC1C2",
+        "formula": "C7H12",
+        "atoms": 7,
+        "bonds": 8,
+        "source": "Projection drawn from the supplied reference",
+        "reference": ""
       }
     ]
   },

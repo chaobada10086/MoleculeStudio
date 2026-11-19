@@ -143,6 +143,7 @@ core::Error RingTool::resolve(core::ToolHost& host, const core::PointerState& po
     policy_.fixedLength = host.fixedLength();
     policy_.fixedAngles = host.fixedAngles();
     policy_.angleStepDegrees = host.angleStepDegrees();
+    policy_.rotationGiven = false;
 
     // Alt on a RING placement releases the fixed-angle constraint by letting
     // the caller supply a rotation derived from the drag. GUIDE proves Alt
@@ -375,7 +376,7 @@ core::CommandResult ChainTool::beginGesture(core::ToolHost& host,
         const core::AtomRecord* a = host.document().atoms().alive(atom);
         if (a) origin_ = a->position;
     }
-    return core::CommandResult::noChange();
+    return updateGesture(host, pointer, hits);
 }
 
 core::CommandResult ChainTool::updateGesture(core::ToolHost& host,

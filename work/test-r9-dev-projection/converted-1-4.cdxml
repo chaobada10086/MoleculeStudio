@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="20" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="258.6678 405.9449 408.950694449 523.955623837">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="11" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="12">
+            <n id="3" p="388.181776107 510.16480679" MoleculeStudioProjection="20" IgnoreWarnings="yes" MoleculeStudioProjectionWarning="1">
+                <objecttag id="31" Name="MoleculeStudioProjection=20"/>
+                <objecttag id="32" Name="MoleculeStudioProjectionWarning=1"/>
+            </n>
+            <b id="13" B="3" E="4" Order="1" MoleculeStudioProjectionBegin="0 0 -1" MoleculeStudioProjectionEnd="0 0 1" Visible="no" MoleculeStudioProjectionHidden="1" IgnoreWarnings="yes" MoleculeStudioProjectionWarning="1">
+                <objecttag id="33" Name="MoleculeStudioProjectionBegin=0 0 -1"/>
+                <objecttag id="34" Name="MoleculeStudioProjectionEnd=0 0 1"/>
+                <objecttag id="35" Name="MoleculeStudioProjectionHidden=1"/>
+                <objecttag id="36" Name="MoleculeStudioProjectionWarning=1"/>
+            </b>
+            <n id="4" p="388.181776107 510.16480679" MoleculeStudioProjection="21" IgnoreWarnings="yes" MoleculeStudioProjectionWarning="1">
+                <objecttag id="37" Name="MoleculeStudioProjection=21"/>
+                <objecttag id="38" Name="MoleculeStudioProjectionWarning=1"/>
+            </n>
+            <b id="14" B="3" E="5" Order="1" MoleculeStudioProjectionBegin="1 -0 0.59999999999999998">
+                <objecttag id="39" Name="MoleculeStudioProjectionBegin=1 -0 0.59999999999999998"/>
+            </b>
+            <n id="5" p="385.064298646 487.98280205" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="15">
+                    <n id="16" p="336.6078 428.4449" Element="8" NumHydrogens="1"/>
+                    <n id="17" p="297.6378 405.9449" Element="6" NumHydrogens="2"/>
+                    <n id="18" p="258.6678 428.4449" NodeType="ExternalConnectionPoint"/>
+                    <b id="19" B="16" E="17" Order="1"/>
+                    <b id="20" B="17" E="18" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" color="0">CH</s>
+                    <s font="3" size="10" face="32" color="0">2</s>
+                    <s font="3" size="10" color="0">OH</s>
+                </t>
+            </n>
+            <b id="21" B="3" E="6" Order="1" MoleculeStudioProjectionBegin="-0.56298378100784374 -0.97511651254281639 0.59999999999999998">
+                <objecttag id="40" Name="MoleculeStudioProjectionBegin=-0.56298378100784374 -0.97511651254281639 0.59999999999999998"/>
+            </b>
+            <n id="6" p="408.950694449 518.555994482"/>
+            <b id="22" B="3" E="7" Order="1" MoleculeStudioProjectionBegin="-0.42333620089853907 0.73323980863945459 0.59999999999999998">
+                <objecttag id="41" Name="MoleculeStudioProjectionBegin=-0.42333620089853907 0.73323980863945459 0.59999999999999998"/>
+            </b>
+            <n id="7" p="370.530335226 523.955623837"/>
+            <b id="23" B="4" E="8" Order="1" MoleculeStudioProjectionBegin="0.42333620089853891 -0.7332398086394547 -0.59999999999999998" Visible="no" MoleculeStudioProjectionHidden="1">
+                <objecttag id="42" Name="MoleculeStudioProjectionBegin=0.42333620089853891 -0.7332398086394547 -0.59999999999999998"/>
+                <objecttag id="43" Name="MoleculeStudioProjectionHidden=1"/>
+            </b>
+            <n id="8" p="391.299253569 487.98280205"/>
+            <b id="24" B="4" E="9" Order="1" MoleculeStudioProjectionBegin="-1 -1.0831444142684455e-16 -0.59999999999999998" Visible="no" MoleculeStudioProjectionHidden="1">
+                <objecttag id="44" Name="MoleculeStudioProjectionBegin=-1 -1.0831444142684455e-16 -0.59999999999999998"/>
+                <objecttag id="45" Name="MoleculeStudioProjectionHidden=1"/>
+            </b>
+            <n id="9" p="405.833216988 523.955623837"/>
+            <b id="25" B="4" E="10" Order="1" MoleculeStudioProjectionBegin="0.56298378100784419 0.97511651254281617 -0.59999999999999998" Visible="no" MoleculeStudioProjectionHidden="1">
+                <objecttag id="46" Name="MoleculeStudioProjectionBegin=0.56298378100784419 0.97511651254281617 -0.59999999999999998"/>
+                <objecttag id="47" Name="MoleculeStudioProjectionHidden=1"/>
+            </b>
+            <n id="10" p="367.412857765 518.555994482"/>
+        </fragment>
+        <graphic id="26" Name="MoleculeStudioProjectionInk" MoleculeStudioProjectionInk="1" GraphicType="Oval" LineWidth="0.59999999999999998" OvalType="Circle Filled" FillType="Solid" BoundingBox="387.581776107 509.56480679 388.781776107 510.76480679" Center3D="388.181776107 510.16480679 0" MajorAxisEnd3D="388.781776107 510.16480679 0" MinorAxisEnd3D="388.181776107 510.76480679 0">
+            <objecttag id="48" Name="MoleculeStudioProjectionInk=1"/>
+        </graphic>
+        <graphic id="27" Name="MoleculeStudioProjectionInk" MoleculeStudioProjectionInk="1" GraphicType="Oval" LineWidth="0.59999999999999998" OvalType="Circle" BoundingBox="379.381776107 501.36480679 396.981776107 518.96480679" Center3D="388.181776107 510.16480679 0" MajorAxisEnd3D="396.981776107 510.16480679 0" MinorAxisEnd3D="388.181776107 518.96480679 0">
+            <objecttag id="49" Name="MoleculeStudioProjectionInk=1"/>
+        </graphic>
+        <graphic id="28" Name="MoleculeStudioProjectionInk" MoleculeStudioProjectionInk="1" GraphicType="Line" LineWidth="0.59999999999999998" BoundingBox="389.406499396 501.450447785 391.299253569 487.98280205">
+            <objecttag id="50" Name="MoleculeStudioProjectionInk=1"/>
+        </graphic>
+        <graphic id="29" Name="MoleculeStudioProjectionInk" MoleculeStudioProjectionInk="1" GraphicType="Line" LineWidth="0.59999999999999998" BoundingBox="395.116270739 515.582627773 405.833216988 523.955623837">
+            <objecttag id="51" Name="MoleculeStudioProjectionInk=1"/>
+        </graphic>
+        <graphic id="30" Name="MoleculeStudioProjectionInk" MoleculeStudioProjectionInk="1" GraphicType="Line" LineWidth="0.59999999999999998" BoundingBox="380.022558187 513.461344812 367.412857765 518.555994482">
+            <objecttag id="52" Name="MoleculeStudioProjectionInk=1"/>
+        </graphic>
+    </page>
+</CDXML>

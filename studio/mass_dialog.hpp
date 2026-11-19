@@ -10,10 +10,10 @@ struct MassCalculatorDialog {
         double avgDelta;    // average adduct mass relative to M
     };
     Formula formula;
-    HWND list=0, theoretical=0, filterBox=0, copy=0;
-    HFONT font=0, bigFont=0, monoFont=0;
-    double dpi=1;
-    int filter=0;                 // 0 all, 1 positive, 2 negative
+    HWND list=0, theoretical=0, filterBox=0, copy=0;bool embedded=false,showAll=false,expanded[2]={false,false};
+    HFONT font=0, bigFont=0, monoFont=0,tableFont=0;
+    double dpi=1,hostDpi=0;
+    int filter=1;                 // 0 all, 1 positive, 2 negative
     int selected=-1;              // index into adducts()
     std::vector<size_t> visible;
     static const std::vector<Adduct>& adducts(){
@@ -58,10 +58,13 @@ struct MassCalculatorDialog {
     }
     void populate(HWND h){
         studio_i18n::sendMessage(list,LVM_DELETEALLITEMS,0,0);visible.clear();
+        if(!formula.valid){selected=-1;update(h);return;}
         for(size_t i=0;i<adducts().size();++i){
             const Adduct& a=adducts()[i];
             if(filter==1&&a.charge<0)continue;
             if(filter==2&&a.charge>0)continue;
+            const bool common=i==1||i==2||i==3||i==4||i==11||i==12||i==13||i==14;
+            if(!showAll&&!common)continue;
             int row=int(visible.size());visible.push_back(i);
             std::wstring name=a.name;
             LVITEMW item={};item.mask=LVIF_TEXT;item.iItem=row;item.pszText=&name[0];
@@ -72,8 +75,7 @@ struct MassCalculatorDialog {
             };
             set(1,chargeText(a.charge));
             set(2,formula.exactValid?number(mz(a,false),4):L"—");
-            set(3,number(mz(a,true),4));
-            set(4,a.charge>0?L"正离子":L"负离子");
+            set(3,a.charge>0?L"正离子":L"负离子");
         }
         int row=0;
         if(!visible.empty()){
@@ -87,51 +89,36 @@ struct MassCalculatorDialog {
     }
     void update(HWND h){
         int adduct=selectedAdduct();
-        if(adduct<0){studio_i18n::setWindowText(theoretical,L"—");EnableWindow(copy,FALSE);return;}
+        if(adduct<0||!formula.exactValid){studio_i18n::setWindowText(theoretical,L"—");EnableWindow(copy,FALSE);return;}
         const Adduct& a=adducts()[size_t(adduct)];
-        double calculated=formula.exactValid?mz(a,false):mz(a,true);
+        double calculated=mz(a,false);
         studio_i18n::setWindowText(theoretical,number(calculated,4).c_str());
         EnableWindow(copy,TRUE);
     }
-    std::wstring summary(HWND h)const{
-        (void)h;
-        std::wostringstream out;out<<std::fixed<<std::setprecision(4);
-        out<<L"分子式: "<<W(displayFormula(formula.plain))<<L"\r\n";
-        out<<L"平均分子量: "<<formula.averageMass<<L" g/mol\r\n";
-        out<<L"单同位素质量: "<<(formula.exactValid?number(formula.exactMass,4):L"—")<<L" u\r\n";
-        out<<L"不饱和度 (DBE): "<<number(formula.dbe,1)<<L"\r\n";
-        int adduct=selectedAdduct();
-        if(adduct>=0){
-            const Adduct& a=adducts()[size_t(adduct)];
-            out<<L"加合物: "<<a.name<<L"  ("<<chargeText(a.charge)<<L")\r\n";
-            out<<L"理论 m/z: "<<number(formula.exactValid?mz(a,false):mz(a,true),4)<<L"\r\n";
-        }
-        return out.str();
+    std::wstring copyValue(int id)const{
+        if(id==507)return formula.valid?number(formula.averageMass,4):L"";
+        if(id==505)return formula.exactValid?number(formula.exactMass,4):L"";
+        int index=selectedAdduct();return index>=0&&formula.exactValid?number(mz(adducts()[size_t(index)],false),4):L"";
     }
-    void copyResult(HWND h){
-        if(!OpenClipboard(h))return;
-        EmptyClipboard();
-        std::wstring text=summary(h);
+    static void copyText(HWND h,const std::wstring& text){
+        if(!OpenClipboard(h))return;EmptyClipboard();
         HGLOBAL memory=GlobalAlloc(GMEM_MOVEABLE,(text.size()+1)*sizeof(wchar_t));
-        if(memory){
-            auto* p=(wchar_t*)GlobalLock(memory);
-            if(p){wcscpy(p,text.c_str());GlobalUnlock(memory);SetClipboardData(CF_UNICODETEXT,memory);}
-            else GlobalFree(memory);
-        }
-        CloseClipboard();
+        if(memory){auto p=(wchar_t*)GlobalLock(memory);if(p){wcscpy(p,text.c_str());GlobalUnlock(memory);if(!SetClipboardData(CF_UNICODETEXT,memory))GlobalFree(memory);}else GlobalFree(memory);}CloseClipboard();
     }
+    void copyResult(HWND h,int id=504){auto value=copyValue(id);if(!value.empty())copyText(h,value);}
     static INT_PTR CALLBACK proc(HWND h,UINT m,WPARAM w,LPARAM l){
         auto d=(MassCalculatorDialog*)GetWindowLongPtrW(h,DWLP_USER);
         if(m==WM_INITDIALOG){
             d=(MassCalculatorDialog*)l;SetWindowLongPtrW(h,DWLP_USER,(LONG_PTR)d);
-            studio_i18n::setWindowText(h,L"质谱计算器 — Mass Calculator");
-            d->dpi=GetDpiForWindow(h)/96.;auto px=[&](int n){return int(n*d->dpi);};
-            SetWindowPos(h,0,0,0,px(720),px(520),SWP_NOMOVE|SWP_NOZORDER);
+            if(!d->embedded)studio_i18n::setWindowText(h,L"计算器");
+            d->dpi=d->embedded&&d->hostDpi>0?d->hostDpi:GetDpiForWindow(h)/96.;auto px=[&](int n){return int(n*d->dpi);};
+            if(!d->embedded){SetWindowPos(h,0,0,0,px(750),px(550),SWP_NOMOVE|SWP_NOZORDER);
             RECT r,o;GetWindowRect(h,&r);GetWindowRect(GetParent(h),&o);
-            SetWindowPos(h,0,o.left+(o.right-o.left-(r.right-r.left))/2,o.top+(o.bottom-o.top-(r.bottom-r.top))/2,0,0,SWP_NOSIZE|SWP_NOZORDER);
-            d->font=CreateFontW(-px(13),0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Microsoft YaHei UI");
-            d->bigFont=CreateFontW(-px(19),0,0,0,FW_BOLD,0,0,0,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Microsoft YaHei UI");
-            d->monoFont=CreateFontW(-px(13),0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Consolas");
+            SetWindowPos(h,0,o.left+(o.right-o.left-(r.right-r.left))/2,o.top+(o.bottom-o.top-(r.bottom-r.top))/2,0,0,SWP_NOSIZE|SWP_NOZORDER);}
+            d->font=CreateFontW(-px(15),0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Microsoft YaHei UI");
+            d->bigFont=CreateFontW(-px(22),0,0,0,FW_BOLD,0,0,0,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Microsoft YaHei UI");
+            d->monoFont=CreateFontW(-px(15),0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Consolas");
+            d->tableFont=CreateFontW(-px(18),0,0,0,FW_NORMAL,0,0,0,DEFAULT_CHARSET,0,0,CLEARTYPE_QUALITY,0,L"Microsoft YaHei UI");
             auto control=[&](const wchar_t* cls,const wchar_t* title,int id,int x,int y,int width,int height,DWORD style=0,HFONT f=0){
                 HWND c=studio_i18n::createWindowEx(0,cls,title,WS_CHILD|WS_VISIBLE|style,px(x),px(y),px(width),px(height),h,(HMENU)(INT_PTR)id,0,0);
                 studio_i18n::sendMessage(c,WM_SETFONT,(WPARAM)(f?f:d->font),TRUE);return c;
@@ -140,44 +127,55 @@ struct MassCalculatorDialog {
             control(L"STATIC",formulaText.c_str(),0,20,10,680,32,0,d->bigFont);
             control(L"STATIC",L"平均分子量",0,20,46,90,22);
             std::wstring avg=number(d->formula.averageMass,4)+L" g/mol";
-            control(L"STATIC",avg.c_str(),0,112,46,170,22,0,d->monoFont);
-            control(L"STATIC",L"单同位素质量",0,300,46,105,22);
+            control(L"EDIT",avg.c_str(),508,116,46,126,24,ES_READONLY|ES_AUTOHSCROLL|WS_TABSTOP,d->monoFont);
+            auto averageCopy=control(L"BUTTON",L"复制",507,248,43,54,28,WS_TABSTOP);EnableWindow(averageCopy,d->formula.valid);
+            control(L"STATIC",L"单同位素质量",0,322,46,105,22);
             std::wstring exact=d->formula.exactValid?number(d->formula.exactMass,4)+L" u":L"—";
-            control(L"STATIC",exact.c_str(),0,410,46,150,22,0,d->monoFont);
-            control(L"STATIC",L"不饱和度 DBE",0,570,46,100,22);
-            control(L"STATIC",number(d->formula.dbe,1).c_str(),0,672,46,48,22,0,d->monoFont);
+            control(L"EDIT",exact.c_str(),509,430,46,130,24,ES_READONLY|ES_AUTOHSCROLL|WS_TABSTOP,d->monoFont);
+            auto exactCopy=control(L"BUTTON",L"复制",505,568,43,54,28,WS_TABSTOP);EnableWindow(exactCopy,d->formula.exactValid);
+            control(L"STATIC",L"DBE",0,632,46,40,22);
+            control(L"STATIC",number(d->formula.dbe,1).c_str(),0,678,46,42,22,0,d->monoFont);
             control(L"STATIC",L"",0,20,74,680,2,SS_ETCHEDHORZ);
-            control(L"STATIC",L"常见加合物（选择一行查看理论 m/z）",0,20,84,300,22);
-            d->filterBox=control(L"COMBOBOX",L"",501,560,82,140,200,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP);
-            for(auto s:{L"全部离子",L"正离子",L"负离子"})studio_i18n::sendMessage(d->filterBox,CB_ADDSTRING,0,(LPARAM)s);
-            studio_i18n::sendMessage(d->filterBox,CB_SETCURSEL,0,0);
+            
+            d->filterBox=control(WC_TABCONTROLW,L"",501,20,82,440,28,WS_TABSTOP);
+            for(int i=0;i<2;++i){TCITEMW item={};item.mask=TCIF_TEXT;item.pszText=(LPWSTR)(i?L"负离子":L"正离子");SendMessageW(d->filterBox,TCM_INSERTITEMW,i,(LPARAM)&item);}
+            SendMessageW(d->filterBox,TCM_SETCURSEL,d->filter-1,0);
+            control(L"BUTTON",d->showAll?L"只显示常用四项":L"显示全部",506,568,80,132,28,WS_TABSTOP);
             d->list=control(WC_LISTVIEWW,L"",502,20,110,680,250,WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|WS_TABSTOP);
+            SendMessageW(d->list,WM_SETFONT,(WPARAM)d->tableFont,TRUE);
             studio_i18n::sendMessage(d->list,LVM_SETEXTENDEDLISTVIEWSTYLE,0,LVS_EX_FULLROWSELECT|LVS_EX_DOUBLEBUFFER|LVS_EX_GRIDLINES);
-            const wchar_t* cols[]={L"加合物",L"电荷",L"单同位素 m/z",L"平均 m/z",L"模式"};
-            int widths[]={180,55,135,135,75};
-            for(int i=0;i<5;i++){LVCOLUMNW c={};c.mask=LVCF_TEXT|LVCF_WIDTH;c.pszText=(wchar_t*)cols[i];c.cx=px(widths[i]);studio_i18n::sendMessage(d->list,LVM_INSERTCOLUMNW,i,(LPARAM)&c);}
-            control(L"STATIC",L"所选加合物理论 m/z",0,20,372,130,22);
-            d->theoretical=control(L"STATIC",L"—",0,154,372,160,22,0,d->monoFont);
-            d->copy=control(L"BUTTON",L"复制结果",504,20,414,110,32,WS_TABSTOP);
-            control(L"BUTTON",L"关闭",IDCANCEL,590,414,110,32,WS_TABSTOP|BS_DEFPUSHBUTTON);
-            control(L"STATIC",L"单同位素 m/z 用于高分辨质谱；平均 m/z 用于低分辨或分子量核对。",0,20,462,680,22);
+            const wchar_t* cols[]={L"加合物",L"电荷",L"精确 m/z",L"模式"};
+            int widths[]={210,65,225,140};
+            for(int i=0;i<4;i++){LVCOLUMNW c={};c.mask=LVCF_TEXT|LVCF_WIDTH;c.pszText=(wchar_t*)cols[i];c.cx=px(widths[i]);studio_i18n::sendMessage(d->list,LVM_INSERTCOLUMNW,i,(LPARAM)&c);}
+            control(L"STATIC",L"所选加合物精确 m/z",0,20,372,154,24);
+            d->theoretical=control(L"EDIT",L"—",510,180,372,140,24,ES_READONLY|ES_AUTOHSCROLL|WS_TABSTOP,d->monoFont);
+            d->copy=control(L"BUTTON",L"复制",504,338,369,62,30,WS_TABSTOP);
+            if(!d->embedded)control(L"BUTTON",L"关闭",IDCANCEL,590,414,110,32,WS_TABSTOP|BS_DEFPUSHBUTTON);
+            
             d->populate(h);return TRUE;
         }
         if(!d)return FALSE;
         if(m==WM_COMMAND){
             int id=LOWORD(w),notification=HIWORD(w);
-            if(id==IDCANCEL||id==IDOK){EndDialog(h,0);return TRUE;}
-            if(id==501&&notification==CBN_SELCHANGE){d->filter=int(studio_i18n::sendMessage(d->filterBox,CB_GETCURSEL,0,0));d->populate(h);return TRUE;}
+            if(id==IDCANCEL||id==IDOK){if(!d->embedded)EndDialog(h,0);return TRUE;}
+            if(id==505||id==507){d->copyResult(h,id);return TRUE;}
+            if(id==506){d->showAll=!d->showAll;d->expanded[d->filter-1]=d->showAll;studio_i18n::setWindowText(GetDlgItem(h,506),d->showAll?L"只显示常用四项":L"显示全部");d->populate(h);return TRUE;}
             if(id==504){d->copyResult(h);return TRUE;}
         }
+        if(m==WM_NOTIFY&&((NMHDR*)l)->hwndFrom==d->filterBox&&((NMHDR*)l)->code==TCN_SELCHANGE){d->filter=int(SendMessageW(d->filterBox,TCM_GETCURSEL,0,0))+1;d->showAll=d->expanded[d->filter-1];studio_i18n::setWindowText(GetDlgItem(h,506),d->showAll?L"只显示常用四项":L"显示全部");d->populate(h);return TRUE;}
         if(m==WM_NOTIFY&&((NMHDR*)l)->hwndFrom==d->list&&((NMHDR*)l)->code==LVN_ITEMCHANGED){
             int row=int(studio_i18n::sendMessage(d->list,LVM_GETNEXTITEM,-1,LVNI_SELECTED));
             d->selected=row>=0&&size_t(row)<d->visible.size()?int(d->visible[size_t(row)]):-1;
             d->update(h);return TRUE;
         }
-        if(m==WM_CLOSE){EndDialog(h,0);return TRUE;}
-        if(m==WM_DESTROY){if(d->font)DeleteObject(d->font);if(d->bigFont)DeleteObject(d->bigFont);if(d->monoFont)DeleteObject(d->monoFont);return TRUE;}
+        if(m==WM_CLOSE){if(!d->embedded)EndDialog(h,0);return TRUE;}
+        if(m==WM_DESTROY){if(d->font)DeleteObject(d->font);if(d->bigFont)DeleteObject(d->bigFont);if(d->monoFont)DeleteObject(d->monoFont);if(d->tableFont)DeleteObject(d->tableFont);d->font=d->bigFont=d->monoFont=d->tableFont=0;return TRUE;}
         return FALSE;
+    }
+    HWND createPage(HWND owner){
+        embedded=true;struct Template{DLGTEMPLATE t;WORD menu,cls,title;}t={};
+        t.t.style=WS_CHILD|DS_CONTROL;t.t.cx=720;t.t.cy=500;
+        return CreateDialogIndirectParamW(GetModuleHandleW(0),&t.t,owner,proc,(LPARAM)this);
     }
     static void show(HWND owner,const Formula& value){
         MassCalculatorDialog d;d.formula=value;

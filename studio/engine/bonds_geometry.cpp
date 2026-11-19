@@ -93,7 +93,10 @@ BondRenderData buildBondGeometry(const BondAxis& axis,const BondAxes& axes,const
     if(lines==3){if(!first.drawsLabel)start=0;if(!last.drawsLabel)endGap=0;}
     double finish=axis.length-endGap,spacing=multipleBondSpacing(axis.length,options);
     if(axes.stereo==core::BondStereo::Either&&lines==2){
-        double side=spacing>0?spacing:axis.length*.1;
+        // Two straight strokes cross halfway along the visible bond axis.
+        if(!first.drawsLabel)start=0;
+        if(!last.drawsLabel)finish=axis.length;
+        const double side=std::min(spacing>0?spacing*.5:axis.length*.05,(finish-start)*.10);
         builder.stroke(start,finish,side,-side);builder.stroke(start,finish,-side,side);
         builder.output.note="crossed double bond (double either)";return builder.output;
     }

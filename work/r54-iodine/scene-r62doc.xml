@@ -1,0 +1,23 @@
+<request>
+    <plugins>
+        <plugin name="绘图增强插件" version="1.8.0" module="ai_plugins" entry="install_plugin" path="ai_plugins"/>
+    </plugins>
+    <context application_version="0.95" ai_tools_revision="2026-11-18" native_ring_variants="112" text_size="10" selected="0" font="Arial" bond_length="14.4" line_width="0.59999999999999998" color="#000000" atoms="7" bonds="7" page_width_mm="210.00000333333335" page_height_mm="297.00001277777778" page_across="1" page_down="1" selection_types=""/>
+    <scene total="15" selection_total="0" selection_complete="true" truncated="false">
+        <object ref="atom:0" kind="atom" selected="false" molecule="molecule:0" x="5.4731583035492832" y="8.8271015625000029" x2="5.4731583035492832" y2="8.8271015625000029" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label="" color="#000000"/>
+        <object ref="atom:1" kind="atom" selected="false" molecule="molecule:0" x="5.4731583035492832" y="-5.5728984374999975" x2="5.4731583035492832" y2="-5.5728984374999975" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label="" color="#000000"/>
+        <object ref="atom:2" kind="atom" selected="false" molecule="molecule:0" x="-6.9976075109466223" y="-12.772898437500004" x2="-6.9976075109466223" y2="-12.772898437500004" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label="" color="#000000"/>
+        <object ref="atom:3" kind="atom" selected="false" molecule="molecule:0" x="-19.468373325442556" y="-5.5728984375000135" x2="-19.468373325442556" y2="-5.5728984375000135" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label="" color="#000000"/>
+        <object ref="atom:4" kind="atom" selected="false" molecule="molecule:0" x="-19.46837332544257" y="8.8271015624999851" x2="-19.46837332544257" y2="8.8271015624999851" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label="" color="#000000"/>
+        <object ref="atom:5" kind="atom" selected="false" molecule="molecule:0" x="-6.9976075109466365" y="16.027101562499997" x2="-6.9976075109466365" y2="16.027101562499997" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label="" color="#000000"/>
+        <object ref="atom:6" kind="atom" selected="false" molecule="molecule:0" x="17.943924118045203" y="-12.772898437499997" x2="17.943924118045203" y2="-12.772898437499997" element="I" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label="" color="#000000"/>
+        <object ref="bond:0" kind="bond" selected="false" molecule="molecule:0" x="5.4731583035492832" y="-5.5728984374999975" x2="5.4731583035492832" y2="8.8271015625000029" order="1" begin="atom:0" end="atom:1" color="#000000"/>
+        <object ref="bond:1" kind="bond" selected="false" molecule="molecule:0" x="-6.9976075109466223" y="-12.772898437500004" x2="5.4731583035492832" y2="-5.5728984374999975" order="2" begin="atom:1" end="atom:2" color="#000000"/>
+        <object ref="bond:2" kind="bond" selected="false" molecule="molecule:0" x="-19.468373325442556" y="-12.772898437500004" x2="-6.9976075109466223" y2="-5.5728984375000135" order="1" begin="atom:2" end="atom:3" color="#000000"/>
+        <object ref="bond:3" kind="bond" selected="false" molecule="molecule:0" x="-19.46837332544257" y="-5.5728984375000135" x2="-19.468373325442556" y2="8.8271015624999851" order="2" begin="atom:3" end="atom:4" color="#000000"/>
+        <object ref="bond:4" kind="bond" selected="false" molecule="molecule:0" x="-19.46837332544257" y="8.8271015624999851" x2="-6.9976075109466365" y2="16.027101562499997" order="1" begin="atom:4" end="atom:5" color="#000000"/>
+        <object ref="bond:5" kind="bond" selected="false" molecule="molecule:0" x="-6.9976075109466365" y="8.8271015625000029" x2="5.4731583035492832" y2="16.027101562499997" order="2" begin="atom:5" end="atom:0" color="#000000"/>
+        <object ref="bond:6" kind="bond" selected="false" molecule="molecule:0" x="5.4731583035492832" y="-12.772898437499997" x2="17.943924118045203" y2="-5.5728984374999975" order="1" begin="atom:1" end="atom:6" color="#000000"/>
+        <object ref="arrow:0" kind="arrow" selected="false" x="11.443048357754975" y="-8.2188983237532831" x2="18.569655057056252" y2="-7.4030353030484601" mechanism="true" electrons="2" source="bond:6" target="atom:6" color="#000000"/>
+    </scene>
+</request>

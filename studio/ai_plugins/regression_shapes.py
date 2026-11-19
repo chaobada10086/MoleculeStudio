@@ -21,6 +21,18 @@ def main():
         ET.SubElement(root,'actions').extend(engine.actions)
         (output/name).write_text(ET.tostring(root,encoding='unicode'),encoding='utf-8')
     save(e,'shapes-plan.xml')
+    curve=fresh()
+    pts=[[0,20],[20,0],[40,20],[60,40],[80,20]]
+    result=curve.call('draw_curve',{'points':pts,'width':2})
+    assert result['ref'] and [pt.get('control') for pt in curve.actions[-1]]==[None,'true',None,'true',None]
+    try:curve.call('draw_curve',{'points':pts[:-1]})
+    except ValueError:pass
+    else:raise AssertionError('incomplete curve segment accepted')
+    assert len(curve.actions)==1
+    edges=[{'source':str(i),'target':str(j)} for i,j in [(0,2),(3,5),(1,4),(5,3)]]
+    routed=fresh().call('draw_diagram',{'nodes':[{'id':str(i),'text':str(i)} for i in range(6)],'edges':edges})
+    lanes=[edge['points'][1][1] for edge in routed['edges']]
+    assert lanes[0]==lanes[1] and lanes[2]<lanes[1] and lanes[3]>lanes[0]
     for direction in ('row','column'):
         e=fresh();args={'direction':direction,'nodes':[{'id':'a','text':'样品准备'},{'id':'b','text':'测试合格？','shape':'diamond'},{'id':'c','text':'记录结果','shape':'document'},{'id':'d','text':'完成','shape':'ellipse'}],
                        'edges':[{'source':'a','target':'b'},{'source':'b','target':'c','label':'是'},{'source':'c','target':'d'},{'source':'b','target':'d','label':'否'}]}

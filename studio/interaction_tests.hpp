@@ -2,7 +2,7 @@ auto arrowCount=[](const Document& d){size_t n=0;for(auto& a:d.arrows().records(
 // Included in App::selftest. These exercise user-visible gestures and model
 // invariants, including undo, rather than checking individual implementation lines.
 {
-    ShortcutConfig config;config.reset();auto redo=config.match('Z',kModControl|kModShift,0);auto repeat=config.match('Y',kModControl,0);require(redo&&redo->command=="@redo"&&repeat&&repeat->command=="@repeat","Default redo and repeat have distinct default keys");require(config.match(VK_F5,0,0)->command=="@actual"&&config.match(VK_F6,0,0)->command=="@fit","Default F5/F6 defaults");require(config.match('P',kModControl|kModShift,0)->command=="@page","Default page setup default");
+    ShortcutConfig config;config.reset();auto redo=config.match('Z',kModControl|kModShift,0);auto repeat=config.match('Y',kModControl,0);require(redo&&redo->command=="@redo"&&repeat&&repeat->command=="@redo","Ctrl+Y and Ctrl+Shift+Z both redo");require(config.match(VK_F5,0,0)->command=="@actual"&&config.match(VK_F6,0,0)->command=="@fit","Default F5/F6 defaults");require(config.match('P',kModControl|kModShift,0)->command=="@page","Default page setup default");
     {ShortcutConfig migrated;migrated.reset();migrated.path=W(testOut+"/legacy-shortcuts.ini");
         auto& row=*std::find_if(migrated.rows.begin(),migrated.rows.end(),[](const ShortcutRow& r){return r.id=="studio.hotkey.0";});
         auto oldId=W(legacyShortcutId(row.id));WritePrivateProfileStringW(L"Keys",oldId.c_str(),L"123",migrated.path.c_str());WritePrivateProfileStringW(L"Modifiers",oldId.c_str(),L"4",migrated.path.c_str());

@@ -1,4 +1,4 @@
-import sys,json,copy,xml.etree.ElementTree as ET
+import sys,json,copy,math,xml.etree.ElementTree as ET
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(ROOT))
@@ -10,7 +10,183 @@ def engine():
  dp.install_plugin(vars(ai))
  return ai.DrawingTools({'selected':0,'bond_length':14.4,'font':'Times New Roman'})
 
+def check_enolate_step():
+    draw = engine()
+    row = {'enolate':{}, 'reactants':['smiles:[Na+].CC[O-]', 'smiles:CCOC(=O)CCCCC(=O)OCC']}
+    step = draw.call('draw_scheme', {'steps':[row]})['steps'][0]
+    scene = {o['ref']:o for o in draw.scene}
+    attack, shift, release = (scene[r] for r in step['electron_refs'])
+    donor, hydrogen = (scene[attack[key]] for key in ('source','target'))
+    assert donor['element']=='O' and donor['charge']==-1 and hydrogen['element']=='H'
+    assert math.dist((donor['x'],donor['y']), (hydrogen['x'],hydrogen['y'])) < 3*14.4
+    def ends(ref):
+        return {scene[ref]['begin'],scene[ref]['end']}
+    ch = ends(shift['source'])
+    cc = ends(shift['target'])
+    co = ends(release['source'])
+    assert hydrogen['ref'] in ch and len(ch & cc)==len(cc & co)==1 and not ch & co
+    assert scene[release['source']]['order']=='2' and release['target'] in co
+    assert scene[release['target']]['element']=='O'
+    product, acid = (Chem.MolFromSmiles(p['smiles']) for p in step['products'])
+    assert product.HasSubstructMatch(Chem.MolFromSmarts('C=C([O-])O')) and acid.GetNumAtoms()==3
+    assert any(a.GetAtomicNum()==11 for a in product.GetAtoms())
+    before = [ET.tostring(a) for a in draw.actions],copy.deepcopy(draw.scene)
+    for invalid in ({**row,'enolate':{'alpha':2}},
+                    {**row,'reactants':[row['reactants'][0],'smiles:CCC(=O)C']}):
+        try: draw.call('draw_scheme',{'steps':[row,invalid]})
+        except ValueError: pass
+        else: raise AssertionError('invalid or ambiguous alpha carbon accepted')
+        assert ([ET.tostring(a) for a in draw.actions],draw.scene)==before
+    step = draw.call('draw_reaction',{'enolate':{'alpha':2,'carbonyl':3},
+                     'reactants':['smiles:CC[O-]','smiles:CCC(=O)C']})
+    assert len(step['electron_refs'])==3
+    print('PASS enolate endpoints, salt products, compact approach, site selection and rollback')
+
+def check_enol_double_bonds():
+    draw = engine()
+    # A second, unrelated alkene in the same structure still has its own stereo.
+    for smiles, plain, crossed in [('CC=C(C)O',1,0), ('CC=C([O-])CC=CC',2,0),
+                                   ('CC=COC',1,0), ('CC=CC',1,0), ('CC(=O)N=[N+]=[N-]',1,0), ('C/C=C(/C)O',0,0), ('C/C=C(\\C)O',0,0)]:
+        draw.call('draw_smiles', {'smiles':smiles})
+        xml = draw.actions[-1].text
+        bonds = ET.fromstring(xml).findall(".//b[@Order='2']")
+        assert sum(b.get('MoleculeStudioUnspecifiedEZ')=='yes' and 'Display' not in b.attrib for b in bonds)==plain
+        assert sum(b.get('Display')=='Wavy' for b in bonds)==crossed
+        assert identity(one_molecule(xml))==identity(Chem.MolFromSmiles(smiles))
+    print('PASS parallel enol and enolate C=C, other alkenes and explicit E/Z round trips')
+
+def check_mechanism_sites():
+    from ai_plugins.mitsunobu import scheme
+    draw = engine()
+    args = {'alcohol':'CC(O)C','acid':'CC(=O)O'}
+    rows = draw.call('draw_mitsunobu', args)['steps']
+    objects = {o['ref']:o for o in draw.scene}
+    moves = [[objects[r] for r in row['electron_refs']] for row in rows]
+    assert [len(group) for group in moves]==[2,2,4,2]
+    assert all(m['electrons']==2 for group in moves for m in group)
+    add, pi = moves[0]
+    assert objects[add['source']]['element']=='P' and objects[add['target']]['element']=='N'
+    nn = objects[pi['source']]
+    assert nn['order']=='2' and {nn['begin'],nn['end']}=={add['target'],pi['target']}
+    attack, leaving = moves[-1]
+    assert objects[attack['source']]['charge']==-1 and objects[attack['source']]['element']=='O'
+    co, op = (objects[leaving[k]] for k in ('source','target'))
+    assert attack['target'] in (co['begin'],co['end']) and objects[attack['target']]['element']=='C'
+    assert {objects[op[k]]['element'] for k in ('begin','end')}=={'O','P'}
+    assert rows[-1]['products'][0]['smiles']==Chem.MolToSmiles(Chem.MolFromSmiles('CC(=O)OC(C)C'))
+    for alcohol, cip in [('C[C@H](O)CC','R'),('O[C@@H](C)CC','R'),('C[C@@H](O)CC','S')]:
+        spec = scheme({**args,'alcohol':alcohol})['steps'][-1]['products'][0]
+        assert [s for i,s in Chem.FindMolChiralCenters(Chem.MolFromSmiles(spec[7:]))]==[cip]
+    checkpoint = [ET.tostring(a) for a in draw.actions],copy.deepcopy(draw.scene)
+    for name,params in [
+        ('draw_mitsunobu',{**args,'alcohol':'OCCO'}),
+        ('draw_mitsunobu',{**args,'alcohol':'CC(C)(C)O'}),
+        ('draw_reaction',{'reactants':['smiles:[OH:5][CH3:5]'],'products':['smiles:C']}),
+        ('draw_reaction',{'reactants':['smiles:C[O-:5]'],'products':['smiles:CO'],
+                          'electron_moves':[{'source':'1:@5','target':'1:@9'}]})]:
+        try: draw.call(name,params)
+        except ValueError: pass
+        else: raise AssertionError('invalid site accepted')
+        assert ([ET.tostring(a) for a in draw.actions],draw.scene)==checkpoint
+    print('PASS mapped sites, Mitsunobu double-electron flow, SN2 inversion and atomic rollback')
+
+def check_robinson_arrows():
+    draw = engine()
+    rows = draw.call('draw_scheme', {'steps':[
+        {'reactants':['smiles:[OH-]','smiles:O=C1CCCCC1'],'enolate':{}},
+        {'reactants':['smiles:[O-]C1=CCCCC1','smiles:C=CC(C)=O'],'michael':{}}
+    ]})['steps']
+    sites = {o['ref']:o for o in draw.scene}
+    moves = [[(sites[a['source']],sites[a['target']]) for a in (sites[r] for r in row['electron_refs'])] for row in rows]
+    first, second = moves
+    assert len(first)==3 and len(second)==4
+    assert first[0][0]['charge']==-1 and first[0][1]['element']=='H' and first[0][1]['ref'] in (first[1][0]['begin'],first[1][0]['end'])
+    assert second[0][0]['charge']==-1 and second[0][0]['ref'] in (second[0][1]['begin'],second[0][1]['end'])
+    assert second[1][0]['order']=='2' and second[1][0]['owner']!=second[1][1]['owner']
+    assert second[1][1]['ref'] in (second[2][0]['begin'],second[2][0]['end']) and second[3][1]['element']=='O'
+    expected = Chem.MolFromSmiles('CC([O-])=CCC1CCCCC1=O')
+    assert Chem.MolToSmiles(Chem.MolFromSmiles(rows[1]['products'][0]['smiles']))==Chem.MolToSmiles(expected)
+    assert all(a.get('route')=='true' for a in draw.actions if a.get('style')=='mechanism')
+    for route in (True, False):
+        move = {'source':'1:1-2','target':'1:2','bend':.25}
+        if not route: move['route']=False
+        draw.call('draw_reaction', {'reactants':['smiles:C=O'],'products':['smiles:C=O'],'electron_moves':[move]})
+        assert [a for a in draw.actions if a.get('style')=='mechanism'][-1].get('route')==str(route).lower()
+    print('PASS hydroxide and Michael electron pairs, charge, product graph and explicit route override')
+
+def check_skeleton_validation():
+    draw = engine()
+    implicit = draw.call('inspect_reaction_sites', {'reactants':['CC(=O)O']})
+    explicit = draw.call('inspect_reaction_sites', {'reactants':['smiles:CC(=O)O']})
+    assert implicit == explicit
+    draw = engine()
+    step = dict(reactants=['smiles:CC=O'], products=['smiles:C=CO'],
+                skeleton_check={'product_carbons':[2], 'isomerization':True})
+    for product,counts in [('CC=O',[2]), ('CCC=O',[3]), ('C=CO',[3])]:
+        try:
+            draw.call('draw_scheme', {'steps':[step,{**step,'products':['smiles:'+product],
+                           'skeleton_check':{'product_carbons':counts,'isomerization':True}}]})
+        except ValueError:
+            assert not draw.actions and not draw.scene
+        else: raise AssertionError('invalid skeleton was accepted')
+    draw.call('draw_reaction',step)
+    assert draw.actions
+    print('PASS isomer identity, formula and carbon counts with whole-scheme rollback')
+
+def check_reaction_dispatch():
+    from unittest.mock import patch
+    request = ET.fromstring('<request><key>test</key><model>test</model><prompt/></request>')
+    for prompt, count, partial in [('画出这个总反应式',2,True),('解释这个反应式',1,False)]:
+        request.find('prompt').text = prompt
+        empty = {'choices':[{'message':{'role':'assistant','content':'说明'}}]}
+        with patch.object(ai,'request_json',return_value=empty) as provider:
+            result = ai.run(request)
+        assert (result.get('partial')=='true')==partial and provider.call_count==count
+    draw = engine()
+    draw.check_step_prediction = True
+    draw.call('inspect_reaction_sites',{'reactants':['O=C(Cl)c1ccccc1']})
+    try:draw.call('draw_reaction',{'reactants':['smiles:CBr','smiles:[OH-]'],'products':['smiles:CO']})
+    except ValueError as exc: assert '碳键环境' in str(exc)
+    else: raise AssertionError('unrelated model substrate accepted')
+    print('PASS missing net-reaction receipt, informational request, and unrelated example rejection')
+
+def check_polar_addition():
+    from ai_plugins.native_step import native_products
+    for sigma,site,organic,ion in [
+        ('Br[Zn]CC(=O)OCC','2-3','CCOC(=O)CC([O-])c1ccccc1','[Zn+]Br'),
+        ('CCOC(=O)C[Zn]Br','6-7','CCOC(=O)CC([O-])c1ccccc1','[Zn+]Br'),
+        ('Br[Mg]C','2-3','CC([O-])c1ccccc1','[Mg+]Br'),
+        ('C[Mg]Br','1-2','CC([O-])c1ccccc1','[Mg+]Br')]:
+        moves = [{'source':'1:'+site,'target':'2:2'}, {'source':'2:1-2','target':'2:1'}]
+        actual = native_products(engine(),['smiles:'+sigma,'smiles:O=Cc1ccccc1'],moves)
+        assert set(actual)=={'smiles:'+organic,'smiles:'+ion}, (sigma, actual)
+    for spec, moves, expected in [
+        ('[OH2+]N=C1CCCCC1',[('3-4','2'),('2-1','1'),('2','2-3')],{'C1#[N+]CCCCC1','O'}),
+        ('OC1(OOC(C)=O)CCCCC1',[('2-8','3'),('3-4','4'),('1','1-2')],{'[OH+]=C1CCCCCO1','CC(=O)[O-]'})]:
+        arrows=[{'source':'1:'+s,'target':'1:'+t} for s,t in moves]
+        actual=native_products(engine(),['smiles:'+spec],arrows)
+        assert set(actual)=={'smiles:'+s for s in expected},(spec,actual)
+    released=native_products(engine(),['smiles:O=C([N-][N+]#N)c1ccccc1'],
+                             [{'source':'1:'+s,'target':'1:'+t} for s,t in [('2-6','3'),('3-4','4'),('3','2-3')]])
+    assert set(released)=={'smiles:O=C=Nc1ccccc1','smiles:N#N'}
+    transfer=[{'source':s,'target':t} for s,t in [('2:1-2','1:2'),('1:1-2','1:3'),('1:2-3','2:2')]]
+    actual=native_products(engine(),['smiles:BrC[Zn]Br','smiles:C=C'],transfer)
+    assert set(actual)=={'smiles:C1CC1','smiles:Br[Zn]Br'},actual
+    print('PASS coupled alkene and organozinc donations with halide transfer')
+    print('PASS editable small loss in native product inventory')
+    print('PASS ring expansion onto nitrogen and oxygen')
+    print('PASS polar carbon addition with both C-metal bond orientations')
+
 def main():
+ import os
+ if os.environ.get('MOLECULE_STUDIO_TEST_EXE') or (ROOT/'manifest.json').exists():
+  check_polar_addition()
+ check_skeleton_validation()
+ check_reaction_dispatch()
+ check_robinson_arrows()
+ check_mechanism_sites()
+ check_enol_double_bonds()
+ check_enolate_step()
  e=engine()
  record=json.loads((Path(__file__).parent/'fixtures/palytoxin.json').read_text(encoding='utf-8'))['matches'][0]
  e.compounds[record['cid']]=record
@@ -71,4 +247,65 @@ def main():
  assert extra['bounds'][1]>scheme['bounds'][3]
  assert not dp._overlaps(dp._top_groups(e)),dp._overlaps(dp._top_groups(e))
  print('PASS long labels, long conditions and existing-content avoidance')
+ # Row-local electron addresses resolve to atoms or actual bonds and survive layout.
+ mechanism=engine()
+ row={'reactants':['smiles:[OH-]','smiles:CBr'],'products':['smiles:CO','smiles:[Br-]'],
+      'electron_moves':[{'source':'1:1','target':'2:1'},{'source':'2:1-2','target':'2:2'}]}
+ scheme=mechanism.call('draw_scheme',{'steps':[row,{**row,'title':'第二步','reactant_labels':['Nu','底物']}]})
+ first,second=scheme['steps']
+ assert len(first['electron_refs'])==2 and second['bounds'][1]-first['bounds'][3]>=15.99
+ assert all(o['source'].split('/')[0] in [r['ref'] for r in step['reactants']]
+            for step in scheme['steps'] for o in mechanism.scene if o['ref'] in step['electron_refs'])
+ a=next(o for o in mechanism.scene if o.get('owner')==first['reactants'][0]['ref'] and o['kind']=='atom')
+ b=next(o for o in mechanism.scene if o.get('owner')==first['products'][0]['ref'] and o['kind']=='atom')
+ count=len(mechanism.actions)
+ for name,args in [('draw_curved_arrow',{'source':a['ref'],'target':b['ref']}),
+                   ('draw_arrow',{'style':'mechanism','x':a['x'],'y':a['y'],'x2':b['x'],'y2':b['y']}),
+                   ('draw_scheme',{'steps':[row,{**row,'electron_moves':[{'source':'1:1','target':'2:1-9'}]}]})]:
+  try:mechanism.call(name,args)
+  except ValueError:pass
+  else:raise AssertionError('invalid mechanism accepted')
+  assert len(mechanism.actions)==count
+ print('PASS row-local electron flow, compact spacing, cross-product rejection and atomic rollback')
+ e=engine()
+ michael={'title':'Michael 加成','reactants':['smiles:COC(=O)[CH-]C(=O)C','smiles:C=CC(=O)C'],
+         'products':['smiles:COC(=O)C(C/C=C(/[O-])C)C(=O)C'],
+         'electron_moves':[{'source':'1:5','target':'2:1'},{'source':'2:1-2','target':'2:2-3'},{'source':'2:3-4','target':'2:4'}]}
+ row=e.call('draw_reaction',michael)
+ by_ref={o['ref']:o for o in e.scene}
+ attack=by_ref[row['electron_refs'][0]]
+ donor,acceptor=(by_ref[attack[k]] for k in ('source','target'))
+ assert abs(donor['y']-acceptor['y'])<1e-6
+ assert max(donor['x'],acceptor['x'])<row['arrow_endpoints'][0][0]
+ payload={'style':'mechanism','x':donor['x']+.3,'y':donor['y'],'x2':acceptor['x'],'y2':acceptor['y']-.2}
+ e.call('draw_arrow',payload)
+ assert e.actions[-1].get('source_ref')==donor['ref'] and e.actions[-1].get('target_ref')==acceptor['ref']
+ product=next(o for o in e.scene if o.get('owner')==row['products'][0]['ref'] and o['kind']=='atom')
+ for o in e.scene:
+  o.pop('reaction_row',None)
+  o.pop('reaction_side',None)
+ checkpoint=len(e.actions)
+ for name,args in [('draw_arrow',{**payload,'x2':acceptor['x'],'y2':acceptor['y']+100}),
+                   ('draw_mechanism_step',{'moves':[{'source':donor['ref'],'target':product['ref']}],'generate':False}),
+                   ('draw_curved_arrow',{'source':donor['ref'],'target':product['ref']})]:
+  try:e.call(name,args)
+  except ValueError:pass
+  else:raise AssertionError('unbound or cross-divider arrow was accepted')
+  assert len(e.actions)==checkpoint
+ new=engine()
+ a=new.call('draw_smiles',{'smiles':'[OH-]','x':0,'y':0})['atom_refs'][0]['ref']
+ b=new.call('draw_smiles',{'smiles':'C','x':85,'y':0})['atom_refs'][0]['ref']
+ new.call('draw_arrow',{'style':'mechanism','source':a,'target':b})
+ old=len(new.actions)
+ try:new.call('draw_arrow',{'style':'forward','x':25,'x2':60,'y':0,'y2':0})
+ except ValueError:pass
+ else:raise AssertionError('late divider through an electron arrow')
+ assert len(new.actions)==old
+ plain=engine()
+ for coords,ax,ax2 in [((0,0,60,2),'y','y2'),((12,40,11,0),'x','x2')]:
+  plain.call('draw_arrow',{'style':'forward',**dict(zip(('x','y','x2','y2'),coords))})
+  assert plain.actions[-1].get(ax)==plain.actions[-1].get(ax2)
+ plain.call('draw_arrow',{'style':'forward','x':0,'y':0,'x2':30,'y2':25})
+ assert float(plain.actions[-1].get('y2'))==25
+ print('PASS Michael addition: aligned contact sites, snapped chemical endpoints and cross-divider checks for existing scenes')
 if __name__=='__main__':main()

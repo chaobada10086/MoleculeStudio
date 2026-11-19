@@ -3,6 +3,32 @@
 core::Error emitExperimentalFigure(Writer& writer,core::ObjectId id){
     experimental::PlateFigure figure;experimental::PlateFrame frame;
     auto result=experimental::readFigureAndFrame(writer.document,id,&figure,&frame,0);if(!result.ok())return result;
+    if(figure.kind==experimental::FigureKind::TlcPlate){
+        auto& out=writer.out;auto ref=experimental::figureRef(id);const auto& bag=writer.document.extensions(ref);
+        auto pointText=[](core::Vec2 p){return numberToText(p.x)+" "+numberToText(p.y);};
+        out<<"<tlcplate";attributeInteger(out,"id",writer.objectId(ref,writer.document.symbols().get(id)->sourceId));
+        attribute(out,"TopLeft",pointText(frame.pointAt(-1,-1)));attribute(out,"TopRight",pointText(frame.pointAt(1,-1)));
+        attribute(out,"BottomRight",pointText(frame.pointAt(1,1)));attribute(out,"BottomLeft",pointText(frame.pointAt(-1,1)));
+        attributeNumber(out,"OriginFraction",(1-figure.originV)*.5);attributeNumber(out,"SolventFrontFraction",(1+figure.frontV)*.5);
+        attribute(out,"ShowOrigin",figure.originDefined?"yes":"no");attribute(out,"ShowSolventFront",figure.frontDefined?"yes":"no");
+        // CDX ShowBorders controls the outer plate frame, not internal lane guides.
+        attribute(out,"ShowBorders","yes");out<<">";
+        out<<"<objecttag";attributeInteger(out,"id",writer.reserveFileId());attribute(out,"Name","MoleculeStudio/TLC");attribute(out,"TagType","String");attribute(out,"Persistent","yes");attribute(out,"Value",experimental::encodeFigure(figure));out<<"/>";
+        bool showRf=false;if(auto flag=bag.findValue("studio.tlc.showRf"))showRf=*flag=="1";
+        for(const auto& lane:figure.lanes){out<<"<tlclane";attributeInteger(out,"id",writer.reserveFileId());out<<">";
+            for(const auto& spot:figure.spots)if(spot.laneId==lane.id){out<<"<tlcspot";attributeInteger(out,"id",writer.reserveFileId());
+                // ChemDraw uses the filled curve flag for solid TLC spots.
+                attributeInteger(out,"CurveType",128);
+                attributeNumber(out,"Rf",std::max(0.,std::min(1.,(figure.originV-spot.v)/std::max(1e-8,figure.originV-figure.frontV))));
+                // ChemDraw 26 consumes these three TLC-only fields as 16.16
+                // coordinates even in CDXML. Verified by opening and re-saving
+                // a native plate: a 5 pt spot round-trips as Width="327680".
+                attributeNumber(out,"Width",std::round(spot.radiusU*frame.halfWidth()*2*65536.));attributeNumber(out,"Height",std::round(spot.radiusV*frame.halfHeight()*2*65536.));
+                if(spot.tailLengthV>0)attributeNumber(out,"Tail",std::round(spot.tailLengthV*frame.halfHeight()*65536.));
+                attribute(out,"ShowRf",showRf?"yes":"no");out<<"/>";
+            }out<<"</tlclane>";
+        }out<<"</tlcplate>";return core::Error::success();
+    }
     auto ref=experimental::figureRef(id);const auto& bag=writer.document.extensions(ref);
     if(auto value=bag.findValue("studio.color.override"))figure.border.colorRGBA=uint32_t(std::strtoull(value->c_str(),0,10));
     if(auto value=bag.findValue("studio.graphics.width"))figure.border.width=std::atof(value->c_str());

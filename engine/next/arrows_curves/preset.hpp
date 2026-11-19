@@ -1,5 +1,6 @@
 #ifndef R62_NEXT_ARROWS_CURVES_PRESET_HPP
 #define R62_NEXT_ARROWS_CURVES_PRESET_HPP
+#include <vector>
 // =============================================================================
 // re_round62_viewer/next/arrows_curves/preset.hpp
 //
@@ -214,6 +215,13 @@ struct HeadParams {
 // It is a VALUE type and is stored WHOLE on the document object, so render and
 // commit can never derive different geometry from the same preset.
 struct ArrowParams {
+    bool mechanism = false;
+    bool virtualBond = false;
+    core::ObjectRef electronSource, electronTarget;
+    // 0 legacy, 1 atom glyph, 2 charge glyph, 3 lone-pair electrons, 4 radical dot, 5 visible bond stroke.
+    uint8_t sourceVisualAnchor = 0, targetVisualAnchor = 0;
+    int mechanismSide = 0; // signed side of the source-to-target chord chosen by the gesture
+    core::Vec2 mechanismDeparture, mechanismArrival; // unit tangents in chord coordinates
     uint32_t      presetId;     // index into the table below (stable)
     ArrowFamily   family;
     ArrowSize     sizeClass;
@@ -226,6 +234,7 @@ struct ArrowParams {
     // ---- geometry ----
     core::Vec2    begin;        // document units, the "start" end
     core::Vec2    end;          // document units, the head end
+    std::vector<core::Vec2> route; // sampled smooth route in normalized chord coordinates
     double        arcSagitta;   // document units; >0 bulges to the LEFT of
                                 // begin->end (screen space, y down). Derived from
                                 // sweep+direction when the preset supplies an
@@ -308,6 +317,10 @@ ArrowParams applyPresetStyle(const ArrowParams& current, uint32_t presetId,
 // Curve style presets - the Curves_Toolbar.xml 8 commands.
 // ---------------------------------------------------------------------------
 // Same principle: 8 commands, one path model, four booleans plus a fill mode.
+bool isMechanismArrow(const ArrowParams& params);
+ArrowParams withHeadTier(ArrowParams params,int tier);
+const char* headTierName(int tier);
+
 struct CurveStyleSpec {
     uint32_t    presetId;
     const char* sourceCommand;

@@ -1,4 +1,8 @@
+#include "engine/projection_export.hpp"
 #include "engine/atom_runs.hpp"
+#include "engine/metal_labels.hpp"
+#include "engine/electron_graphics.hpp"
+#include "engine/mechanism_roles.hpp"
 #include "engine/name_link.hpp"
 #include "persistence.hpp"
 #include "persistence_internal.hpp"
@@ -10,6 +14,8 @@
 #include "third_party/tinyxml2/tinyxml2.h"
 
 #include <cmath>
+#include <cctype>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -89,6 +95,25 @@ struct Writer {
 // ---------------------------------------------------------------------------
 // Id plan
 // ---------------------------------------------------------------------------
+// Source slices can start with closing/opening containers and need not be an
+// XML document by themselves. Read only opening-tag attributes, respecting
+// quotes, to retain every container/nested-label ID and each slice's prefix.
+void sourceTagIds(const std::string& text,const std::function<void(size_t,int32_t)>& visit){
+    for(size_t at=0;(at=text.find('<',at))!=std::string::npos;){size_t start=at++;if(at>=text.size())break;if(text[at]=='/'||text[at]=='!'||text[at]=='?')continue;
+        while(at<text.size()&&!std::isspace(static_cast<unsigned char>(text[at]))&&text[at]!='>'&&text[at]!='/')++at;
+        while(at<text.size()){
+            while(at<text.size()&&std::isspace(static_cast<unsigned char>(text[at])))++at;if(at>=text.size()||text[at]=='>'||text[at]=='/')break;
+            size_t name=at;while(at<text.size()&&!std::isspace(static_cast<unsigned char>(text[at]))&&text[at]!='='&&text[at]!='>')++at;auto key=text.substr(name,at-name);
+            while(at<text.size()&&std::isspace(static_cast<unsigned char>(text[at])))++at;if(at>=text.size()||text[at]!='=')break;++at;while(at<text.size()&&std::isspace(static_cast<unsigned char>(text[at])))++at;if(at>=text.size()||(text[at]!='\''&&text[at]!='"'))break;
+            char quote=text[at++];size_t value=at,end=text.find(quote,at);if(end==std::string::npos)return;if(key=="id"){char* tail=nullptr;long long id=std::strtoll(text.substr(value,end-value).c_str(),&tail,10);if(id>0&&id<=2147483647)visit(start,int32_t(id));}at=end+1;
+        }
+    }
+}
+std::string sourceGap(const std::string& text,int32_t source){size_t first=std::string::npos;sourceTagIds(text,[&](size_t start,int32_t id){if(id==source&&first==std::string::npos)first=start;});return first==std::string::npos?std::string():text.substr(0,first);}
+int32_t sourceIdOf(const core::Document& doc,ObjectRef ref){
+    if(ref.kind==ObjectKind::Atom){auto a=doc.atoms().get(ref.id);return a?a->sourceId:0;}if(ref.kind==ObjectKind::Bond){auto a=doc.bonds().get(ref.id);return a?a->sourceId:0;}if(ref.kind==ObjectKind::Text){auto a=doc.texts().get(ref.id);return a?a->sourceId:0;}if(ref.kind==ObjectKind::Path){auto a=doc.paths().get(ref.id);return a?a->sourceId:0;}
+    const core::ObjectSlab<core::AnnotationRecord>* slab=ref.kind==ObjectKind::Arrow?&doc.arrows():ref.kind==ObjectKind::Symbol?&doc.symbols():ref.kind==ObjectKind::Orbital?&doc.orbitals():ref.kind==ObjectKind::Bracket?&doc.brackets():ref.kind==ObjectKind::BioShape?&doc.bioShapes():nullptr;auto a=slab?slab->get(ref.id):nullptr;return a?a->sourceId:0;
+}
 // A patched export keeps the CDXML ids the objects originally had, because
 // preserved raw regions and any external reference still point at them. An object
 // with no source id (drawn in this session) gets a fresh one. A DUPLICATE source
@@ -96,6 +121,11 @@ struct Writer {
 // allowed, refused rather than silently merged.
 Error planIds(Writer& writer) {
     const core::Document& document = writer.document;
+    auto reserveBytes=[&](const std::string& bytes){sourceTagIds(bytes,[&](size_t,int32_t id){writer.usedFileIds.insert(id);});};
+    for(const auto& e:document.documentExtensions().entries())if(e.key.compare(0,11,"pst.source.")==0||e.key.compare(0,8,"pst.raw.")==0)reserveBytes(e.value);
+    auto reserveObject=[&](ObjectRef ref){for(const auto& e:document.extensions(ref).entries())if(e.key.compare(0,8,"pst.src.")==0)reserveBytes(e.value);};
+    for(const auto& a:document.atoms().records())reserveObject({ObjectKind::Atom,a.id});for(const auto& a:document.bonds().records())reserveObject({ObjectKind::Bond,a.id});for(const auto& a:document.texts().records())reserveObject({ObjectKind::Text,a.id});for(const auto& a:document.paths().records())reserveObject({ObjectKind::Path,a.id});
+    for(auto kind:{ObjectKind::Arrow,ObjectKind::Symbol,ObjectKind::Orbital,ObjectKind::Bracket,ObjectKind::BioShape}){const auto& slab=kind==ObjectKind::Arrow?document.arrows():kind==ObjectKind::Symbol?document.symbols():kind==ObjectKind::Orbital?document.orbitals():kind==ObjectKind::Bracket?document.brackets():document.bioShapes();for(const auto& a:slab.records())reserveObject({kind,a.id});}
     writer.source = SourceIdMap::fromDocument(document);
 
     const std::vector<int32_t>& collisions = writer.source.collisions();
@@ -255,12 +285,13 @@ void replayPreservedAttributes(std::ostringstream& out, const core::Document& do
                                const ObjectRef& ref) {
     if (!ref.valid()) return;
     const core::ExtensionBag& bag = document.extensions(ref);
-    std::set<std::string> written;
-    if(ref.kind==ObjectKind::Atom){written.insert("xyz");written.insert("MoleculeStudioHydrogens");}
+    std::set<std::string> written;written.insert("MoleculeStudioPerspectiveFront");written.insert("MoleculeStudioPerspectiveZ");
+    if(ref.kind==ObjectKind::Atom){written.insert("xyz");written.insert("MoleculeStudioHydrogens");
+        if(!mechanism::genericRole(document,ref.id).empty()){written.insert("IgnoreWarnings");written.insert("GenericNickname");written.insert("Warning");}}
     auto custom=[&](const char* name,const std::string& value){attribute(out,name,value);written.insert(name);};
     if(auto z=bag.findValue("studio.z"))custom("Z",*z);
     if(ref.kind==ObjectKind::Text)if(auto angle=bag.findValue("studio.text.RotationAngle"))custom("RotationAngle",*angle);
-    if(ref.kind==ObjectKind::Atom){auto atom=document.atoms().alive(ref.id);if(atom){if(auto z=bag.findValue("studio.atom.z"))custom("xyz",numberToText(atom->position.x)+" "+numberToText(atom->position.y)+" "+*z);if(auto n=bag.findValue("studio.atom.number")){custom("AtomNumber",*n);custom("ShowAtomNumber","yes");}}}
+    if(ref.kind==ObjectKind::Atom){auto atom=document.atoms().alive(ref.id);if(atom){auto z=bag.findValue("studio.atom.z");if(!z)z=bag.findValue("pst.attr.MoleculeStudioPerspectiveZ");if(z)custom("xyz",numberToText(atom->position.x)+" "+numberToText(atom->position.y)+" "+*z);if(auto n=bag.findValue("studio.atom.number")){custom("AtomNumber",*n);custom("ShowAtomNumber","yes");}}}
     const std::vector<core::ExtensionEntry>& entries = bag.entries();
     // Replay in the order recorded by the reader when it is available.
     std::ostringstream orderKeyText;
@@ -309,6 +340,7 @@ void replayPreservedAttributes(std::ostringstream& out, const core::Document& do
 // the byte comparison meaningful.
 void emitAtom(Writer& writer, const core::AtomRecord& atom) {
     const core::Document& document = writer.document;
+    const std::string role=mechanism::genericRole(document,atom.id);
     const std::map<core::ObjectId, int32_t>::const_iterator idIt = writer.atomFileId.find(atom.id);
     if (idIt == writer.atomFileId.end()) return;
     std::ostringstream& out = writer.out;
@@ -324,42 +356,83 @@ void emitAtom(Writer& writer, const core::AtomRecord& atom) {
     if (atom.semantics.implicitHydrogens >= 0)
         attributeInteger(out, "NumHydrogens", atom.semantics.implicitHydrogens);
     if (atom.semantics.radical != 0)
-        attributeInteger(out, "Radical", atom.semantics.radical);
-    if (atom.semantics.nodeType != static_cast<uint8_t>(core::NodeType::Element)) {
+        attribute(out, "Radical", atom.semantics.radical==1?"Singlet":atom.semantics.radical==2?"Doublet":"Triplet");
+    std::string sourceNodeType;
+    if(role.empty())if(auto raw=document.extensions(ObjectRef(ObjectKind::Atom,atom.id)).findValue("studio.cdxml.NodeType")){
+        core::NodeType mapped=core::NodeType::Element;
+        if(nodeTypeFromCdxml(raw->c_str(),&mapped)&&
+           (uint8_t(mapped)==atom.semantics.nodeType||(*raw=="GenericNickname"&&atom.semantics.nodeType==uint8_t(core::NodeType::Query))))sourceNodeType=*raw;
+    }
+    if(!sourceNodeType.empty())attribute(out,"NodeType",sourceNodeType);
+    else if (atom.semantics.nodeType != static_cast<uint8_t>(core::NodeType::Element)) {
         static const char* const kNodeNames[] = { "Element", "Nickname", "Fragment",
-                                                  "RGroup", "GenericNickname", "Polymer",
-                                                  "Attachment", "ExternalConnectionPoint" };
+                                                  "GenericNickname", "GenericNickname", "GenericNickname",
+                                                  "MultiAttachment", "ExternalConnectionPoint" };
         const size_t index = atom.semantics.nodeType < 8 ? atom.semantics.nodeType : 0;
         attribute(out, "NodeType", kNodeNames[index]);
     }
     if (atom.semantics.showLabel) attribute(out, "LabelDisplay", "Shown");
+    if(!role.empty()){
+        // B/Nu here denote a user-selected generic reagent, not an element or
+        // a chemically expandable abbreviation. Suppress only this placeholder's
+        // interpretation warning; real atoms retain ChemDraw's validation.
+        attribute(out,"IgnoreWarnings","yes");
+        attribute(out,"GenericNickname",document.atomLabel(atom.id));
+    }
     replayPreservedAttributes(out, document, ObjectRef(ObjectKind::Atom, atom.id));
 
     std::string label = document.atomLabel(atom.id);
+    // ChemDraw derives the valence of an unlabelled heteroatom on load and
+    // can discard Charge (notably an isolated Br- with no <t>). Emit the
+    // chemical label and its superscript charge together for labelled ions.
+    if(label.empty()&&atom.semantics.charge&&(atom.element!=6||document.incidentBonds(atom.id).empty())){
+        label=core::elementSymbol(atom.element);int h=integration::molecular::labelHydrogenCount(document,atom);
+        if(h>0)label+="H"+(h>1?std::to_string(h):std::string());
+    }
     if(document.extensions(ObjectRef(ObjectKind::Atom,atom.id)).findValue("studio.hydrogens.manual")&&atom.semantics.implicitHydrogens>=0){int h=atom.semantics.implicitHydrogens;label=std::string(core::elementSymbol(atom.element))+(h?"H"+(h>1?std::to_string(h):std::string()):std::string());attribute(out,"MoleculeStudioHydrogens","1");}
     std::vector<core::TextRun> runs = studioatom::runs(document,atom.id);
+    std::string labelFont=document.defaultFont();if(auto f=document.documentExtensions().findValue("studio.style.LabelFontName"))labelFont=*f;
     double labelSize=10;if(auto v=document.documentExtensions().findValue("studio.style.LabelSize")){double n=std::atof(v->c_str());if(std::isfinite(n)&&n>0)labelSize=n;}
     std::string drawn;for(const auto& run:runs)drawn+=run.utf8;if(drawn!=label)runs.clear();
-    if (label.empty()) { out << "/>"; return; }
+    if (label.empty() || (atom.element==6&&!atom.semantics.showLabel&&(atom.semantics.radical||atom.semantics.charge)&&document.incidentBonds(atom.id).size()>=2&&label=="C")) { out << "/>"; return; }
     out << ">";
+    if(!role.empty()){
+        out<<"<objecttag";attributeInteger(out,"id",writer.reserveFileId());
+        attribute(out,"Name","MoleculeStudio.GenericRole."+role);
+        attribute(out,"Persistent","yes");out<<"/>";
+    }
+    auto chargeLabel=[&](){
+        // With an explicit <t>, ChemDraw uses the label verbatim rather than
+        // synthesizing Charge. Include its superscript as well as the semantic
+        // property. The reader removes this display run from the editable label.
+        if(!atom.semantics.charge||studio_electron_graphics::separateCharge(document,atom))return;
+        int q=atom.semantics.charge;
+        std::string text=(std::abs(q)>1?std::to_string(std::abs(q)):std::string())+(q>0?"+":"-");
+        out<<"<s font=\""<<writer.fontFor(labelFont)<<"\" size=\""<<numberToText(labelSize)<<"\" face=\"64\">"<<text<<"</s>";
+    };
     if(atom.semantics.nodeType==static_cast<uint8_t>(core::NodeType::Nickname)){
         auto raw=document.extensions(ObjectRef(ObjectKind::Atom,atom.id)).findValue("studio.nickname.fragment");
+        if(!raw)raw=document.extensions(ObjectRef(ObjectKind::Atom,atom.id)).findValue("studio.compound.fragment");
         if(raw){tinyxml2::XMLDocument nested;if(nested.Parse(raw->c_str())==tinyxml2::XML_SUCCESS){
             std::map<int,int> ids;std::function<void(XMLElement*)> allocate=[&](XMLElement* n){if(n->Attribute("id")){int old=n->IntAttribute("id");ids[old]=writer.reserveFileId();}for(auto c=n->FirstChildElement();c;c=c->NextSiblingElement())allocate(c);};
             std::function<void(XMLElement*)> remap=[&](XMLElement* n){for(const char* key:{"id","B","E"})if(n->Attribute(key)){auto it=ids.find(n->IntAttribute(key));if(it!=ids.end())n->SetAttribute(key,it->second);}for(const char* key:{"ConnectionOrder","BondOrdering","BondCircularOrdering","CrossingBonds","object"})if(auto raw=n->Attribute(key)){std::istringstream input(raw);std::ostringstream output;int old;bool first=true;while(input>>old){if(!first)output<<char(32);auto it=ids.find(old);output<<(it==ids.end()?old:it->second);first=false;}n->SetAttribute(key,output.str().c_str());}n->DeleteAttribute("Z");for(auto c=n->FirstChildElement();c;c=c->NextSiblingElement())remap(c);};
             auto root=nested.RootElement();if(root){allocate(root);remap(root);tinyxml2::XMLPrinter p;root->Accept(&p);out<<p.CStr();}
         }}
     }
-    out << "<t>";
+    const bool metalAttached=studio::metal_labels::active(document,atom.id);
+    if(metalAttached){if(runs.empty()){core::TextRun run;run.utf8=label;run.fontName=labelFont;run.size=labelSize;run.flags=core::kFormula;runs.push_back(run);}runs=studio::metal_labels::canonical(label,runs);}
+    out << "<t";
+    if(metalAttached)attribute(out,"LabelAlignment",studio::metal_labels::bondOnRight(document,atom.id)?"Right":"Left");
+    out << ">";
     if (runs.empty()) {
         // A label override with no explicit run still has to be written, or the
         // abbreviation would silently disappear from the exported file.
         std::string escaped;
         escapeContent(label, &escaped);
-        out << "<s font=\"" << writer.fontFor(document.defaultFont()) << "\" size=\""
+        out << "<s font=\"" << writer.fontFor(labelFont) << "\" size=\""
             << numberToText(labelSize) << "\" face=\"96\">"
             << escaped << "</s>";
-        out << "</t></n>";
+        chargeLabel();out << "</t></n>";
         return;
     }
     for (size_t i = 0; i < runs.size(); ++i) {
@@ -372,7 +445,7 @@ void emitAtom(Writer& writer, const core::AtomRecord& atom) {
         if (face != 0) out << " face=\"" << face << "\"";
         out << ">" << escaped << "</s>";
     }
-    out << "</t></n>";
+    chargeLabel();out << "</t></n>";
 }
 
 void emitBond(Writer& writer, const core::BondRecord& bond) {
@@ -389,8 +462,17 @@ void emitBond(Writer& writer, const core::BondRecord& bond) {
     out << "<b id=\"" << writer.objectId(ObjectRef(ObjectKind::Bond,bond.id),bond.sourceId)
         << "\" B=\"" << beginIt->second << "\" E=\"" << endIt->second << "\"";
     out << " Order=\"" << orderToCdxml(bond.order, bond.semantics) << "\"";
-    if (bond.display != core::BondDisplay::Normal)
-        attribute(out, "Display", displayToCdxml(bond.display));
+    auto display=bond.display;
+    const auto& bondBag=writer.document.extensions(ObjectRef(ObjectKind::Bond,bond.id));
+    if(bond.order==core::BondOrder::Double && bond.stereo==core::BondStereo::Either && display==core::BondDisplay::Normal)
+        display=core::BondDisplay::Wavy;
+    if(bond.order==core::BondOrder::Double && display==core::BondDisplay::Normal && bondBag.findValue("studio.bond.unspecifiedEZ"))
+        attribute(out,"MoleculeStudioUnspecifiedEZ","yes");
+    if(display==core::BondDisplay::Normal&&bondBag.findValue("pst.attr.MoleculeStudioPerspectiveFront")){
+        display=core::BondDisplay::Bold;
+        if(!bondBag.findValue("pst.attr.BoldWidth"))attributeNumber(out,"BoldWidth",writer.document.defaultLineWidth()*2.22);
+    }
+    if (display != core::BondDisplay::Normal)attribute(out, "Display", displayToCdxml(display));
     replayPreservedAttributes(out, writer.document, ObjectRef(ObjectKind::Bond, bond.id));
     out << "/>";
 }
@@ -478,6 +560,18 @@ bool emitImportedGraphic(Writer& writer,ObjectRef ref,core::Vec2 current,int sou
         std::istringstream input(value);std::vector<double> values;double n;while(input>>n)values.push_back(n);bool pairs=std::string(key)=="BoundingBox"||std::string(key)=="CurvePoints";
         for(size_t i=0;i+1<values.size();i+=pairs?2:3){values[i]+=delta.x;values[i+1]+=delta.y;}std::ostringstream output;output.precision(12);for(size_t i=0;i<values.size();++i){if(i)output<<' ';output<<values[i];}root->SetAttribute(key,output.str().c_str());
     }
+    if(name=="embeddedobject"&&root->Attribute("MoleculeStudioRaster")){
+        auto path=writer.document.paths().alive(ref.id);
+        if(path&&path->points.size()==4){
+            const auto& p=path->points;auto center=(p[0]+p[2])*.5,u=p[1]-p[0],v=p[3]-p[0];
+            const double width=core::length(u),height=core::length(v);
+            std::ostringstream box,corners;box.precision(12);corners.precision(12);
+            box<<center.x-width*.5<<' '<<center.y-height*.5<<' '<<center.x+width*.5<<' '<<center.y+height*.5;
+            for(auto point:p)corners<<point.x<<' '<<point.y<<' ';
+            root->SetAttribute("BoundingBox",box.str().c_str());root->SetAttribute("MoleculeStudioImageCorners",corners.str().c_str());
+            root->SetAttribute("RotationAngle",std::atan2(u.y,u.x)*180./3.141592653589793*65536.);
+        }
+    }
     tinyxml2::XMLPrinter out;root->Accept(&out);writer.out<<out.CStr();return true;
 }
 
@@ -488,7 +582,21 @@ void emitPath(Writer& writer, const core::PathRecord& path) {
     attributeInteger(out, "id", writer.objectId(ObjectRef(ObjectKind::Path,path.id),path.sourceId));
     attribute(out,"Closed",path.closed?"yes":"no");
     attributeInteger(out,"CurveType",(path.closed?1:0)|(path.fillEnabled?128:0));
-    std::ostringstream points,vertices;for(const auto& point:path.points){vertices<<numberToText(point.x)<<' '<<numberToText(point.y)<<' ';for(int i=0;i<3;++i)points<<numberToText(point.x)<<' '<<numberToText(point.y)<<' ';}
+    std::ostringstream points,vertices;
+    auto write=[](std::ostringstream& out, core::Vec2 p){out<<numberToText(p.x)<<' '<<numberToText(p.y)<<' ';};
+    const auto& pts=path.points;
+    const auto& kinds=path.pointKind;
+    auto control=[&](size_t i){return kinds.size()==pts.size() && i>0 && i+1<pts.size() && kinds[i]==1;};
+    std::string flags;
+    for(size_t i=0;i<pts.size();++i){
+        write(vertices,pts[i]);
+        flags+=control(i)?'1':'0';
+        if(control(i))continue;
+        write(points,i>0 && control(i-1)?pts[i]+(pts[i-1]-pts[i])*(2.0/3.0):pts[i]);
+        write(points,pts[i]);
+        write(points,control(i+1)?pts[i]+(pts[i+1]-pts[i])*(2.0/3.0):pts[i]);
+    }
+    if(flags.find('1')!=std::string::npos)attribute(out,"MoleculeStudioPathKinds",flags);
     attribute(out,"CurvePoints",points.str());attribute(out,"MoleculeStudioPath",vertices.str());
     attribute(out,"MoleculeStudioFill",std::to_string(path.fillRGBA));attribute(out,"FillType",path.fillEnabled?"Solid":"None");
     if (path.style.width > 0.0) attributeNumber(out, "LineWidth", path.style.width);
@@ -498,25 +606,103 @@ void emitPath(Writer& writer, const core::PathRecord& path) {
 
 #include "tlc_cdxml_writer.inc"
 
+// Fit the sampled routing polyline to a few genuine Bezier segments. Exporting
+// one knot per renderer sample makes ChemDraw clamp the arrowhead to a tiny
+// final segment; it also produces hundreds of unhelpful editing handles.
+std::vector<core::Vec2> routeBezierPoints(const std::vector<core::Vec2>& pts,double tolerance,double headLength){
+    struct Cubic{core::Vec2 a,b,c,d;};std::vector<Cubic> segments;
+    std::vector<double> lengths(pts.size(),0);for(size_t i=1;i<pts.size();++i)lengths[i]=lengths[i-1]+core::length(pts[i]-pts[i-1]);
+    auto tangent=[&](size_t i){auto v=pts[std::min(i+1,pts.size()-1)]-pts[i?i-1:i];double l=core::length(v);return l>1e-9?v*(1/l):core::Vec2(1,0);};
+    auto dot=[](core::Vec2 a,core::Vec2 b){return a.x*b.x+a.y*b.y;};
+    std::function<void(size_t,size_t,int)> fit=[&](size_t first,size_t last,int depth){
+        const auto a=pts[first],d=pts[last],u=tangent(first),v=tangent(last);
+        const double span=lengths[last]-lengths[first];double aa=0,ab=0,bb=0,ax=0,bx=0;
+        for(size_t i=first+1;i<last;++i){double t=span>1e-9?(lengths[i]-lengths[first])/span:0,s=1-t,b0=s*s*s,b1=3*s*s*t,b2=3*s*t*t,b3=t*t*t;
+            auto x=u*b1,y=v*(-b2),r=pts[i]-a*(b0+b1)-d*(b2+b3);aa+=dot(x,x);ab+=dot(x,y);bb+=dot(y,y);ax+=dot(x,r);bx+=dot(y,r);}
+        double alpha=span/3,beta=span/3,det=aa*bb-ab*ab;
+        if(det>1e-12){alpha=(ax*bb-bx*ab)/det;beta=(bx*aa-ax*ab)/det;}
+        if(alpha<=0||beta<=0||alpha>span*1.5||beta>span*1.5)alpha=beta=span/3;
+        Cubic q{a,a+u*alpha,d-v*beta,d};double error=0;size_t split=(first+last)/2;
+        for(size_t i=first+1;i<last;++i){double t=span>1e-9?(lengths[i]-lengths[first])/span:0,s=1-t;auto p=q.a*(s*s*s)+q.b*(3*s*s*t)+q.c*(3*s*t*t)+q.d*(t*t*t);double e=core::length(p-pts[i]);if(e>error){error=e;split=i;}}
+        const double minSpan=std::max(tolerance*8,headLength*2.5);
+        if(error>tolerance&&depth<5&&last>first+2&&lengths[split]-lengths[first]>=minSpan&&lengths[last]-lengths[split]>=minSpan){fit(first,split,depth+1);fit(split,last,depth+1);}
+        else segments.push_back(q);
+    };
+    if(pts.size()<2)return {};fit(0,pts.size()-1,0);
+    std::vector<core::Vec2> controls;
+    controls.push_back(segments.front().a);controls.push_back(segments.front().a);controls.push_back(segments.front().b);
+    for(size_t i=0;i<segments.size();++i){controls.push_back(segments[i].c);controls.push_back(segments[i].d);controls.push_back(i+1<segments.size()?segments[i+1].b:segments[i].d);}
+    return controls;
+}
+
 void emitAnnotation(Writer& writer, const core::AnnotationRecord& annotation) {
     if(emitImportedGraphic(writer,ObjectRef(annotation.kind,annotation.id),annotation.geometry[0],annotation.sourceId))return;
     std::ostringstream& out = writer.out;
     if(annotation.kind==ObjectKind::Arrow&&writer.document.extensions(ObjectRef(ObjectKind::Arrow,annotation.id)).find(arrows::kArrowParamsKey)){
         arrows::ArrowParams p;bool ok=false;if(arrows::readArrow(writer.document,annotation.id,&p,&ok).ok()&&ok){
             double width=arrows::arrowStrokeWidth(p,writer.document.defaultLineWidth());arrows::ArrowGeometry geometry;arrows::buildArrowGeometry(p,writer.document.defaultLineWidth(),arrows::Tessellation(),&geometry);
-            bool retro=p.head.shape==arrows::ArrowHeadShape::HalfArrow;out<<"<arrow";attributeInteger(out,"id",writer.objectId(ObjectRef(annotation.kind,annotation.id),annotation.sourceId));
+            auto route=arrows::routedPoints(p);
+            const bool doubleArc=p.family==arrows::ArrowFamily::Arc&&p.shafts==arrows::ShaftCount::Double;
+            const bool paired=p.shafts==arrows::ShaftCount::Two;
+            const bool routed=doubleArc||paired||p.mechanism||(route.size()>2&&p.shafts==arrows::ShaftCount::One);
+            const bool vectorHead=routed;
+            if(vectorHead&&!geometry.shafts.empty())route=geometry.shafts.front();
+            bool retro=p.head.shape==arrows::ArrowHeadShape::HalfArrow;out<<(routed?"<curve":"<arrow");attributeInteger(out,"id",writer.objectId(ObjectRef(annotation.kind,annotation.id),annotation.sourceId));
+            if(routed){
+                // Native Bezier splines retain the actual gesture/routing shape.
+                // Each knot has incoming handle, anchor, outgoing handle in CDXML.
+                std::ostringstream points;
+                for(auto q:routeBezierPoints(route,std::max(.04,width*.16),p.head.length))points<<numberToText(q.x)<<' '<<numberToText(q.y)<<' ';
+                attribute(out,"CurvePoints",points.str());
+                const bool half=p.head.sides!=arrows::HeadSides::Both;
+                attributeInteger(out,"CurveType",(vectorHead?0:((p.head.atEnd?(half?32:8):0)|(p.head.atBegin?(half?64:16):0)))|(p.line==arrows::ArrowLine::Dashed?2:0));
+            }
             auto point=[&](const char* name,core::Vec2 value){attribute(out,name,numberToText(value.x)+" "+numberToText(value.y)+" 0");};
             attribute(out,"BoundingBox",numberToText(geometry.bounds.min.x)+" "+numberToText(geometry.bounds.min.y)+" "+numberToText(geometry.bounds.max.x)+" "+numberToText(geometry.bounds.max.y));
             point("Tail3D",p.begin);point("Head3D",p.end);attributeNumber(out,"LineWidth",width);attribute(out,"FillType","None");
             attribute(out,"ArrowheadType",(retro||p.shafts==arrows::ShaftCount::Two)?"Angle":p.head.shape==arrows::ArrowHeadShape::Hollow?"Hollow":p.head.shape==arrows::ArrowHeadShape::Angled?"Angle":"Solid");
             const char* head=p.head.sides==arrows::HeadSides::Left?"HalfLeft":p.head.sides==arrows::HeadSides::Right?"HalfRight":"Full";
-            attribute(out,"ArrowheadHead",p.shafts==arrows::ShaftCount::Two?"HalfLeft":p.head.atEnd?head:"None");attribute(out,"ArrowheadTail",p.shafts==arrows::ShaftCount::Two?"HalfLeft":p.head.atBegin?head:"None");
+            attribute(out,"ArrowheadHead",vectorHead?"None":p.shafts==arrows::ShaftCount::Two?"HalfLeft":p.head.atEnd?head:"None");attribute(out,"ArrowheadTail",vectorHead?"None":p.shafts==arrows::ShaftCount::Two?"HalfLeft":p.head.atBegin?head:"None");
             attributeInteger(out,"HeadSize",static_cast<long long>(std::lround(p.head.length*100/width)));attributeInteger(out,"ArrowheadCenterSize",static_cast<long long>(std::lround(p.head.length*(retro?1:.875)*100/width)));attributeInteger(out,"ArrowheadWidth",static_cast<long long>(std::lround((retro?p.head.length*.25:p.head.width*.5)*100/width)));
             if(p.line==arrows::ArrowLine::Dashed)attribute(out,"LineType","Dashed");
-            if(p.shafts!=arrows::ShaftCount::One){attributeInteger(out,"ArrowShaftSpacing",static_cast<long long>(std::lround(p.separation*(retro?.5:1)*100/width)));attributeInteger(out,"ArrowEquilibriumRatio",static_cast<long long>(std::lround((1-p.splitRatio)/p.splitRatio*100)));}
+            if(!doubleArc&&p.shafts!=arrows::ShaftCount::One){attributeInteger(out,"ArrowShaftSpacing",static_cast<long long>(std::lround(p.separation*(retro?.5:1)*100/width)));attributeInteger(out,"ArrowEquilibriumRatio",static_cast<long long>(std::lround((1-p.splitRatio)/p.splitRatio*100)));}
             if(p.head.shape==arrows::ArrowHeadShape::Cross||p.head.shape==arrows::ArrowHeadShape::Hash)attribute(out,"NoGo",p.head.shape==arrows::ArrowHeadShape::Cross?"Cross":"Hash");
-            if(p.family==arrows::ArrowFamily::Arc&&std::abs(p.arcSagitta)>1e-8){auto d=p.end-p.begin;double chord=core::length(d);if(chord>1e-8){core::Vec2 u=d*(1/chord),n(-u.y,u.x);double cy=(p.arcSagitta*p.arcSagitta-chord*chord*.25)/(2*p.arcSagitta);auto center=(p.begin+p.end)*.5+n*cy;double radius=std::sqrt(chord*chord*.25+cy*cy);point("Center3D",center);point("MajorAxisEnd3D",center+u*radius);point("MinorAxisEnd3D",center+n*radius);attributeNumber(out,"AngularSize",4*std::atan(2*p.arcSagitta/chord)*180/3.141592653589793);}}
-            attribute(out,"MoleculeStudioArrow",arrows::encodeArrowParams(p));out<<"/>";return;
+            if(!routed&&p.family==arrows::ArrowFamily::Arc&&std::abs(p.arcSagitta)>1e-8){auto d=p.end-p.begin;double chord=core::length(d);if(chord>1e-8){core::Vec2 u=d*(1/chord),n(-u.y,u.x);double cy=(p.arcSagitta*p.arcSagitta-chord*chord*.25)/(2*p.arcSagitta);auto center=(p.begin+p.end)*.5+n*cy;double radius=std::sqrt(chord*chord*.25+cy*cy);point("Center3D",center);point("MajorAxisEnd3D",center+u*radius);point("MinorAxisEnd3D",center+n*radius);attributeNumber(out,"AngularSize",4*std::atan(2*p.arcSagitta/chord)*180/3.141592653589793);}}
+            auto electronRef=[&](const char* key,core::ObjectRef ref){
+                int source=0;bool alive=false;
+                if(ref.kind==ObjectKind::Atom){auto a=writer.document.atoms().alive(ref.id);if(a){source=a->sourceId;alive=true;}}
+                if(ref.kind==ObjectKind::Bond){auto b=writer.document.bonds().alive(ref.id);if(b){source=b->sourceId;alive=true;}}
+                if(ref.kind==ObjectKind::Arrow){auto a=writer.document.arrows().alive(ref.id);if(a){source=a->sourceId;alive=true;}}
+                if(alive){int file=ref.kind==ObjectKind::Atom?writer.atomFileId.at(ref.id):writer.objectId(ref,source);attribute(out,key,std::string(ref.kind==ObjectKind::Atom?"atom:":ref.kind==ObjectKind::Bond?"bond:":"arrow:")+std::to_string(file));}
+            };
+            auto catalytic=writer.document.extensions(ObjectRef(ObjectKind::Arrow,annotation.id)).findValue("studio.catalytic");
+            if(catalytic)attribute(out,"MoleculeStudioCatalytic",*catalytic);
+            if(auto path=writer.document.extensions(ObjectRef(ObjectKind::Arrow,annotation.id)).findValue("pst.attr.MoleculeStudioCatalyticPath"))attribute(out,"MoleculeStudioCatalyticPath",*path);
+            if(p.mechanism||p.virtualBond||catalytic){electronRef("MoleculeStudioElectronSource",p.electronSource);electronRef("MoleculeStudioElectronTarget",p.electronTarget);}
+            p.electronSource=core::ObjectRef();p.electronTarget=core::ObjectRef();
+            for(const auto& group:writer.document.groups().records())if(group.isAlive()&&group.label=="Joined arrows")for(auto ref:group.members)if(ref==ObjectRef(ObjectKind::Arrow,annotation.id))attributeInteger(out,"MoleculeStudioJoinedGroup",group.id+1);
+            attribute(out,"MoleculeStudioArrow",arrows::encodeArrowParams(p));out<<"/>";
+            if(vectorHead){
+                // ChemDraw 26 retains custom spline-head dimensions in XML but
+                // renders a fixed tiny head, and flattens hollow/angled styles.
+                // Emit the same filled outline/open barb used by our renderer
+                // as ordinary editable vector curves instead of losing it.
+                const int owner=writer.objectId(ObjectRef(annotation.kind,annotation.id),annotation.sourceId);
+                const auto& bag=writer.document.extensions(ObjectRef(annotation.kind,annotation.id));
+                auto ink=bag.findValue("studio.color.override");if(!ink)ink=bag.findValue("studio.color");
+                auto part=[&](const std::vector<core::Vec2>& points,bool fill,bool closed){if(points.size()<2)return;
+                    out<<"<curve";attributeInteger(out,"id",writer.reserveFileId());attributeInteger(out,"MoleculeStudioArrowPart",owner);
+                    attributeInteger(out,"CurveType",(closed?1:0)|(fill?128:0));attribute(out,"Closed",closed?"yes":"no");
+                    attribute(out,"FillType",fill?"Solid":"None");attributeNumber(out,"LineWidth",fill?0:width);
+                    attribute(out,"MoleculeStudioInk",ink?*ink:"255");
+                    std::ostringstream controls;for(auto q:points)for(int i=0;i<3;++i)controls<<numberToText(q.x)<<' '<<numberToText(q.y)<<' ';
+                    attribute(out,"CurvePoints",controls.str());out<<"/>";
+                };
+                if((doubleArc||paired)&&geometry.shafts.size()>1)part(geometry.shafts[1],false,false);
+                for(const auto& h:geometry.heads){if(!h.outline.empty())part(h.outline,h.filled,true);
+                    for(size_t i=0;i+1<h.strokes.size();i+=2)part({h.strokes[i],h.strokes[i+1]},false,false);}
+            }
+            return;
         }
     }
     out << "<graphic";
@@ -576,6 +762,20 @@ void collectRawRegions(const core::Document& document,
 void emitRawRegionsInRange(Writer& writer, long long from, long long to) {
     std::vector<RawRegionEntry> regions;
     collectRawRegions(writer.document, &regions);
+    // Promoting a standard electron graphic into its owner atom removes its
+    // drawing record, but its leading </fragment>/<group> bytes still belong
+    // to the document. Emit those at the original source position.
+    if(writer.options.mode==CdxmlExportMode::Lossless)for(auto kind:{ObjectKind::Arrow,ObjectKind::Symbol,ObjectKind::Orbital,ObjectKind::Bracket,ObjectKind::BioShape}){const auto& slab=kind==ObjectKind::Arrow?writer.document.arrows():kind==ObjectKind::Symbol?writer.document.symbols():kind==ObjectKind::Orbital?writer.document.orbitals():kind==ObjectKind::Bracket?writer.document.brackets():writer.document.bioShapes();for(const auto& a:slab.records())if(!a.isAlive()){
+        ObjectRef ref(kind,a.id);const auto& bag=writer.document.extensions(ref);auto order=bag.findValue("pst.source.order"),raw=bag.findValue(sourceKey(kind,a.id));if(!order||!raw)continue;auto gap=sourceGap(*raw,a.sourceId);if(gap.empty())continue;RawRegionEntry entry;entry.order=std::strtoll(order->c_str(),nullptr,10);entry.bytes=gap;regions.push_back(entry);
+    }}
+    // Deleted ordinary objects also own leading container boundaries.
+    if(writer.options.mode==CdxmlExportMode::Lossless){
+        auto gap=[&](ObjectRef ref,int source){const auto& bag=writer.document.extensions(ref);auto order=bag.findValue("pst.source.order"),raw=bag.findValue(sourceKey(ref.kind,ref.id));if(!order||!raw)return;auto bytes=sourceGap(*raw,source);if(bytes.empty())return;RawRegionEntry entry;entry.order=std::strtoll(order->c_str(),nullptr,10);entry.bytes=bytes;regions.push_back(entry);};
+        for(const auto& a:writer.document.atoms().records())if(!a.isAlive())gap({ObjectKind::Atom,a.id},a.sourceId);
+        for(const auto& a:writer.document.bonds().records())if(!a.isAlive())gap({ObjectKind::Bond,a.id},a.sourceId);
+        for(const auto& a:writer.document.texts().records())if(!a.isAlive())gap({ObjectKind::Text,a.id},a.sourceId);
+        for(const auto& a:writer.document.paths().records())if(!a.isAlive())gap({ObjectKind::Path,a.id},a.sourceId);
+    }
     std::stable_sort(regions.begin(), regions.end());
     for (size_t i = 0; i < regions.size(); ++i) {
         if (regions[i].order < from || regions[i].order >= to) continue;
@@ -627,10 +827,18 @@ const std::string* preservedSource(const core::Document& document, const ObjectR
 bool emitPreservedIfUnchanged(Writer& writer, const ObjectRef& ref,
                               const std::string& currentSignature) {
     if (writer.options.mode != CdxmlExportMode::Lossless) return false;
-    if(writer.document.extensions(ref).findValue("studio.text.rotation.edited"))return false;
     const std::string* bytes = preservedSource(writer.document, ref);
+    auto regenerate=[&](){if(bytes)writer.out<<sourceGap(*bytes,sourceIdOf(writer.document,ref));return false;};
+    if(ref.kind==ObjectKind::Atom){
+        const auto atom=writer.document.atoms().alive(ref.id);
+        // Old saves contain the faulty generic encoding / bare charged label.
+        // Regenerate these even when untouched so Save repairs existing files.
+        if(!mechanism::genericRole(writer.document,ref.id).empty()||
+           (atom&&atom->semantics.charge))return regenerate();
+    }
+    if(writer.document.extensions(ref).findValue("studio.text.rotation.edited"))return regenerate();
     if (!bytes || bytes->empty()) return false;
-    if (!objectUnchanged(writer.document, ref, currentSignature)) return false;
+    if (!objectUnchanged(writer.document, ref, currentSignature)) return regenerate();
     const auto& appearance=writer.document.extensions(ref);if(appearance.findValue("studio.color.override")||appearance.findValue("studio.text.colors.edited")||appearance.findValue("studio.graphics.width")){tinyxml2::XMLDocument raw;if(raw.Parse(bytes->c_str())==tinyxml2::XML_SUCCESS&&raw.RootElement()&&raw.RootElement()->Attribute("id"))writer.fileId[ref]=raw.RootElement()->IntAttribute("id");}
     writer.out << *bytes;
     if (writer.fidelity) ++writer.fidelity->objectsFromSource;
@@ -779,7 +987,7 @@ Error writeDocument(Writer& writer) {
         for (size_t k = 0; k < runs.size(); ++k) writer.fontFor(runs[k].fontName);
     }
 
-    writer.fontFor(document.defaultFont());
+    if(auto font=document.documentExtensions().findValue("studio.style.LabelFontName"))writer.fontFor(*font);
     // ---- header ---------------------------------------------------------
     // In Lossless mode the ENTIRE prologue (XML declaration, DOCTYPE, root open tag
     // with every attribute, font table, and the source's own whitespace) is written
@@ -809,6 +1017,7 @@ Error writeDocument(Writer& writer) {
         {auto label=document.documentExtensions().findValue("studio.style.LabelSize");double points=label?std::atof(label->c_str()):10.;attributeNumber(out,"LabelSize",points>0?points:10.);}
         if (!document.defaultFont().empty())
             attributeInteger(out, "CaptionFont", writer.fontFor(document.defaultFont()));
+        {std::string font=document.defaultFont();if(auto f=document.documentExtensions().findValue("studio.style.LabelFontName"))font=*f;attributeInteger(out,"LabelFont",writer.fontFor(font));}
         {
             const core::ExtensionBag& bag = document.documentExtensions();
             const std::vector<core::ExtensionEntry>& entries = bag.entries();
@@ -1130,13 +1339,56 @@ std::string normalizeColorTable(const std::string& source) {
     return printXml(xml);
 }
 
+// A lossless source may close its last fragment before newly added objects are
+// emitted. ChemDraw and other readers require molecular nodes and bonds inside
+// one fragment, including a new bond that extends an imported molecule.
+std::string normalizeMoleculeContainers(const std::string& bytes){
+    tinyxml2::XMLDocument xml;if(xml.Parse(bytes.c_str())!=tinyxml2::XML_SUCCESS)return bytes;
+    auto root=xml.RootElement();if(!root)return bytes;int nextId=1;bool changed=false;
+    std::function<void(XMLElement*)> ids=[&](XMLElement* e){nextId=std::max(nextId,e->IntAttribute("id",0)+1);for(auto c=e->FirstChildElement();c;c=c->NextSiblingElement())ids(c);};ids(root);
+    for(auto page=root->FirstChildElement("page");page;page=page->NextSiblingElement("page")){
+        struct Site{XMLElement* node;XMLElement* fragment;};
+        std::map<int,Site> atoms;std::vector<Site> bonds;std::map<int,int> parents;
+        std::function<void(XMLElement*,XMLElement*)> collect=[&](XMLElement* container,XMLElement* fragment){
+            for(auto e=container->FirstChildElement();e;e=e->NextSiblingElement()){
+                std::string tag=e->Name();
+                if(tag=="n"){int id=e->IntAttribute("id");atoms[id]={e,fragment};parents[id]=id;}
+                else if(tag=="b")bonds.push_back({e,fragment});
+                else if(tag=="fragment"||tag=="group")collect(e,tag=="fragment"?e:fragment);
+                // A nickname's nested fragment belongs to its node, not the page graph.
+            }
+        };collect(page,nullptr);
+        std::function<int(int)> find=[&](int id){return parents[id]==id?id:parents[id]=find(parents[id]);};
+        for(auto bond:bonds){int b=bond.node->IntAttribute("B"),e=bond.node->IntAttribute("E");if(atoms.count(b)&&atoms.count(e))parents[find(e)]=find(b);}
+        std::map<int,std::vector<Site>> components,edges;
+        for(auto atom:atoms)components[find(atom.first)].push_back(atom.second);
+        for(auto bond:bonds){int b=bond.node->IntAttribute("B"),e=bond.node->IntAttribute("E");if(atoms.count(b)&&atoms.count(e))edges[find(b)].push_back(bond);}
+        for(auto& component:components){
+            auto& nodes=component.second;auto& links=edges[component.first];auto target=nodes.front().fragment;bool repair=!target;
+            for(auto site:nodes){repair|=!site.fragment||site.fragment!=target;if(!target&&site.fragment)target=site.fragment;}
+            for(auto site:links)repair|=!site.fragment||site.fragment!=target;
+            if(!repair)continue;
+            if(!target){
+                auto common=nodes.front().node->Parent();
+                auto include=[&](tinyxml2::XMLNode* node){for(;;){auto p=node;while(p&&p!=common)p=p->Parent();if(p)break;common=common->Parent();}};
+                for(auto site:nodes)include(site.node);for(auto site:links)include(site.node);
+                target=xml.NewElement("fragment");target->SetAttribute("id",nextId++);common->InsertEndChild(target);
+            }
+            for(auto site:nodes)target->InsertEndChild(site.node);
+            for(auto site:links)target->InsertEndChild(site.node);
+            changed=true;
+        }
+    }
+    if(!changed)return bytes;tinyxml2::XMLPrinter out;xml.Print(&out);return out.CStr();
+}
+
 // Apply explicit editor appearance and attached NMR tags after lossless source
 // regions have been emitted. Unedited files retain their original byte stream.
 std::string applyStudioAppearance(Writer& writer,const std::string& source){
     std::map<ObjectRef,int32_t> objects=writer.fileId;for(const auto& atom:writer.atomFileId)objects[ObjectRef(ObjectKind::Atom,atom.first)]=atom.second;
     bool needed=false;
     for(const auto& entry:objects){const auto& bag=writer.document.extensions(entry.first);
-        if(entry.first.kind==ObjectKind::Path||experimental::isFigureObject(writer.document,entry.first)||bag.findValue("studio.color.override")||bag.findValue("studio.text.colors.edited")||bag.findValue("studio.graphics.width"))needed=true;
+        if(entry.first.kind==ObjectKind::Path||experimental::isFigureObject(writer.document,entry.first)||bag.findValue("studio.color.override")||bag.findValue("studio.color")||bag.findValue("studio.text.colors")||bag.findValue("studio.graphics.width"))needed=true;
         if(auto tags=bag.findValue("studio.atom.tags"))if(tags->find("MoleculeStudio.NMR.")!=std::string::npos)needed=true;
     }
     if(!needed)return source;
@@ -1172,11 +1424,23 @@ std::string applyStudioAppearance(Writer& writer,const std::string& source){
         if(ref.kind!=ObjectKind::Bond&&ref.kind!=ObjectKind::Atom&&ref.kind!=ObjectKind::Text)if(auto width=bag.findValue("studio.graphics.width")){
             double value=std::atof(width->c_str());e->SetAttribute("LineWidth",value);
         }
-        if(auto value=bag.findValue("studio.color.override")){
+        // Generated atoms/bonds have no original XML attribute snapshot. Their
+        // imported colour is still appearance data and must reach the palette.
+        auto overrideInk=bag.findValue("studio.color.override");auto ink=overrideInk?overrideInk:bag.findValue("studio.color");
+        if(auto value=ink){
             int color=colorFor(uint32_t(std::strtoull(value->c_str(),0,10)));e->SetAttribute("color",color);
             auto t=ref.kind==ObjectKind::Text?e:e->FirstChildElement("t");if(t){t->SetAttribute("color",color);for(auto run=t->FirstChildElement("s");run;run=run->NextSiblingElement("s"))run->SetAttribute("color",color);}
         }
-        if(bag.findValue("studio.text.colors.edited")){auto t=ref.kind==ObjectKind::Text?e:e->FirstChildElement("t");auto value=bag.findValue("studio.text.colors");if(t&&value){std::istringstream colors(*value);uint32_t rgba;for(auto run=t->FirstChildElement("s");run&&colors>>rgba;run=run->NextSiblingElement("s"))run->SetAttribute("color",colorFor(rgba));}}
+        if(!overrideInk)if(auto value=bag.findValue("studio.text.colors")){
+            auto t=ref.kind==ObjectKind::Text?e:e->FirstChildElement("t");std::istringstream colors(*value);uint32_t rgba;
+            if(t){for(auto run=t->FirstChildElement("s");run&&colors>>rgba;run=run->NextSiblingElement("s"))run->SetAttribute("color",colorFor(rgba));}
+            else if(ref.kind==ObjectKind::Atom&&colors>>rgba){
+                // An ordinary element with an automatic label has no <t>.
+                // A uniformly coloured label is represented by node colour.
+                const auto uniform=rgba;bool same=true;while(colors>>rgba)if(rgba!=uniform)same=false;
+                if(same)e->SetAttribute("color",colorFor(uniform));
+            }
+        }
         if(ref.kind!=ObjectKind::Atom)continue;auto raw=bag.findValue("studio.atom.tags");if(!raw||raw->find("MoleculeStudio.NMR.")==std::string::npos)continue;
         tinyxml2::XMLDocument tags;if(tags.Parse(raw->c_str())!=tinyxml2::XML_SUCCESS)continue;
         for(auto c=e->FirstChildElement("objecttag");c;){auto next=c->NextSiblingElement("objecttag");auto name=c->Attribute("Name");if(name&&std::string(name).find("MoleculeStudio.NMR.")==0)e->DeleteChild(c);c=next;}
@@ -1193,11 +1457,69 @@ std::string applyStudioAppearance(Writer& writer,const std::string& source){
     tinyxml2::XMLPrinter printer;xml.Print(&printer);return printer.CStr();
 }
 
+// Recompose native projection groups from current membership. Flattening their
+// old envelopes first also makes ungroup/delete/save behave correctly, without
+// touching any other source group or fragment.
+std::string wrapProjectionGroups(Writer& writer,const std::string& bytes){
+    auto projection=[](const std::string& n){return n=="Fischer projection"||n=="Sawhorse projection"||n=="Newman projection";};
+    bool needed=bytes.find(" projection\"")!=std::string::npos;
+    for(const auto& g:writer.document.groups().records())if(g.isAlive()&&projection(g.label))needed=true;
+    if(!needed)return bytes;
+    tinyxml2::XMLDocument xml;if(xml.Parse(bytes.c_str())!=tinyxml2::XML_SUCCESS)return bytes;
+    std::function<void(XMLElement*)> flatten=[&](XMLElement* parent){
+        for(auto e=parent->FirstChildElement();e;){auto next=e->NextSiblingElement();flatten(e);
+            if(std::string(e->Name())=="group"&&projection(e->Attribute("Name")?e->Attribute("Name"):"")){
+                tinyxml2::XMLNode* previous=e;
+                while(auto child=e->FirstChild()){parent->InsertAfterChild(previous,child);previous=child;}
+                parent->DeleteChild(e);
+            }e=next;
+        }
+    };flatten(xml.RootElement());
+    std::map<int,XMLElement*> nodes;
+    std::function<void(XMLElement*)> scan=[&](XMLElement* e){if(e->Attribute("id"))nodes[e->IntAttribute("id")]=e;for(auto c=e->FirstChildElement();c;c=c->NextSiblingElement())scan(c);};scan(xml.RootElement());
+    for(const auto& g:writer.document.groups().records())if(g.isAlive()&&projection(g.label)){
+        std::vector<XMLElement*> members;for(auto ref:g.members){auto id=writer.fileId.find(ref);int file=id==writer.fileId.end()?sourceIdOf(writer.document,ref):id->second;auto node=nodes.find(file);if(node!=nodes.end())members.push_back(node->second);}
+        if(members.size()<2)continue;auto parent=members.front()->Parent();bool same=true;for(auto e:members)same&=e->Parent()==parent;if(!same)continue;
+        auto group=xml.NewElement("group");group->SetAttribute("id",writer.objectId(ObjectRef(ObjectKind::Group,g.id),g.sourceId));group->SetAttribute("Name",g.label.c_str());
+        parent->InsertAfterChild(members.front(),group);for(auto e:members)group->InsertEndChild(e);
+    }
+    tinyxml2::XMLPrinter out;xml.Print(&out);return out.CStr();
+}
+
+std::string wrapJoinedArrows(const std::string& bytes){
+    tinyxml2::XMLDocument xml;if(xml.Parse(bytes.c_str())!=tinyxml2::XML_SUCCESS)return bytes;std::map<int,std::vector<tinyxml2::XMLElement*>> groups;int next=1;
+    std::function<void(tinyxml2::XMLElement*)> scan=[&](tinyxml2::XMLElement* e){for(;e;e=e->NextSiblingElement()){next=std::max(next,e->IntAttribute("id",0)+1);int group=e->IntAttribute("MoleculeStudioJoinedGroup",0);if(group)groups[group].push_back(e);scan(e->FirstChildElement());}};scan(xml.RootElement());if(groups.empty())return bytes;
+    for(const auto& row:groups){if(row.second.size()<2)continue;auto parent=row.second.front()->Parent();bool same=true;for(auto node:row.second)same&=node->Parent()==parent;if(!same)continue;auto group=xml.NewElement("group");group->SetAttribute("id",next++);group->SetAttribute("MoleculeStudioArrowGroup",1);parent->InsertEndChild(group);for(auto node:row.second)group->InsertEndChild(node);}
+    tinyxml2::XMLPrinter out;xml.Print(&out);return out.CStr();
+}
 } // namespace
 
 // ---------------------------------------------------------------------------
 // Public entry points
 // ---------------------------------------------------------------------------
+std::string normalizePartialChargeCaptions(const std::string& source){
+    if(source.find("δ")==std::string::npos)return source;
+    tinyxml2::XMLDocument xml;if(xml.Parse(source.c_str())!=tinyxml2::XML_SUCCESS)return source;
+    bool changed=false;
+    std::function<void(tinyxml2::XMLElement*)> visit=[&](tinyxml2::XMLElement* e){
+        if(std::string(e->Name())=="t"&&(!e->Parent()->ToElement()||std::string(e->Parent()->ToElement()->Name())!="n")){
+            std::string label;for(auto run=e->FirstChildElement("s");run;run=run->NextSiblingElement("s"))if(run->GetText())label+=run->GetText();
+            if(label=="δ−"||label=="δ-"||label=="δ+"){
+                // A partial-charge caption is not a standalone chemical formula.
+                e->SetAttribute("InterpretChemically","no");e->DeleteAttribute("Warning");changed=true;
+            }
+        }
+        for(auto child=e->FirstChildElement();child;child=child->NextSiblingElement())visit(child);
+    };if(xml.RootElement())visit(xml.RootElement());
+    if(!changed)return source;tinyxml2::XMLPrinter printer;xml.Print(&printer);return printer.CStr();
+}
+std::string normalizeElectronEnums(std::string source){
+    // Older Studio exports wrote the binary enum value into the XML enum.
+    // Repair only node attributes; literal captions and valid source bytes stay.
+    size_t cursor=0;const char* names[]={"None","Singlet","Doublet","Triplet"};
+    while((cursor=source.find("<n ",cursor))!=std::string::npos){auto end=source.find('>',cursor);if(end==std::string::npos)break;auto key=source.find("Radical=",cursor);if(key<end){auto q=key+8;if(q+2<end&&(source[q]=='\"'||source[q]=='\'')){char quote=source[q];char number=source[q+1];if(number>='0'&&number<='3'&&source[q+2]==quote){source.replace(q+1,1,names[number-'0']);end=source.find('>',cursor);}}}cursor=end+1;
+    }return source;
+}
 core::Error writeCdxml(const core::Document& document, std::ostream& output,
                        RefusalReport* refusals, CdxmlWriteFidelity* fidelity,
                        const CdxmlWriteOptions& options) {
@@ -1216,7 +1538,10 @@ core::Error writeCdxml(const core::Document& document, std::ostream& output,
     // The table is normalised BEFORE appearance is applied: normalizeColorTable can
     // rewrite the whole prologue (ChemDraw's table has to live at the root), and the
     // appearance pass must then append its own colours to the final table.
-    const std::string text = applyStudioAppearance(writer,normalizeColorTable(writer.out.str()));
+    const std::string text = normalizeMoleculeContainers(studio_projection_export::write(normalizePartialChargeCaptions(normalizeElectronEnums(studio_electron_graphics::exportSymbols(document,writer.atomFileId,wrapProjectionGroups(writer,wrapJoinedArrows(applyStudioAppearance(writer,normalizeColorTable(writer.out.str())))))))));
+    tinyxml2::XMLDocument verified;
+    if(verified.Parse(text.c_str())!=tinyxml2::XML_SUCCESS)
+        return Error(ErrorCode::ParseError,std::string("Invalid generated CDXML: ")+verified.ErrorStr());
     output.write(text.data(), static_cast<std::streamsize>(text.size()));
     if (!output) return Error(ErrorCode::IoError, "cannot write CDXML output");
     return Error::success();

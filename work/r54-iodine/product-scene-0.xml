@@ -1,0 +1,38 @@
+<request>
+    <plugins>
+        <plugin name="绘图增强插件" version="1.8.0" module="ai_plugins" entry="install_plugin" path="ai_plugins"/>
+    </plugins>
+    <context application_version="0.95" ai_tools_revision="2026-11-18" native_ring_variants="112" text_size="10" selected="0" font="Arial" bond_length="14.4" line_width="0.59999999999999998" color="#000000" atoms="14" bonds="13" page_width_mm="210.00000333333335" page_height_mm="297.00001277777778" page_across="1" page_down="1" selection_types=""/>
+    <scene total="30" selection_total="0" selection_complete="true" truncated="false">
+        <object ref="atom:0" kind="atom" selected="false" molecule="molecule:0" x="193.78661252874841" y="-21.572898437499987" x2="193.78661252874841" y2="-21.572898437499987" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:1" kind="atom" selected="false" molecule="molecule:0" x="193.78661252874841" y="-35.972898437499964" x2="193.78661252874841" y2="-35.972898437499964" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:2" kind="atom" selected="false" molecule="molecule:0" x="181.3158467147484" y="-43.17289843750001" x2="181.3158467147484" y2="-43.17289843750001" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:3" kind="atom" selected="false" molecule="molecule:0" x="168.84508089974841" y="-35.972898437499964" x2="168.84508089974841" y2="-35.972898437499964" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:4" kind="atom" selected="false" molecule="molecule:0" x="168.84508089974841" y="-21.572898437499987" x2="168.84508089974841" y2="-21.572898437499987" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:5" kind="atom" selected="false" molecule="molecule:0" x="181.3158467147484" y="-14.372898437499998" x2="181.3158467147484" y2="-14.372898437499998" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:6" kind="atom" selected="false" molecule="molecule:0" x="206.2573783437484" y="-43.17289843750001" x2="206.2573783437484" y2="-43.17289843750001" element="I" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:7" kind="atom" selected="false" molecule="molecule:7" x="-80.840295922251585" y="39.227101562500025" x2="-80.840295922251585" y2="39.227101562500025" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:8" kind="atom" selected="false" molecule="molecule:7" x="-80.840295922251585" y="24.82710156249999" x2="-80.840295922251585" y2="24.82710156249999" element="C" charge="1" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:9" kind="atom" selected="false" molecule="molecule:7" x="-93.311061737251578" y="17.627101562500002" x2="-93.311061737251578" y2="17.627101562500002" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:10" kind="atom" selected="false" molecule="molecule:7" x="-105.78182755125158" y="24.82710156249999" x2="-105.78182755125158" y2="24.82710156249999" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:11" kind="atom" selected="false" molecule="molecule:7" x="-105.78182755125158" y="39.227101562500025" x2="-105.78182755125158" y2="39.227101562500025" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:12" kind="atom" selected="false" molecule="molecule:7" x="-93.311061737251578" y="46.427101562500013" x2="-93.311061737251578" y2="46.427101562500013" element="C" charge="0" radical="0" lone_pairs_shown="0" is_element="true" label=""/>
+        <object ref="atom:13" kind="atom" selected="false" molecule="molecule:13" x="-163.72933731685157" y="18.123101562499983" x2="-163.72933731685157" y2="18.123101562499983" element="I" charge="-1" radical="0" lone_pairs_shown="0" is_element="true" label="I"/>
+        <object ref="bond:0" kind="bond" selected="false" molecule="molecule:0" x="193.78661252874841" y="-35.972898437499964" x2="193.78661252874841" y2="-21.572898437499987" order="1" begin="atom:0" end="atom:1"/>
+        <object ref="bond:1" kind="bond" selected="false" molecule="molecule:0" x="181.3158467147484" y="-43.17289843750001" x2="193.78661252874841" y2="-35.972898437499964" order="2" begin="atom:1" end="atom:2"/>
+        <object ref="bond:2" kind="bond" selected="false" molecule="molecule:0" x="168.84508089974841" y="-43.17289843750001" x2="181.3158467147484" y2="-35.972898437499964" order="1" begin="atom:2" end="atom:3"/>
+        <object ref="bond:3" kind="bond" selected="false" molecule="molecule:0" x="168.84508089974841" y="-35.972898437499964" x2="168.84508089974841" y2="-21.572898437499987" order="2" begin="atom:3" end="atom:4"/>
+        <object ref="bond:4" kind="bond" selected="false" molecule="molecule:0" x="168.84508089974841" y="-21.572898437499987" x2="181.3158467147484" y2="-14.372898437499998" order="1" begin="atom:4" end="atom:5"/>
+        <object ref="bond:5" kind="bond" selected="false" molecule="molecule:0" x="181.3158467147484" y="-21.572898437499987" x2="193.78661252874841" y2="-14.372898437499998" order="2" begin="atom:5" end="atom:0"/>
+        <object ref="bond:6" kind="bond" selected="false" molecule="molecule:0" x="193.78661252874841" y="-43.17289843750001" x2="206.2573783437484" y2="-35.972898437499964" order="1" begin="atom:1" end="atom:6"/>
+        <object ref="bond:7" kind="bond" selected="false" molecule="molecule:7" x="-80.840295922251585" y="24.82710156249999" x2="-80.840295922251585" y2="39.227101562500025" order="1" begin="atom:7" end="atom:8"/>
+        <object ref="bond:8" kind="bond" selected="false" molecule="molecule:7" x="-93.311061737251578" y="17.627101562500002" x2="-80.840295922251585" y2="24.82710156249999" order="2" begin="atom:8" end="atom:9"/>
+        <object ref="bond:9" kind="bond" selected="false" molecule="molecule:7" x="-105.78182755125158" y="17.627101562500002" x2="-93.311061737251578" y2="24.82710156249999" order="1" begin="atom:9" end="atom:10"/>
+        <object ref="bond:10" kind="bond" selected="false" molecule="molecule:7" x="-105.78182755125158" y="24.82710156249999" x2="-105.78182755125158" y2="39.227101562500025" order="2" begin="atom:10" end="atom:11"/>
+        <object ref="bond:11" kind="bond" selected="false" molecule="molecule:7" x="-105.78182755125158" y="39.227101562500025" x2="-93.311061737251578" y2="46.427101562500013" order="1" begin="atom:11" end="atom:12"/>
+        <object ref="bond:12" kind="bond" selected="false" molecule="molecule:7" x="-93.311061737251578" y="39.227101562500025" x2="-80.840295922251585" y2="46.427101562500013" order="2" begin="atom:12" end="atom:7"/>
+        <object ref="text:0" kind="text" selected="false" x="-175.18588028565159" y="21.648000000500019" x2="-175.18588028565159" y2="21.648000000500019" text="−" size="10" font="Arial" bold="false" italic="false"/>
+        <object ref="arrow:0" kind="arrow" selected="false" x="199.75650258274842" y="-38.618898323499991" x2="206.88310928274845" y2="-37.803035302500007" mechanism="true" electrons="2" source="bond:6" target="atom:6"/>
+        <object ref="arrow:1" kind="arrow" selected="false" x="-207.78182755125158" y="32.027101562500036" x2="-125.78182755125158" y2="32.027101562500036"/>
+    </scene>
+</request>

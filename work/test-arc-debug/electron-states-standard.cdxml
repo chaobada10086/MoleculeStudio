@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="7">
+        <fragment id="8">
+            <n id="3" p="0 0" NumHydrogens="2" Radical="Singlet"/>
+            <n id="4" p="40 0" NumHydrogens="3" Radical="Doublet"/>
+            <n id="5" p="80 0" Charge="1" NumHydrogens="3">
+                <t>
+                    <s font="3" size="10" face="96">CH3</s>
+                    <s font="3" size="10" face="64">+</s>
+                </t>
+            </n>
+            <n id="6" p="120 0" Charge="-1" NumHydrogens="3">
+                <t>
+                    <s font="3" size="10" face="96">CH3</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+        </fragment>
+        <graphic id="9" GraphicType="Symbol" SymbolType="Electron" BoundingBox="13.770361328125 -2.6884609375 21.870361328125 -2.6884609375" LineWidth="0.59999999999999998">
+            <represent object="3" attribute="Radical"/>
+        </graphic>
+        <graphic id="10" GraphicType="Symbol" SymbolType="Electron" BoundingBox="16.740361328125 -2.6884609375 24.840361328125 -2.6884609375" LineWidth="0.59999999999999998">
+            <represent object="3" attribute="Radical"/>
+        </graphic>
+        <graphic id="11" GraphicType="Symbol" SymbolType="Electron" BoundingBox="54.94408203125 0.593453125 63.04408203125 0.593453125" LineWidth="0.59999999999999998">
+            <represent object="4" attribute="Radical"/>
+        </graphic>
+    </page>
+</CDXML>

@@ -65,6 +65,45 @@ void App::groupDirectionCheck(const std::string& dir){
     }
     {std::ofstream report(dir+"/problems.txt");for(size_t i=0;i<problems.size()&&i<40;++i)report<<problems[i]<<"\n";report<<"total="<<problems.size()<<"\n";}
     if(!problems.empty())throw std::runtime_error("connection order: "+std::to_string(problems.size())+" cases, see problems.txt");
+    for(const auto& pair:std::vector<std::pair<std::string,std::string>>{{"OH","HO"},{"CN","NC"}}){
+        for(bool blocked:{false,true}){
+            Document doc;ObjectId center,neighbour,bondId;
+            doc.addAtom(Vec2(0,0),6,&center);
+            doc.addAtom(Vec2(2,-30),6,&neighbour);
+            doc.addBond(center,neighbour,&bondId);
+            doc.setAtomLabel(center,pair.second);
+            if(blocked){ObjectId blocker;doc.addAtom(Vec2(11,0),8,&blocker);}
+            RingGeometry rings(doc);
+            auto labels=molecular::labels(doc,s.glyphs,rings);
+            const auto& glyphs=labels.at(center).layout.glyphs;
+            require(glyphs.size()==2,"two-letter group");
+            const auto& leftmost=glyphs[glyphs[0].x<glyphs[1].x?0:1];
+            const auto& wanted=blocked?pair.second:pair.first;
+            require(leftmost.codepoint==uint32_t(wanted[0]),"prefer the right side of a near-vertical bond unless another label blocks it");
+        }
+    }
+    for(int element:{6,8}){
+        Document doc;ObjectId oxygen,center,left,right,edge;
+        doc.addAtom(Vec2(0,0),element,&oxygen);
+        doc.addAtom(Vec2(0,30),6,&center);
+        doc.addAtom(Vec2(-26,45),6,&left);
+        doc.addAtom(Vec2(26,45),6,&right);
+        doc.addBond(oxygen,center,&edge);doc.addBond(center,left,&edge);doc.addBond(center,right,&edge);
+        // Old files can store either spelling with a right-justified native label.
+        auto& labelAttributes=doc.extensions(ObjectRef(ObjectKind::Atom,oxygen));
+        labelAttributes.set("studio.label.offset","3 4");
+        labelAttributes.set("studio.label.text","HO");
+        labelAttributes.set("studio.text.LabelJustification","Right");
+        doc.setAtomLabel(oxygen,"HO");
+        RingGeometry rings(doc);
+        auto labels=molecular::labels(doc,s.glyphs,rings);
+        const auto& layout=labels.at(oxygen).layout;
+        const auto& glyphs=layout.glyphs;
+        require(glyphs.size()==2&&glyphs[0].codepoint=='H'&&glyphs[1].codepoint=='O'&&glyphs[0].x>glyphs[1].x,
+                "H is to the right of O above a vertical bond, including old label layout");
+        require(std::abs(layout.anchor.x+glyphs[1].x+glyphs[1].advance*.5)<1.5,
+                "the vertical bond is aligned to O");
+    }
     // Formula typography of the completed label.
     struct Case{const char* typed;int segments;int chargeSegment;const char* expectTail;};
     require(chemcompletion::merged(chemcompletion::segments("SO42-"))=="SO42-","merged text round-trips");

@@ -431,7 +431,7 @@ bool writeWide(const std::string& path, const std::string& bytes, std::string* e
 
 bool readWideInto(const std::string& path, std::string* bytes, std::string* error) {
     const std::wstring wide = toWide(path);
-    HANDLE handle = CreateFileW(wide.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING,
+    HANDLE handle = CreateFileW(wide.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, 0, OPEN_EXISTING,
                                 FILE_ATTRIBUTE_NORMAL, 0);
     if (handle == INVALID_HANDLE_VALUE) {
         if (error) *error = "cannot open file (wide API): " + path;

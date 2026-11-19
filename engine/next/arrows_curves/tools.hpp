@@ -49,6 +49,8 @@
 
 namespace r62 {
 namespace arrows {
+inline double signedArcCurvature(double sagitta,double chord){return std::abs(chord)<1e-9?0.:2*sagitta/(chord*chord*.25+sagitta*sagitta);}
+inline double sagittaAtCurvature(double curvature,double chord,bool major=false){if(std::abs(curvature)<1e-10||chord<1e-9)return 0.;double k=std::copysign(std::min(std::abs(curvature),1.999/chord),curvature);return (1+(major?1.:-1.)*std::sqrt(std::max(0.,1-k*k*chord*chord*.25)))/k;}
 
 // ---------------------------------------------------------------------------
 // Pointer-modifier helpers, shared by every T10 tool
@@ -83,12 +85,16 @@ core::Vec2 resolvePlacementOrigin(const core::Document& document,
 // ---------------------------------------------------------------------------
 struct ArrowGestureState {
     bool        active;
+    int arcStage=0;bool arcStagePress=false;core::Vec2 arcEndpoint;
     HandleKind  grabbed;      // which handle the press landed on
     size_t      handleIndex;  // index into arrowHandles()
     core::ObjectId target;    // document arrow being edited (kInvalidObjectId for new)
     ArrowParams pending;      // THE value preview and commit both read
-    core::Vec2  pressPoint;
+    core::Vec2  pressPoint;      // snapped origin for constructing the arrow
+    core::Vec2  rawPressPoint;   // actual pointer position for drag slop
     bool        moved;        // did the pointer move past the click slop?
+    std::vector<core::Vec2> mechanismTrace,arcTrace;
+    core::ObjectId joinBegin=core::kInvalidObjectId,joinEnd=core::kInvalidObjectId;
     ArrowGestureState()
         : active(false), grabbed(HandleKind::None), handleIndex(0),
           target(core::kInvalidObjectId), pressPoint(0, 0), moved(false) {}
@@ -108,6 +114,10 @@ public:
     core::ToolBehavior behavior() const { return core::ToolBehavior::PlaceSingle; }
     uint32_t presetId() const { return presetId_; }
     void setStrokeWidth(double width) { defaultStrokeWidth_=width; }
+    void setHeadTier(int tier) { headTier_=tier; }
+    void setArcBendLock(bool locked,double ratio){arcBendLocked_=locked;arcBendRatio_=ratio;}
+    void setArcCurvatureLock(bool locked,double curvature,bool major=false){arcCurvatureLocked_=locked;arcCurvature_=curvature;arcCurvatureMajor_=major;}
+    void hoverPreview(core::ToolHost& host,core::Vec2 point,uint32_t modifiers);
 
     core::Invalidation activate(core::ToolHost& host);
     core::CommandResult beginGesture(core::ToolHost& host, const core::PointerState& pointer,
@@ -133,6 +143,10 @@ private:
     size_t pickHandle(const std::vector<Handle>& handles, const core::Vec2& pointer,
                       double deviceRadius, const core::ViewTransform& view) const;
 
+    void updateFreeArc(core::ToolHost& host,core::Vec2 point,uint32_t modifiers,bool bend);
+    bool arcBendLocked_=false;double arcBendRatio_=.2071067811865475;
+    bool arcCurvatureLocked_=false;double arcCurvature_=0.;bool arcCurvatureMajor_=false;
+    int headTier_=3;
     double defaultStrokeWidth_=0;
     uint32_t          presetId_;
     core::ToolId      id_;

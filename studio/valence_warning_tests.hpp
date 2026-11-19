@@ -18,6 +18,25 @@
     check(6,0,{5,5,1,1},-1,true);check(6,0,{5,5,5},-1,false);
     check(7,0,{5,5},1,false);check(26,0,{1,1,1,1,1,1},-1,false);
     check(18,0,{1},-1,false); // Legacy Ar aryl placeholder, no explicit label.
+    check(17,0,{1,1},0,true);check(35,0,{1,1},0,true);check(53,0,{1,1,1,1,1,1},0,true);
+    for(int element:{17,35,53}){
+        Document d;ObjectId halogen;
+        d.addAtom(Vec2(),element,&halogen);
+        for(int i=0;i<4;++i){
+            ObjectId oxygen,bond;
+            d.addAtom(Vec2(15*i,30),8,&oxygen);d.addBond(halogen,oxygen,&bond);
+            if(i<3)d.setBondOrder(bond,BondOrder::Double);
+        }
+        auto assess=[&](){return validation::assess(d,*d.atoms().alive(halogen));};
+        require(assess().used==7&&!assess().exceeded(),"valid oxygen-only halogen at bond-order sum seven");
+        const auto last=d.incidentBonds(halogen).back();
+        d.setBondOrder(last,BondOrder::Double);
+        require(assess().used==8&&assess().exceeded(),"oxygen-only halogen exceeding seven still warns");
+        d.setBondOrder(last,BondOrder::Single);
+        const auto& bond=*d.bonds().alive(last);
+        d.setElement(bond.beginAtom==halogen?bond.endAtom:bond.beginAtom,6);
+        require(assess().exceeded(),"a carbon neighbor restores the ordinary halogen limit");
+    }
     {
         Document d;ObjectId ar,carbon,bond;d.addAtom(Vec2(),18,&ar);d.addAtom(Vec2(30,0),6,&carbon);d.addBond(ar,carbon,&bond);
         d.setAtomLabel(ar,"Ar");require(!validation::overValent(d,*d.atoms().alive(ar)),"Ar aryl label is not argon overvalence");
@@ -28,7 +47,7 @@
     std::vector<ObjectId> bonds;
     for(int i=0;i<5;++i){ObjectId other,bond;double t=6.283185307*i/5;v.doc.addAtom(Vec2(35*cos(t),35*sin(t)),6,&other);v.doc.addBond(center,other,&bond);bonds.push_back(bond);}
     v.refresh();
-    auto markers=[&](){size_t count=0;auto overlay=v.overlay();for(const auto& p:overlay.scene().primitives())if(p.style.stroke.enabled&&p.style.stroke.rgba==0xE02020FF){++count;require(!p.style.fill.enabled&&p.points.size()==5,"warning is a closed hollow square");require(std::abs(v.view().toDevice(p.points[1]).x-v.view().toDevice(p.points[0]).x-7*v.view().scale*v.view().dpiScale)<.001,"warning scales in fixed proportion to molecule");require(std::abs(p.style.strokeWidth-.65)<.001,"stroke scales in document space");require(std::abs((p.points[0].x+p.points[2].x)*.5)<.001&&std::abs((p.points[0].y+p.points[2].y)*.5)<.001,"square centered on erroneous atom");}return count;};
+    auto markers=[&](){size_t count=0;auto overlay=v.overlay();for(const auto& p:overlay.scene().primitives())if(p.style.stroke.enabled&&p.style.stroke.rgba==0xE02020FF){++count;require(!p.style.fill.enabled&&p.points.size()==5,"warning is a closed hollow square");require(std::abs(v.view().toDevice(p.points[1]).x-v.view().toDevice(p.points[0]).x-7*v.view().scale*v.view().dpiScale)<.001,"warning scales in fixed proportion to molecule");require(std::abs(p.style.strokeWidth-std::max(.65,v.view().deviceRadiusToDocument(1.5)))<.001,"stroke remains visible when zoomed out");require(std::abs((p.points[0].x+p.points[2].x)*.5)<.001&&std::abs((p.points[0].y+p.points[2].y)*.5)<.001,"square centered on erroneous atom");}return count;};
     require(markers()==1,"five-valent carbon gets one red square");
     auto view=v.view();view.scale=3;v.setView(view);require(markers()==1,"warning survives zoom");
     require(v.submit(commands::deleteObjects({ObjectRef(ObjectKind::Bond,bonds.back())}),"fix valence").ok(),"delete excess bond");
@@ -45,5 +64,5 @@
     require(validation::ignored(ignoredReload.doc,center)&&validation::overValentAtoms(ignoredReload.doc).empty(),"native save retains ignore setting");
     require(v.submit(validation::setIgnored(center,false),"restore valence").ok()&&markers()==1,"restore checking shows error again");
     v.doc.setAtomLabel(center,"Ph");v.refresh();require(markers()==0,"abbreviation not treated as carbon");
-    std::ofstream(testOut+"/valence_warning_tests.json")<<"{\"chemical_cases\":22,\"overlay\":true,\"proportional_zoom\":true,\"repair_undo_redo\":true,\"import\":true,\"abbreviation\":true,\"ignore_restore_undo_redo\":true,\"ignore_native_roundtrip\":true}";
+    std::ofstream(testOut+"/valence_warning_tests.json")<<"{\"chemical_cases\":34,\"halogen_oxo_limits\":true,\"overlay\":true,\"proportional_zoom\":true,\"repair_undo_redo\":true,\"import\":true,\"abbreviation\":true,\"ignore_restore_undo_redo\":true,\"ignore_native_roundtrip\":true}";
 }

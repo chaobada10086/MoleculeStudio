@@ -1,0 +1,253 @@
+{
+  "staged": true,
+  "steps": [
+    {
+      "staged": true,
+      "refs": [
+        "new:1",
+        "new:3",
+        "new:4",
+        "new:5",
+        "new:2"
+      ],
+      "arrow_endpoints": [
+        [
+          68.9923123152,
+          21.591352068000006
+        ],
+        [
+          140.9923123152,
+          21.591352068000006
+        ]
+      ],
+      "reactants": [
+        {
+          "ref": "new:1",
+          "label_ref": null,
+          "spec": "smiles:CCO",
+          "label": "C2H6O",
+          "formula": "C2H6O",
+          "smiles": "CCO",
+          "bounds": [
+            0.0061,
+            17.9857,
+            24.9462,
+            25.197
+          ]
+        }
+      ],
+      "products": [
+        {
+          "ref": "new:4",
+          "label_ref": "new:5",
+          "spec": "smiles:CC=O",
+          "label": "1",
+          "formula": "C2H4O",
+          "smiles": "CC=O",
+          "bounds": [
+            197.5088,
+            17.9857,
+            222.4489,
+            25.197
+          ]
+        }
+      ],
+      "arrow": "new:2",
+      "conditions_ref": "new:3",
+      "condition_refs": [
+        "new:3"
+      ],
+      "title_ref": null,
+      "label_refs": [
+        "new:5"
+      ],
+      "plus_refs": [],
+      "bounds": [
+        0.0061,
+        2.5914,
+        222.4489,
+        41.197
+      ],
+      "warnings": [],
+      "layout": "reactants -> arrow -> products"
+    },
+    {
+      "staged": true,
+      "refs": [
+        "new:6",
+        "new:8",
+        "new:9",
+        "new:10",
+        "new:7"
+      ],
+      "arrow_endpoints": [
+        [
+          68.9923123152,
+          96.77405620400002
+        ],
+        [
+          140.9923123152,
+          96.77405620400002
+        ]
+      ],
+      "reactants": [
+        {
+          "ref": "new:6",
+          "label_ref": null,
+          "spec": "smiles:c1ccccc1",
+          "label": "C6H6",
+          "formula": "C6H6",
+          "smiles": "c1ccccc1",
+          "bounds": [
+            0.0,
+            82.3741,
+            24.9523,
+            111.1741
+          ]
+        }
+      ],
+      "products": [
+        {
+          "ref": "new:9",
+          "label_ref": "new:10",
+          "spec": "smiles:CC(=O)c1ccccc1",
+          "label": "2",
+          "formula": "C8H8O",
+          "smiles": "CC(=O)c1ccccc1",
+          "bounds": [
+            185.0323,
+            75.1827,
+            234.9254,
+            118.3654
+          ]
+        }
+      ],
+      "arrow": "new:7",
+      "conditions_ref": "new:8",
+      "condition_refs": [
+        "new:8"
+      ],
+      "title_ref": null,
+      "label_refs": [
+        "new:10"
+      ],
+      "plus_refs": [],
+      "bounds": [
+        0.0,
+        75.1827,
+        234.9254,
+        134.3654
+      ],
+      "warnings": [],
+      "layout": "reactants -> arrow -> products"
+    },
+    {
+      "staged": true,
+      "refs": [
+        "new:11",
+        "new:13",
+        "new:14",
+        "new:15",
+        "new:12"
+      ],
+      "arrow_endpoints": [
+        [
+          68.9923123152,
+          171.95676034000002
+        ],
+        [
+          140.9923123152,
+          171.95676034000002
+        ]
+      ],
+      "reactants": [
+        {
+          "ref": "new:11",
+          "label_ref": null,
+          "spec": "smiles:CC(=O)O",
+          "label": "C2H4O2",
+          "formula": "C2H4O2",
+          "smiles": "CC(=O)O",
+          "bounds": [
+            0.0051,
+            161.1345,
+            24.9473,
+            182.779
+          ]
+        }
+      ],
+      "products": [
+        {
+          "ref": "new:14",
+          "label_ref": "new:15",
+          "spec": "smiles:CC(=O)OC",
+          "label": "3",
+          "formula": "C3H6O2",
+          "smiles": "COC(C)=O",
+          "bounds": [
+            191.2651,
+            161.1447,
+            228.6927,
+            182.7689
+          ]
+        }
+      ],
+      "arrow": "new:12",
+      "conditions_ref": "new:13",
+      "condition_refs": [
+        "new:13"
+      ],
+      "title_ref": null,
+      "label_refs": [
+        "new:15"
+      ],
+      "plus_refs": [],
+      "bounds": [
+        0.0051,
+        152.9568,
+        228.6927,
+        198.7689
+      ],
+      "warnings": [],
+      "layout": "reactants -> arrow -> products"
+    }
+  ],
+  "refs": [
+    "new:1",
+    "new:3",
+    "new:4",
+    "new:5",
+    "new:2",
+    "new:6",
+    "new:8",
+    "new:9",
+    "new:10",
+    "new:7",
+    "new:11",
+    "new:13",
+    "new:14",
+    "new:15",
+    "new:12"
+  ],
+  "bounds": [
+    0.0,
+    2.5914,
+    234.9254,
+    198.7689
+  ],
+  "column_centers": [
+    12.4761561576,
+    104.9923123152,
+    209.97886307279998
+  ],
+  "row_spacing": 75.18270413600001,
+  "row_gap": 16,
+  "note": "每侧多个结构作为一个反应物/产物组对齐；文字尺寸为估算值。",
+  "document_bounds": [
+    0.0,
+    2.5914,
+    234.9254,
+    198.7689
+  ],
+  "coordinate_system": "insertion-relative-pt"
+}

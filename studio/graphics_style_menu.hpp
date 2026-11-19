@@ -7,7 +7,7 @@ std::string graphicWidthText(double width){if(width<=0)return "自动（按样�
 std::string graphicColorText(uint32_t color){for(int i=0;i<8;++i)if(color==graphicColors[i])return graphicColorNames[i];char hex[16];std::snprintf(hex,sizeof(hex),"#%06X",unsigned(color>>8));return hex;}
 void App::paintGraphicFormatControl(Graphics& g,const Button& button){
     auto r=button.r;bool width=button.id=="graphics.width";
-    if(hover==button.id)roundbox(g,r,4,Color(255,237,244,240));
+    if(hover==button.id)roundbox(g,r,4,studio_ui::skinColors().hover);
     txt(g,button.label,RectF(r.X+3,r.Y+1,r.Width-6,19),11,muted,false,true);
     RectF value(r.X+3,r.Y+24,r.Width-6,28);roundbox(g,value,3,white);Pen border(line,1);g.DrawRectangle(&border,value);
     Pen chevron(teal,1.3f);float cx=value.GetRight()-9,cy=value.Y+12;g.DrawLine(&chevron,cx-3,cy,cx,cy+3);g.DrawLine(&chevron,cx,cy+3,cx+3,cy);

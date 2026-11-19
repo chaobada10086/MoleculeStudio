@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="297.2878 299.884222 418.34847807 442.005578139">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="3" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="4"/>
+        <arrow id="5" BoundingBox="297.2878 299.884222 409.182297883 442.005578139" Tail3D="297.6378 420.9449 0" Head3D="397.6378 420.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="2250" ArrowheadCenterSize="1969" ArrowheadWidth="563" Center3D="347.6378 370.94490007 0" MajorAxisEnd3D="418.34847807 370.94490007 0" MinorAxisEnd3D="347.6378 441.655578139 0" AngularSize="-269.99999992035163" MoleculeStudioArrow="v=1;preset=58;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=13.5;hwidth=6.75;hend=1;hbegin=0;bx=0;by=0;ex=100;ey=0;sag=-120.710678;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+    </page>
+</CDXML>

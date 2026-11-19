@@ -1,0 +1,458 @@
+MoleculeStudio 交接文档
+更新日期：2026-11-10（Asia/Shanghai）
+当前交付：机理箭头、下一步推演、碳电子状态与通用试剂，内部更新包 v8
+
+一、新对话先读这部分
+====================
+
+这是已经实际修改、编译、测试并部署的项目，不是待实现的方案。
+主项目仍显示 MoleculeStudio 0.95；“v8”是本对话的更新包轮次，不是正式应用版本号。
+请先阅读本文件，再根据用户的新要求继续。不要重新从旧版本覆盖源码或安装目录。
+
+主项目：
+C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio
+
+本对话工作目录（以下称 WORK）：
+C:\Users\ChaobaDa\Documents\Codex\2026-11-09\1-c-users-chaobada-documents-github
+
+交接时 Git 分支 main，HEAD bed6851。本轮改动尚未 commit。
+git status 中有大量已修改文件和新增文件，均应保留；不可 reset/clean 丢掉。
+此前未找到适用的 AGENTS.md；下次接手仍可按当前目录状态核实。
+本文件的仓库版本是后续维护主副本，桌面及 WORK\outputs 中另有便于打开的副本。
+
+交接时已安装新版，桌面快捷方式仍指向原安装位置。最后打开的是：
+WORK\outputs\丙二酸酯机理-新版示例.cdxml
+界面切到了“图形”页。这个窗口状态可能被用户继续修改，不可据此认定现在没有未保存内容。
+下次更新前先查看、保存当前用户文档；不能强杀应用丢失试画。
+
+二、源码、程序、产物位置
+========================
+
+1. 主源码与正式构建入口
+   C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio
+   主窗口/命令接线：studio\studio.cpp
+   构建脚本：studio\build.py
+   本轮正式输出：out\Studio\MoleculeStudio.exe
+   构建记录：out\Studio\manifest.json、out\Studio\build.log
+   本轮控制台日志：out\mechanism-v8-build.txt
+
+2. 已安装程序
+   C:\Users\ChaobaDa\AppData\Local\Programs\MoleculeStudio\MoleculeStudio.exe
+   桌面入口：C:\Users\ChaobaDa\Desktop\MoleculeStudio.lnk
+   快捷方式已核对指向上述安装程序，无需换成某个测试 exe。
+   另有名字带 d40b8d0e 的测试快捷方式，指向 MS-Test；不是本次正式安装，不要误改。
+
+3. v8 已安装 exe 的 SHA256
+   F01DDD3B36AB63F32C6E70858E7D0AAF3B85214C923D5ED675F730F5AFCA44F5
+   该值在交接时与主项目 out\Studio\MoleculeStudio.exe 一致。
+   后续用户或其他对话可能更新程序，应重新核验，不能把此值当永久事实。
+
+4. 更新包、源码快照、回滚
+   WORK\outputs\MoleculeStudio-Mechanism-Update-v8\
+     payload\        本轮安装文件（14 项，包含 exe、AI Python/协议/技能文件）
+     source\         本轮未提交改动的源码快照；不是整个 Git 仓库
+     verification\   最终五组回归的结果与样例
+     files.json      安装文件 SHA256 清单
+     Install.ps1     校验、备份、覆盖与失败回滚脚本
+     使用说明.txt
+     已安装程序验收.json
+   WORK\outputs\MoleculeStudio-Mechanism-v8-20261110.zip
+   打包脚本：WORK\work\v8\package.py（从 WORK 运行）
+   安装前备份：
+   C:\Users\ChaobaDa\AppData\Local\Programs\MoleculeStudio\mechanism-backup-20261110-003722
+
+5. 用户原图、示例
+   WORK\outputs\丙二酸酯更新前保留试画.cdxml
+     从正在运行的应用另存出来的真实用户文档，保留旧例子和本轮丙二酸酯试画。
+     特别注意：扩展名虽是 .cdxml，实际内容是 R62EXT/T01DOC 原生格式。
+     必须用 Session::open 自动识别，不能直接假定它是 XML。
+   WORK\outputs\丙二酸酯机理-升级版完整示例.cdxml / .png
+     保留整份文档的生成结果，并在演示副本里更新短箭头外观。
+   WORK\outputs\丙二酸酯机理-新版示例.cdxml
+     从完整结果中提取的独立示例，16 个原子、12 根键、3 根箭头。
+     这个文件是真正的 CDXML，可编辑；已用安装后的应用打开查看。
+   旧 outputs\你的画法-生成练习.cdxml 等可能已被用户保存修改，切勿覆盖。
+
+6. 用户最初提供的其他路径（本轮应用升级没有重做下载器）
+   下载器源码：
+   C:\Users\ChaobaDa\Documents\Codex\2026-11-09\new-chat-2\outputs\source
+     OnlineInstaller.cs 为主文件，build.ps1 用于编译下载器。
+   下载器程序：
+   C:\Users\ChaobaDa\Desktop\MoleculeStudio-OnlineSetup.exe
+   参考资料：
+   C:\Users\ChaobaDa\Desktop\MoleculeStudio-0.95-external-ai-skill.zip
+   C:\Users\ChaobaDa\Desktop\福山汉化V2.0 A组试题解析汉化版 三氢剑魔-无密码.pdf
+   这些路径来自用户；本次交接未重新审计下载器代码和 zip 内容。
+
+三、用户目标与已经确认的界面约定
+================================
+
+用户要的是教科书式机理箭头：实心尖三角、端点精准、曲线自然、支持多个弯。
+手绘和 AI 绘图都应快捷，用户允许重写箭头模块，也允许子代理并要求主代理验收。
+不要恢复一堆按大/中/小重复排列的冗杂箭头菜单。
+
+“图形”页：
+  机理箭头：独立一栏，只放一个新自动机理箭头工具。
+  机理推演：生成下一步、通用碱 B⁻、亲核 Nu⁻。
+  其他箭头按反应、平衡/共振、更多样式整理；旧弧线仍可读。
+
+正常用法：
+  选择机理箭头，从电子来源拖到目标；来源/目标可以是原子或键。
+  框选同一步的结构和机理箭头，点击“生成下一步”。
+  下一步是右侧可编辑结构，原反应物保留，支持一次撤销。
+  仅选择机理箭头工具，不会重置选中的旧机理箭头路线。
+
+本轮新增：
+  选中骨架碳，按主键盘 +（Shift+=）或 -，无需鼠标继续悬停在该原子。
+  中性碳切到正/负一价或单自由基时，减少一个隐含氢。
+  恢复中性/取消自由基时相应恢复隐含氢；显式画出的 H/D 不会自动删除。
+  B/Nu 是显式通用角色，不能把元素硼 B 全局替换成“碱”。
+  点通用试剂按钮可插入；选中孤立原子可转换；准确的 B/Nu 文字及旁边负号也可转换。
+  用户真实图里的 B 和负号恰好是两个文字对象，这个转换路径已验证。
+
+四、核心接口与模块
+==================
+
+以下源文件路径均相对于主项目根目录。
+
+A. 箭头数据、几何、手绘与持久化
+
+engine\next\arrows_curves\preset.hpp
+  arrows::ArrowParams 关键字段：
+    bool mechanism
+    core::ObjectRef electronSource, electronTarget
+    Vec2 begin, end
+    std::vector<Vec2> route
+    double arcSagitta
+    head / strokeWidth / presetId 等既有样式字段
+  presetId 49 是新机理箭头工具。
+  route 是以 begin/end 弦为基底的相对采样点，不是绝对页面坐标。
+  electronSource/Target 才表示电子的化学来源/目标。
+  begin/end 是可见几何端点，裁剪避让文字后不应拿它们替代语义端点。
+
+studio\engine\mechanism_layout.hpp
+  mechanismAnchorPoint(doc, ref, &point)
+  mechanismAnchor(doc, point, radius)
+  mechanismSnap(doc, point, radius)
+  routeMechanism(doc, ArrowParams&, automatic=true)
+  clearMechanismLabels(doc, ArrowParams&)
+  mechanismHasLabel(doc, atom)
+  mechanismLabelBox(doc, atom, pad)
+  供手绘和原生 AI 路径共用。
+
+studio\engine\mechanism_search.inc
+  有界网格 A*，状态含进入方向，路径长度与转弯代价共同参与评分。
+  先尝试简洁弧线，受阻时搜索；线段简化、圆滑、B 样条后再次检查避障。
+  通道过窄时保留经过验证的圆角路线。
+
+studio\engine\arrows_tools.cpp
+  手势预览、提交、端点编辑。
+  先捕获语义原子/键引用，再规划路线、裁剪标签，不能倒过来。
+  Alt 可绕过自动吸附/寻路。
+  中间控制点目前会把复杂路线变为手动圆弧，不是逐个 Bezier 点编辑器。
+
+studio\engine\arrows_geometry.cpp
+engine\next\arrows_curves\geometry.hpp
+engine\next\arrows_curves\render_bridge.cpp
+  route、弧线、实心三角头使用一致几何。
+  线身终止在实心箭头头部内部；三角形不描外边，避免端帽/斜接突出导致“不尖”。
+
+studio\engine\arrows_model.cpp
+  readArrow / writeArrow / addArrow，序列化 ArrowParams。
+studio\engine\cdxml_writer.cpp
+studio\arrow_interop.hpp
+  MoleculeStudioArrow 保存样式与路线。
+  MoleculeStudioElectronSource / MoleculeStudioElectronTarget 保存文件对象引用：
+    atom:<file id> 或 bond:<file id>
+  导入时重映射到内存对象 ID。原子文件 ID 必须使用 writer.atomFileId，不能用通用 objectId。
+studio\interop.hpp
+  studioio::append(src, dst, refs, delta, inserted)
+  复制时保留 ArrowParams 并重映射关联对象；只复制箭头而没复制关联结构时清空引用。
+
+B. 从电子箭头生成下一步
+
+studio\engine\mechanism_step.hpp
+  namespace r62::mechanism
+  struct ElectronMove { ObjectRef source, target; };
+  Error generateNextStep(Document&, const vector<ElectronMove>&, vector<ObjectRef>* created);
+  底层会修改传入文档，调用者应提供事务或隔离副本。
+
+实现逻辑：
+  收集反应中心和参与的完整连通结构；
+  所有电子移动同步累加键级变化和形式电荷变化；
+  逐原子保持氢数，不通过偷偷补氢掩盖缺失的机理箭头；
+  键来源进攻另一原子时枚举两端，必须得到唯一合理的最终结构；
+  验证键级、价态、电荷守恒，再生成结构。
+  支持 atom→atom、atom→相邻bond、bond→atom、相邻bond→bond。
+  分子间新成键使用刚体转动/平移搜索，避免捏坏现有环和构型。
+  最终重新按“产物键图”分连通分量，把独立的 BH、离去离子等分开放置。
+  主产物优先，分量只整体平移；间距考虑标签、电荷和隐含氢。
+
+studio\engine\mechanism_infer.hpp
+  Error inferElectronMoves(const Document&, const vector<ArrowParams>&, vector<ElectronMove>*);
+  对没有绑定的箭头，从附近原子及整段键寻找候选。
+  用本地键长确定正常留白范围，方向只影响候选顺序。
+  联合运行化学规则，只有唯一化学结果才接受；不会截断候选后假称唯一。
+  已有明确绑定优先；失效/远离的绑定拒绝，不自动改指别处。
+  带标签原子裁剪后可以离原子中心较远：
+    明确绑定的端点可位于标签框边界窄带；
+    未绑定候选不会因此被任意放宽。
+  通用 B/Nu 文字较宽，角色端点允许专门的正常留白。
+
+studio\mechanism_step_prepare.hpp
+  namespace studio_mechanism
+  Error prepareProduct(
+    const Document& source,
+    const vector<ObjectRef>& selected,
+    const vector<ArrowParams>& inputs,
+    Document* prepared,
+    vector<mechanism::ElectronMove>* moves,
+    vector<ObjectRef>* products,
+    size_t* expandedCount = nullptr);
+  在 source 的副本中展开相关的已知缩写基团，保留原附着原子/外接键 ID。
+  使用 functional_groups::definition / prepareExpansion / applyExpansion。
+  CO2Me 内置定义已存在，MeO2C 是方向显示形式。
+  然后推断电子移动并在副本生成产物，只把新产物插回原图。
+  不会把整页所有缩写全部展开。
+  如果端点只能匹配展开后新增的内部原子/键，会要求手动展开并明确端点。
+
+studio\mechanism_step_actions.hpp
+  App::generateMechanismStep()
+  选区提取箭头 → prepareProduct → 一个 Command 中写回推断绑定并 append 新产物。
+  必要时扩展页面；成功后选择产物并适合窗口。
+  失败会显示说明并保留完整选区，不再只写一个很快被悬停提示盖掉的状态文字。
+
+C. 碳电荷、自由基、隐含氢
+
+engine\next\chemistry\edit.cpp
+  chemistry::setChargeCommand(const vector<ObjectId>& atoms, int charge)
+  chemistry::setRadicalCommand(const vector<ObjectId>& atoms, int radical)
+  内部 carbonElectronState(...) 统一处理碳的隐含氢。
+  注意：charge 参数是目标电荷，不是 delta。
+  中性碳价态 4，±1 碳价态 3，Doublet 碳价态 3。
+  Singlet/Triplet 碳态使用价态 2；界面自由基按钮主要切换 Doublet。
+  已固定的 implicitHydrogens 数量也会按状态变化调整，而不只是自动氢。
+  重复设置同状态不会重复减氢；不兼容价态拒绝，显式键/H/D 不会被删除。
+  碳 |charge|>1、混合 charge+radical、芳香/特殊键的自动调氢受限。
+
+engine\next\chemistry\valence.cpp
+  修正碳正离子自动氢数曾按 valence+charge 得到 CH5+ 的错误。
+studio\editor_hotkeys.hpp
+  CHARGE 优先处理所选原子，多个原子在一个事务中逐个计算目标电荷。
+studio\app_actions.hpp
+  App::shortcut 在画布模式下识别选中原子的配置电荷快捷键。
+  文本编辑状态不抢走 + / -。
+studio\radical_actions.hpp
+  App::applyRadical 调用核心 setRadicalCommand，不再自行只改 radical 字段。
+studio\formula.hpp
+  明确氢数的已支持碳自由基可以计算组成；通用查询原子不伪装成真实分子式。
+
+D. B / Nu 通用角色
+
+studio\engine\mechanism_roles.hpp
+  mechanism::genericRoleKey()
+  mechanism::genericRole(doc, atomId)
+  mechanism::genericRoleValence(role, charge)
+  mechanism::setGenericRole(doc, atomId, "base" 或 "nucleophile")
+
+存储：
+  扩展键 pst.attr.MoleculeStudioRole，值 base / nucleophile。
+  NodeType::Query + 标签 B / Nu。
+  核心存储不允许 element=0，因此底层 element=6 是占位值。
+  化学意义必须看 Query+role，绝不能把它当真正的碳或硼算组成。
+  初始 charge=-1、implicitHydrogens=0。
+  当前角色规则是未成键负离子 → 成一根单键的中性态。
+  base 只允许与 H 形成该单键；Nu 用于一般亲核单键形成。
+  通用中性碱的任意酸碱化学、一般 B/Nu 反应库不在本轮实现范围。
+
+studio\mechanism_role_actions.hpp
+  App::insertMechanismRole(bool base)
+  无选区：视图中心插入。
+  一个孤立原子：显式转换。
+  准确的 B / Nu 文字，可加附近准确的 - / − 文字：同事务替换成角色原子。
+  不接受任意文本或远处负号批量转换；撤销恢复原文字。
+  产物保留角色和标签，B-H 以显式 B—H 键显示，不是折叠 BH 昵称。
+
+studio\interop.hpp、engine\next\persistence\selection_package.cpp
+  原有 pst.* 过滤会丢角色，现单独放行 pst.attr.MoleculeStudioRole。
+  原生保存、CDXML、复制/粘贴都需继续保留该标记。
+
+E. UI 命令与 AI 接口
+
+studio\ribbon_tabs.hpp：定义图形页的栏及按钮。
+studio\studio.cpp：方法声明、头文件包含、execute、hint、测试 CLI 接线。
+  @mechanism       → preset 49
+  @mechanismNext   → App::generateMechanismStep()
+  @mechanismBase   → App::insertMechanismRole(true)
+  @mechanismNu     → App::insertMechanismRole(false)
+
+AI 主入口：
+  studio\ai_assistant.py       schema、工具执行协议
+  studio\ai_scene.py           文档场景快照
+  studio\ai_actions.hpp        宿主 applyAI、原生对象写入、整批事务
+  studio\ai_plugins\draw_plugin.py
+  studio\ai_plugins\plugin.xml
+  studio\AI_TOOL_API.md
+  studio\AI_TOOL_REFERENCE.json
+  skills\moleculestudio-draw\scripts\draw.py 与 references\ 下对应协议副本
+
+现有插件工具 draw_curved_arrow：
+  source / target 使用 inspect_document 返回的 atom/bond ref；
+  或 x,y,x2,y2 坐标；
+  bend、head、width、route、fishhook、color 等参数。
+  _draw_curved_arrow 解析引用坐标，调用基础 draw_arrow(style="mechanism", ...)。
+  宿主根据原文档中的准确锚点坐标绑定，使用同一原生路线与箭头几何。
+  返回一个可选择/编辑的原生箭头，不是由一堆独立线段拼出来的假箭头。
+  本轮没有把所有 UI 原子语义编辑、B/Nu 插入、生成下一步都新增成 AI 工具。
+  不要因为界面有按钮，就声称模型已可直接调用这些功能；以实际 schema 为准。
+
+五、构建、验证和安装
+====================
+
+编译器：
+C:\tools\mingw64\bin\g++.exe
+Python：
+C:\Users\ChaobaDa\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe
+安装目录另有 python\python.exe（带 RDKit）；不是每个测试都需要 Python 后端。
+
+从主项目根目录运行 PowerShell：
+
+  & 'C:/Users/ChaobaDa/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' studio/build.py --dx11 --compiler C:/tools/mingw64/bin/g++.exe --exe MoleculeStudio.exe
+
+构建重点：
+  build.py 使用 engine\pre_run_manifest.json 的源列表，但有大量 studio\engine 覆盖。
+  若 studio\engine 中有同名实现，不能只修改 engine\next 的旧实现就认为已生效。
+  例如实际箭头几何/模型/工具分别是 studio\engine\arrows_geometry.cpp、
+  arrows_model.cpp、arrows_tools.cpp；core_document.cpp/core_commands.cpp 也有覆盖。
+  本轮 charge/valence 的实现确实来自 engine\next\chemistry\edit.cpp / valence.cpp。
+  检查 out\Studio\manifest.json 可确认实际 engine_sources 路径。
+  最终编译前冻结所有源文件，不要一边编译一边让代理修改头文件。
+  主翻译单元很大，正式 O2 编译需几分钟，不能把尚在链接的 exe 拿去测试。
+
+最终通过的五组（全部进程 exit 0）：
+  --electron-state-check <dir>
+    碳 +/-、自由基、固定隐氢、显式 H/D 保护、多选事务、撤销重做；
+    丙二酸酯 C5H8O4 → C5H7O4−；
+    B− 去质子化、Nu− 取代、CO2Me 缩写甲基化；
+    角色复制/原生/CDXML 保存；
+    短箭头实际字形避让；
+    用户真实 B 文字转换和丙二酸酯推演。
+    如要跑真实用户分支，先把原生试画复制为 <dir>\user-input.cdxml。
+  --mechanism-step-check <dir>
+    羟醛机理图、键级/电荷/氢数、原图不变、端点、保存和回滚。
+  --mechanism-infer-check <dir>
+    先放 <dir>\input.cdxml；使用旧用户实际三根未绑定箭头。
+  --arrow-shortcut-check <dir>
+    56 种预设、键盘、当前箭头工具、重启恢复。
+  --ai-check <dir>
+    本轮用 <dir>\drawing-tools-plan.xml 走本地原生组合绘图验收。
+    不等于实际联网模型生成质量已经全部验证。
+
+准备好的输入和结果：
+  WORK\work\v8\release\electron-check\
+  WORK\work\v8\release\step-check\
+  WORK\work\v8\release\infer-check\
+  WORK\work\v8\release\arrow-check\
+  WORK\work\v8\release\native-check\
+  WORK\work\v8\installed-check\
+    安装后又用正式安装 exe 跑完 electron-state-check，包含真实用户图，exit 0。
+
+其他验证：
+  python tools/test_mechanism_plugin.py 已通过。
+  WORK\work\v8\verify_build.py 校验 exe 与 manifest 中记录的源码哈希，已通过。
+  整个应用的 --test 之前出现过 “ChemDraw CDX: Truncated CDX data”。
+  没有宣称这个历史问题已解决，也没有宣称全应用所有测试全部通过。
+
+建议测试方式（先创建新的输出目录，避免旧 failure.txt 误导）：
+  $p = Start-Process -FilePath $exe -ArgumentList @('--electron-state-check', $caseDir) -PassThru -WindowStyle Hidden
+  $p.WaitForExit(45000)
+  $p.Refresh()
+  $p.ExitCode
+  检查 progress.txt / checks.json / failure.txt，并看生成 PNG；不能只看 JSON。
+
+安装：
+  先保存用户当前文档并正常退出应用。
+  从 WORK 运行 python work\v8\package.py 生成 payload 与源码快照。
+  检查包内容后运行 outputs\MoleculeStudio-Mechanism-Update-v8\Install.ps1。
+  脚本校验文件哈希、限制目标路径、备份已有文件，失败回滚。
+  安装后比较 exe SHA256；桌面快捷方式仍使用固定安装路径。
+  要发布下一轮请创建新版本包/新备份，不要覆盖用户编辑过的练习文件。
+  打包脚本本身不负责最后的 zip、说明文件、孤立示例拷贝，这几项本轮另行完成。
+
+六、踩过的坑及后续边界
+======================
+
+1. Windows 头文件定义 near 宏。C++ 变量不要命名 near！
+   本轮已用 boundIsNear / nearbyLengths，单独头文件语法通过不代表 Windows 主程序能编译。
+
+2. core::Box 默认 min=max=(0,0)，add() 不会自动识别空哨兵。
+   为分量累积包围盒必须以真实首点初始化：
+     Box box(positions.at(part.front()), positions.at(part.front()));
+   不可用默认 Box，也不可用 (1,1),(-1,-1) 再 add() 以为能消除原点。
+   这会把 BH 等副产物排到很远处；当前已修，并验证不同页面位置得到相同净间距。
+
+3. 最终原子文字由 appendRich 转为 Polygon 字形轮廓，primitive.text 可能为空。
+   “有没有负号”的测试应查正确原子来源的实际字形/截图，不能只查文本字段。
+
+4. 先记录语义端点，再裁剪可见路线。
+   字母/隐H的避让会改变 begin/end；已有绑定需要检查标签边界，不能只用原子中心距离。
+   反过来也不能为解决留白问题，无限制放宽所有未绑定端点。
+
+5. 两个 GenericNickname 空标签碳曾导致旧用户羟醛图被拒绝。
+   core step 有窄范围兼容归一化，电子状态编辑也会处理无隐藏内容的空 Query 碳。
+   不要把有真实缩写/查询负载的节点全部擅自变成元素碳。
+
+6. 真实用户丙二酸酯图的 B⁻ 原本是两个 Text，而非硼原子。
+   native 原图内该轮新增 alias atom23/26、中心碳24、显式H25，箭头4/5。
+   这些仅是该固定测试夹具的内部 ID，导出、粘贴、新文档可能全部重映射。
+   不要把测试 ID 当通用业务常量。
+
+7. 旧版本样例/文档说明可能落后。
+   docs\MECHANISM_NEXT_STEP.md 曾写“缩写需先展开”，v8 已增加相关已知缩写的副本展开。
+   docs\MECHANISM_ROUTING.md 部分标注 v3，理解历史设计可以读；当前行为以源码和本交接为准。
+
+8. 仍存在的明确边界，不要对用户过度承诺：
+   - 机理生成是有限的双电子规则与唯一性验证，不是任意有机反应预测器。
+   - 能画 fishhook 不等于能生成自由基机理下一步。
+   - 反应中心芳香/特殊价态/不确定立体化学、复杂环化等会拒绝。
+   - 通用 B/Nu 当前主要覆盖负离子供体形成一个单键。
+   - 任意缩写/图片/纯文字结构不会凭空变成可靠化学图。
+   - 移动分子本身不会自动重画已存在的机理箭头；目前检查失效绑定。
+   - 标签避让使用估计边界；本轮对实际字形和典型短箭头验收，不是任意字体/字号全证明。
+   - 寻路为有界启发式，不保证全局最优。
+   - CDXML 多弯路线是 MoleculeStudio 扩展，外部软件可能只显示圆弧回退。
+   - 修改后的中间控制点不是完整多段 Bezier 编辑器。
+   - 新默认外观不批量覆盖用户所有既有手动路线；演示副本的短箭头单独重规划过。
+
+七、下次接手建议
+================
+
+先看用户新反馈，再决定需要改哪一层：
+  外观/曲线 → mechanism_layout / mechanism_search / arrows_geometry
+  手势吸附 → arrows_tools
+  端点不识别 → mechanism_infer + 实际文档
+  反应不成立/产物错误 → mechanism_step + 原子H/charge/bond 数据
+  缩写 → mechanism_step_prepare + functional_groups/nicknames
+  碳电荷/自由基 → chemistry edit/valence + hotkeys/radical_actions
+  UI 栏 → ribbon_tabs + studio.cpp 命令接线
+  AI 能否调用 → 实际 schema / draw_plugin / ai_actions，而不是仅看 UI
+
+用户偏好：直接推进实际工作，少反复确认；保留试画；主代理看真实截图验收。
+本次使用过三个子代理，后续不应假定它们的会话仍存在：
+  mechanism_anchors、mechanism_chemistry、mechanism_acceptance。
+接手无需重开这些代理，按新任务自行安排。
+
+Windows UI 自动化如需使用：
+  技能路径：
+  C:\Users\ChaobaDa\.codex\plugins\cache\openai-bundled\computer-use\26.1103.32239\skills\computer-use\SKILL.md
+  本轮通过 node_repl 导入 @oai/sky，list_windows → 唯一匹配 → get_window → observe/action。
+  不复用旧窗口句柄或截图坐标，不用未经观测的点击。
+  用命令行测试时窗口隐藏；交互验证才正常打开应用。
+
+交接时没有已承诺但尚未完成的本轮代码任务。
+后续改进应由用户新反馈驱动；上述边界不是被偷偷标记为已实现的功能。
+
+可直接发给新对话的接续语：
+“请先完整阅读 C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\docs\MOLECULESTUDIO_HANDOFF_20261110.txt。
+这是已经部署的 v8 基线，源码改动尚未提交，请保留现有修改与我的试画。
+按文档中的实际编译覆盖关系和测试入口继续处理我接下来提出的问题。”

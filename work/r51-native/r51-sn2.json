@@ -1,0 +1,1 @@
+{"tools": [{"tool": "draw_smiles", "args": {"smiles": "CBr", "x": 55, "y": 50}}, {"tool": "add_mechanism_reagent", "args": {"role": "nucleophile", "x": 15, "y": 50}}, {"tool": "draw_mechanism_step", "args": {"moves": [{"source": "new:2", "target": "new:1/atom:10"}, {"source": "new:1/bond:1000", "target": "new:1/atom:11"}]}}]}

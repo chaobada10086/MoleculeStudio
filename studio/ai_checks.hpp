@@ -1,6 +1,32 @@
 #pragma once
 void App::aiCheck(const std::string& dir){
     auto require=[&](bool value,const char* why){std::ofstream(dir+"/ai-check-progress.txt",std::ios::app)<<why<<": "<<(value?"pass":"FAIL")<<"\n";if(!value)throw std::runtime_error(why);};
+    if(GetFileAttributesW(W(dir+"/mechanism-plan.xml").c_str())!=INVALID_FILE_ATTRIBUTES){
+        s.dirty=false;execute(Button("","新建","","@new"));s.selected.clear();
+        ObjectId carbon,bromine,bond;
+        s.doc.addAtom(Vec2(160,100),6,&carbon);s.doc.addAtom(Vec2(190,100),35,&bromine);
+        s.doc.addBond(carbon,bromine,&bond);s.refresh();aiContext();
+        const auto before=s.doc.digest();
+        applyAI(chemservice::read(W(dir+"/mechanism-plan.xml")));
+        require(s.doc.stats().aliveAtoms==6,"native step created three product atoms");
+        int attached=0,leaving=0,bindings=0;
+        for(const auto& a:s.doc.atoms().records())if(a.isAlive()){
+            if(mechanism::genericRole(s.doc,a.id)=="nucleophile"&&s.doc.incidentBonds(a.id).size()==1&&a.semantics.charge==0)++attached;
+            if(a.element==35&&a.semantics.charge==-1&&s.doc.incidentBonds(a.id).empty())++leaving;
+        }
+        for(const auto& a:s.doc.arrows().records())if(a.isAlive()){
+            arrows::ArrowParams p;bool valid=false;arrows::readArrow(s.doc,a.id,&p,&valid);
+            if(valid&&p.mechanism&&p.electronSource.valid()&&p.electronTarget.valid())++bindings;
+        }
+        require(attached==1&&leaving==1&&bindings==2,"SN2 connectivity, charge and two bound arrows");
+        require(s.save(dir+"/ai-mechanism.cdxml",true).ok(),"save editable mechanism");
+        require(s.undo().ok()&&s.doc.digest()==before,"AI mechanism undoes in one step");
+        aiContext();
+        try{applyAI("<result ok='true'><actions><mechanism_reagent mode='base'/><draw_arrow style='mechanism' x2='40' source_ref='atom:9999'/></actions></result>");}
+        catch(const std::exception&){}
+        require(s.doc.digest()==before,"invalid reference rolls back preceding reagent");
+        PostQuitMessage(0);return;
+    }
     if(GetFileAttributesW(W(dir+"/drawing-tools-plan.xml").c_str())!=INVALID_FILE_ATTRIBUTES){
         s.dirty=false;execute(Button("","新建","","@new"));s.graphicsWidth=0;s.selected.clear();aiContext();
         auto empty=s.doc.digest();auto xml=chemservice::read(W(dir+"/drawing-tools-plan.xml"));tinyxml2::XMLDocument plan;require(plan.Parse(xml.c_str())==tinyxml2::XML_SUCCESS,"parse composition fixture");auto expected=plan.RootElement()->FirstChildElement("expected");require(expected!=nullptr,"expected composition counts");
@@ -10,6 +36,76 @@ void App::aiCheck(const std::string& dir){
             for(int i=0;i<count;++i)refs.push_back(ObjectRef(ObjectKind::Atom,ObjectId(begin+i)));
             auto expanded=studioio::expanded(s.doc,refs);auto formula=studio::analyze(s.doc,std::vector<ObjectRef>(expanded.begin(),expanded.end()));
             require(formula.valid&&formula.plain==item->Attribute("formula"),"native AI template formula matches toolbar catalog");
+        }
+        if(expected->BoolAttribute("mechanism")) {
+            {
+                auto p=arrows::resolvePreset(0,Vec2(0,0),Vec2(60,0),.6);
+                p.head.shape=arrows::ArrowHeadShape::Solid;p.head.length=3.2;p.head.width=2.24;
+                arrows::ArrowGeometry g;require(arrows::buildArrowGeometry(p,.6,arrows::Tessellation(),&g).ok(),"build sharp tip geometry");
+                require(g.heads.size()==1&&g.heads[0].filled&&g.heads[0].outline.size()==3&&g.heads[0].outline[0]==p.end,"solid head has exactly one triangular tip");
+                require(g.shafts[0].back().x<59,"shaft cap stops inside arrow head");
+                std::vector<render::Primitive> primitives;arrows::appendArrow(p,.6,arrows::Tessellation(),ObjectRef(ObjectKind::Arrow,0),100,&primitives);
+                bool filled=false;for(const auto& primitive:primitives)if(primitive.kind==render::PrimKind::Polygon){filled=true;require(primitive.style.fill.enabled&&!primitive.style.stroke.enabled,"solid triangle has no bevel-producing outline stroke");}
+                require(filled,"solid arrow emits filled polygon");
+                bool mechanismButton=false;for(const auto& group:graphicsGroups)for(const auto& button:group.items)if(button.cmd=="@mechanism"&&button.label=="机理箭头")mechanismButton=true;
+                require(mechanismButton,"graphics ribbon exposes mechanism arrow directly");
+                require(U(arrowLabel(*arrows::presetById(49))).find("机理箭头")!=std::string::npos,"mechanism arrow menu label");
+            }
+
+            for(double sagitta:{-40.,-20.,-5.,5.,20.,40.}) {
+                auto mid=arrows::arcMidpoint(Vec2(0,0),Vec2(40,0),sagitta);
+                require(std::abs(mid.x-20)<1e-8&&std::abs(mid.y-sagitta)<1e-8,"signed arc midpoint including semicircle");
+            }
+            {
+                auto curve=arrows::resolvePreset(0,Vec2(0,0),Vec2(90,0),.6);
+                curve.family=arrows::ArrowFamily::Arc;curve.sweep=arrows::ArcSweep::Free;curve.arcSagitta=20;
+                std::vector<arrows::MechanismObstacle> walls={
+                    {Vec2(25,-55),Vec2(25,12),2},{Vec2(45,-12),Vec2(45,55),2},{Vec2(65,-55),Vec2(65,12),2}};
+                require(arrows::findMechanismRoute(curve,walls)&&curve.route.size()>20,"multi bend route found");
+                auto path=arrows::routedPoints(curve);
+                auto spline=arrows::mechanismSpline({Vec2(0,0),Vec2(20,-20),Vec2(40,20),Vec2(60,0)});
+                require(spline.front()==Vec2(0,0)&&spline.back()==Vec2(60,0),"smooth spline keeps exact endpoints");
+                require(spline[spline.size()/4].y<0&&spline[spline.size()*3/4].y>0,"smooth spline supports gentle S curves");
+
+                for(size_t i=1;i<path.size();++i)require(arrows::routeClear(path[i-1],path[i],curve,walls,0),"smoothed route avoids obstacles");
+                bool valid=false;auto restored=arrows::decodeArrowParams(arrows::encodeArrowParams(curve),&valid);
+                require(valid&&restored.route==curve.route,"multi bend route serialization");
+                Session manual;
+                for(const auto& wall:walls){ObjectId a,b,bond;manual.doc.addAtom(wall.a,6,&a);manual.doc.addAtom(wall.b,6,&b);manual.doc.addBond(a,b,&bond);}
+                manual.refresh();auto beforeGesture=manual.doc.digest();
+                for(size_t i=0;i<arrows::arrowPresetCount();++i){const auto& spec=arrows::arrowPresets()[i];if(spec.family==arrows::ArrowFamily::Arc&&std::fabs(arrows::resolvePreset(spec.presetId,Vec2(),Vec2(90,0),.6).arcSagitta)<40){manual.activateCommand(spec.sourceCommand);break;}}
+                manual.gesture(PointerPhase::Down,Vec2(0,0));manual.gesture(PointerPhase::Move,Vec2(90,0));manual.gesture(PointerPhase::Up,Vec2(90,0));
+                arrows::ArrowParams drawn;bool drawnOK=false;arrows::readArrow(manual.doc,0,&drawn,&drawnOK);
+                require(drawnOK&&drawn.route.size()>20&&drawn.head.shape==arrows::ArrowHeadShape::Solid,"manual drag creates filled multi bend arrow");
+                require(manual.undo().ok()&&manual.doc.digest()==beforeGesture,"manual multi bend single undo");
+                auto reversed=arrows::routedPoints(arrows::reversedArrow(curve));
+                require(core::length(reversed.front()-path.back())<1e-8&&core::length(reversed.back()-path.front())<1e-8,"multi bend reversal endpoints");
+            }
+            Document routing;ObjectId a,b,bond;
+            routing.addAtom(Vec2(0,0),6,&a);routing.addAtom(Vec2(30,0),8,&b);
+            routing.addBond(a,b,&bond);
+            require(core::length(arrows::mechanismSnap(routing,Vec2(14,1),4)-Vec2(15,0))<1e-9,"snap bond centre");
+            require(core::length(arrows::mechanismSnap(routing,Vec2(29,1),4)-Vec2(30,0))<1e-9,"snap atom centre");
+            auto p=arrows::resolvePreset(0,Vec2(-20,0),Vec2(50,0),.6);
+            p.family=arrows::ArrowFamily::Arc;p.sweep=arrows::ArcSweep::Free;p.arcSagitta=.5;
+            auto obstacles=arrows::mechanismObstacles(routing);double before=arrows::mechanismRouteScore(p,obstacles);
+            auto start=p.begin,end=p.end;arrows::routeMechanism(routing,p);
+            require(p.begin==start&&p.end==end,"routing preserves exact endpoints");
+            require(arrows::mechanismRouteScore(p,obstacles)<before,"routing reduces bond collisions");
+            auto fixed=p;arrows::routeMechanism(routing,fixed,false);
+            require(fixed.arcSagitta==p.arcSagitta,"explicit bend remains fixed");
+            for(const auto& record:s.doc.arrows().records())if(record.isAlive()){
+                arrows::ArrowParams arrow;bool valid=false;arrows::readArrow(s.doc,record.id,&arrow,&valid);
+                require(valid&&arrow.head.shape==arrows::ArrowHeadShape::Solid,"AI creates native mechanism heads");
+            }
+            require(s.save(dir+"/mechanism-roundtrip.cdxml",true).ok(),"save mechanism fixture");
+            Session reopened;require(reopened.open(dir+"/mechanism-roundtrip.cdxml").ok(),"reopen mechanism fixture");
+            require(reopened.doc.arrows().size()==s.doc.arrows().size(),"mechanism arrow count roundtrip");
+            for(size_t i=0;i<s.doc.arrows().size();++i){
+                arrows::ArrowParams a,z;bool av=false,zv=false;
+                arrows::readArrow(s.doc,ObjectId(i),&a,&av);arrows::readArrow(reopened.doc,ObjectId(i),&z,&zv);
+                require(av&&zv&&a.head.shape==z.head.shape&&a.head.sides==z.head.sides&&a.route==z.route&&std::abs(a.arcSagitta-z.arcSagitta)<1e-6,"mechanism geometry and fishhook roundtrip");
+            }
         }
         require(s.save(dir+"/native-composition.cdxml",true).ok(),"export native composition");auto composed=s.doc.digest();require(s.undo().ok()&&s.doc.digest()==empty,"composition single-step undo");require(s.undo(true).ok()&&s.doc.digest()==composed,"composition redo restores exact digest");
         aiContext();auto actions=plan.RootElement()->FirstChildElement("actions");auto invalid=plan.NewElement("move_objects");invalid->SetAttribute("target","missing-object");invalid->SetAttribute("dx",1);actions->InsertEndChild(invalid);tinyxml2::XMLPrinter printer;plan.Print(&printer);bool rejected=false;try{applyAI(printer.CStr());}catch(...){rejected=true;}require(rejected&&s.doc.digest()==composed,"late native failure rolls back complete batch");
@@ -24,10 +120,10 @@ void App::aiCheck(const std::string& dir){
             aiContext();bool rejected=false;try{applyAI(std::string("<result ok='true'><actions><add_text>must rollback</add_text>")+bad+"</actions></result>");}catch(const std::exception& error){rejected=std::string(error.what()).find("AI 数值参数无效：")!=std::string::npos||std::string(error.what())=="AI 纸张张数无效";}
             require(rejected&&s.doc.digest()==composed,"numeric diagnostics and atomic rejection");
         }
-        s.selected.clear();s.fit();invalidate();screenshot(dir+"/native-composition.png");std::ofstream(dir+"/native-checks.json")<<"{\"editable_graph\":true,\"captions\":true,\"connectors\":true,\"export\":true,\"single_undo\":true,\"redo\":true,\"atomic_failure\":true,\"page_dimensions\":true,\"numeric_boundaries\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return;
+        s.selected.clear();s.fit();invalidate();screenshot(dir+"/native-composition.png");switchTab(1);layout();invalidate();screenshot(dir+"/mechanism-button.png");std::ofstream(dir+"/native-checks.json")<<"{\"editable_graph\":true,\"captions\":true,\"connectors\":true,\"export\":true,\"single_undo\":true,\"redo\":true,\"atomic_failure\":true,\"page_dimensions\":true,\"numeric_boundaries\":true}";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return;
     }
     s.dirty=false;execute(Button("","新建","","@new"));s.graphicsWidth=0;s.graphicsColor=0x000000FFu;switchTab(3);layout();
-    require(ribbonTabs.size()==5&&ribbonTab==3&&visibleGroups().front().items.size()==3,"AI tab and commands present");
+    require(ribbonTabs.size()==7&&ribbonTab==3&&visibleGroups().front().items.size()==2,"AI tab and commands present");
     aiContext();tinyxml2::XMLDocument result;auto root=result.NewElement("result");root->SetAttribute("ok",true);result.InsertEndChild(root);auto actions=result.NewElement("actions");root->InsertEndChild(actions);auto molecule=result.NewElement("molecule");actions->InsertEndChild(molecule);molecule->SetText(chemservice::read(W(dir+"/verified-artemisinin.cdxml")).c_str());tinyxml2::XMLPrinter out;result.Print(&out);
     auto before=s.doc.digest();applyAI(out.CStr());auto after=s.doc.digest();require(s.doc.atoms().size()==20&&s.doc.bonds().size()==23,"editable artemisinin atom and bond count");require(s.undo().ok()&&s.doc.digest()==before,"AI single-step undo");require(s.undo(true).ok()&&s.doc.digest()==after,"AI redo");
     require(s.save(dir+"/ai-artemisinin.cdxml",true).ok()&&s.save(dir+"/ai-artemisinin.r62doc").ok(),"save AI structure");

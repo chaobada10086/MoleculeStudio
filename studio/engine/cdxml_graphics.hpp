@@ -22,6 +22,7 @@ inline bool append(const Document& d,ObjectRef ref,Vec2 current,std::vector<rend
  Vec2 offset=current-origin;
  if(std::string(e->Name())=="embeddedobject"){
   render::Primitive p;p.kind=render::PrimKind::Rect;p.source=ref;p.layer=render::LayerId(100);p.z=0;p.points={a,b,Vec2(b.x,a.y),Vec2(a.x,b.y)};p.style.fill.enabled=p.style.stroke.enabled=false;p.text="CDXML-EMF:"+*raw;
+  if(e->Attribute("MoleculeStudioRaster")){auto path=d.paths().alive(ref.id);if(path&&path->points.size()==4){p.points={path->points[0],path->points[2],path->points[1],path->points[3]};out->push_back(p);return true;}}
   double angle=e->DoubleAttribute("RotationAngle")/65536.*3.141592653589793/180.;Vec2 center=(a+b)*.5;
   for(auto& v:p.points){auto q=v-center;v=center+Vec2(q.x*cos(angle)-q.y*sin(angle),q.x*sin(angle)+q.y*cos(angle))+offset;}out->push_back(p);return true;
  }
@@ -50,6 +51,9 @@ inline bool append(const Document& d,ObjectRef ref,Vec2 current,std::vector<rend
   auto angle=[&](Vec2 p){p=p-center;return atan2((u.x*p.y-u.y*p.x)/determinant,(p.x*v.y-p.y*v.x)/determinant);};
   double start=angle(tail),finish=angle(head),sweep=finish-start;while(sweep<0)sweep+=6.283185307179586;while(sweep>=6.283185307179586)sweep-=6.283185307179586;
   double wanted=std::abs(e->DoubleAttribute("AngularSize"))*3.141592653589793/180.;if(std::abs(6.283185307179586-sweep-wanted)<std::abs(sweep-wanted))sweep-=6.283185307179586;
+  // A semicircle has two equal-magnitude candidates. Preserve the signed
+  // angular size instead of always choosing the same half of the circle.
+  if(std::abs(wanted-3.141592653589793)<1e-6&&std::abs(std::abs(sweep)-wanted)<1e-6)sweep=e->DoubleAttribute("AngularSize")>0?-wanted:wanted;
   std::vector<Vec2> pts;int count=std::max(24,int(std::ceil(std::abs(sweep)*std::max(length(u),length(v))/.4)));count=std::min(count,2048);
   for(int i=0;i<=count;i++){double t=start+sweep*i/count;pts.push_back(center+u*cos(t)+v*sin(t));}pts.front()=tail;pts.back()=head;
   double hlen=e->DoubleAttribute("HeadSize",800)*width/100.,hwidth=e->DoubleAttribute("ArrowheadWidth",200)*width/100.,hcenter=e->DoubleAttribute("ArrowheadCenterSize",700)*width/100.;
@@ -66,6 +70,27 @@ inline bool append(const Document& d,ObjectRef ref,Vec2 current,std::vector<rend
   bool closed=(e->IntAttribute("CurveType")&1)||attr(e,"Closed")=="yes";std::vector<Vec2> pts;size_t n=c.size()/3;
   for(size_t k=0;k<(closed?n:n-1);++k){Vec2 p0=c[k*3+1],p1=c[k*3+2],p2=c[((k+1)%n)*3],p3=c[((k+1)%n)*3+1];for(int j=0;j<24;++j){double t=double(j)/24,u=1-t;pts.push_back(p0*(u*u*u)+p1*(3*u*u*t)+p2*(3*u*t*t)+p3*(t*t*t));}}
   if(!closed)pts.push_back(c[(n-1)*3+1]);
+  const int curveFlags=e->IntAttribute("CurveType");
+  std::string curveHead=attr(e,"ArrowheadHead"),curveTail=attr(e,"ArrowheadTail");
+  if(curveHead.empty())curveHead=(curveFlags&8)?"Full":(curveFlags&32)?"HalfLeft":"None";
+  if(curveTail.empty())curveTail=(curveFlags&16)?"Full":(curveFlags&64)?"HalfLeft":"None";
+  auto curveTip=[&](bool start,const std::string& which){
+   if(which=="None"||pts.size()<2||closed)return;
+   const Vec2 tip=start?pts.front():pts.back();Vec2 d=start?pts.front()-pts[1]:pts.back()-pts[pts.size()-2];
+   double len=length(d);if(len<1e-9)return;d=d*(1/len);Vec2 normal(-d.y,d.x);
+   const double hlen=e->DoubleAttribute("HeadSize",1000)*width/100.;
+   const double hw=e->DoubleAttribute("ArrowheadWidth",250)*width/100.;
+   const double hc=e->DoubleAttribute("ArrowheadCenterSize",875)*width/100.;
+   const bool left=which!="HalfRight",right=which!="HalfLeft";
+   std::vector<Vec2> head;if(left)head.push_back(tip-d*hlen+normal*hw);head.push_back(tip);if(right)head.push_back(tip-d*hlen-normal*hw);
+   const std::string shape=attr(e,"ArrowheadType");
+   if(shape=="Angle")emit(head,false,false,ink,true);else{head.push_back(tip-d*hc);emit(head,true,shape!="Hollow",ink,shape=="Hollow");}
+   // Trim the shaft to the head's interior, avoiding a projecting line at tip.
+   double remaining=std::min(hc,hlen)*.85;
+   while(pts.size()>2){size_t a=start?0:pts.size()-1,b=start?1:pts.size()-2;double segment=length(pts[a]-pts[b]);if(segment>=remaining)break;remaining-=segment;if(start)pts.erase(pts.begin());else pts.pop_back();}
+   if(pts.size()>1){size_t a=start?0:pts.size()-1,b=start?1:pts.size()-2;double segment=length(pts[a]-pts[b]);if(segment>0)pts[a]=pts[a]+(pts[b]-pts[a])*(std::min(remaining,segment)/segment);}
+  };
+  curveTip(true,curveTail);curveTip(false,curveHead);
   bool filled=fill=="Solid"||fill=="Shaded"||(e->IntAttribute("CurveType")&128);if(fill=="Shaded"){Vec2 center;for(auto p:pts)center=center+p;shaded(pts,center*(1./pts.size()));}else emit(pts,closed,filled,ink,true);
   return true;
  }
@@ -85,13 +110,20 @@ inline bool append(const Document& d,ObjectRef ref,Vec2 current,std::vector<rend
   else emit({a+n,a,b,b+n},false,false,ink,true);return true;
  }
  if(type=="Symbol"){
-  // CDSymbol::DrawGraphic (0x35E4B2 family): BoundingBox contains the
-  // symbol anchor and its size/second-radical handle, not an ink rectangle.
+  // A symbol box stores its anchor and size/second-electron handle.
+  // Circle dimensions were checked against native exported SVG geometry.
   std::string sym=attr(e,"SymbolType");double span=length(a-b),originalWidth=width;width*=.8;
   auto dot=[&](Vec2 p,double radius){emit(ellipse(p,Vec2(radius,0),Vec2(0,radius)),true,true,ink,false);};
   if(sym=="Electron"){dot(a,span/9.);return true;}
   if(sym=="LonePair"){dot(a,span*2/9.);dot(b,span*2/9.);return true;}
   if(sym=="DoubleDagger"||sym=="Dagger"){double r=span/5.;emit({a-Vec2(0,2*r+originalWidth*.5),a+Vec2(0,2*r+originalWidth*.5)},false,false,ink,true);emit({a+Vec2(-r-originalWidth*.5,-r),a+Vec2(r+originalWidth*.5,-r)},false,false,ink,true);if(sym=="DoubleDagger")emit({a+Vec2(-r-originalWidth*.5,r),a+Vec2(r+originalWidth*.5,r)},false,false,ink,true);return true;}
+  if(sym=="CirclePlus"||sym=="CircleMinus"){
+   double radius=span*4/9.+width*.5,half=span*2/9.+originalWidth*.5;
+   emit(ellipse(a,Vec2(radius,0),Vec2(0,radius)),true,false,ink,true);
+   emit({a-Vec2(half,0),a+Vec2(half,0)},false,false,ink,true);
+   if(sym=="CirclePlus")emit({a-Vec2(0,half),a+Vec2(0,half)},false,false,ink,true);
+   return true;
+  }
   Vec2 center=a;double r=span*2/9.+originalWidth*.5;
   if(sym=="RadicalAnion"||sym=="RadicalCation"){dot(a,span*2/9.);center=b;r=span*4/9.+originalWidth*.5;}
   emit({center-Vec2(r,0),center+Vec2(r,0)},false,false,ink,true);if(sym=="Plus"||sym=="RadicalCation")emit({center-Vec2(0,r),center+Vec2(0,r)},false,false,ink,true);return true;

@@ -464,6 +464,16 @@ void App::textWrapCheck(const std::string& dir){
         s.refresh();s.fit();
         auto atomText=[&](ObjectId atom){std::string value;for(const auto& run:studioatom::runs(s.doc,atom))value+=run.utf8;return value;};// the committed label is the atom's run list
         const std::string previous=atomText(right);
+        const auto rightEnd=s.view().toDevice(s.doc.atoms().alive(right)->position);
+        const auto hoverPoint=MAKELPARAM(int(rightEnd.x),int(rightEnd.y));
+        SendMessageW(canvas,WM_MOUSEMOVE,0,hoverPoint);
+        SendMessageW(canvas,WM_KEYDOWN,'T',0);
+        SendMessageW(canvas,WM_CHAR,L't',0);
+        require(textEditor.active&&textEditor.atom==right&&textEditor.value().empty(),
+                "T opens the hovered endpoint label without inserting the shortcut character");
+        typing(L't');
+        require(textEditor.value()==L"t","a subsequent literal t can still be typed in the editor");
+        require(finishText(false),"cancel the shortcut editor");
         require(s.activateCommand("chooseEdittingTool_Text"),"text tool for the endpoint click");
         Vec2 onBond=s.view().toDevice(Vec2(12,0));
         SendMessageW(canvas,WM_LBUTTONDOWN,MK_LBUTTON,MAKELPARAM(int(onBond.x),int(onBond.y)));

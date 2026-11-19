@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BoundingBox="157.384287941 415.773471429 704.672071115 669.609040668" BondSpacing="18">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="11" BoundingBox="0 0 1190.5512 841.8898" Width="1190.5512" Height="841.8898" DrawingSpace="poster" WidthPages="2" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="12">
+            <n id="3" p="327.6378 465.9449" Element="8" Charge="-1" color="0">
+                <t color="0">
+                    <s font="3" size="10" face="96" color="0">O</s>
+                    <s font="3" size="10" face="64" color="0">-</s>
+                </t>
+            </n>
+            <b id="13" B="3" E="4" Order="1" color="0"/>
+            <n id="4" p="327.6378 495.9449" color="0"/>
+            <b id="15" B="4" E="5" Order="1"/>
+            <n id="5" p="301.6378 510.9449" color="0"/>
+            <b id="17" B="4" E="6" Order="2" color="0"/>
+            <n id="6" p="353.6378 510.9449" color="0"/>
+            <b id="19" B="7" E="8" Order="2" color="0"/>
+            <n id="7" p="457.6378 465.9449" Element="8" color="0"/>
+            <b id="20" B="8" E="9" Order="1"/>
+            <n id="8" p="457.6378 495.9449" color="0"/>
+            <b id="21" B="8" E="10" Order="1"/>
+            <n id="9" p="431.6378 510.9449" color="0"/>
+            <n id="10" p="483.6378 510.9449" color="0"/>
+        </fragment>
+        <curve id="14" CurvePoints="323.663190083 468.978458308 323.663190083 468.978458308 319.935346268 472.479712435 320.93524253 478.408985689 325.61864316 480.478095231 325.61864316 480.478095231" CurveType="0" BoundingBox="321.314608109 468.628458308 334.981916818 481.395276779" Tail3D="323.663190083 468.978458308 0" Head3D="327.6378 480.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="533" ArrowheadCenterSize="467" ArrowheadWidth="187" MoleculeStudioElectronSource="atom:3" MoleculeStudioElectronTarget="bond:13" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=3.2000000000000002;hwidth=2.2400000000000002;hend=1;hbegin=0;bx=323.66319008300002;by=468.97845830799997;ex=327.63780000000003;ey=480.94490000000002;sag=4.2000000000000002;sep=5.0625;split=0.5;osplit=0.5;scale=1;" color="0"/>
+        <curve id="61" MoleculeStudioArrowPart="14" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="327.6378 480.9449 327.6378 480.9449 327.6378 480.9449 324.83219618 479.105157843 324.83219618 479.105157843 324.83219618 479.105157843 324.989383674 480.196972887 324.989383674 480.196972887 324.989383674 480.196972887 324.284296086 481.045276779 324.284296086 481.045276779 324.284296086 481.045276779" color="0"/>
+        <curve id="16" CurvePoints="340.6378 503.4449 340.6378 503.4449 344.337440372 511.598732464 349.507326392 518.923302889 356.199323365 524.903647447 360.495782373 528.74320466 365.324729615 531.981939519 370.507493247 534.500018299 388.600233655 543.290491672 410.335073464 542.720079562 427.941828903 532.992703735 434.362401507 529.445467395 440.142849721 524.76111883 444.943505179 519.214917843 450.335345798 512.98572018 454.401495094 505.734727214 457.015047958 497.929357826 457.015047958 497.929357826" CurveType="0" BoundingBox="340.2878 415.773471429 457.9878 540.9949" Tail3D="340.6378 503.4449 0" Head3D="457.6378 495.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="533" ArrowheadCenterSize="467" ArrowheadWidth="187" MoleculeStudioElectronSource="bond:17" MoleculeStudioElectronTarget="atom:8" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=3.2000000000000002;hwidth=2.2400000000000002;hend=1;hbegin=0;bx=340.63780000000003;by=503.44490000000002;ex=457.63780000000003;ey=495.94490000000002;sag=41.034048362305171;sep=5.0625;split=0.5;osplit=0.5;scale=1;" color="0"/>
+        <curve id="62" MoleculeStudioArrowPart="16" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="457.6378 495.9449 457.6378 495.9449 457.6378 495.9449 455.705611765 498.687656392 455.705611765 498.687656392 455.705611765 498.687656392 456.802057386 498.566929421 456.802057386 498.566929421 456.802057386 498.566929421 457.626400759 499.299886447 457.626400759 499.299886447 457.626400759 499.299886447" color="0"/>
+        <curve id="18" CurvePoints="457.6378 480.9449 457.6378 480.9449 462.719609829 480.369740166 465.465829953 475.020502006 462.951037014 470.560538752 462.951037014 470.560538752" CurveType="0" BoundingBox="450.293683182 468.628458308 464.709561748 481.2949" Tail3D="457.6378 480.9449 0" Head3D="461.612409917 468.978458308 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="533" ArrowheadCenterSize="467" ArrowheadWidth="187" MoleculeStudioElectronSource="bond:19" MoleculeStudioElectronTarget="atom:7" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=3.2000000000000002;hwidth=2.2400000000000002;hend=1;hbegin=0;bx=457.63780000000003;by=480.94490000000002;ex=461.61240991699998;ey=468.97845830799997;sag=4.2000000000000002;sep=5.0625;split=0.5;osplit=0.5;scale=1;" color="0"/>
+        <curve id="63" MoleculeStudioArrowPart="18" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="461.612409917 468.978458308 461.612409917 468.978458308 461.612409917 468.978458308 462.759788685 472.131169199 462.759788685 472.131169199 462.759788685 472.131169199 463.287058074 471.162275505 463.287058074 471.162275505 463.287058074 471.162275505 464.359561748 470.90439206 464.359561748 470.90439206 464.359561748 470.90439206" color="0"/>
+        <arrow id="36" BoundingBox="513.2878 485.8449 581.046117139 491.0449" Tail3D="513.6378 488.4449 0" Head3D="580.696117139 488.4449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" MoleculeStudioArrow="v=1;preset=8;family=0;size=1;line=0;shafts=1;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=513.63779999999997;by=488.44490000000002;ex=580.69611713899997;ey=488.44490000000002;sag=0;sep=3.375;split=0.5;osplit=0.5;scale=1;" color="0"/>
+        <curve id="37" CurvePoints="177.236376666 628.735583474 177.236376666 628.735583474 177.926075754 632.084616512 176.766220737 635.679649367 173.844857608 637.632005276 173.844857608 637.632005276" CurveType="0" BoundingBox="161.112006637 626.650631054 177.586376666 638.74196339" Tail3D="177.236376666 628.735583474 0" Head3D="172.510914154 638.39196339 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="394" ArrowheadCenterSize="345" ArrowheadWidth="158" MoleculeStudioElectronSource="atom:35" MoleculeStudioElectronTarget="bond:52" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=2.3651347489873569;hwidth=1.8921077991898856;hend=1;hbegin=0;bx=177.23637666600001;by=628.73558347400001;ex=172.51091415400001;ey=638.39196339;sag=-1.9351102491714738;sep=5.0625;split=0.5;osplit=0.5;scale=1;" color="0"/>
+        <curve id="64" MoleculeStudioArrowPart="37" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="172.510914154 638.39196339 172.510914154 638.39196339 172.510914154 638.39196339 174.974349926 637.891652343 174.974349926 637.891652343 174.974349926 637.891652343 174.249280357 637.335884056 174.249280357 637.335884056 174.249280357 637.335884056 174.090190483 636.436275986 174.090190483 636.436275986 174.090190483 636.436275986" color="0"/>
+        <curve id="39" CurvePoints="252.535594519 641.781969105 252.535594519 641.781969105 255.926160257 640.107565162 258.162707929 636.287041198 257.172156628 632.46867836 257.172156628 632.46867836" CurveType="0" BoundingBox="241.095825799 630.542859838 258.613077907 642.131969105" Tail3D="252.535594519 641.781969105 0" Head3D="256.644692355 630.892859838 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="427" ArrowheadCenterSize="373" ArrowheadWidth="171" MoleculeStudioElectronSource="bond:49" MoleculeStudioElectronTarget="atom:31" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=2.5604955507435587;hwidth=2.0483964405948472;hend=1;hbegin=0;bx=252.535594519;by=641.78196910500003;ex=256.64469235500002;ey=630.89285983800005;sag=2.4104363261680759;sep=5.0625;split=0.5;osplit=0.5;scale=1;" color="0"/>
+        <curve id="65" MoleculeStudioArrowPart="39" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="256.644692355 630.892859838 256.644692355 630.892859838 256.644692355 630.892859838 256.49720514 633.610222604 256.49720514 633.610222604 256.49720514 633.610222604 257.27717864 633.002096754 257.27717864 633.002096754 257.27717864 633.002096754 258.263077907 633.080699202 258.263077907 633.080699202 258.263077907 633.080699202" color="0"/>
+        <curve id="41" CurvePoints="181.027852497 654.823479081 181.027852497 654.823479081 186.09644466 658.90464912 191.760883773 662.071989055 197.993982806 663.994802482 216.193409809 669.609040668 236.506918003 664.007539622 249.262147942 649.868684357 249.262147942 649.868684357" CurveType="0" BoundingBox="180.677852497 567.198441155 250.976182581 666.325343478" Tail3D="181.027852497 654.823479081 0" Head3D="250.626182581 648.298635636 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="533" ArrowheadCenterSize="467" ArrowheadWidth="187" MoleculeStudioElectronSource="bond:50" MoleculeStudioElectronTarget="atom:28" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=3.2000000000000002;hwidth=2.2400000000000002;hend=1;hbegin=0;bx=181.027852497;by=654.82347908099996;ex=250.62618258099999;ey=648.29863563599997;sag=14.477491575108843;sep=5.0625;split=0.5;osplit=0.5;scale=1;" color="0"/>
+        <curve id="66" MoleculeStudioArrowPart="41" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="250.626182581 648.298635636 250.626182581 648.298635636 250.626182581 648.298635636 247.758856326 650.040618456 247.758856326 650.040618456 247.758856326 650.040618456 248.812179594 650.368151802 248.812179594 650.368151802 248.812179594 650.368151802 249.274897238 651.369481109 249.274897238 651.369481109 249.274897238 651.369481109" color="0"/>
+        <arrow id="67" BoundingBox="292.308682273 638.683714237 345.008682273 643.883714238" Tail3D="292.658682273 641.283714238 0" Head3D="344.658682273 641.283714238 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" MoleculeStudioArrow="v=1;preset=8;family=0;size=1;line=0;shafts=1;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=292.65868227300001;by=641.28371423750002;ex=344.65868227300001;ey=641.28371423750002;sag=0;sep=3.375;split=0.5;osplit=0.5;scale=1;"/>
+        <fragment id="75">
+            <n id="11" p="626.696117139 458.440735261" Element="8" NumHydrogens="0" color="0"/>
+            <n id="12" p="626.696117139 488.440735261" NumHydrogens="0" color="0"/>
+            <n id="22" p="600.696117139 503.440735261" color="0"/>
+            <n id="23" p="652.696117139 503.440735261" NumHydrogens="2" color="0"/>
+            <n id="24" p="704.672071115 473.432404241" Element="8" Charge="-1" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="10" face="96" color="0">O</s>
+                    <s font="3" size="10" face="64" color="0">-</s>
+                </t>
+            </n>
+            <n id="25" p="678.691309002 488.432404241" NumHydrogens="0" color="0"/>
+            <n id="26" p="652.700927945 473.415743743" color="0"/>
+            <n id="27" p="678.700927945 518.449064739" color="0"/>
+            <b id="38" B="11" E="12" Order="2"/>
+            <b id="40" B="12" E="22" Order="1"/>
+            <b id="42" B="12" E="23" Order="1"/>
+            <b id="43" B="23" E="25" Order="1"/>
+            <b id="44" B="24" E="25" Order="1"/>
+            <b id="45" B="25" E="26" Order="1"/>
+            <b id="46" B="25" E="27" Order="1"/>
+        </fragment>
+        <fragment id="76">
+            <n id="28" p="250.187916458 644.93507796" NodeType="GenericNickname" color="0"/>
+            <n id="29" p="262.658682273 652.13507796" color="0"/>
+            <n id="30" p="237.717150644 652.13507796" color="0"/>
+            <n id="31" p="250.187916458 630.53507796" Element="8" color="0"/>
+            <b id="47" B="28" E="29" Order="1" color="0"/>
+            <b id="48" B="28" E="30" Order="1" color="0"/>
+            <b id="49" B="28" E="31" Order="2" color="0"/>
+        </fragment>
+        <fragment id="77">
+            <n id="32" p="169.855053756 644.832350515" NodeType="GenericNickname" color="0"/>
+            <n id="33" p="182.32581957 652.032350515" color="0"/>
+            <n id="34" p="157.384287941 652.032350515" color="0"/>
+            <n id="35" p="169.855053756 630.432350515" Element="8" Charge="-1" color="0">
+                <t color="0">
+                    <s font="3" size="10" face="96" color="0">O</s>
+                    <s font="3" size="10" face="64" color="0">-</s>
+                </t>
+            </n>
+            <b id="50" B="32" E="33" Order="2" color="0"/>
+            <b id="51" B="32" E="34" Order="1" color="0"/>
+            <b id="52" B="32" E="35" Order="1" color="0"/>
+        </fragment>
+        <fragment id="78">
+            <n id="53" p="402.070979716 641.283714237" NumHydrogens="0" color="0"/>
+            <n id="54" p="414.541745531 648.483714237" color="0"/>
+            <n id="55" p="389.600213902 648.483714237" color="0"/>
+            <n id="56" p="402.070979716 626.883714237" Element="8" Charge="-1" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="10" face="96" color="0">O</s>
+                    <s font="3" size="10" face="64" color="0">-</s>
+                </t>
+            </n>
+            <n id="57" p="377.129448087 641.283714237" NumHydrogens="0" color="0"/>
+            <n id="58" p="389.600213902 634.083714237" NumHydrogens="2" color="0"/>
+            <n id="59" p="377.129448087 655.683714238" color="0"/>
+            <n id="60" p="364.658682273 634.083714237" Element="8" NumHydrogens="0" color="0"/>
+            <b id="68" B="53" E="54" Order="1" color="0"/>
+            <b id="69" B="53" E="55" Order="1" color="0"/>
+            <b id="70" B="53" E="56" Order="1" color="0"/>
+            <b id="71" B="53" E="58" Order="1"/>
+            <b id="72" B="57" E="58" Order="1" color="0"/>
+            <b id="73" B="57" E="59" Order="1" color="0"/>
+            <b id="74" B="57" E="60" Order="2" color="0"/>
+        </fragment>
+    </page>
+</CDXML>

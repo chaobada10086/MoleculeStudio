@@ -2,14 +2,17 @@
 #include "bio_library.hpp"
 void App::bioMenu(){
     if(textEditor.active&&!finishText(true))return;if(bioPlacing)cancelBioPlacement();loadBioPreferences();
-    RingLibraryPicker picker;picker.model=bioLibraryModel();int chosen=picker.show(h,bioIndex,bioRecent);
-    if(chosen>=0)try{bioSource=readBioTemplate(size_t(chosen));bioIndex=chosen;s.cancel();patternPlacing=false;ringPlacing=false;radicalPlacing=false;bioPlacing=true;status=bioComponents()[chosen].title+"：点击画布放置，Esc 取消";SetFocus(canvas);updateCanvasCursor();}catch(const std::exception& e){status=e.what();}
+    RingLibraryPicker picker;picker.model=bioLibraryModel();shareTemplateSearch(picker,1);
+    int initial=0;std::vector<int> recent;for(size_t i=0;i<picker.model.variants.size();++i){int source=picker.model.variants[i].sourceIndex;if(source==bioIndex)initial=int(i);if(std::find(bioRecent.begin(),bioRecent.end(),source)!=bioRecent.end())recent.push_back(int(i));}
+    int chosen=picker.show(h,initial,recent);
+    if(chosen>=0)try{const auto& v=picker.model.variants.at(size_t(chosen));bioSource=picker.model.load(chosen);s.cancel();patternPlacing=false;ringPlacing=false;radicalPlacing=false;bioPlacing=true;customPlacement=v.sugarIndex>=0;if(customPlacement){customPlacementName=picker.model.parents[v.parent].title+" · 费歇尔投影";status=customPlacementName+"：点击画布放置，Esc 取消";}else{bioIndex=v.sourceIndex;status=bioComponents()[bioIndex].title+"：点击画布放置，Esc 取消";}SetFocus(canvas);updateCanvasCursor();}catch(const std::exception& e){status=e.what();}
     invalidate();
 }
 void App::insertBioComponent(size_t index){
     try{bioSource=readBioTemplate(index);bioIndex=int(index);placeBioComponent(s.view().center);}catch(const std::exception& e){status=e.what();invalidate();}
 }
 void App::placeBioComponent(Vec2 center){
+    if(reagentPlacing){placeReagent(center);return;}
     if(customPlacement){placeCustomTemplate(center);return;}
     auto source=bioSource;bioPlacing=false;bioSource.reset();if(!source)return;
     const auto& entry=bioComponents().at(bioIndex);scaleBioTemplate(*source,s.doc.defaultBondLength());auto bounds=source->scene.bounds();auto delta=center-(bounds.min+bounds.max)*.5;
@@ -18,7 +21,7 @@ void App::placeBioComponent(Vec2 center){
     if(!result.ok()){error(result);updateCanvasCursor();return;}
     s.activateCommand("chooseSelectionTool_Marquee");s.selected=*created;rememberBio(bioIndex);status=entry.title+" · 可编辑原子与化学键";updateCanvasCursor();invalidate();
 }
-void App::cancelBioPlacement(){customPlacement=false;bioPlacing=false;bioSource.reset();s.ghost.clear();status="已取消生物分子放置";updateCanvasCursor();invalidate();}
+void App::cancelBioPlacement(){customPlacement=false;bioPlacing=false;reagentPlacing=false;bioSource.reset();s.ghost.clear();status="已取消放置";updateCanvasCursor();invalidate();}
 void App::loadBioPreferences(){
     if(bioPreferencesLoaded)return;bioPreferencesLoaded=true;auto path=interfacePath();wchar_t value[512]={};auto find=[&](){for(size_t i=0;i<bioComponents().size();++i)if(W(bioComponents()[i].file)==value)return int(i);return -1;};
     GetPrivateProfileStringW(L"BioLibrary",L"Last",L"",value,512,path.c_str());int last=find();if(last>=0)bioIndex=last;

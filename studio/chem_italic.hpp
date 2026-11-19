@@ -158,7 +158,8 @@ inline std::vector<uint8_t> mask(const std::vector<uint32_t>& c) {
                     for (size_t k = spans[s].first; k < spans[s].second; ++k) out[k] = 1;
             continue;
         }
-        if (i == 0 || isBreak(c[i - 1])) {
+        bool alkoxy=i>0&&(c[i-1]=='O'||c[i-1]=='S')&&(ch=='i'||ch=='t'||ch=='s'||ch=='n')&&i+1<n&&isHyphen(c[i+1]);
+        if (i == 0 || isBreak(c[i - 1]) || alkoxy) {
             size_t length = 0;
             if (italicPrefixAt(c, i, &length) || italicLocatorAt(c, i, &length)) {
                 for (size_t k = i; k < i + length; ++k) out[k] = 1;

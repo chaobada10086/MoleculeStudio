@@ -5,10 +5,13 @@ from pathlib import Path
 import subprocess, json, hashlib, sys, concurrent.futures, shutil, os
 root=Path(__file__).resolve().parents[1]
 base=root/'engine'; snap=base; studio=root/'studio'
-out=root/'out/Studio'; engine=out/'engine'; engine.mkdir(parents=True,exist_ok=True)
+out=Path(sys.argv[sys.argv.index('--output-dir')+1]).resolve() if '--output-dir' in sys.argv else root/'out/Studio'
+engine=out/'engine'; engine.mkdir(parents=True,exist_ok=True)
 (out/"ChemistryJobs").mkdir(exist_ok=True)
 shutil.copyfile(studio/'chemistry_3d.py',out/'chemistry_3d.py')
 shutil.copyfile(studio/'chemistry_open.py',out/'chemistry_open.py')
+shutil.copyfile(studio/'projection_stereo.py',out/'projection_stereo.py')
+shutil.copyfile(studio/'branched_alkyl_layout.py',out/'branched_alkyl_layout.py')
 shutil.copyfile(studio/'ai_assistant.py',out/'ai_assistant.py')
 for name in ('ai_dsh.py','dsh_proxy.py'):
     shutil.copyfile(studio/name,out/name)
@@ -30,6 +33,8 @@ shutil.copyfile(studio/'nmr_hose.cjs',out/'nmr_hose.cjs')
 plugin_source=studio/'ai_plugins'
 if (studio/'bio_templates').exists():
     shutil.copytree(studio/'bio_templates',out/'bio_templates',dirs_exist_ok=True)
+shutil.copytree(studio/'reagent_templates',out/'reagent_templates',dirs_exist_ok=True)
+shutil.copyfile(studio/'reagents.json',out/'reagents.json')
 plugin_target=out/'ai_plugins'
 if plugin_source.exists():
     if plugin_target.exists():shutil.rmtree(plugin_target)
@@ -70,7 +75,7 @@ overrides['next/bonds/spec.cpp']=studio/'engine/bonds_spec.cpp'
 overrides['next/graphics/tables.cpp']=studio/'engine/tables.cpp'
 overrides['next/experimental/tools.cpp']=studio/'engine/experimental_tools.cpp'
 overrides['next/experimental/render_bridge.cpp']=studio/'engine/experimental_render_bridge.cpp'
-headers=sorted(list(snap.rglob('*.hpp'))+list(snap.rglob('*.h'))+[studio/'interop.hpp',studio/'arrow_interop.hpp']+list((studio/'engine').glob('*.hpp')))
+headers=sorted(list(snap.rglob('*.hpp'))+list(snap.rglob('*.h'))+[studio/'interop.hpp',studio/'clipboard_image.hpp',studio/'arrow_interop.hpp',studio/'compound_catalog.hpp',studio/'polyatomic_ion_entries.hpp']+list((studio/'engine').glob('*.hpp'))+list((studio/'engine').glob('*.inc')))
 hash_headers=hashlib.sha256()
 for p in headers: hash_headers.update(str(p.relative_to(root)).encode());hash_headers.update(p.read_bytes())
 header_digest=hash_headers.hexdigest()
@@ -106,6 +111,6 @@ subprocess.run([str(Path(compiler).with_name('windres.exe')),'-i','app.rc','-o',
 result=subprocess.run([compiler,'-static','-mwindows','-o',str(exe),str(obj),str(resource)]+[str(p) for p in objects]+libs,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace')
 with (out/'build.log').open('a',encoding='utf-8') as f:f.write(result.stdout)
 if result.returncode:raise RuntimeError(result.stdout)
-record={'exe':str(exe),'exe_sha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'headers_sha256':header_digest,'engine_sources':{s:{'path':str(overrides.get(s,snap/s)),'sha256':hashlib.sha256(overrides.get(s,snap/s).read_bytes()).hexdigest()} for s in sources},'studio_sources':{str(p.relative_to(studio)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [source]+list(studio.glob('*.hpp'))},'old_ui_linked':False,'backend_sources':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [studio/'chemistry_open.py',studio/'chemistry_3d.py',studio/'nmr_hose.cjs',studio/'nicknames.json',studio/'ai_assistant.py',studio/'ai_scene.py',studio/'ai_library.py',studio/'ai_ring_catalog.json',studio/'AI_TOOL_REFERENCE.json']}}
+record={'exe':str(exe),'exe_sha256':hashlib.sha256(exe.read_bytes()).hexdigest(),'headers_sha256':header_digest,'engine_sources':{s:{'path':str(overrides.get(s,snap/s)),'sha256':hashlib.sha256(overrides.get(s,snap/s).read_bytes()).hexdigest()} for s in sources},'studio_sources':{str(p.relative_to(studio)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [source]+list(studio.glob('*.hpp'))},'old_ui_linked':False,'backend_sources':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in [studio/'chemistry_open.py',studio/'projection_stereo.py',studio/'branched_alkyl_layout.py',studio/'chemistry_3d.py',studio/'nmr_hose.cjs',studio/'nicknames.json',studio/'ai_assistant.py',studio/'ai_scene.py',studio/'ai_library.py',studio/'ai_ring_catalog.json',studio/'AI_TOOL_REFERENCE.json']}}
 (out/'manifest.json').write_text(json.dumps(record,indent=2),encoding='utf-8')
 print(exe)

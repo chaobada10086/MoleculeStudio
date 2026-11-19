@@ -1,0 +1,38 @@
+﻿MoleculeStudio 交接补充：费歇尔、锯架、纽曼投影（2026-11-16）
+
+当前请求已经完成，桌面安装程序已更新。本补充接续 MoleculeStudio交接文档-20261116-最新完整.txt；其中旧版本路径、哈希和“尚未增加投影”等历史状态，以本补充和实际源码为准。
+本轮开始前已经存在 SaveFix 版本及 grouped_save_checks.hpp；它们是前序改动，已保留。用户所称重大 Bug 是否就是该修复，不能仅凭版本名推断。
+
+源码：C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio
+工作目录：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026
+最终构建：C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\out\Studio\MoleculeStudio-Projections-20261116.exe
+实际安装：C:\Users\ChaobaDa\AppData\Local\Programs\MoleculeStudio\MoleculeStudio.exe
+SHA256：a2b5f51196a35a08966a779a3d3915ae2594d5184eb06dd8a0b29233eae60d3c
+发布目录：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-20261116-立体投影
+是否需要重启旧实例：False
+
+入口：模板 / 图形 → 立体投影。三按钮为费歇尔投影、锯架式、纽曼投影。
+费歇尔菜单提供1—4个中心以及自定义1—12；锯架、纽曼提供交叉式与重叠式。选择后单击放置，Esc取消。双击组合内的H/R文字编辑，取消组合后逐线编辑。
+这些是可编辑矢量示意图，不创建虚假的分子原子，也不自动推断R/S。使用当前文档键长、线宽、字体、字号。
+
+本轮主要文件（相对于源码根目录）：
+studio/projection_templates.hpp：独立原创投影模板几何、分段下标、显式圆轴。
+studio/projection_actions.hpp：弹出选项、点击插入状态，复用现有模板定位及撤销。
+studio/ribbon_tabs.hpp：模板与图形页的按钮。
+studio/studio.cpp：命令路由、原创矢量图标、双击组合内文字。
+studio/engine/projection_interop.hpp：只识别纯矢量投影几何；ChemDraw丢掉组合Name时恢复组合分类，移除直线的重复无头箭头副本。其他化学结构和正常箭头不进入此转换。
+studio/engine/cdxml_reader.cpp / cdxml_writer.cpp：投影模型组合及标准CDXML group持久化，复制、编辑后重排成员；取消组合后不重新发明旧组合。
+studio/engine/session.cpp：CDXML/CDX导入先规范投影图，再导入普通箭头。
+studio/interop.hpp：复制模板时保留InterpretChemically=no，防止H/R变成独立化学原子。
+studio/cdx_schema.hpp：OvalType为位标记，Circle Filled必须作为组合标记保留；这修复ChemDraw重存后实心点变空心的问题。
+studio/projection_checks.hpp / current_fixes_checks.hpp：16模板变体、双页6按钮、真实插入撤销重做、组合内改字、3轮CDXML和CDX往返、实际ChemDraw重存样本检查。
+studio/grouped_save_checks.hpp：仅给合成测试样本补明确的页面原点，避免把新建中心页面导出的坐标平移误报成保存失败；原保存行为未因此更改。
+
+验证：work/perspective-audit/projection-final8-fixes、projection-final8-templates、projection-final8-full。
+实际ChemDraw 26已打开并重存包中的CDX；30标注、32图形、5组合、2实心前碳点保留，尺寸一致。实际往返文件为 native-final-roundtrip.cdx，逐对象检查报告在 work/projections-20261116。
+注意：ChemDraw会移除组合Name，且为直线产生兼容图形与现代无头箭头两份对象；不要删掉本轮按图形拓扑恢复组合和去重的逻辑。
+注意：图形Oval不能仅写普通矩形BoundingBox；ChemDraw会将一个角当圆心。必须写Center3D、MajorAxisEnd3D、MinorAxisEnd3D。
+
+构建：使用studio/build.py --dx11 --jobs 4 --compiler C:/tools/mingw64/bin/g++.exe --exe MoleculeStudio-Projections-20261116.exe。
+不要在编译时改头文件。仓库包含大量前序未提交改动，不能reset覆盖。本轮未提交、未推送。
+发布前已核对源码与构建哈希、回归证据时间、安装EXE哈希；安装前备份在work/installed-before-projections-20261116，设置与运行时保留。

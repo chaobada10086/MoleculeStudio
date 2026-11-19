@@ -1,0 +1,1 @@
+missing visible stroke for object 2:4 in  primitive=2 filled=1

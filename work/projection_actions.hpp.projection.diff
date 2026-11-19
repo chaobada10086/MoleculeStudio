@@ -1,0 +1,31 @@
+--- before/projection_actions.hpp
+
++++ after/projection_actions.hpp
+
+@@ -26,15 +26,23 @@
+
+ }
+ // Empty templates contain real editable vector endpoints, not visible R labels.
+ bool App::editProjectionEndpoint(Vec2 point){
++    // Pick existing captions by their actual bounds, including long group names
++    // outside the endpoint radius. A group pick otherwise hides its child text.
++    for(const auto& g:s.doc.groups().records())if(g.isAlive()&&isProjectionGroupName(g.label))
++        for(auto ref:g.members)if(ref.kind==ObjectKind::Text&&s.doc.texts().alive(ref.id)){
++            auto box=selection::objectBounds(s.doc,ref);double pad=s.view().deviceRadiusToDocument(2);
++            if(point.x>=box.min.x-pad&&point.x<=box.max.x+pad&&point.y>=box.min.y-pad&&point.y<=box.max.y+pad){openText(ref.id);return true;}
++        }
+     double best=s.view().deviceRadiusToDocument(12);ObjectId groupId=kInvalidObjectId;Vec2 endpoint,ray;std::vector<Vec2> allTips;
+     for(const auto& g:s.doc.groups().records())if(g.isAlive()&&isProjectionGroupName(g.label)){
+-        std::vector<std::pair<Vec2,Vec2>> lines;Vec2 circle;double radius=0;
++        std::vector<Vec2> groupTips;bool chosen=false;std::vector<std::pair<Vec2,Vec2>> lines;Vec2 circle;double radius=0;
+         for(auto ref:g.members)if(ref.kind==ObjectKind::Path){auto p=s.doc.paths().alive(ref.id);if(!p)continue;if(!p->closed&&p->points.size()==2)lines.push_back({p->points[0],p->points[1]});else if(p->closed){Box bounds;for(auto v:p->points)bounds.add(v);double r=std::max(bounds.max.x-bounds.min.x,bounds.max.y-bounds.min.y)*.5;if(r>radius){radius=r;circle=(bounds.min+bounds.max)*.5;}}}
+         for(size_t i=0;i<lines.size();++i)for(int end=0;end<2;++end){auto tip=end?lines[i].second:lines[i].first,from=end?lines[i].first:lines[i].second;bool terminal=true;
+             if(radius>0&&length(tip-circle)<=radius*1.12)continue;
+             for(size_t j=0;j<lines.size();++j)if(j!=i){auto a=lines[j].first,v=lines[j].second-a;double t=std::max(0.,std::min(1.,dot(tip-a,v)/std::max(1e-9,lengthSq(v))));if(length(tip-a-v*t)<s.doc.defaultBondLength()*.025){terminal=false;break;}}
+-            if(terminal)allTips.push_back(tip);if(!terminal||length(tip-point)>=best)continue;best=length(tip-point);endpoint=tip;ray=(tip-from)*(1/std::max(1e-9,length(tip-from)));groupId=g.id;
++            if(terminal)groupTips.push_back(tip);if(!terminal||length(tip-point)>=best)continue;best=length(tip-point);endpoint=tip;ray=(tip-from)*(1/std::max(1e-9,length(tip-from)));groupId=g.id;chosen=true;
+         }
++        if(chosen)allTips=groupTips;
+     }
+     if(groupId==kInvalidObjectId)return false;
+     // Editing an occupied endpoint must reuse its label, not stack another one.

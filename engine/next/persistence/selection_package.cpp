@@ -265,7 +265,7 @@ Error encodeSelectionPackage(const core::Document& document,
         const core::ExtensionBag& bag = document.extensions(ref);
         const std::vector<core::ExtensionEntry>& entries = bag.entries();
         for (size_t k = 0; k < entries.size(); ++k) {
-            if (!core::isPersistentExtensionKey(entries[k].key)) continue;
+            if (!core::isPersistentExtensionKey(entries[k].key) && entries[k].key != "pst.attr.MoleculeStudioRole" && entries[k].key != "pst.attr.MoleculeStudioLonePairs") continue;
             scratch.extensions(ObjectRef(ref.kind, newId))
                 .set(entries[k].key, entries[k].value, entries[k].sourceId);
         }
@@ -297,7 +297,7 @@ Error encodeSelectionPackage(const core::Document& document,
         const core::ExtensionBag& bag = document.extensions(ref);
         const std::vector<core::ExtensionEntry>& entries = bag.entries();
         for (size_t k = 0; k < entries.size(); ++k) {
-            if (!core::isPersistentExtensionKey(entries[k].key)) continue;
+            if (!core::isPersistentExtensionKey(entries[k].key) && entries[k].key != "pst.attr.MoleculeStudioRole" && entries[k].key != "pst.attr.MoleculeStudioLonePairs") continue;
             scratch.extensions(ObjectRef(ObjectKind::Bond, newId))
                 .set(entries[k].key, entries[k].value, entries[k].sourceId);
         }
@@ -500,7 +500,7 @@ Error remapForPaste(const core::Document& incoming, core::Document& target,
             core::ObjectRef(ObjectKind::Atom, inAtoms[i].id));
         const std::vector<core::ExtensionEntry>& entries = bag.entries();
         for (size_t k = 0; k < entries.size(); ++k) {
-            if (!core::isPersistentExtensionKey(entries[k].key)) continue;
+            if (!core::isPersistentExtensionKey(entries[k].key) && entries[k].key != "pst.attr.MoleculeStudioRole" && entries[k].key != "pst.attr.MoleculeStudioLonePairs") continue;
             target.extensions(core::ObjectRef(ObjectKind::Atom, newId))
                 .set(entries[k].key, entries[k].value,
                      originalSourceId != copy.sourceId ? copy.sourceId : entries[k].sourceId);

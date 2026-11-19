@@ -1,0 +1,8 @@
+0 crossings 1 -> 1 shift 109.46 angle 27.4365
+1 crossings 1 -> 1 shift 109.46 angle 27.4365
+2 crossings 1 -> 1 shift 3.90759 angle 27.4365
+3 crossings 1 -> 1 shift 3.90759 angle 27.4365
+4 crossings 1 -> 1 shift 35.461 angle 45.8675
+5 crossings 1 -> 1 shift 35.461 angle 45.8675
+6 crossings 1 -> 1 shift 88.1076 angle 45.8675
+7 crossings 1 -> 1 shift 88.1076 angle 45.8675

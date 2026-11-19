@@ -45,8 +45,27 @@ inline void snapshot(const Document& d,const Refs& selection,Vec2 origin,tinyxml
     scene->SetAttribute("selection_total",int(r["selection"].size()));scene->SetAttribute("selection_complete",r["selection"].size()<=1500);
     for(auto ref:ordered){if(count++>=1500)break;auto item=xml.NewElement("object");scene->InsertEndChild(item);item->SetAttribute("ref",key(ref).c_str());item->SetAttribute("kind",kind(ref.kind).c_str());item->SetAttribute("selected",selected.count(ref)!=0);if(groups.count(ref))item->SetAttribute("molecule",groups[ref].c_str());
         auto b=selection::objectBounds(d,ref);if(!b.empty()){item->SetAttribute("x",b.min.x-origin.x);item->SetAttribute("y",b.min.y-origin.y);item->SetAttribute("x2",b.max.x-origin.x);item->SetAttribute("y2",b.max.y-origin.y);}
-        if(ref.kind==ObjectKind::Atom){auto a=d.atoms().get(ref.id);item->SetAttribute("element",core::elementSymbol(a->element));item->SetAttribute("charge",int(a->semantics.charge));item->SetAttribute("is_element",a->semantics.nodeType==uint8_t(NodeType::Element));item->SetAttribute("label",d.atomLabel(ref.id).c_str());}
+        if(ref.kind==ObjectKind::Atom){auto a=d.atoms().get(ref.id);item->SetAttribute("element",core::elementSymbol(a->element));item->SetAttribute("charge",int(a->semantics.charge));item->SetAttribute("radical",int(a->semantics.radical));item->SetAttribute("lone_pairs_shown",mechanism::lonePairCount(d,ref.id));auto role=mechanism::genericRole(d,ref.id);if(!role.empty())item->SetAttribute("role",role.c_str());item->SetAttribute("is_element",a->semantics.nodeType==uint8_t(NodeType::Element));item->SetAttribute("label",d.atomLabel(ref.id).c_str());}
         if(ref.kind==ObjectKind::Bond){auto b=d.bonds().get(ref.id);item->SetAttribute("order",int(b->order));item->SetAttribute("begin",key(ObjectRef(ObjectKind::Atom,b->beginAtom)).c_str());item->SetAttribute("end",key(ObjectRef(ObjectKind::Atom,b->endAtom)).c_str());}
+        if(ref.kind==ObjectKind::Arrow){
+            if(virtual_bonds::isGuide(d,ref))item->SetAttribute("symbol","virtual_bond");
+            arrows::ArrowParams arrow;bool valid=false;
+            if(arrows::readArrow(d,ref.id,&arrow,&valid).ok()&&valid&&!arrow.mechanism&&!virtual_bonds::isGuide(d,ref)){
+                const Vec2 span=arrow.end-arrow.begin;
+                if(std::abs(span.x)>=d.defaultBondLength()&&std::abs(span.y)<=.15*std::abs(span.x)){
+                    for(const char* cmd:{"chooseArrowTool_Large_Solid","chooseArrowTool_Large_Equilibrium","chooseArrowTool_Large_Retrosynthetic","chooseArrowTool_Large_Resonance"}){
+                        const auto* preset=arrows::presetByCommand(cmd);
+                        if(preset&&preset->presetId==arrow.presetId){item->SetAttribute("reaction_divider",true);break;}
+                    }
+                }
+            }
+            if(valid&&arrow.mechanism){
+                item->SetAttribute("mechanism",true);
+                item->SetAttribute("electrons",arrow.head.sides==arrows::HeadSides::Both?2:1);
+                if(arrow.electronSource.valid())item->SetAttribute("source",key(arrow.electronSource).c_str());
+                if(arrow.electronTarget.valid())item->SetAttribute("target",key(arrow.electronTarget).c_str());
+            }
+        }
         if(ref.kind==ObjectKind::Text){auto text=d.texts().get(ref.id);item->SetAttribute("text",textPreview(fullText(d,ref.id)).c_str());item->SetAttribute("size",text->size);item->SetAttribute("font",(text->format.fontName.empty()?d.defaultFont():text->format.fontName).c_str());item->SetAttribute("bold",(text->format.flags&kBold)!=0);item->SetAttribute("italic",(text->format.flags&kItalic)!=0);}
         if(auto color=d.extensions(ref).findValue("studio.color.override"))item->SetAttribute("color",hexColor(uint32_t(std::strtoul(color->c_str(),nullptr,10))).c_str());
     }

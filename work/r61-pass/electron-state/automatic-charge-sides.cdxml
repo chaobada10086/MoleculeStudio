@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="297.6378 690.9449 597.6378 809.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="25" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="26">
+            <n id="3" p="297.6378 720.9449" Element="16" Charge="-1" NumHydrogens="0" LabelDisplay="Shown" MoleculeStudioChargePosition="0.95 -0.6">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                </t>
+            </n>
+            <b id="27" B="3" E="4" Order="1"/>
+            <n id="4" p="322.6378 706.9449"/>
+            <b id="28" B="5" E="6" Order="1"/>
+            <n id="5" p="357.6378 720.9449" Element="16" Charge="-1" NumHydrogens="0" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+            <b id="29" B="7" E="8" Order="1"/>
+            <n id="6" p="382.6378 734.9449"/>
+            <b id="30" B="9" E="10" Order="1"/>
+            <n id="7" p="417.6378 720.9449" Element="16" Charge="-1" NumHydrogens="0" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+            <b id="31" B="11" E="12" Order="1"/>
+            <n id="8" p="392.6378 706.9449"/>
+            <b id="32" B="14" E="15" Order="1"/>
+            <n id="9" p="477.6378 720.9449" Element="16" Charge="-1" NumHydrogens="0" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+            <b id="33" B="16" E="17" Order="1"/>
+            <n id="10" p="452.6378 734.9449"/>
+            <b id="34" B="18" E="19" Order="1"/>
+            <n id="11" p="537.6378 720.9449" Element="16" Charge="-1" NumHydrogens="0" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+            <b id="35" B="20" E="21" Order="1"/>
+            <n id="12" p="537.6378 690.9449"/>
+            <b id="36" B="22" E="23" Order="1"/>
+            <n id="13" p="597.6378 720.9449" Element="16" Charge="-1" NumHydrogens="1" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+            <n id="14" p="297.6378 795.9449" Element="16" Charge="1" NumHydrogens="2" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">+</s>
+                </t>
+            </n>
+            <n id="15" p="322.6378 781.9449"/>
+            <n id="16" p="357.6378 795.9449" Element="16" Charge="1" NumHydrogens="2" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">+</s>
+                </t>
+            </n>
+            <n id="17" p="382.6378 809.9449"/>
+            <n id="18" p="417.6378 795.9449" Element="16" Charge="1" NumHydrogens="2" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">+</s>
+                </t>
+            </n>
+            <n id="19" p="392.6378 781.9449"/>
+            <n id="20" p="477.6378 795.9449" Element="16" Charge="1" NumHydrogens="2" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">+</s>
+                </t>
+            </n>
+            <n id="21" p="452.6378 809.9449"/>
+            <n id="22" p="537.6378 795.9449" Element="16" Charge="1" NumHydrogens="2" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">+</s>
+                </t>
+            </n>
+            <n id="23" p="537.6378 765.9449"/>
+            <n id="24" p="597.6378 795.9449" Element="16" Charge="1" NumHydrogens="3" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">S</s>
+                    <s font="3" size="10" face="64">+</s>
+                </t>
+            </n>
+        </fragment>
+        <graphic id="37" GraphicType="Symbol" SymbolType="Minus" BoundingBox="307.1378 714.9449 314.3378 714.9449" LineWidth="0.59999999999999998">
+            <represent object="3" attribute="Charge"/>
+        </graphic>
+    </page>
+</CDXML>

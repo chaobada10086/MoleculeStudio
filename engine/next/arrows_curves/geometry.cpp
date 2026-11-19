@@ -444,6 +444,23 @@ core::Error buildArrowGeometry(const ArrowParams& params,
             if (hg.valid) out->heads.push_back(hg);
         }
     }
+    // An outlined head must leave its interior empty. The shaft ends at the
+    // triangle's back edge rather than continuing through its white centre.
+    if(params.head.shape==ArrowHeadShape::Hollow){
+        auto shorten=[](std::vector<core::Vec2>& shaft,double requested,bool atEnd){
+            if(shaft.size()<2)return;
+            if(!atEnd)std::reverse(shaft.begin(),shaft.end());
+            double total=0;for(size_t i=1;i<shaft.size();++i)total+=len(sub(shaft[i],shaft[i-1]));
+            double remaining=std::min(requested,total*.8);
+            while(shaft.size()>1&&remaining>1e-8){
+                core::Vec2 step=sub(shaft.back(),shaft[shaft.size()-2]);double segment=len(step);
+                if(segment<=remaining+1e-8){remaining-=segment;shaft.pop_back();}
+                else{shaft.back()=sub(shaft.back(),mul(step,remaining/segment));remaining=0;}
+            }
+            if(!atEnd)std::reverse(shaft.begin(),shaft.end());
+        };
+        for(auto& shaft:out->shafts){if(params.head.atEnd)shorten(shaft,params.head.length,true);if(params.head.atBegin)shorten(shaft,params.head.length,false);}
+    }
 
     // ---- no-go markers ---------------------------------------------------
     // [GUIDE p109] crossed (no-go) arrows. The mark sits at the MIDDLE of the

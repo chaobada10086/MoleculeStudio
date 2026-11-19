@@ -318,6 +318,11 @@ core::Error validateFigure(const PlateFigure& figure, std::string* why) {
             if (why) *why = "spot opacity must be in [0, 1]";
             return core::Error(core::ErrorCode::InvalidArgument, "spot opacity out of range");
         }
+        if (!std::isfinite(spot.tailLengthV) || spot.tailLengthV < 0.0 || spot.tailLengthV > 1.6 ||
+            !std::isfinite(spot.tailOpacity) || spot.tailOpacity < 0.0 || spot.tailOpacity > 1.0) {
+            if (why) *why = "TLC streak length or opacity out of range";
+            return core::Error(core::ErrorCode::InvalidArgument, "TLC streak out of range");
+        }
         core::Error m = spot.rfMeasured.validate(why);
         if (!m.ok()) return m;
     }
@@ -583,6 +588,8 @@ std::string encodeFigure(const PlateFigure& figure) {
         f.push_back(num(spot.opacity));
         f.push_back(percentEncode(spot.shape));
         f.push_back(percentEncode(spot.label));
+        f.push_back(num(spot.tailLengthV));
+        f.push_back(num(spot.tailOpacity));
         records.push_back(joinEncoded(f));
         if (spot.rfMeasured.present)
             records.push_back(encodeMeasurementRecord("spotrf", spot.rfMeasured));
@@ -695,7 +702,7 @@ PlateFigure decodeFigure(const std::string& text, bool* ok) {
             if (!percentDecode(f[5], &lane.label) || !percentDecode(f[6], &lane.note)) { good = false; break; }
             figure.lanes.push_back(lane);
         } else if (tag == "spot") {
-            if (f.size() != 11) { good = false; break; }
+            if (f.size() != 11 && f.size() != 13) { good = false; break; }
             Spot spot;
             double rgba = 0;
             if (!parseU32(f[1], &spot.id) || !parseU32(f[2], &spot.laneId) ||
@@ -706,6 +713,7 @@ PlateFigure decodeFigure(const std::string& text, bool* ok) {
                 good = false; break;
             }
             spot.fillRGBA = static_cast<uint32_t>(rgba);
+            if(f.size()==13&&(!parseDouble(f[11],&spot.tailLengthV)||!parseDouble(f[12],&spot.tailOpacity))){good=false;break;}
             figure.spots.push_back(spot);
         } else if (tag == "spotrf") {
             if (!figure.spots.empty()) {

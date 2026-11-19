@@ -368,12 +368,14 @@ Error Document::addText(const Vec2& position, double size, const std::string& ut
     record.position = position;
     record.size = size;
     record.role = TextRole::Caption;
+    record.format.fontName = defaultFont_;
     Error valid = validateText(utf8, true);
     if (!valid.ok()) return valid;
     Error result = addTextRecord(record, out);
     if (!result.ok()) return result;
     std::vector<TextRun> runs(1);
     runs[0].utf8 = utf8;
+    runs[0].fontName = defaultFont_;
     runs_[*out] = runs;
     noteTouchedText(*out);
     return Error::success();
@@ -585,7 +587,9 @@ Error Document::setAtomLabel(ObjectId id, const std::string& utf8) {
     if (!atom) return Error(ErrorCode::NotAlive, "Atom does not exist");
     Error valid = validateText(utf8, true);
     if (!valid.ok()) return valid;
-    atomLabels_[id] = utf8;
+    // Keep the same canonical empty state as setAtomLabelQuiet (undo/redo).
+    if (utf8.empty()) atomLabels_.erase(id);
+    else atomLabels_[id] = utf8;
     noteTouchedAtom(id);
     bumpStructure();
     return Error::success();
@@ -757,7 +761,7 @@ const std::vector<TextRun>& Document::runs(ObjectId id) const {
 
 std::string Document::plainText(ObjectId id) const {
     const std::vector<TextRun>& r = runs(id);
-    return r.empty() ? std::string() : r[0].utf8;
+    std::string result;for(const auto& run:r)result+=run.utf8;return result;
 }
 
 Error Document::setLineStyle(ObjectRef ref, const LineStyle& style) {

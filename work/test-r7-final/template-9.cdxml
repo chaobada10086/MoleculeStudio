@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="20" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="277.6378 265.9449 317.6378 575.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="35" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="36">
+            <n id="3" p="297.6378 265.9449"/>
+            <b id="37" B="3" E="4" Order="1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="4" p="297.6378 285.9449" MoleculeStudioProjection="0"/>
+            <b id="38" B="4" E="5" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="5" p="277.6378 285.9449"/>
+            <b id="39" B="4" E="6" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="6" p="317.6378 285.9449"/>
+            <b id="40" B="4" E="7" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="7" p="297.6378 315.9449" MoleculeStudioProjection="0"/>
+            <b id="41" B="7" E="8" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="8" p="277.6378 315.9449"/>
+            <b id="42" B="7" E="9" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="9" p="317.6378 315.9449"/>
+            <b id="43" B="7" E="10" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="10" p="297.6378 345.9449" MoleculeStudioProjection="0"/>
+            <b id="44" B="10" E="11" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="11" p="277.6378 345.9449"/>
+            <b id="45" B="10" E="12" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="12" p="317.6378 345.9449"/>
+            <b id="46" B="10" E="13" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="13" p="297.6378 375.9449" MoleculeStudioProjection="0"/>
+            <b id="47" B="13" E="14" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="14" p="277.6378 375.9449"/>
+            <b id="48" B="13" E="15" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="15" p="317.6378 375.9449"/>
+            <b id="49" B="13" E="16" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="16" p="297.6378 405.9449" MoleculeStudioProjection="0"/>
+            <b id="50" B="16" E="17" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="17" p="277.6378 405.9449"/>
+            <b id="51" B="16" E="18" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="18" p="317.6378 405.9449"/>
+            <b id="52" B="16" E="19" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="19" p="297.6378 435.9449" MoleculeStudioProjection="0"/>
+            <b id="53" B="19" E="20" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="20" p="277.6378 435.9449"/>
+            <b id="54" B="19" E="21" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="21" p="317.6378 435.9449"/>
+            <b id="55" B="19" E="22" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="22" p="297.6378 465.9449" MoleculeStudioProjection="0"/>
+            <b id="56" B="22" E="23" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="23" p="277.6378 465.9449"/>
+            <b id="57" B="22" E="24" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="24" p="317.6378 465.9449"/>
+            <b id="58" B="22" E="25" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="25" p="297.6378 495.9449" MoleculeStudioProjection="0"/>
+            <b id="59" B="25" E="26" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="26" p="277.6378 495.9449"/>
+            <b id="60" B="25" E="27" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="27" p="317.6378 495.9449"/>
+            <b id="61" B="25" E="28" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="28" p="297.6378 525.9449" MoleculeStudioProjection="0"/>
+            <b id="62" B="28" E="29" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="29" p="277.6378 525.9449"/>
+            <b id="63" B="28" E="30" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="30" p="317.6378 525.9449"/>
+            <b id="64" B="28" E="31" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1"/>
+            <n id="31" p="297.6378 555.9449" MoleculeStudioProjection="0"/>
+            <b id="65" B="31" E="32" Order="1" MoleculeStudioProjectionBegin="-1 -0 1"/>
+            <n id="32" p="277.6378 555.9449"/>
+            <b id="66" B="31" E="33" Order="1" MoleculeStudioProjectionBegin="1 -0 1"/>
+            <n id="33" p="317.6378 555.9449"/>
+            <b id="67" B="31" E="34" Order="1" MoleculeStudioProjectionBegin="0 -1 -1"/>
+            <n id="34" p="297.6378 575.9449"/>
+        </fragment>
+    </page>
+</CDXML>

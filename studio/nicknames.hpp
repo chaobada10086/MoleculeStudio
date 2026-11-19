@@ -1,9 +1,48 @@
 #ifndef STUDIO_NICKNAMES_HPP
 #define STUDIO_NICKNAMES_HPP
 #include "chem_completion.hpp"
+#include "chem_italic.hpp"
+#include "engine/atom_runs.hpp"
+#include "engine/compact_radicals.hpp"
+#include "engine/diazo.hpp"
 namespace nicknames {
-inline Error apply(Document& d,ObjectId id,const std::string& label){auto atom=d.atoms().alive(id);if(!atom)return Error(ErrorCode::NotFound,"原子不存在");auto n=nickdata::find(label);auto a=nickdata::findAlias(label);auto custom=customgroups::find(label);if(!n&&!a&&!custom)return Error(ErrorCode::Unsupported,"未知缩写");auto sem=atom->semantics;sem.nodeType=uint8_t(NodeType::Nickname);sem.showLabel=true;sem.aromatic=false;sem.isotope=0;sem.implicitHydrogens=-1;auto e=d.setElement(id,6);if(e.ok())e=d.setAtomSemantics(id,sem);if(e.ok())e=d.setAtomLabel(id,label);auto& ext=d.extensions(ObjectRef(ObjectKind::Atom,id));ext.erase("studio.nickname.fragment");ext.erase("studio.hydrogens.manual");ext.erase("studio.query.description");if(n)ext.set("studio.nickname.fragment",n->fragment);else if(a)ext.set("studio.nickname.fragment",a->fragment);else ext.set("studio.nickname.fragment",custom->fragment);return e;}
-inline Command labelCommand(ObjectId id,const std::string& label){if(!nickdata::find(label)&&!nickdata::findAlias(label)&&!customgroups::find(label)){auto base=chemistry::setLabelTextCommand(id,label,{},nullptr);return Command("原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateSemantics,[id,base](CommandContext& c)mutable{auto result=base.execute(c);if(result.ok()){auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,id));bag.erase("studio.nickname.fragment");bag.erase("studio.hydrogens.manual");bag.erase("studio.query.description");}return result;});}return Command("缩写标签",kInvalidateAppearance|kInvalidateSemantics,[id,label](CommandContext& c){auto e=apply(c.document,id,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);});}
+inline Error applyWholeIon(Document& d,ObjectId id,const compounddata::Entry& ion){
+    const auto* atom=d.atoms().alive(id);if(!atom)return Error(ErrorCode::NotFound,"原子不存在");
+    auto sem=atom->semantics;sem.nodeType=uint8_t(NodeType::Nickname);sem.showLabel=true;sem.aromatic=false;
+    sem.charge=compounddata::ionCharge(&ion);sem.radical=sem.isotope=0;sem.implicitHydrogens=0;
+    auto e=d.setElement(id,6);if(e.ok())e=d.setAtomSemantics(id,sem);
+    const auto body=compounddata::ionBody(ion);
+    if(e.ok())e=d.setAtomLabel(id,body);
+    TextRun base;base.utf8=body;base.flags=kFormula;
+    studioatom::set(d,id,{base});
+    auto& bag=d.extensions(ObjectRef(ObjectKind::Atom,id));
+    for(auto key:{"studio.nickname.fragment","studio.mechanism.ion.base","studio.mechanism.compact.valence","studio.hydrogens.manual","studio.query.description","studio.label.text","studio.label.offset"})bag.erase(key);
+    bag.set("studio.compound.fragment",ion.fragment);
+    if(auto residue=nickdata::find(body))bag.set("studio.nickname.fragment",residue->fragment);
+    return e;
+}
+inline Error apply(Document& d,ObjectId id,const std::string& label){if(studio::diazo::requested(label)&&studio::diazo::eligible(d,id))return studio::diazo::append(d,id,studio::diazo::axis(d,id),studio::diazo::externalValence(d,id));auto atom=d.atoms().alive(id);if(!atom)return Error(ErrorCode::NotFound,"原子不存在");if(studio::compact_radicals::find(label))return studio::compact_radicals::apply(d,id,label);auto n=nickdata::find(label);auto a=nickdata::findAlias(label);auto custom=customgroups::find(label);auto compound=compounddata::find(label);
+    if(compounddata::polyatomicIon(compound)&&d.incidentBonds(id).empty())return applyWholeIon(d,id,*compound);
+    if(compound&&(!n||d.incidentBonds(id).empty())){
+        auto sem=atom->semantics;sem.nodeType=uint8_t(NodeType::Nickname);sem.showLabel=true;sem.aromatic=false;sem.isotope=0;sem.charge=sem.radical=0;sem.implicitHydrogens=0;
+        const bool phosphine=std::string(compound->formula)=="C18H15P";if(phosphine)sem.nodeType=uint8_t(NodeType::Element);
+        const auto* hydride=compounddata::hydride(label);
+        auto e=d.setElement(id,hydride?hydride->element:phosphine?15:6);if(e.ok())e=d.setAtomSemantics(id,sem);if(e.ok())e=d.setAtomLabel(id,label);
+        auto& ext=d.extensions(ObjectRef(ObjectKind::Atom,id));ext.erase("studio.nickname.fragment");ext.erase("studio.hydrogens.manual");ext.erase("studio.query.description");ext.set("studio.compound.fragment",compound->fragment);return e;
+    }
+    if(!n&&!a&&!custom)return Error(ErrorCode::Unsupported,"未知缩写");const auto oldLabel=d.atomLabel(id);auto sem=atom->semantics;sem.nodeType=uint8_t(NodeType::Nickname);sem.showLabel=true;sem.aromatic=false;sem.isotope=0;sem.implicitHydrogens=-1;auto e=d.setElement(id,6);if(e.ok())e=d.setAtomSemantics(id,sem);if(e.ok())e=d.setAtomLabel(id,label);auto& ext=d.extensions(ObjectRef(ObjectKind::Atom,id));ext.erase("studio.compound.fragment");ext.erase("studio.nickname.fragment");ext.erase("studio.hydrogens.manual");ext.erase("studio.query.description");if(n)ext.set("studio.nickname.fragment",n->fragment);else if(a)ext.set("studio.nickname.fragment",a->fragment);else ext.set("studio.nickname.fragment",custom->fragment);
+    if(e.ok()&&chemcompletion::formulaLayout()&&label.find('-')!=std::string::npos&&(oldLabel!=label||studioatom::runs(d,id).empty())){
+        const auto italic=chemitalic::maskUtf8(label);
+        std::vector<TextRun> runs;
+        for(size_t i=0;i<label.size()&&i<italic.size();++i){
+            const uint16_t flags=italic[i]?kItalic:0;
+            if(!runs.empty()&&runs.back().flags==flags)runs.back().utf8+=label[i];
+            else {TextRun run;run.flags=flags;run.utf8=label.substr(i,1);runs.push_back(run);}
+        }
+        if(runs.size()>1)studioatom::set(d,id,runs);
+    }
+    return e;}
+inline Command labelCommand(ObjectId id,const std::string& label){if(studio::diazo::requested(label))return Command("输入重氮基",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics|kInvalidateAppearance,[id,label](CommandContext& c){auto e=apply(c.document,id,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);});if(!nickdata::find(label)&&!nickdata::findAlias(label)&&!customgroups::find(label)&&!compounddata::find(label)){auto base=chemistry::setLabelTextCommand(id,label,{},nullptr);return Command("原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateSemantics,[id,base](CommandContext& c)mutable{auto result=base.execute(c);if(result.ok()){auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,id));bag.erase("studio.nickname.fragment");bag.erase("studio.compound.fragment");bag.erase("studio.hydrogens.manual");bag.erase("studio.query.description");}return result;});}return Command("缩写标签",kInvalidateAppearance|kInvalidateSemantics,[id,label](CommandContext& c){auto e=apply(c.document,id,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);});}
 }
 namespace customgroups {
 inline void saveSelection(Session& s,const std::string& name){

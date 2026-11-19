@@ -1,0 +1,173 @@
+{
+  "alpha_d_glucose": {
+    "name": "α-D-吡喃葡萄糖",
+    "query": "alpha-D-glucopyranose",
+    "cid": 79025,
+    "smiles": "C([C@@H]1[C@H]([C@@H]([C@H]([C@H](O1)O)O)O)O)O",
+    "formula": "C6H12O6",
+    "inchikey": "WQZGKKKJIJFFOK-DVKNGEFBSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/79025"
+  },
+  "beta_d_glucose": {
+    "name": "β-D-吡喃葡萄糖",
+    "query": "beta-D-glucopyranose",
+    "cid": 64689,
+    "smiles": "C([C@@H]1[C@H]([C@@H]([C@H]([C@@H](O1)O)O)O)O)O",
+    "formula": "C6H12O6",
+    "inchikey": "WQZGKKKJIJFFOK-VFUOTHLCSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/64689"
+  },
+  "alpha_d_galactose": {
+    "name": "α-D-吡喃半乳糖",
+    "query": "alpha-D-galactopyranose",
+    "cid": 439357,
+    "smiles": "C([C@@H]1[C@@H]([C@@H]([C@H]([C@H](O1)O)O)O)O)O",
+    "formula": "C6H12O6",
+    "inchikey": "WQZGKKKJIJFFOK-PHYPRBDBSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/439357"
+  },
+  "beta_d_galactose": {
+    "name": "β-D-吡喃半乳糖",
+    "query": "beta-D-galactopyranose",
+    "cid": 439353,
+    "smiles": "C([C@@H]1[C@@H]([C@@H]([C@H]([C@@H](O1)O)O)O)O)O",
+    "formula": "C6H12O6",
+    "inchikey": "WQZGKKKJIJFFOK-FPRJBGLDSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/439353"
+  },
+  "alpha_d_mannose": {
+    "name": "α-D-吡喃甘露糖",
+    "query": "alpha-D-mannopyranose",
+    "cid": 185698,
+    "smiles": "C([C@@H]1[C@H]([C@@H]([C@@H]([C@H](O1)O)O)O)O)O",
+    "formula": "C6H12O6",
+    "inchikey": "WQZGKKKJIJFFOK-PQMKYFCFSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/185698"
+  },
+  "beta_d_mannose": {
+    "name": "β-D-吡喃甘露糖",
+    "query": "beta-D-mannopyranose",
+    "cid": 439680,
+    "smiles": "C([C@@H]1[C@H]([C@@H]([C@@H]([C@@H](O1)O)O)O)O)O",
+    "formula": "C6H12O6",
+    "inchikey": "WQZGKKKJIJFFOK-RWOPYEJCSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/439680"
+  },
+  "beta_d_ribose": {
+    "name": "β-D-呋喃核糖",
+    "query": "beta-D-ribofuranose",
+    "cid": 447347,
+    "smiles": "C([C@@H]1[C@H]([C@H]([C@@H](O1)O)O)O)O",
+    "formula": "C5H10O5",
+    "inchikey": "HMFHBZSHGGEWLO-TXICZTDVSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/447347"
+  },
+  "beta_d_deoxyribose": {
+    "name": "β-D-2-脱氧呋喃核糖",
+    "query": "2-deoxy-beta-D-ribofuranose",
+    "cid": 439576,
+    "smiles": "C1[C@@H]([C@H](O[C@H]1O)CO)O",
+    "formula": "C5H10O4",
+    "inchikey": "PDWIQYODPROSQH-VPENINKCSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/439576"
+  },
+  "adenine": {
+    "name": "腺嘌呤",
+    "query": "adenine",
+    "cid": 190,
+    "smiles": "C1=NC2=NC=NC(=C2N1)N",
+    "formula": "C5H5N5",
+    "inchikey": "GFFGJBXGBJISGV-UHFFFAOYSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/190"
+  },
+  "guanine": {
+    "name": "鸟嘌呤",
+    "query": "guanine",
+    "cid": 135398634,
+    "smiles": "C1=NC2=C(N1)C(=O)NC(=N2)N",
+    "formula": "C5H5N5O",
+    "inchikey": "UYTPUPDQBNUYGX-UHFFFAOYSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/135398634"
+  },
+  "cytosine": {
+    "name": "胞嘧啶",
+    "query": "cytosine",
+    "cid": 597,
+    "smiles": "C1=C(NC(=O)N=C1)N",
+    "formula": "C4H5N3O",
+    "inchikey": "OPTASPLRGRRNAP-UHFFFAOYSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/597"
+  },
+  "thymine": {
+    "name": "胸腺嘧啶",
+    "query": "thymine",
+    "cid": 1135,
+    "smiles": "CC1=CNC(=O)NC1=O",
+    "formula": "C5H6N2O2",
+    "inchikey": "RWQNBRDOKXIBIV-UHFFFAOYSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/1135"
+  },
+  "uracil": {
+    "name": "尿嘧啶",
+    "query": "uracil",
+    "cid": 1174,
+    "smiles": "C1=CNC(=O)NC1=O",
+    "formula": "C4H4N2O2",
+    "inchikey": "ISAKRJDGNUQOIC-UHFFFAOYSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/1174"
+  },
+  "adenosine": {
+    "name": "腺苷",
+    "query": "adenosine",
+    "cid": 60961,
+    "smiles": "C1=NC(=C2C(=N1)N(C=N2)[C@H]3[C@@H]([C@@H]([C@H](O3)CO)O)O)N",
+    "formula": "C10H13N5O4",
+    "inchikey": "OIRDTQYFTABQOQ-KQYNXXCUSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/60961"
+  },
+  "thymidine": {
+    "name": "胸苷",
+    "query": "thymidine",
+    "cid": 5789,
+    "smiles": "CC1=CN(C(=O)NC1=O)[C@H]2C[C@@H]([C@H](O2)CO)O",
+    "formula": "C10H14N2O5",
+    "inchikey": "IQFYYKKMVGJFEH-XLPZGREQSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/5789"
+  },
+  "atp": {
+    "name": "三磷酸腺苷",
+    "query": "ATP",
+    "cid": 5957,
+    "smiles": "C1=NC(=C2C(=N1)N(C=N2)[C@H]3[C@@H]([C@@H]([C@H](O3)COP(=O)(O)OP(=O)(O)OP(=O)(O)O)O)O)N",
+    "formula": "C10H16N5O13P3",
+    "inchikey": "ZKHQWZAMYRWXGA-KQYNXXCUSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/5957"
+  },
+  "cholesterol": {
+    "name": "胆固醇",
+    "query": "cholesterol",
+    "cid": 5997,
+    "smiles": "C[C@H](CCCC(C)C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C",
+    "formula": "C27H46O",
+    "inchikey": "HVYWMOMLDIMFJA-DPAQBDIFSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/5997"
+  },
+  "palmitic_acid": {
+    "name": "棕榈酸",
+    "query": "palmitic acid",
+    "cid": 985,
+    "smiles": "CCCCCCCCCCCCCCCC(=O)O",
+    "formula": "C16H32O2",
+    "inchikey": "IPCSVZSSVZVIGE-UHFFFAOYSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/985"
+  },
+  "oleic_acid": {
+    "name": "油酸",
+    "query": "oleic acid",
+    "cid": 445639,
+    "smiles": "CCCCCCCC/C=C\\CCCCCCCC(=O)O",
+    "formula": "C18H34O2",
+    "inchikey": "ZQPPMHVWECSIRJ-KTKRTIGZSA-N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/445639"
+  }
+}

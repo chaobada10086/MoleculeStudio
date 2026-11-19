@@ -1,0 +1,27 @@
+<CDXML LabelSize="10" LabelFont="3" CaptionFont="3" BondLength="14.4" LineWidth="0.59999999999999998" CreationProgram="Molecule Studio" BondSpacing="18" CaptionSize="10" BoundingBox="298.6378 420.9449 304.5836 420.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" name="Arial" charset="iso-8859-1"/>
+    </fonttable>
+    <page id="1" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="2">
+            <n id="3" p="298.6378 420.9449" NumHydrogens="0" NodeType="GenericNickname" IgnoreWarnings="yes" GenericNickname="B" MoleculeStudioRole="base">
+                <objecttag id="6" Name="MoleculeStudio.GenericRole.base" Persistent="yes"/>
+                <t>
+                    <s font="3" size="10" face="96">B</s>
+                </t>
+            </n>
+            <n id="4" p="304.5836 420.9449" Element="1" NumHydrogens="0"/>
+            <b id="5" B="3" E="4" Visible="no"/>
+        </fragment>
+    </page>
+</CDXML>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="258.6678 375.9449 357.6378 450.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="12" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="13">
+            <n id="3" p="327.6378 420.9449"/>
+            <b id="14" B="3" E="4" Order="1"/>
+            <n id="4" p="312.6378 446.9249"/>
+            <b id="15" B="4" E="5" Order="1"/>
+            <n id="5" p="282.6378 446.9249"/>
+            <b id="16" B="5" E="6" Order="1"/>
+            <n id="6" p="267.6378 420.9449"/>
+            <b id="17" B="6" E="7" Order="1"/>
+            <n id="7" p="282.6378 394.9649"/>
+            <b id="18" B="7" E="8" Order="1"/>
+            <n id="8" p="312.6378 394.9649"/>
+            <b id="19" B="8" E="3" Order="1"/>
+            <n id="9" p="357.6378 420.9449"/>
+            <b id="20" B="3" E="9" Order="1"/>
+            <n id="10" p="357.6378 390.9449" Element="8"/>
+            <b id="21" B="9" E="10" Order="2"/>
+            <n id="11" p="357.6378 450.9449" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="22">
+                    <n id="23" p="336.6078 443.4449" Element="6" NumHydrogens="3"/>
+                    <n id="24" p="297.6378 420.9449" Element="6" NumHydrogens="0"/>
+                    <n id="25" p="297.6378 375.9449" Element="8" NumHydrogens="0"/>
+                    <n id="26" p="258.6678 443.4449" NodeType="ExternalConnectionPoint"/>
+                    <b id="27" B="23" E="24" Order="1"/>
+                    <b id="28" B="24" E="25" Order="2"/>
+                    <b id="29" B="24" E="26" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" color="0">Ac</s>
+                </t>
+            </n>
+            <b id="30" B="9" E="11" Order="1"/>
+        </fragment>
+    </page>
+</CDXML>

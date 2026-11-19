@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="30" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="326.162121756 451.139093243 508.031256996 500.750706757">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="19" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="20">
+            <n id="3" p="326.162121756 485.750706757"/>
+            <b id="21" B="3" E="4" Order="1"/>
+            <n id="4" p="340.870831892 479.867222703"/>
+            <b id="22" B="4" E="5" Order="1"/>
+            <n id="5" p="370.288252162 485.750706757"/>
+            <b id="23" B="5" E="6" Order="1"/>
+            <n id="6" p="379.113478244 466.139093243"/>
+            <b id="24" B="6" E="7" Order="1"/>
+            <n id="7" p="364.404768108 472.022577297"/>
+            <b id="25" B="7" E="8" Order="1"/>
+            <n id="8" p="334.987347838 466.139093243"/>
+            <b id="26" B="8" E="3" Order="1"/>
+            <n id="9" p="398.031256996 470.868537931" Element="1"/>
+            <b id="27" B="6" E="9" Order="1"/>
+            <n id="10" p="379.113478244 451.139093243">
+                <t>
+                    <s font="3" size="10" face="96">R</s>
+                </t>
+            </n>
+            <b id="28" B="6" E="10" Order="1"/>
+            <n id="11" p="436.162121756 466.139093243"/>
+            <b id="29" B="11" E="12" Order="1"/>
+            <n id="12" p="450.870831892 472.022577297"/>
+            <b id="30" B="12" E="13" Order="1"/>
+            <n id="13" p="480.288252162 466.139093243"/>
+            <b id="31" B="13" E="14" Order="1"/>
+            <n id="14" p="489.113478244 485.750706757"/>
+            <b id="32" B="14" E="15" Order="1"/>
+            <n id="15" p="474.404768108 479.867222703"/>
+            <b id="33" B="15" E="16" Order="1"/>
+            <n id="16" p="444.987347838 485.750706757"/>
+            <b id="34" B="16" E="11" Order="1"/>
+            <n id="17" p="508.031256996 481.021262069">
+                <t>
+                    <s font="3" size="10" face="96">R</s>
+                </t>
+            </n>
+            <b id="35" B="14" E="17" Order="1"/>
+            <n id="18" p="489.113478244 500.750706757" Element="1"/>
+            <b id="36" B="14" E="18" Order="1"/>
+        </fragment>
+    </page>
+</CDXML>

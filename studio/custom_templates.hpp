@@ -64,8 +64,8 @@ void App::addCustomTemplate(){
     switchTab(5);try{custom_templates::SavePage page;if(page.show(h,custom_templates::snapshot(s)))status="自定义模板已保存 · 可在 模板 → 我的模板 中使用";}catch(const std::exception& e){status=e.what();}SetFocus(canvas);invalidate();
 }
 void App::customTemplateMenu(){
-    auto entries=custom_templates::entries();if(entries.empty()){studio_i18n::messageBox(h,L"还没有自定义模板。\n请先框选画板上的结构，再点击“添加自定义模板”。",L"我的模板",MB_OK|MB_ICONINFORMATION);return;}
-    RingLibraryPicker picker;picker.model=custom_templates::modelFor(entries);int chosen=picker.show(h,0,{});if(chosen>=0)try{bioSource=custom_templates::read(entries[chosen].path);customPlacementName=entries[chosen].name;s.cancel();customPlacement=true;bioPlacing=true;status=customPlacementName+"：点击画板放置，Esc 取消";SetFocus(canvas);updateCanvasCursor();}catch(const std::exception& e){status=e.what();}invalidate();
+    auto entries=custom_templates::entries();
+    RingLibraryPicker picker;picker.model=custom_templates::modelFor(entries);shareTemplateSearch(picker,4);int chosen=picker.show(h,0,{});if(chosen>=0)try{bioSource=custom_templates::read(entries[chosen].path);customPlacementName=entries[chosen].name;s.cancel();customPlacement=true;bioPlacing=true;status=customPlacementName+"：点击画板放置，Esc 取消";SetFocus(canvas);updateCanvasCursor();}catch(const std::exception& e){status=e.what();}invalidate();
 }
 void App::transferCustomTemplate(bool importing){
     try{

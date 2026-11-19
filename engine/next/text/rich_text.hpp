@@ -49,6 +49,16 @@
 namespace r62 {
 namespace text {
 
+// Only these isotope prefixes are inferred from plain typing. Explicit
+// superscript runs and isotope attributes can express other mass numbers.
+inline bool automaticIsotopePrefix(const std::string& digits,const std::string& element){
+    return (element=="H"&&(digits=="2"||digits=="3"))||
+           (element=="C"&&(digits=="13"||digits=="14"))||
+           (element=="N"&&digits=="15")||
+           (element=="O"&&(digits=="17"||digits=="18"))||
+           (element=="P"&&digits=="32")||(element=="S"&&digits=="35");
+}
+
 // Local point type: layout-space geometry.  Kept separate from core::Vec2 so
 // that "layout units" and "document units" cannot be silently mixed; the public
 // boundaries convert explicitly.

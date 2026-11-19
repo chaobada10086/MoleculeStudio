@@ -363,8 +363,13 @@ core::Error resolveRingPlacementImpl(const core::Document& document,
         const double effectiveLength =
             (sharedLength > 0.0 && std::isfinite(sharedLength)) ? sharedLength : bondLength;
         {
+            // A chair's shared edge is foreshortened. Scale the whole drawing
+            // from that edge, instead of stretching only its reused endpoints.
+            const double localLength=core::length(geometry.vertices[1].local-geometry.vertices[0].local);
+            const double requestedLength=spec->topology==RingTopologyClass::Chair&&localLength>1e-8
+                ?bondLength*effectiveLength/localLength:effectiveLength;
             RingGeometry scaled;
-            if (buildRingGeometry(request.preset, effectiveLength, &scaled).ok()) {
+            if (buildRingGeometry(request.preset, requestedLength, &scaled).ok()) {
                 geometry = scaled;
                 p.geometry = scaled;
             }
@@ -460,7 +465,8 @@ core::Error resolveRingPlacementImpl(const core::Document& document,
     } else {
         // Empty-canvas placement: unless the caller supplied an explicit
         // rotation (Alt-drag), a chair gets its preset's built-in orientation so
-        // the two chair presets read differently. Other rings stay at 0, except
+        // the two chair presets read differently. Five-membered rings point up;
+        // other rings stay at 0, except
         // benzene: its default is turned by 30 degrees so one vertex points
         // straight up. The sign is -30 (330): the hexagon is identical either
         // way, but this sign puts the Kekule double bonds on the top-right,
@@ -470,8 +476,10 @@ core::Error resolveRingPlacementImpl(const core::Document& document,
         // a ring is unchanged.
         if (spec->topology == RingTopologyClass::Chair && !request.rotationGiven)
             rotation = chairOrientationDegrees(request.preset);
-        else if (!request.rotationGiven && spec->id == RingPresetId::Benzene)
+        else if (!request.rotationGiven && (spec->id == RingPresetId::Benzene || spec->id == RingPresetId::Cyclohexane))
             rotation = -30.0;
+        else if (!request.rotationGiven && geometry.size == 5)
+            rotation = 90.0;
         p.origin = request.pointer;
         p.rotationDeg = normalizeDeg(rotation);
     }
@@ -479,11 +487,16 @@ core::Error resolveRingPlacementImpl(const core::Document& document,
     if (p.worldPosition.size() != static_cast<size_t>(geometry.size))
         p.worldPosition.assign(static_cast<size_t>(geometry.size), core::Vec2(0, 0));
     for (int i = 0; i < geometry.size; ++i) {
-        if (p.reuseAtom[static_cast<size_t>(i)] != core::kInvalidObjectId) continue;
-        core::Vec2 local = geometry.vertices[static_cast<size_t>(i)].local;
+        const size_t vertex = static_cast<size_t>(i);
+        const core::ObjectId reused = p.reuseAtom[vertex];
+        if (reused != core::kInvalidObjectId) {
+            // Preview bonds need the same endpoint the commit will reuse.
+            p.worldPosition[vertex] = document.atoms().alive(reused)->position;
+            continue;
+        }
+        core::Vec2 local = geometry.vertices[vertex].local;
         if (mirroredLocal_) local = core::Vec2(local.x, -local.y);
-        p.worldPosition[static_cast<size_t>(i)] =
-            detail::placeLocal(local, p.rotationDeg, p.origin);
+        p.worldPosition[vertex] = detail::placeLocal(local, p.rotationDeg, p.origin);
     }
 
     // Extend bay attachment along existing boundary vertices, retaining their

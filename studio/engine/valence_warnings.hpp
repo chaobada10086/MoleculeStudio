@@ -1,6 +1,7 @@
 #pragma once
 #include "next/core/document.hpp"
 #include "next/core/commands.hpp"
+#include "hydride_labels.hpp"
 #include <algorithm>
 #include <vector>
 
@@ -52,31 +53,57 @@ inline int maximumValence(int element,int charge) {
     default:return -1;
     }
 }
-inline bool overValent(const Document& doc,const AtomRecord& atom) {
-    if(!atom.isAlive()||atom.semantics.nodeType!=uint8_t(NodeType::Element))return false;
+struct Assessment {
+    int element=0,used=0,limit=-1;
+    bool exceeded()const{return limit>=0&&used>limit;}
+};
+inline Assessment assess(const Document& doc,const AtomRecord& atom) {
+    Assessment result;
+    if(!atom.isAlive())return result;
     const auto label=doc.atomLabel(atom.id);
+    const bool legacyOH=hydride_labels::legacyHydroxyl(atom,label);
+    if(!legacyOH&&atom.semantics.nodeType!=uint8_t(NodeType::Element))return result;
+    const int element=legacyOH?8:atom.element;
     // Plain Ar is also the conventional aryl placeholder. Legacy/imported
     // drawings can encode it as element 18, so do not diagnose that ambiguous
     // label using argon's zero valence. Explicit isotope/charge stays elemental.
     if(atom.semantics.isotope==0&&atom.semantics.charge==0&&
-       (label=="Ar"||(label.empty()&&atom.element==18)))return false;
-    if(!label.empty()&&label!=elementSymbol(atom.element))return false;
-    int limit=maximumValence(atom.element,atom.semantics.charge);
-    if(limit<0)return false;
-    int sum=std::max(0,int(atom.semantics.implicitHydrogens)),aromatic=0;
+       (label=="Ar"||(label.empty()&&atom.element==18)))return result;
+    const int textH=hydride_labels::count(element,label);
+    if(!label.empty()&&label!=elementSymbol(element)&&textH<0)return result;
+    if(legacyOH&&doc.extensions(ObjectRef(ObjectKind::Atom,atom.id)).findValue("pst.attr.MoleculeStudioLiteralLabel"))return result;
+    int limit=maximumValence(element,atom.semantics.charge);
+    if(limit<0)return result;
+    int sum=std::max(0,std::max(textH,int(atom.semantics.implicitHydrogens))),aromatic=0;
+    // The neutral central halogen in a conventional oxyanion drawing can
+    // have a bond-order sum up to seven, e.g. O=I(=O)(=O)O-.
+    bool onlyOxygen=sum==0&&atom.semantics.charge==0&&(element==17||element==35||element==53);
+    bool hasOxoBond=false;
     for(auto id:doc.incidentBonds(atom.id)) {
         const auto* bond=doc.bonds().alive(id);if(!bond)continue;
-        if(bond->semantics==BondSemantics::Hydrogen)continue;
-        if(bond->semantics!=BondSemantics::Normal&&bond->semantics!=BondSemantics::Aromatic)return false;
+        // Count the known covalent valence even if some other edges have
+        // noncovalent or indeterminate order. Their presence cannot undo an
+        // excess already established by the known bonds.
+        if(bond->semantics!=BondSemantics::Normal&&bond->semantics!=BondSemantics::Aromatic)continue;
         // Kekule single/double orders remain exact even when marked aromatic.
         if(bond->order==BondOrder::Aromatic){++sum;++aromatic;}
         else if(bond->order>=BondOrder::Single&&bond->order<=BondOrder::Quadruple)sum+=int(bond->order);
-        else return false;
+        if(onlyOxygen){
+            const auto* neighbor=doc.atoms().alive(bond->beginAtom==atom.id?bond->endAtom:bond->beginAtom);
+            onlyOxygen=neighbor&&neighbor->element==8&&neighbor->semantics.nodeType==uint8_t(NodeType::Element)&&
+                bond->semantics==BondSemantics::Normal&&(bond->order==BondOrder::Single||bond->order==BondOrder::Double);
+            hasOxoBond|=onlyOxygen&&bond->order==BondOrder::Double;
+        }
     }
+    if(onlyOxygen&&hasOxoBond)limit=7;
     // Aromatic carbon has one additional pi valence. For heteroatoms use
     // the lower bound: lone-pair donors must not be mistaken for excess bonds.
     if(aromatic>=2&&atom.element==6&&atom.semantics.charge==0)++sum;
-    return sum>limit;
+    result.element=element;result.used=sum;result.limit=limit;
+    return result;
+}
+inline bool overValent(const Document& doc,const AtomRecord& atom) {
+    return assess(doc,atom).exceeded();
 }
 inline std::vector<ObjectId> overValentAtoms(const Document& doc) {
     std::vector<ObjectId> ids;

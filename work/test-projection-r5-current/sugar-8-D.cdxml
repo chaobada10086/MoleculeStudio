@@ -1,0 +1,60 @@
+<CDXML BondLength="20" LineWidth="0.59999999999999998" LabelSize="10" CaptionSize="10" LabelFont="3" CaptionFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="273.6378 352.9449 321.6378 495.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" name="Arial" charset="iso-8859-1"/>
+    </fonttable>
+    <page id="1" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <group id="2" Name="Fischer projection">
+            <graphic id="3" GraphicType="Line" BoundingBox="297.6378 355.9449 297.6378 485.9449" LineWidth="0.59999999999999998"/>
+            <t id="4" p="297.6378 352.9449" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CHO</s>
+            </t>
+            <t id="5" p="297.6378 495.9449" Justification="Center" InterpretChemically="no">
+                <s font="3" size="10">CH</s>
+                <s font="3" size="10" face="32">2</s>
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="6" GraphicType="Line" BoundingBox="297.6378 375.9449 277.6378 375.9449" LineWidth="0.59999999999999998"/>
+            <t id="7" p="273.6378 379.1449" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">HO</s>
+            </t>
+            <graphic id="8" GraphicType="Line" BoundingBox="297.6378 375.9449 317.6378 375.9449" LineWidth="0.59999999999999998"/>
+            <t id="9" p="321.6378 379.1449" Justification="Left" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="10" GraphicType="Line" BoundingBox="297.6378 405.9449 277.6378 405.9449" LineWidth="0.59999999999999998"/>
+            <t id="11" p="273.6378 409.1449" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="12" GraphicType="Line" BoundingBox="297.6378 405.9449 317.6378 405.9449" LineWidth="0.59999999999999998"/>
+            <t id="13" p="321.6378 409.1449" Justification="Left" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="14" GraphicType="Line" BoundingBox="297.6378 435.9449 277.6378 435.9449" LineWidth="0.59999999999999998"/>
+            <t id="15" p="273.6378 439.1449" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="16" GraphicType="Line" BoundingBox="297.6378 435.9449 317.6378 435.9449" LineWidth="0.59999999999999998"/>
+            <t id="17" p="321.6378 439.1449" Justification="Left" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+            <graphic id="18" GraphicType="Line" BoundingBox="297.6378 465.9449 277.6378 465.9449" LineWidth="0.59999999999999998"/>
+            <t id="19" p="273.6378 469.1449" Justification="Right" InterpretChemically="no">
+                <s font="3" size="10">H</s>
+            </t>
+            <graphic id="20" GraphicType="Line" BoundingBox="297.6378 465.9449 317.6378 465.9449" LineWidth="0.59999999999999998"/>
+            <t id="21" p="321.6378 469.1449" Justification="Left" InterpretChemically="no">
+                <s font="3" size="10">OH</s>
+            </t>
+        </group>
+    </page>
+</CDXML>

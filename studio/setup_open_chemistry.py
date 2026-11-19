@@ -45,6 +45,7 @@ except ImportError:
     subprocess.run([sys.executable, '-m', 'pip', 'install', '--target', str(site),
                     'rdkit==2026.3.6'], check=True)
 shutil.copy2(studio/'chemistry_open.py', output/'chemistry_open.py')
+shutil.copy2(studio/'branched_alkyl_layout.py', output/'branched_alkyl_layout.py')
 shutil.copy2(studio/'OPEN_CHEMISTRY_NOTICES.md', runtime/'THIRD_PARTY_NOTICES.md')
 (output/'chemistry_backend.ini').write_text('[Backend]\nPython='+sys.executable+'\n', encoding='utf-16')
 (runtime/'download-manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')

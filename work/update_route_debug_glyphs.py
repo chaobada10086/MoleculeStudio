@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('work/debug_projection_route.cpp');s=p.read_text();needle='auto points=arrows::routedPoints(p);';s=s.replace(needle,needle+'auto obstacles=arrows::mechanismObstacles(s.doc);int collisions=0;for(auto q:points)for(const auto& o:obstacles)if(o.glyphOwner.valid()&&o.glyphOwner!=p.electronSource&&o.glyphOwner!=p.electronTarget&&arrows::mechanismObstacleDistance(q,o)<.6)++collisions;std::cout<<"glyph collisions "<<collisions<<"\\n";');p.write_text(s)

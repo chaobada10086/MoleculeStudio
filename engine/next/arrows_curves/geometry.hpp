@@ -47,6 +47,8 @@ namespace arrows {
 // A tolerance in DOCUMENT units. The caller derives it from the view (one device
 // pixel worth of document distance) so the SAME arrow re-projects at any zoom
 // without visible faceting. Same contract as render::geom::FlattenOptions.
+std::vector<core::Vec2> routedPoints(const ArrowParams& params);
+
 struct Tessellation {
     double tolerance;      // document units; <= 0 selects a safe default
     int    maxSegments;    // hard cap per arc (runaway guard)

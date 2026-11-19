@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="20" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="258.6678 355.9449 336.6078 485.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="17" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="18">
+            <n id="3" p="297.6378 355.9449" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="19">
+                    <n id="20" p="336.6078 428.4449" Element="8" NumHydrogens="0"/>
+                    <n id="21" p="297.6378 405.9449" Element="6" NumHydrogens="1"/>
+                    <n id="22" p="258.6678 428.4449" NodeType="ExternalConnectionPoint"/>
+                    <b id="23" B="20" E="21" Order="2"/>
+                    <b id="24" B="21" E="22" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" face="96">CHO</s>
+                </t>
+            </n>
+            <b id="25" B="3" E="4" Order="1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="60" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="4" p="297.6378 375.9449" MoleculeStudioProjection="0">
+                <objecttag id="61" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="26" B="4" E="5" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="62" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="5" p="277.6378 375.9449" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="27">
+                    <n id="28" p="275.1378 420.9449" NodeType="ExternalConnectionPoint"/>
+                    <n id="29" p="320.1378 420.9449" Element="8" NumHydrogens="1"/>
+                    <b id="30" B="28" E="29" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" face="96">OH</s>
+                </t>
+            </n>
+            <b id="31" B="4" E="6" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="63" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="6" p="317.6378 375.9449" Element="1"/>
+            <b id="32" B="4" E="7" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="64" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="65" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="7" p="297.6378 405.9449" MoleculeStudioProjection="0">
+                <objecttag id="66" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="33" B="7" E="8" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="67" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="8" p="277.6378 405.9449" Element="1"/>
+            <b id="34" B="7" E="9" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="68" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="9" p="317.6378 405.9449" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="35">
+                    <n id="36" p="275.1378 420.9449" NodeType="ExternalConnectionPoint"/>
+                    <n id="37" p="320.1378 420.9449" Element="8" NumHydrogens="1"/>
+                    <b id="38" B="36" E="37" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" face="96">OH</s>
+                </t>
+            </n>
+            <b id="39" B="7" E="10" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="69" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="70" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="10" p="297.6378 435.9449" MoleculeStudioProjection="0">
+                <objecttag id="71" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="40" B="10" E="11" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="72" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="11" p="277.6378 435.9449" Element="1"/>
+            <b id="41" B="10" E="12" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="73" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="12" p="317.6378 435.9449" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="42">
+                    <n id="43" p="275.1378 420.9449" NodeType="ExternalConnectionPoint"/>
+                    <n id="44" p="320.1378 420.9449" Element="8" NumHydrogens="1"/>
+                    <b id="45" B="43" E="44" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" face="96">OH</s>
+                </t>
+            </n>
+            <b id="46" B="10" E="13" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="74" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="75" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="13" p="297.6378 465.9449" MoleculeStudioProjection="0">
+                <objecttag id="76" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="47" B="13" E="14" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="77" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="14" p="277.6378 465.9449" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="48">
+                    <n id="49" p="275.1378 420.9449" NodeType="ExternalConnectionPoint"/>
+                    <n id="50" p="320.1378 420.9449" Element="8" NumHydrogens="1"/>
+                    <b id="51" B="49" E="50" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" face="96">OH</s>
+                </t>
+            </n>
+            <b id="52" B="13" E="15" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="78" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="15" p="317.6378 465.9449" Element="1"/>
+            <b id="53" B="13" E="16" Order="1" MoleculeStudioProjectionBegin="0 -1 -1">
+                <objecttag id="79" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+            </b>
+            <n id="16" p="297.6378 485.9449" NodeType="Nickname" LabelDisplay="Shown">
+                <fragment id="54">
+                    <n id="55" p="336.6078 428.4449" Element="8" NumHydrogens="1"/>
+                    <n id="56" p="297.6378 405.9449" Element="6" NumHydrogens="2"/>
+                    <n id="57" p="258.6678 428.4449" NodeType="ExternalConnectionPoint"/>
+                    <b id="58" B="55" E="56" Order="1"/>
+                    <b id="59" B="56" E="57" Order="1"/>
+                </fragment>
+                <t>
+                    <s font="3" size="10" face="96">CH2OH</s>
+                </t>
+            </n>
+        </fragment>
+    </page>
+</CDXML>

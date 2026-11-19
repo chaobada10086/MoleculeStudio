@@ -5,12 +5,14 @@
     {
         HMENU menu=CreatePopupMenu();
         appendSelectionContextMenu(menu,true,false);
-        require(GetMenuItemCount(menu)==9,"selection context menu keeps nine entries");
+        require(GetMenuItemCount(menu)==0,"no unavailable selection actions are shown");DestroyMenu(menu);menu=CreatePopupMenu();
+        appendSelectionContextMenu(menu,true,true);
+        require(GetMenuItemCount(menu)==14,"selection context menu includes group, formula and text-undo actions");
         require(GetMenuItemID(menu,0)==1,"复制 stays first");
         require(GetMenuItemID(menu,1)==kContextCopyPngId,"copy-as-PNG sits right after 复制");
         require(GetMenuItemID(menu,2)==2&&GetMenuItemID(menu,3)==3,"剪切 and 删除 keep their order");
-        require(GetMenuItemID(menu,5)==4&&GetMenuItemID(menu,6)==7&&GetMenuItemID(menu,7)==5&&GetMenuItemID(menu,8)==6,"existing 整理/文字整理/核磁/命名 entries keep their order");
-        require((GetMenuState(menu,1,MF_BYPOSITION)&MF_GRAYED)!=0,"copy-as-PNG is greyed without a selection");
+        require(GetMenuItemID(menu,5)==4&&GetMenuItemID(menu,6)==7&&GetMenuItemID(menu,11)==5&&GetMenuItemID(menu,12)==6,"existing 整理/文字整理/核磁/命名 entries keep their order");
+        require((GetMenuState(menu,1,MF_BYPOSITION)&MF_GRAYED)==0,"available actions remain enabled");
         wchar_t label[64]={};
         require(GetMenuStringW(menu,1,label,64,MF_BYPOSITION)>0,"copy-as-PNG menu label exists");
         require(std::wstring(label)==studio_i18n::tr(L"复制为 PNG")&&(studio_i18n::current()!=0||std::wstring(label)==L"复制为 PNG"),"copy-as-PNG menu label is 复制为 PNG");

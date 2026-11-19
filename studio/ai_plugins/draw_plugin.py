@@ -27,8 +27,9 @@ import json
 import math
 import re
 import time
+import xml.etree.ElementTree as ET
 
-PLUGIN_VERSION = "1.5.2"
+PLUGIN_VERSION = "1.9.0"
 
 STR = {"type": "string"}
 NUM = {"type": "number"}
@@ -278,9 +279,9 @@ PLUGIN_TOOLS = [
         "一次绘制完整反应式：反应物 + 反应箭头 + 产物 + 条件 + 可选名称，自动横向排版并留出间距。反应物/产物项支持 name:名称、smiles:SMILES、cid:CID；中文常用名可直接写；可用 reactant_labels/product_labels 指定 1a 等编号。优先用它画反应式，不要逐个手摆分子和箭头。",
         {
             "reactants": {"type": "array", "items": STR, "minItems": 1, "maxItems": 8,
-                          "description": "反应物，从左到右；如 name:苯、smiles:CC(=O)Cl、cid:241"},
+                          "description": "反应物从左到右。接受 smiles:、name:、cid: 或同一轮工具返回的 next_reactant（product:new:…）；draw_scheme 中 previous:N 引用上一行产物，step:R:N 引用前面第 R 行第 N 个产物。"},
             "products": {"type": "array", "items": STR, "minItems": 1, "maxItems": 8,
-                         "description": "产物，从左到右；语法同 reactants"},
+                         "description": "产物，从左到右；语法同 reactants。给电子移动并推演时省略；普通反应式填写。"},
             "conditions": {"type": "string", "description": "箭头上方条件，支持换行；推荐用 reagents 逐项传入试剂和当量"},
             "reagents": {"type": "array", "items": STR, "maxItems": 32, "description": "箭头上方的试剂与当量，每项一个试剂；默认每行一项，超过四项每行两项"},
             "reagents_per_line": {"type": "integer", "minimum": 1, "maximum": 2, "description": "每行试剂数，覆盖默认分行"},
@@ -301,24 +302,28 @@ PLUGIN_TOOLS = [
             "color": {"type": "string", "description": "结构的颜色 #RRGGBB，可选"},
             "width": {"type": "number", "description": "结构的线宽（磅），0.1–12，可选"},
         },
-        ["reactants", "products"],
+        ["reactants"],
     ),
     _tool(
         "draw_curved_arrow",
-        "绘制弯曲的电子转移/机理箭头，带实心箭头头部。bend 控制弯曲方向和幅度，正负值方向相反；可加 label。",
+        "绘制原生可编辑机理箭头，自动避开键和文字。优先用 source/target 原子或键引用精确定位，也可传坐标。fishhook=true 为单电子；route=false 固定 bend。",
         {
             "x": NUM,
             "y": NUM,
             "x2": NUM,
             "y2": NUM,
             "bend": {"type": "number", "description": "弯曲量，-2–2，默认 0.35；0 为直线"},
-            "head": {"type": "number", "description": "箭头头部长度（磅），2–24，默认 8"},
-            "width": {"type": "number", "description": "线宽（磅），0.1–12，默认 1.5"},
+            "source": {"type":"string", "description":"起点原子/键引用；替代 x,y"},
+            "target": {"type":"string", "description":"终点原子/键引用；替代 x2,y2"},
+            "route": {"type":"boolean", "description":"自动避障，默认 true"},
+            "fishhook": {"type":"boolean", "description":"单电子鱼钩箭头，默认 false"},
+            "head": {"type": "number", "description": "箭头头部长度（磅），1–24，默认 3.2"},
+            "width": {"type": "number", "description": "线宽（磅），0.1–12，默认 0.6"},
             "color": {"type": "string", "description": "颜色 #RRGGBB，默认当前颜色"},
             "label": {"type": "string", "description": "箭头旁的标注，可选"},
             "label_size": {"type": "number", "description": "标注字号，4–36，默认 10"},
         },
-        ["x", "y", "x2", "y2"],
+        [],
     ),
     _tool(
         "draw_template",
@@ -404,16 +409,43 @@ PLUGIN_TOOLS = [
 
 _REACTION_SCHEMA = next(t["function"]["parameters"] for t in PLUGIN_TOOLS if t["function"]["name"] == "draw_reaction")
 _REACTION_SCHEMA["properties"].update({
+    "skeleton_check": {"type":"object","description":"总反应画布提交前的独立结构核验。根据题给底物、成断键和离去片段先推算约束，再填写产物。","properties":{
+        "product_carbons":{"type":"array","items":{"type":"integer","minimum":0,"maximum":400},"description":"按 products 顺序每项预期碳数，包括显式副产物。"},
+        "isomerization":{"type":"boolean","description":"单底物、单产物且为非简并异构化时，要求同分子式、不同结构或立体构型。"}
+    },"additionalProperties":False},
+    "aldol": {"type":"object","description":"羟醛加成的成碳碳键步骤。依次给 O-烯醇盐和醛或酮，唯一位点传 {}。从分子图生成三支电子箭头与 β-烷氧基羰基产物；省略 products 和 electron_moves。质子化另起一步。","properties":{key:{"type":"integer","minimum":1} for key in ("donor_alpha","acceptor_carbonyl")},"additionalProperties":False},
+    "verify_products": {"type":"boolean","description":"给定 electron_moves 而省略 products 时，桌面引擎直接推演产物。若提供 products，true 会核对其结构、电荷与立体信息。完整机理绘图中有明确箭头的普通步骤会自动核对。反应概览可只给 products。"},
+    "michael": {"type":"object","description":"O-烯醇盐对共轭羰基的碳 Michael 加成。reactants 填两个 smiles: 结构；唯一位点传 {}，自动生成四支双电子箭头及加成后的 O-烯醇盐；省略 products 和 electron_moves。","properties":{k:{"type":"integer","minimum":1} for k in ("donor_alpha","acceptor_beta")},"additionalProperties":False},
+    "enolate": {"type":"object","description":"氢氧根或醇盐夺取羰基 α-H：reactants 按醇盐、羰基底物提供两个 smiles: 结构。自动绘制显式氢、三支电子箭头、烯醇盐与醇；省略 products 和 electron_moves。位点唯一或等价时传 {}，否则指定底物原子编号（从1起）。",
+                "properties":{key:{"type":"integer","minimum":1} for key in ("alpha","carbonyl")},"additionalProperties":False},
+    "electron_moves": {"type":"array","maxItems":16,"description":"可给 SMILES 的反应位点加原子映射号，如 [O-:7]、[CH:8]、[Br:9]。端点 1:@7 表示第一个反应物的标记 7，2:@8-@9 表示第二个反应物的实际键，编号不会画到图上。也支持从 1 开始的顺序编号 1:2 或 2:3-4。极性步骤使用双电子箭头（默认），自由基单电子步骤才选 electrons=1。参与转移的 H 写为独立的 [H] 或 [H:5]。",
+                       "items":{"type":"object","properties":{"source":STR,"target":STR,
+                                "electrons":{"type":"integer","enum":[1,2]},"bend":{"type":"number","minimum":-1,"maximum":1},"route":{"type":"boolean","description":"默认 true，弯曲量只作为提示；显式 false 才使用固定圆弧。"}},
+                                "required":["source","target"],"additionalProperties":False}},
     "arrow_length": {"anyOf": [{"type": "number"}, {"type": "string", "enum": ["auto"]}]},
     "align": {"type": "string", "enum": ["columns"]},
 })
+PLUGIN_TOOLS.append(_tool("inspect_reaction_sites", "在绘制基元步骤前读取反应物的原子、电荷与实际键。返回可直接复制到 electron_moves.source/target 的地址。支持 SMILES 和上一调用的 next_reactant。", {"reactants":{"type":"array", "minItems":1,"maxItems":8,"items":STR}}, ["reactants"]))
 _SCHEME_STEP_DEFAULTS = ('label_size', 'labels', 'arrow', 'color', 'width', 'gap')
-PLUGIN_TOOLS.append(_tool("draw_scheme", "一次绘制多步流程：统一三列中心、箭头长度和行距，自动避开已有文档。顶层可设置 label_size、labels、arrow、color、width、gap 作为整组默认值，每步可覆盖；每一步支持 draw_reaction 的结构、条件和标签参数。",
+PLUGIN_TOOLS.append(_tool("draw_mitsunobu","以 PPh₃、DEAD、醇和羧酸绘制常见 Mitsunobu 酯化路径。给定醇、酸 SMILES 后自动生成四行可编辑机理，含双电子箭头、质子转移、烷氧基鏻盐、酯和氧化膦；已指定的醇碳构型按 SN2 翻转。支持单一适用位点的甲醇、伯醇或仲醇与羧酸。步骤 3 合并表示醇活化。",
+    {"alcohol":{**STR,"description":"醇的 SMILES，已知立体构型时写明 @/@@。"},
+     "acid":{**STR,"description":"中性羧酸的 SMILES。"},
+     "titles":{"type":"array","items":STR,"minItems":4,"maxItems":4,"description":"可选，按用户语言提供四个简短标题：膦加成、质子转移、醇活化（合并）、取代。"},
+     "conditions_below":{**STR,"description":"可选，用户给出的共同溶剂或温度。"},
+     "x":NUM,"y":NUM,"row_gap":NUM},["alcohol","acid"]))
+PLUGIN_TOOLS.append(_tool("draw_scheme", "一次绘制多步流程：统一三列中心、箭头长度和行距，自动避开已有文档。顶层可设置 label_size、labels、arrow、color、width、gap 作为整组默认值，每步可覆盖；每步可从 electron_moves 推演产物；下一步可用 previous:N 引用该行第 N 个产物。",
     {"steps": {"type": "array", "minItems": 1, "maxItems": 36,
-               "items": {"type": "object", "properties": {k:v for k,v in _REACTION_SCHEMA["properties"].items() if k not in ("x", "y", "align", "arrow_length")},
-                         "required": ["reactants", "products"], "additionalProperties": False}},
-     "x": NUM, "y": NUM, "row_gap": NUM,
+               "items": {"type": "object", "properties": {**{k:v for k,v in _REACTION_SCHEMA["properties"].items() if k not in ("x", "y", "align", "arrow_length")}, "transformation":{"type":"string","maxLength":4000,"description":"紧凑基元步：带反应中心映射的 SMILES 反应物>>产物，两侧保留离去组分和映射氢。工具从唯一的键级/电荷变化生成并核验电子箭头；替代 reactants/products/electron_moves。"}},
+                         "additionalProperties": False}},
+     "target_product": {"type":"string","minLength":8,"maxLength":400,"description":"题给主产物 smiles:SMILES。完整机理模式核对每步电子移动、前后步中间体及末步目标，整图一次排版。"},
+     "x": NUM, "y": NUM, "row_gap": NUM, "title": {"type":"string","maxLength":200,"description":"整组总标题，自动置于首行上方。"},
      **{key: {**_REACTION_SCHEMA['properties'][key], 'description': _REACTION_SCHEMA['properties'][key].get('description', '') + '；整组默认值，可在 steps 中逐步覆盖。'} for key in _SCHEME_STEP_DEFAULTS}}, ["steps"]))
+
+PLUGIN_TOOLS.append(_tool("revise_scheme_plan", "只校正尚未落笔的完整机理草稿。按行替换、插入或追加失败步骤，整体验证成功后一次绘入画布。",
+    {"start":{"type":"integer","minimum":1,"maximum":37,"description":"从第几行开始；在末尾追加使用原行数+1。"},
+     "remove":{"type":"integer","minimum":0,"maximum":36,"description":"从 start 起替换几行；插入时为 0。"},
+     "steps":{**next(t["function"]["parameters"]["properties"]["steps"] for t in PLUGIN_TOOLS if t["function"]["name"]=="draw_scheme"), "minItems":0}},
+    ["start","remove","steps"]))
 
 PLUGIN_TOOLS.extend([
     _tool("draw_compounds", "一次绘制一组化合物，自动按行/列/网格排列，统一编号字号并避免覆盖已有对象。任一结构失败则撤回本次整组绘图。返回每项结构及标签的引用和最终 bounds。",
@@ -445,16 +477,30 @@ PLUGIN_TOOLS.extend([
            "color": STR, "width": NUM}, ["source", "target"]),
 ])
 
-PLUGIN_NAMES = {t["function"]["name"] for t in PLUGIN_TOOLS}
 
+from ai_plugins.poster_layout import poster_schema, draw_poster
+from ai_plugins.native_cycle import cycle_schema, draw_cycle, atlas_schema, draw_atlas
+PLUGIN_TOOLS.append(_tool("draw_cycle_atlas","多个金属催化循环的首选工具；一次提交全部主环与紧随其后的辅环，自动让交换步骤面对面。每个步骤的输入输出属于从本节点出发的边。",atlas_schema(),["cycles"]))
+PLUGIN_TOOLS.append(_tool("draw_catalytic_cycle","从空白一次创建真实可编辑的中间体并调用机理绘制选项卡的原生催化循环排版。每次一个环，多个环连续调用。",cycle_schema(),["title","nodes"]))
+PLUGIN_TOOLS.append(_tool("draw_poster", "一次排版多个可编辑图文面板、闭合催化循环或比较表。无需提供坐标。", poster_schema(), ["title","panels"]))
+
+PLUGIN_NAMES = {t["function"]["name"] for t in PLUGIN_TOOLS}
 PLUGIN_SYSTEM = """【绘图增强插件】
+绘制总反应式时，先从题目确定各反应底物的结构和贡献的碳，单独推算主产物的碳数、环大小、被取代位置及立体化学，再编写结构。draw_reaction 或 draw_scheme.steps 传 skeleton_check.product_carbons；单分子非简并异构化加 isomerization:true。逐项核对回执的 smiles 与题给底物和产物名称。用户点名的反应底物以结构画在箭头左侧；逐步投料可画在对应步左侧。总反应式优先只画所需主产物；不要添加未经核验的副产物、编号或额外文字。修改某一行应定位该行已有对象，完成后结束。
+催化循环的底物用 incoming 或 incoming_smiles，让原生工具用无箭头的切向弧线并入主环。不要另外补箭头；这条线表示底物加入，不表示电子移动或独立反应。
+支线的具体有机底物、产物优先使用 incoming_smiles/outgoing_smiles 保留骨架与立体化学；若题目给的是通式 R/Ar/X，不要擅自换成具体底物，使用简式。每种方向二选一，不要同时写式子和名称。
+多环任务请一次调用 draw_cycle_atlas；用短名称、简写但保留参与反应的配体。不要把所有氧化加成称为顺式、所有转金属称为保留或把所有消除都写成单一 E 构型；只标注所画底物与路径能支持的结论。
+教材式金属催化循环优先用原生金属配体模式：每个节点只填 metal、oxidation、ligands（如 L、Ar、X、η²-烯烃等简写），step 仅写该节点到下一节点的短步骤名，incoming/outgoing 分别放进入和离开的伙伴。它们调用与桌面同一套金属编辑器和随动支线。不要展开不参与变化的芳基膦，不要另绘边框、图例、编号表或移动节点；不超过一次布局检查。
+原生环位置及步骤说明由工具统一安排，多环用 draw_cycle_atlas 分组；不要事后用 move_objects 逐项移动节点或重新添加标题。同一配体统一写成一种短写（如 PPh₃），不要写“L (PPh3)”这样的双重标签。不省略正在迁移、插入、离去的基团；未指定亲电底物立体中心时不对氧化加成笼统标注构型保持。
+循环图逐项核对本节点、转变、下一节点的氧化态、配体计量和碳片段去向。不要把游离产物、盐写入催化配位式。避免重复表述。
+催化循环、机理循环从零绘制必须逐环调用 draw_catalytic_cycle；已有中间体用 arrange_catalytic_cycle。不得用 draw_poster、普通流程图或手绘箭头冒充原生催化循环。每个节点是一种真实连通结构，不能都用裸金属或占位原子。步骤描述对应本节点到下一节点，末步再生首节点，不重复添加首节点。副循环单独绘制。仅做图文表格或非化学流程图时才用海报排版。
 默认采用紧凑排版：结构间净空 12 pt，多步流程行间净空 16 pt；用户未指定时不要增大 gap。
 同时画多个化合物/编号对照表优先 draw_compounds，一次传入 compounds，自动排版，不要逐个猜坐标。
 把对象放在另一对象旁边用 place_relative；连接已有结构用 connect_objects，工具负责包围盒边缘和间距。连接箭头是普通可编辑对象，结构移动后需要重新连接。
 工具失败时按 diagnostics 的 stage/path/suggestion 修改参数；失败调用不会留下部分绘图。文字宽度为保守估算，完成后用 layout_report 检查。
-多步流程必须优先用 draw_scheme，一次传入 steps，统一列中心和行距。单条反应式用 draw_reaction：一次给齐反应物、箭头、产物、条件和标注，不要先逐个画分子再猜箭头位置。
+经典羧酸型 Mitsunobu 酯化优先用 draw_mitsunobu；其他多步流程用 draw_scheme，机理图在每步的 electron_moves 内指定左侧结构端点；步骤说明放 title 或 conditions，避免给弯箭头叠加长句。一次传入 steps，统一列中心和行距。醇盐夺取羰基 α-H（如 Dieckmann 环化第一步）用 enolate 对象，reactants 依次放醇盐和底物的 smiles: 结构，省略 products 和 electron_moves。环化另起一步。单条反应式用 draw_reaction：一次给齐反应物、箭头、产物、条件和标注，不要先逐个画分子再猜箭头位置。
 反应物/产物项可写 name:阿司匹林、name:artemisinin、smiles:CC(=O)O 或 cid:2244；中文常用名可直接写。
-画电子转移/机理用 draw_curved_arrow；画新版结构库内的环先 search_drawing_templates / draw_library_template；旧表独有的骨架用 draw_template，避免手写错误 SMILES。
+已有结构上补画同一步的多支电子箭头用 draw_mechanism_step(moves=[...], generate=false)，单支独立箭头用 draw_curved_arrow；先 inspect_document 查原子/键引用，优先 source/target 定位，默认 route=true 自动绕行；单电子设置 fishhook=true，指定方向时设 route=false 并给 bend。不得拆成折线和三角形；画新版结构库内的环先 search_drawing_templates / draw_library_template；旧表独有的骨架用 draw_template，避免手写错误 SMILES。
 标注编号/名称/产率用 add_caption；对齐、等距、网格排版用 align_objects、distribute_objects、layout_grid；批量复制用 repeat_objects。
 新增分子未给坐标时会自动放到文档下方；不要为了避开重叠而使用巨大偏移。落笔前先看“布局概况”，不确定时用 layout_report 检查重叠和空位。
 draw_reaction 返回 reactants/products/arrow/label_refs/plus_refs/conditions_ref/title_ref；整体对齐或排网格时把 label_refs 一并传入，避免标签留在原位。
@@ -469,7 +515,7 @@ place_relative({"target":"new:2","anchor":"new:1","position":"right","gap":100})
 connect_objects({"source":"new:1","target":"new:2","label":"oxidation"})
 draw_reaction({"reactants":["name:苯","smiles:CC(=O)Cl"],"products":["smiles:CC(=O)c1ccccc1"],"reagents":["AlCl3 (1.2 equiv)"],"conditions_below":"CH2Cl2\n0 °C, 2 h, N2","product_labels":["1a"]})
 draw_template({"template":"pyridine","x":0,"y":0})
-draw_curved_arrow({"x":0,"y":0,"x2":40,"y2":-20,"bend":0.4,"label":"e-"})
+draw_curved_arrow({"source":"从 inspect_document 返回的给体原子或键引用","target":"同一步反应物的受体原子或键引用","route":true})
 add_caption({"target":"new:1","text":"1a","position":"below","size":10})
 align_objects({"refs":["new:1","new:2","new:3"],"edge":"top"})
 distribute_objects({"refs":["new:1","new:2","new:3"],"direction":"row","gap":30})
@@ -536,7 +582,7 @@ def install_plugin(namespace):
                 if schema is None:
                     raise ToolError("未知工具：" + str(name), name, "arguments", "$", "请使用实际注册的工具名称")
                 _validate_value(args, schema, name)
-                if outer and name not in ("inspect_document", "layout_report", "lookup_compound", "web_search", "search_drawing_templates"):
+                if outer and name not in ("inspect_reaction_sites", "inspect_document", "layout_report", "lookup_compound", "web_search", "search_drawing_templates"):
                     snapshot = _snapshot(self)
                 args = _prepare(self, name, args)
                 result = _dispatch(self, name, args) if name in PLUGIN_NAMES else original_call(self, name, args)
@@ -552,7 +598,9 @@ def install_plugin(namespace):
                 if hasattr(exc, "diagnostics"):
                     raise
                 raise ToolError(str(exc)[:500], name, "composition", "$",
-                                "检查对象引用、结构描述和对象间距；用 inspect_document/layout_report 获取当前引用后再调用") from None
+                                ("先用 inspect_reaction_sites(reactants=出错步骤的反应物列表) 读取可用地址，再修正 electron_moves。"
+                                 if name in ('draw_reaction','draw_scheme') else
+                                 "检查对象引用、结构描述和对象间距；用 inspect_document/layout_report 获取当前引用后再调用")) from None
             finally:
                 self._plugin_call_depth -= 1
 
@@ -1025,6 +1073,10 @@ def _short_label(key, objects):
 
 def _overlaps(groups):
     keys = list(groups)
+    owners = {obj.get("ref"):key for key,items in groups.items() for obj in items}
+    def touches_endpoint(arrow_group, other):
+        return any(obj.get("mechanism") and other in (owners.get(obj.get("source")),owners.get(obj.get("target")))
+                   for obj in arrow_group)
     found = []
     for i, ka in enumerate(keys):
         ba = _bounds(groups[ka])
@@ -1032,6 +1084,8 @@ def _overlaps(groups):
             continue
         area_a = max(1.0, (ba[2] - ba[0]) * (ba[3] - ba[1]))
         for kb in keys[i + 1:]:
+            if touches_endpoint(groups[ka],kb) or touches_endpoint(groups[kb],ka):
+                continue
             # A routed connector's bounding rectangle is mostly empty space;
             # internal node text is intentional containment, not a collision.
             if any(o.get('layout_connector') for o in groups[ka]+groups[kb]):
@@ -1265,7 +1319,7 @@ def _resolve_spec(engine, spec):
 def _draw_spec(engine, item, x, y, style_args):
     payload = {"x": x, "y": y, **style_args}
     if item["kind"] == "smiles":
-        return engine.call("draw_smiles", {"smiles": item["smiles"], **payload})
+        return engine.call("draw_smiles", {"smiles": item["smiles"], **({"keep_explicit_hydrogens": True} if "[H]" in item["smiles"] else {}), **payload})
     return engine.call("draw_compound", {"cid": item["cid"], **payload})
 
 
@@ -1285,8 +1339,8 @@ def _condition_formula(text):
 
 
 def _condition_lines(args):
-    above = _text_arg(args, "conditions", "", 1200)
-    below = _text_arg(args, "conditions_below", "", 1200)
+    above = _text_arg(args, "conditions", "", 1200).replace(r'\n', '\n')
+    below = _text_arg(args, "conditions_below", "", 1200).replace(r'\n', '\n')
     reagents = args.get("reagents", [])
     if not isinstance(reagents, list) or len(reagents)>32 or any(not isinstance(r,str) or not r.strip() or len(r)>200 for r in reagents):
         raise ValueError("reagents 需要最多32个非空试剂文字")
@@ -1303,11 +1357,229 @@ def _condition_width(args):
     return max([_text_width(line,9) for lines in _condition_lines(args) for line in lines] or [0])
 
 
+def _row_electrons(engine, reactants, moves, compact_proton_transfer=False, oriented=()):
+    def endpoint(address):
+        match = re.fullmatch(r"([1-9][0-9]*):([1-9][0-9]*)(?:-([1-9][0-9]*))?", address)
+        if not match:
+            raise ValueError("电子端点格式应为 1:2 或 1:2-3")
+        molecule, start, end = (int(n) if n else None for n in match.groups())
+        if molecule > len(reactants):
+            raise ValueError("电子端点必须属于本步左侧的反应物")
+        objects, _ = _group_bounds(engine, reactants[molecule-1]["ref"])
+        atoms = [o["ref"] for o in objects if o["kind"]=="atom"]
+        if start>len(atoms) or end and end>len(atoms):
+            raise ValueError("电子端点超出该反应物的原子数")
+        if end is None:
+            return atoms[start-1]
+        for bond in objects:
+            if bond["kind"]=="bond" and {bond["begin"],bond["end"]}=={atoms[start-1],atoms[end-1]}:
+                return bond["ref"]
+        raise ValueError("电子端点指定的两个原子之间没有键")
+    resolved = [(endpoint(m["source"]),endpoint(m["target"]),m) for m in moves]
+    objects = {o["ref"]:o for o in engine.scene}
+    facing = {}
+    for start,end,_ in resolved:
+        a,b = objects[start],objects[end]
+        if a["owner"] == b["owner"]:
+            continue
+        for obj,partner in ((a,b),(b,a)):
+            box = _group_bounds(engine,obj["owner"])[1]
+            offset = (obj["x"]+obj["x2"]-box[0]-box[2])/2
+            facing[obj["owner"]] = facing.get(obj["owner"],0) + offset*(partner["x"]-obj["x"])
+    # A half turn preserves wedges and stereochemistry and keeps the same bounds.
+    for owner,score in facing.items():
+        if score>=0 or owner in oriented:
+            continue
+        members,box = _group_bounds(engine,owner)
+        action = next(n for n in engine.actions if n.get("handle")==owner and n.tag=="molecule")
+        xml = ET.fromstring(action.text)
+        atoms = list(xml.iter("n"))
+        positions = [tuple(map(float,a.get("p").split())) for a in atoms]
+        sx = min(x for x,y in positions)+max(x for x,y in positions)
+        sy = min(y for x,y in positions)+max(y for x,y in positions)
+        for atom,(x,y) in zip(atoms,positions):
+            atom.set("p",f"{sx-x:.8f} {sy-y:.8f}")
+        action.text = ET.tostring(xml,encoding="unicode")
+        for obj in members:
+            obj["x"],obj["x2"] = box[0]+box[2]-obj["x2"],box[0]+box[2]-obj["x"]
+            obj["y"],obj["y2"] = box[1]+box[3]-obj["y2"],box[1]+box[3]-obj["y"]
+    # Align the contact sites of a reacting pair, including any captions attached
+    # to its structures. Keep the average height of the pair on the row baseline.
+    if compact_proton_transfer:
+        # Place the base outside the substrate on the exposed side of the H.
+        # The second move starts on its C-H bond, which gives the approach direction.
+        donor, hydrogen = (objects[ref] for ref in resolved[0][:2])
+        ch = objects[resolved[1][0]]
+        carbon = objects[ch["end"] if ch["begin"] == hydrogen["ref"] else ch["begin"]]
+        base_box = _group_bounds(engine, donor["owner"])[1]
+        sub_box = _group_bounds(engine, hydrogen["owner"])[1]
+        bond = float(engine.context.get("bond_length",14.4))
+        dx = hydrogen["x"] - donor["x"] - .65*bond
+        # Keep the base inside the reaction side even for branched or cyclic substrates.
+        dx = min(dx, sub_box[2] - base_box[2])
+        dy = (sub_box[1] - base_box[3] - 1.5*bond if hydrogen["y"] <= carbon["y"]
+              else sub_box[3] - base_box[1] + 1.5*bond)
+        _shift_handle(engine,donor["owner"],dx,dy)
+    elif len(reactants)==2:
+        first=reactants[0]["ref"]
+        offsets=[]
+        for start,end,_ in resolved:
+            a,b=objects[start],objects[end]
+            if a["owner"]==b["owner"]:
+                continue
+            ya,yb=(engine.electron_center(obj)[1] for obj in (a,b))
+            offsets.append(yb-ya if a["owner"]==first else ya-yb)
+        if offsets:
+            delta=sum(offsets)/(2*len(offsets))
+            for item,dy in zip(reactants,(delta,-delta)):
+                _shift_handle(engine,item["ref"],0,dy)
+                if item["label_ref"]:
+                    _shift_handle(engine,item["label_ref"],0,dy)
+    arrows = []
+    for start,end,move in resolved:
+        inter = objects[start]["owner"]!=objects[end]["owner"]
+        bend = -.27 if objects[start]["x"]<objects[end]["x"] else .27
+        result = _draw_curved_arrow(engine, {"source":start, "target":end, "fishhook":move.get("electrons",2)==1,
+                                             "bend":move.get("bend",bend if inter else .32),"route":move.get("route",True)})
+        arrows.append(result["ref"])
+    return arrows
+
+
+def _reaction_inputs(engine, args):
+    reactants = _spec_list(args, "reactants")
+    inputs = {o['owner']:o['product_snapshot'] for o in engine.scene if 'product_snapshot' in o}
+    def resolve(spec):
+        if not spec.startswith("product:"):
+            return spec
+        if spec[8:] not in inputs:
+            raise ValueError("找不到本轮的产物引用 "+spec+"，请使用工具返回的 next_reactant。")
+        return inputs[spec[8:]]
+    return [resolve(spec) for spec in reactants]
+
+
+def _inspect_reaction_sites(engine, args):
+    from ai_plugins.native_step import product_sites
+    sites = []
+    for index, spec in enumerate(_reaction_inputs(engine, args), 1):
+        if not spec.lower().startswith('smiles:'):
+            from chemistry_open import Chem
+            parser = Chem.SmilesParserParams()
+            parser.parseName = False
+            if not spec.strip() or Chem.MolFromSmiles(spec, parser) is None:
+                raise ValueError('检查位点需要可解析的 SMILES 或上一步返回的 next_reactant。')
+            spec = 'smiles:' + spec
+        graph = product_sites(spec, full=True)
+        sites.append({'reactant': index, 'spec': spec,
+                      'hydrogens': {f'{index}:{a}': n for a,n in graph['hydrogens'].items()},
+                      'radical_electrons': {f'{index}:{a}': n for a,n in graph['radical_electrons'].items()},
+                      'rings': [[f'{index}:{a}' for a in ring] for ring in graph['rings']],
+                      'atoms': {f'{index}:{a}': [symbol, charge] for a, symbol, charge in graph['atoms']},
+                      'bonds': {f'{index}:{a}-{b}': order for a, b, order in graph['bonds']}})
+    if getattr(engine,'check_step_prediction',False) and not hasattr(engine,'step_reference_inputs'):
+        engine.step_reference_inputs = [item['spec'] for item in sites]
+    return {'reactants': sites, 'usage': 'atoms 值为 [元素,形式电荷]，bonds 值为键级。hydrogens 给出各位点的总氢数，移动的氢须单独写成 [H] 并使用该原子的地址；rings 给出环内原子顺序；radical_electrons 列出未配对电子。若预期闭壳层却出现自由基，请检查配位数、质子数和电荷。保持反应物顺序，将所需地址原样复制到 source/target。'}
+
+
+def _check_skeleton(args, reactants, products):
+    check = args.get("skeleton_check", {})
+    if not check:
+        return
+    from chemistry_open import Chem, rdMolDescriptors
+
+    def structure(item):
+        mol = Chem.MolFromSmiles(item["smiles"])
+        if mol is None:
+            raise ValueError("结构核验无法解析 SMILES：" + item["smiles"][:120])
+        return mol
+
+    counts = check.get("product_carbons")
+    if counts is not None:
+        actual = [sum(atom.GetAtomicNum() == 6 for atom in structure(item).GetAtoms()) for item in products]
+        if counts != actual:
+            raise ValueError(f"产物预期碳数 {counts}，提交结构为 {actual}。请从题给底物逐个追踪保留和离去的碳，再修正结构。")
+    if check.get("isomerization"):
+        if len(reactants) != 1 or len(products) != 1:
+            raise ValueError("单分子异构化核验需要一个底物和一个产物。")
+        start, end = structure(reactants[0]), structure(products[0])
+        for mol in (start,end):
+            for atom in mol.GetAtoms():
+                atom.SetAtomMapNum(0)
+        if rdMolDescriptors.CalcMolFormula(start) != rdMolDescriptors.CalcMolFormula(end):
+            raise ValueError("异构化前后分子式不同，请核对迁移和键级。")
+        if Chem.MolToSmiles(start) == Chem.MolToSmiles(end):
+            raise ValueError("异构化前后连接关系和立体信息相同。请核对成断键；确为简并重排时可省略此项核验。")
+
+
+def _check_step_context(engine, reactants):
+    reference = getattr(engine,'step_reference_inputs',())
+    if not reference or not all(s.lower().startswith('smiles:') for s in reactants):
+        return
+    from chemistry_open import Chem
+    def carbon_environments(specs):
+        keys = set()
+        for spec in specs:
+            mol = Chem.MolFromSmiles(spec[7:])
+            if mol is None:continue
+            for atom in mol.GetAtoms():
+                if atom.GetAtomicNum()!=6:continue
+                neighbors = [(bond.GetOtherAtom(atom).GetAtomicNum(), bond.IsInRing())
+                             for bond in atom.GetBonds() if bond.GetOtherAtom(atom).GetAtomicNum()>1]
+                # Ignore charge and bond order but distinguish a ring edge
+                # from an unrelated open-chain example.
+                keys.update(neighbors or [(0,False)])
+        return keys
+    old, new = carbon_environments(reference), carbon_environments(reactants)
+    if old and new and old.isdisjoint(new):
+        raise ValueError("本步的有机反应物与先前检查的底物没有共同的碳键环境。请核对题给骨架，勿以无关示例代替。")
+
 def _draw_reaction(engine, args):
+    args = {**args, "reactants":_reaction_inputs(engine,args)}
+    _check_step_context(engine,args["reactants"])
+    rule_based = any(key in args for key in ('michael','enolate','aldol'))
+    if "michael" in args or "aldol" in args:
+        from ai_plugins.michael_step import prepare_michael_step
+        args = prepare_michael_step(args)
+    elif "enolate" in args:
+        from ai_plugins.enolate_step import prepare_enolate_step
+        args = prepare_enolate_step(args)
+    elif getattr(engine, 'check_step_prediction', False) and not (args.get('products') and args.get('electron_moves')):
+        raise ValueError('示范单个基元步骤时请同时给出独立预测的主要产物 products 和完整 electron_moves，以核对迁移方向、成键位置及电荷。匹配的结构规则可直接使用。')
+    elif getattr(engine, 'require_step_evidence', False) and not args.get('electron_moves'):
+        raise ValueError('从空白绘制完整机理，每一步须同时提交电子移动与预期产物，或使用匹配的机理规则。已有结构上补箭头不受此限制。')
+    elif "products" not in args and not args.get("electron_moves"):
+        raise ValueError("普通反应式需要 products；基元步骤可只给 electron_moves，由桌面引擎推演。")
     if args.get("align", "columns") != "columns":
         raise ValueError("align 仅支持 columns；多行统一排版请用 draw_scheme")
     previous_bounds = _document_bounds(engine)
     reactant_specs = _spec_list(args, "reactants")
+    from ai_plugins.mechanism_sites import resolve_move_maps
+    reactant_specs, electron_moves = resolve_move_maps(reactant_specs,args.get("electron_moves",[]))
+    product_source = "rule" if rule_based else "specified"
+    verify = _bool_arg(args, "verify_products", False)
+    if not rule_based and electron_moves and ("products" not in args or verify or getattr(engine,"require_bound_arrows",False)):
+        from ai_plugins.native_step import native_products, verify_products
+        declared = _spec_list(args,"products") if "products" in args else []
+        try:
+            inferred = native_products(engine, reactant_specs, electron_moves)
+            extra = verify_products(inferred,declared) if declared else []
+        except ValueError as exc:
+            if declared and getattr(engine,'check_step_prediction',False):
+                from ai_plugins.native_step import local_source_hint
+                hint = local_source_hint(engine,reactant_specs,electron_moves,declared)
+                if hint:raise ValueError(hint) from exc
+            raise
+        if declared:
+            if extra and getattr(engine,'check_step_prediction',False):
+                labels = _label_list(args,'product_labels',len(declared))
+                args = {**args,'products':declared+extra}
+                if labels is not None:
+                    args['product_labels'] = labels + ['']*len(extra)
+            product_source = "verified"
+        else:
+            args = {**args, "products":inferred}
+            product_source = "inferred"
+    elif verify and not rule_based:
+        raise ValueError("验证产物需要本步的 electron_moves。")
     product_specs = _spec_list(args, "products")
     reactant_labels = _label_list(args, "reactant_labels", len(reactant_specs))
     product_labels = _label_list(args, "product_labels", len(product_specs))
@@ -1321,12 +1593,28 @@ def _draw_reaction(engine, args):
     product_draw = labels or product_labels is not None
     label_size = _num(args, "label_size", 10, 4, 36)
     gap = _num(args, "gap", 12, 8, 160)
+    ink_margin = max(5.,float(engine.context.get("text_size",10))*.72)
     style_args = _draw_style(args)
 
     # Resolve every structure before staging anything.  If a name is wrong or
     # PubChem is unavailable, the document stays untouched.
     reactant_items = [_resolve_spec(engine, spec) for spec in reactant_specs]
-    product_items = [_resolve_spec(engine, spec) for spec in product_specs]
+    from ai_plugins.mechanism_sites import MAP_SUFFIX
+    product_items = [_resolve_spec(engine, MAP_SUFFIX.sub('', spec) if spec.lower().startswith('smiles:') else spec)
+                     for spec in product_specs]
+    _check_skeleton(args, reactant_items, product_items)
+    face_sites = {}
+    cross_moves = [m for m in electron_moves if m['source'].partition(':')[0]!=m['target'].partition(':')[0]]
+    if len(cross_moves)==1 and len(reactant_items)==2 and all(item["kind"]=="smiles" for item in reactant_items):
+        for move in cross_moves:
+            a,b = (move[k].split(':') for k in ('source','target'))
+            if 'aldol' in args or 'michael' in args:
+                a[1] = a[1].split('-')[-1]
+            if 'enolate' in args:
+                continue
+            if a[0]!=b[0] and {a[0],b[0]}=={'1','2'} and all(n.isdigit() for n in (a[1],b[1])):
+                face_sites = {int(i)-1:{"atom":int(n),"side":"right" if i=="1" else "left"} for i,n in (a,b)}
+                break
 
     doc = _document_bounds(engine)
     auto_x = args.get("x") is None
@@ -1348,14 +1636,14 @@ def _draw_reaction(engine, args):
     plus_handles = []
     warnings = []
 
-    def place(item, custom_label=None, draw_label=False):
+    def place(item, custom_label=None, draw_label=False, face=None):
         nonlocal cursor
-        result = _draw_spec(engine, item, 0, 0, style_args)
+        result = _draw_spec(engine, item, 0, 0, {**style_args,"face_site":face} if face else style_args)
         handle = result["ref"]
         objects, box = _group_bounds(engine, handle)
-        _shift_handle(engine, handle, cursor - box[0], center_y - (box[1] + box[3]) / 2)
+        _shift_handle(engine, handle, cursor + ink_margin - box[0], center_y - (box[1] + box[3]) / 2)
         objects, box = _group_bounds(engine, handle)
-        cursor = box[2] + gap
+        cursor = box[2] + ink_margin + gap
         created_handles.append(handle)
         label_text = custom_label if custom_label is not None else (item.get("label") or result.get("formula") or "结构")
         label_ref = None
@@ -1364,7 +1652,7 @@ def _draw_reaction(engine, args):
             label_x = (box[0] + box[2]) / 2 - width / 2
             label_result = _add_text(engine, label_text,
                                      label_x,
-                                     box[3] + 6 + label_size,
+                                     box[3] + ink_margin + 6 + label_size,
                                      label_size)
             label_ref = label_result["ref"]
             if label_x < box[0]:
@@ -1390,16 +1678,18 @@ def _draw_reaction(engine, args):
             "bounds": [round(v, 2) for v in box],
         }
 
+    compact_transfer = "enolate" in args and not reactant_draw
     reactants_out = []
     for index, item in enumerate(reactant_items):
-        if index:
+        if index and not (compact_transfer or len(reactant_items)==2 and cross_moves and not reactant_draw):
             plus_width = _text_width("+", 12)
-            plus_result = _add_text(engine, "+", cursor - gap / 2 - plus_width / 2, center_y + 6, 12)
+            plus_result = _add_text(engine, "+", cursor, center_y + 4, 12)
             created_handles.append(plus_result["ref"])
             plus_handles.append(plus_result["ref"])
+            cursor += plus_width + gap
         reactants_out.append(place(item,
                                     reactant_labels[index] if reactant_labels is not None else None,
-                                    reactant_draw))
+                                    reactant_draw,face_sites.get(index)))
 
     condition_slot_start = cursor
     condition_width = _condition_width(args)
@@ -1430,13 +1720,30 @@ def _draw_reaction(engine, args):
     for index, item in enumerate(product_items):
         if index:
             plus_width = _text_width("+", 12)
-            plus_result = _add_text(engine, "+", cursor - gap / 2 - plus_width / 2, center_y + 6, 12)
+            plus_result = _add_text(engine, "+", cursor, center_y + 4, 12)
             created_handles.append(plus_result["ref"])
             plus_handles.append(plus_result["ref"])
+            cursor += plus_width + gap
         products_out.append(place(item,
                                    product_labels[index] if product_labels is not None else None,
                                    product_draw))
 
+    _group_bounds(engine,arrow_result["ref"])[0][0]["reaction_divider"] = True
+    for side, items in (("reactants",reactants_out),("products",products_out)):
+        for item in items:
+            for obj in _group_bounds(engine,item["ref"])[0]:
+                obj["reaction_row"] = arrow_result["ref"]
+                obj["reaction_side"] = side
+    electron_refs = _row_electrons(engine,reactants_out,electron_moves,compact_transfer,
+                                  {reactants_out[i]["ref"] for i in face_sites})
+    created_handles.extend(electron_refs)
+    if electron_refs:
+        # Keep captions below the complete electron path even when it bows down.
+        bottom = _bounds_for_handles(engine,electron_refs)[3]
+        for item in reactants_out:
+            if item["label_ref"]:
+                label_box = _group_bounds(engine,item["label_ref"])[1]
+                _shift_handle(engine,item["label_ref"],0,max(0,bottom+6-label_box[1]))
     created_handles.append(arrow_result["ref"])
     scheme_bounds = _bounds_for_handles(engine, created_handles)
     if auto_x and scheme_bounds:
@@ -1464,7 +1771,15 @@ def _draw_reaction(engine, args):
         item["bounds"] = _rounded_bounds(_group_bounds(engine, item["ref"])[1])
     scheme_bounds = _bounds_for_handles(engine, created_handles)
     arrow_box = _group_bounds(engine, arrow_result["ref"])[1]
+    for spec,item in zip(product_specs,products_out):
+        snapshot = spec if spec.lower().startswith('smiles:') else ('smiles:'+item['smiles'] if item.get('smiles') else '')
+        if snapshot:
+            members,_ = _group_bounds(engine,item['ref'])
+            members[0]['product_snapshot'] = snapshot
+            item['next_reactant'] = 'product:'+item['ref']
+            item['next_spec'] = snapshot
     return {
+        "product_source":product_source,
         "staged": True,
         "refs": created_handles,
         "arrow_endpoints": [[arrow_box[0], arrow_box[1]], [arrow_box[2], arrow_box[3]]],
@@ -1475,6 +1790,7 @@ def _draw_reaction(engine, args):
         "condition_refs": condition_refs,
         "title_ref": title_ref,
         "label_refs": label_handles,
+        "electron_refs": electron_refs,
         "plus_refs": plus_handles,
         "bounds": [round(v, 2) for v in scheme_bounds] if scheme_bounds else None,
         "warnings": warnings,
@@ -1486,7 +1802,28 @@ def _draw_reaction(engine, args):
 # Curved mechanism arrow
 # ---------------------------------------------------------------------------
 
+def _draw_mitsunobu(engine, args):
+    from ai_plugins.mitsunobu import scheme
+    return _draw_scheme(engine, scheme(args))
+
+
+def _revise_scheme_plan(engine, args):
+    plan = getattr(engine, "_pending_mechanism", None)
+    if not plan:
+        raise ValueError("没有待校正的机理草稿。")
+    rows = plan["steps"]
+    index = args["start"] - 1
+    end = index + args["remove"]
+    updated = rows[:index] + args["steps"] + rows[end:]
+    if index > len(rows) or end > len(rows) or not 1 <= len(updated) <= 36:
+        raise ValueError("修改范围超出草稿，或修改后的步骤数不在 1–36 之间。")
+    return _draw_scheme(engine, {**plan, "steps":updated})
+
+
 def _draw_scheme(engine, args):
+    if args.get("target_product"):
+        # Retain only the plan arguments across a failed staging transaction.
+        engine._pending_mechanism = copy.deepcopy(args)
     steps = args.get("steps")
     if not isinstance(steps, list) or not 1 <= len(steps) <= 36:
         raise ValueError("steps 需要 1–36 步")
@@ -1496,36 +1833,98 @@ def _draw_scheme(engine, args):
     if 'label_size' in defaults: _num(args, 'label_size', 10, 4, 36)
     _draw_style(defaults)
     effective_steps = []
-    for step in steps:
+    for index, step in enumerate(steps, 1):
+        if isinstance(step, dict) and "transformation" in step:
+            if {"reactants","products","electron_moves","aldol","michael","enolate"} & step.keys():
+                raise ValueError(f"第 {index} 步混用了 transformation 与结构/箭头参数。")
+            from ai_plugins.mechanism_sites import mapped_step
+            step = dict(step)
+            try:
+                step.update(mapped_step(step.pop("transformation")))
+            except ValueError as exc:
+                raise ValueError(f"第 {index} 步：{exc}") from exc
         if not isinstance(step, dict) or set(step) - allowed:
             raise ValueError("steps 包含未知参数")
         effective = {**defaults, **step}
         _validate_args("draw_reaction", effective)
         effective_steps.append(effective)
     steps = effective_steps
+    target = args.get("target_product")
+    if target:
+        from ai_plugins.native_step import verify_products
+        verify_products([target], [target])
     previous = _document_bounds(engine)
     x = _num(args, "x", 0)
     y = _num(args, "y", 0)
     gap = _num(args, "gap", 12, 8, 160)
-    row_gap = _num(args, "row_gap", 16, 8, 300)
+    row_gap = _num(args, "row_gap", 24 if any(step.get('electron_moves') or any(key in step for key in ('aldol','michael','enolate')) for step in steps) else 16, 8, 300)
     length = min(72.0, max(36.0, *(_condition_width(step) + 8 for step in steps)))
     rows = []
+    predecessors = []
+    primary_products = []
     for step_index, step in enumerate(steps, 1):
         try:
+            reactants = _spec_list(step,"reactants")
+            parents = set()
+            for i,spec in enumerate(reactants):
+                if spec.startswith(("previous:", "step:")):
+                    address = spec.replace("previous:",f"step:{step_index-1}:",1)
+                    match = re.fullmatch(r"step:([1-9]\d*):([1-8])", address)
+                    if not match:
+                        raise ValueError("产物引用应为 previous:N 或 step:R:N。")
+                    parent, index = (int(v)-1 for v in match.groups())
+                    if parent >= len(rows) or index >= len(rows[parent]["products"]):
+                        raise ValueError("引用的前序行或产物不存在。")
+                    parents.add(parent)
+                    product=rows[parent]["products"][index]
+                    if 'next_reactant' not in product:
+                        raise ValueError("上一行该产物没有可读取的分子连接关系。")
+                    reactants[i]=product['next_reactant']
+            step={**step,"reactants":reactants}
+            if target:
+                if not (step.get("electron_moves") or any(k in step for k in ("aldol","michael","enolate"))):
+                    raise ValueError("完整机理需要本步的电子移动或机理规则。")
+                step["verify_products"] = True
+                from ai_plugins.native_step import fragment_counts
+                inputs = fragment_counts(_reaction_inputs(engine, step))
+                parents.update(i for i, species in enumerate(primary_products) if species.intersection(inputs))
+                predecessors.append(parents)
             row = _draw_reaction(engine, {**step, "x": 0, "y": 0, "arrow_length": length})
         except Exception as exc:
             if hasattr(exc, 'diagnostics'):
                 exc.diagnostics['scheme_step'] = step_index
-            raise
+                raise
+            raise ValueError(f'第 {step_index} 步：{exc}') from exc
+        if target:
+            from chemistry_open import Chem
+            products = fragment_counts([p["next_spec"] for p in row["products"]])
+            sizes = {spec:Chem.MolFromSmiles(spec).GetNumHeavyAtoms() for spec in products}
+            largest = max(sizes.values())
+            primary_products.append({spec for spec, size in sizes.items() if size == largest})
         ab = _group_bounds(engine, row["arrow"])[1]
         groups = []
         for side in ("reactants", "products"):
             refs = [ref for item in row[side] for ref in (item["ref"], item["label_ref"]) if ref]
             refs += [ref for ref in row["plus_refs"] if (_group_bounds(engine, ref)[1][0] < ab[0]) == (side == "reactants")]
+            if side=="reactants":
+                refs.extend(row["electron_refs"])
             groups.append(refs)
         groups.insert(1, [row["arrow"]] + row["condition_refs"])
         row["_groups"] = groups
         rows.append(row)
+    if target:
+        connected = {len(rows)-1}
+        for index in reversed(range(len(rows))):
+            if index in connected:
+                connected.update(predecessors[index])
+        missing = sorted(set(range(len(rows))) - connected)
+        if missing:
+            raise ValueError("以下步骤的产物没有接到末步："+", ".join(str(i+1) for i in missing)+"。请核对相邻中间体的构型、电荷；分支汇合用 step:R:N 引用实际参与的产物。")
+        final_specs = [p["next_spec"] for p in rows[-1]["products"] if "next_spec" in p]
+        try:
+            verify_products(final_specs, [target])
+        except ValueError as exc:
+            raise ValueError("末步尚未到达题给目标。"+str(exc)) from exc
     widths = [max(_bounds_for_handles(engine, row["_groups"][i])[2] - _bounds_for_handles(engine, row["_groups"][i])[0] for row in rows) for i in range(3)]
     centers = [x + widths[0]/2, x + widths[0] + gap + widths[1]/2,
                x + widths[0] + gap + widths[1] + gap + widths[2]/2]
@@ -1547,8 +1946,18 @@ def _draw_scheme(engine, args):
     pitch = above + below + row_gap
     first_baseline = max(y + above, previous[3] + row_gap + above if previous else y + above)
     all_refs = []
+    adaptive = any(row["electron_refs"] for row in rows)
+    next_top = max(y, previous[3]+row_gap if previous else y)
+    heading = _text_arg(args, 'title', '', 200, single_line=True)
+    if heading:
+        all_refs.append(_add_text(engine, heading, x, next_top+14, 14)['ref'])
+        next_top += 34
+        first_baseline += 34
+    baselines = []
     for index, row in enumerate(rows):
-        dy = first_baseline + index*pitch
+        dy = next_top-row["bounds"][1] if adaptive else first_baseline+index*pitch
+        baselines.append(dy)
+        next_top = dy+row["bounds"][3]+row_gap
         for ref in row["refs"]:
             _shift_handle(engine, ref, 0, dy)
         row.pop("_groups")
@@ -1559,75 +1968,60 @@ def _draw_scheme(engine, args):
         row["bounds"] = _rounded_bounds(_bounds_for_handles(engine, row["refs"]))
         row["warnings"] = [w for w in row["warnings"] if not w.startswith("为避开已有对象")]
         all_refs.extend(row["refs"])
-    return {"staged": True, "steps": rows, "refs": all_refs,
+    if target:
+        engine._pending_mechanism = None
+    return {"staged": True, **({"verified_target":target} if target else {}), "steps": rows, "refs": all_refs,
             "bounds": _rounded_bounds(_bounds_for_handles(engine, all_refs)),
-            "column_centers": centers, "row_spacing": pitch, "row_gap": row_gap,
+            "column_centers": centers, "row_spacing": None if adaptive else pitch, "baselines": baselines, "row_gap": row_gap,
             "note": "每侧多个结构作为一个反应物/产物组对齐；文字尺寸为估算值。"}
 
 
 def _draw_curved_arrow(engine, args):
-    x = _num(args, "x")
-    y = _num(args, "y")
-    x2 = _num(args, "x2")
-    y2 = _num(args, "y2")
-    bend = _num(args, "bend", 0.35, -2.0, 2.0)
-    head = _num(args, "head", 8, 2, 24)
-    width = _num(args, "width", 1.5, 0.1, 12)
-    label = _text_arg(args, "label", "", 200, single_line=True)
-    label_size = _num(args, "label_size", 10, 4, 36)
-    color = _color(args.get("color")) or str(engine.context.get("color", "#000000"))
-    if not _COLOR_RE.fullmatch(color):
-        color = "#000000"
-
-    dx = x2 - x
-    dy = y2 - y
-    length = math.hypot(dx, dy)
-    if length < 1:
-        raise ValueError("曲线箭头起点和终点不能相同")
-    if length < head * 1.4:
-        raise ValueError("箭头太短，请增大起点和终点距离或减小 head")
-
-    nx, ny = -dy / length, dx / length
-    cx = (x + x2) / 2 + nx * bend * length
-    cy = (y + y2) / 2 + ny * bend * length
-
-    points = []
-    for index in range(25):
-        t = index / 24
-        mt = 1 - t
-        px = mt * mt * x + 2 * mt * t * cx + t * t * x2
-        py = mt * mt * y + 2 * mt * t * cy + t * t * y2
-        points.append([px, py])
-
-    shaft = _add_path(engine, points, closed=False, color=color, width=width)
-
-    tx, ty = x2 - cx, y2 - cy
-    tlen = math.hypot(tx, ty) or 1.0
-    ux, uy = tx / tlen, ty / tlen
-    px, py = -uy, ux
-    base_x, base_y = x2 - ux * head, y2 - uy * head
-    left = [base_x + px * head * 0.45, base_y + py * head * 0.45]
-    right = [base_x - px * head * 0.45, base_y - py * head * 0.45]
-    head_result = _add_path(engine, [[x2, y2], left, right],
-                            closed=True, fill=color, color=color, width=0.1)
-
-    label_ref = None
+    # Native arrow: one selectable object, exact arc tangent, editable handles,
+    # and the same obstacle router as the pointer tool.
+    def anchor(key, xkey, ykey):
+        ref = args.get(key)
+        if not ref:
+            if xkey not in args or ykey not in args:
+                raise ValueError(key + ' 缺少原子/键引用或完整坐标')
+            return [_num(args, xkey), _num(args, ykey)]
+        objects = [o for o in engine.scene if o['ref'] == ref]
+        if len(objects) != 1 or objects[0]['kind'] not in ('atom', 'bond'):
+            raise ValueError(key + ' 必须是 inspect_document 返回的原子或键引用')
+        o = objects[0]
+        return [(o['x'] + o.get('x2', o['x'])) / 2,
+                (o['y'] + o.get('y2', o['y'])) / 2]
+    start = anchor('source', 'x', 'y')
+    end = anchor('target', 'x2', 'y2')
+    bend = _num(args, 'bend', .35, -2, 2)
+    label = _text_arg(args, 'label', '', 200, single_line=True)
+    size = _num(args, 'label_size', 10, 4, 36)
+    result = engine.call('draw_arrow', {
+        **{k:args[k] for k in ('source','target') if args.get(k)},
+        'style': 'mechanism', 'x': start[0], 'y': start[1],
+        'x2': end[0], 'y2': end[1], 'bend': bend,
+        'head': _num(args, 'head', 3.2, 1, 24),
+        'width': _num(args, 'width', .6, .1, 12),
+        'route': args.get('route', True), 'fishhook': args.get('fishhook', False),
+        **({'color': _color(args['color'])} if args.get('color') else {})})
+    arrow=engine.actions[-1]
+    start=[float(arrow.get(k)) for k in ('x','y')]
+    end=[float(arrow.get(k)) for k in ('x2','y2')]
+    label_result = None
     if label:
-        t = 0.55
-        mt = 1 - t
-        lx = mt * mt * x + 2 * mt * t * cx + t * t * x2 + nx * 12
-        ly = mt * mt * y + 2 * mt * t * cy + t * t * y2 + ny * 12
-        width_est = _text_width(label, label_size)
-        label_ref = _add_text(engine, label, lx - width_est / 2, ly + label_size * 0.35, label_size)
-
-    handles = [shaft["ref"], head_result["ref"]] + ([label_ref["ref"]] if label_ref else [])
-    return {
-        "staged": True,
-        "ref": shaft["ref"],
-        "head_ref": head_result["ref"],
-        "label_ref": label_ref["ref"] if label_ref else None,
-        "bounds": [round(v, 2) for v in _bounds_for_handles(engine, handles)],
-    }
+        dx, dy = end[0]-start[0], end[1]-start[1]
+        x = (start[0]+end[0])/2-dy*bend-_text_width(label,size)/2
+        y = (start[1]+end[1])/2+dx*bend+size
+        width = _text_width(label,size)
+        for box in sorted((_bounds(group) for group in _top_groups(engine).values()),key=lambda b:b[3]):
+            if x<box[2]+5 and x+width>box[0]-5 and y-size<box[3]+6 and y>box[1]-6:
+                y = box[3]+6+size
+        label_result = _add_text(engine,label,x,y,size)
+    return {**result, 'staged': True, 'head_ref': result['ref'],
+            'label_ref': label_result['ref'] if label_result else None,
+            'refs': [result['ref']] + ([label_result['ref']] if label_result else []),
+            'source_point': start, 'target_point': end,
+            'note': '原生可编辑箭头；宿主按完整文档避障。引用端点绑定到相应的原子或键。'}
 
 
 # ---------------------------------------------------------------------------
@@ -2174,11 +2568,17 @@ def _web_search(engine, args):
 
 
 _HANDLERS = {
+    "draw_cycle_atlas":draw_atlas,
+    "draw_catalytic_cycle": draw_cycle,
+    "draw_poster": draw_poster,
+    "inspect_reaction_sites": _inspect_reaction_sites,
     "draw_compounds": _draw_compounds,
     "place_relative": _place_relative,
     "connect_objects": _connect_objects,
     "draw_reaction": _draw_reaction,
     "draw_scheme": _draw_scheme,
+    "revise_scheme_plan": _revise_scheme_plan,
+    "draw_mitsunobu": _draw_mitsunobu,
     "draw_curved_arrow": _draw_curved_arrow,
     "draw_template": _draw_template,
     "add_caption": _add_caption,

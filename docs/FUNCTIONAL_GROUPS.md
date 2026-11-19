@@ -10,8 +10,8 @@
 
 | 项目 | 数量 |
 | --- | --- |
-| 授权源数据条目（nicknames.src.json） | 369 |
-| 编译进编辑器目录（nickname_catalog.hpp） | 361 |
+| 授权源数据条目（nicknames.src.json） | 391 |
+| 编译进编辑器目录（nickname_catalog.hpp） | 383 |
 | 未编译条目（独立分子，无连接点） | 8 |
 
 未编译条目（只作为结构参考保留在源数据中，不参与补全）：
@@ -85,16 +85,22 @@
 | `Ahx` | 6-aminohexanoyl | `NCCCCCC(=O)[*]` | 9/8 | C6H12NO | high |
 | `Aib` | 2-aminoisobutyric acid (Aib) | `CC(C)(N)C(=O)[*]` | 7/6 | C4H8NO | high |
 | `aIle` | L-allo-isoleucine (2S,3R) | `CC[C@@H](C)[C@H](N)C(=O)[*]` | 9/8 | C6H12NO | medium |
+| `Al(OEt)2` | Authored metal-centred alkoxide attachment group | `[*][Al](OCC)OCC` | 8/7 | C4H10AlO2 | high |
+| `Al(Oi-Pr)2` | Authored metal-centred alkoxide attachment group | `[*][Al](OC(C)C)OC(C)C` | 10/9 | C6H14AlO2 | high |
+| `Al(OMe)2` | Authored metal-centred alkoxide attachment group | `[*][Al](OC)OC` | 6/5 | C2H6AlO2 | high |
+| `Al(Ot-Bu)2` | Authored metal-centred alkoxide attachment group | `[*][Al](OC(C)(C)C)OC(C)(C)C` | 12/11 | C8H18AlO2 | high |
 | `Ala` | L-alanine residue | `N[C@@H](C)C(=O)[*]` | 6/5 | C3H6NO | high |
 | `All` | allyl | `C=CC[*]` | 4/3 | C3H5 | high |
 | `Alloc` | allyloxycarbonyl | `C=CCOC(=O)[*]` | 7/6 | C4H5O2 | high |
 | `Allyl` | allyl | `C=CC[*]` | 4/3 | C3H5 | high |
+| `An` | 4-methoxyphenyl (p-anisyl); supplied Zhihu abbreviation table | `[*]c1ccc(OC)cc1` | 9/9 | C7H7O | high |
 | `Arg` | L-arginine residue | `N[C@@H](CCCNC(=N)N)C(=O)[*]` | 12/11 | C6H13N4O | high |
 | `Asn` | L-asparagine | `N[C@@H](CC(N)=O)C(=O)[*]` | 9/8 | C4H7N2O2 | high |
 | `Asp` | L-aspartic acid residue | `N[C@@H](CC(=O)O)C(=O)[*]` | 9/8 | C4H6NO3 | high |
 | `aThr` | L-allo-threonine (2S,3R) | `C[C@H](O)[C@@H](N)C(=O)[*]` | 8/7 | C4H8NO2 | medium |
 | `Aze` | L-azetidine-2-carboxylic acid | `O=C([*])[C@@H]1CCN1` | 7/7 | C4H6NO | high |
 | `B(OH)2` | Common functional group; attachment at * | `*B(O)O` | 4/3 | H2BO2 | authored |
+| `B(Oi-Pr)2` | Authored metal-centred alkoxide attachment group | `[*][B](OC(C)C)OC(C)C` | 10/9 | C6H14BO2 | high |
 | `bAla` | beta-alanine (3-aminopropanoic acid) | `NCCC(=O)[*]` | 6/5 | C3H6NO | high |
 | `bArg` | beta3-homoarginine residue | `N[C@@H](CCCNC(=N)N)CC(=O)[*]` | 13/12 | C7H15N4O | medium |
 | `bAsn` | beta3-asparagine; C3 stereochemistry left unspecified | `NC(=O)CC(N)CC(=O)[*]` | 10/9 | C5H9N2O2 | medium |
@@ -106,10 +112,12 @@
 | `bGlu` | beta3-glutamic acid; C3 stereochemistry left unspecified | `OC(=O)CCC(N)CC(=O)[*]` | 11/10 | C6H10NO3 | medium |
 | `bHis` | beta3-homohistidine residue | `N[C@@H](Cc1c[nH]cn1)CC(=O)[*]` | 12/12 | C7H10N3O | medium |
 | `bIle` | beta3-isoleucine; C3 stereochemistry left unspecified | `CCC(C)C(N)CC(=O)[*]` | 10/9 | C7H14NO | medium |
+| `Bip` | biphenyl-4-sulfonyl; supplied Zhihu abbreviation table | `[*]S(=O)(=O)c1ccc(-c2ccccc2)cc1` | 16/17 | C12H9O2S | high |
 | `bLeu` | beta3-homoleucine residue | `N[C@@H](CC(C)C)CC(=O)[*]` | 10/9 | C7H14NO | medium |
 | `bLys` | beta3-lysine; C3 stereochemistry left unspecified | `NCCCCC(N)CC(=O)[*]` | 11/10 | C7H15N2O | medium |
 | `bMet` | beta3-homomethionine residue | `N[C@@H](CCSC)CC(=O)[*]` | 10/9 | C6H12NOS | medium |
 | `Bn` | benzyl | `[*]Cc1ccccc1` | 8/8 | C7H7 | high |
+| `BOB` | 4-benzyloxybutyryl; supplied Zhihu abbreviation table | `[*]C(=O)CCCOCc1ccccc1` | 14/14 | C11H13O2 | high |
 | `Boc` | tert-butoxycarbonyl | `CC(C)(C)OC(=O)[*]` | 8/7 | C5H9O2 | high |
 | `BOM` | benzyloxymethyl | `c1ccccc1COC[*]` | 10/10 | C8H9O | high |
 | `bPhe` | beta3-phenylalanine; C3 stereochemistry left unspecified | `NC(c1ccccc1)CC(=O)[*]` | 12/12 | C9H10NO | medium |
@@ -168,6 +176,7 @@
 | `Cha` | L-cyclohexylalanine | `N[C@@H](CC1CCCCC1)C(=O)[*]` | 12/12 | C9H16NO | high |
 | `CHF2` | Common functional group; attachment at * | `*C(F)F` | 4/3 | CHF2 | authored |
 | `CHO` | formyl | `O=C[*]` | 3/2 | CHO | high |
+| `Chx` | cyclohexyl; alias of Cy; supplied Zhihu abbreviation table | `[*]C1CCCCC1` | 7/7 | C6H11 | high |
 | `cHx` | cyclohexyl | `C1CCCCC1[*]` | 7/7 | C6H11 | high |
 | `Cit` | L-citrulline residue | `N[C@@H](CCCNC(N)=O)C(=O)[*]` | 12/11 | C6H12N3O2 | high |
 | `CN` | cyano | `N#C[*]` | 3/2 | CN | high |
@@ -198,6 +207,7 @@
 | `Cys` | L-cysteine | `N[C@@H](CS)C(=O)[*]` | 7/6 | C3H6NOS | high |
 | `Dab` | L-2,4-diaminobutyric acid residue | `N[C@@H](CCN)C(=O)[*]` | 8/7 | C4H9N2O | high |
 | `Dap` | L-2,3-diaminopropionic acid residue | `N[C@@H](CN)C(=O)[*]` | 7/6 | C3H7N2O | high |
+| `Dcpm` | dicyclopropylmethyl; supplied Zhihu abbreviation table | `[*]C(C1CC1)C1CC1` | 8/9 | C7H11 | high |
 | `Ddz` | 2-(3,5-dimethoxyphenyl)propan-2-yloxycarbonyl | `[*]C(=O)OC(C)(C)c1cc(OC)cc(OC)c1` | 17/17 | C12H15O4 | high |
 | `DEAE` | 2-(diethylamino)ethyl | `CCN(CC)CC[*]` | 8/7 | C6H14N | high |
 | `Dec` | n-decyl | `CCCCCCCCCC[*]` | 11/10 | C10H21 | high |
@@ -215,6 +225,7 @@
 | `Dpr` | L-2,3-diaminopropionic acid | `N[C@@H](CN)C(=O)[*]` | 7/6 | C3H7N2O | high |
 | `DTBMS` | di-tert-butylmethylsilyl | `[*][Si](C)(C(C)(C)C)C(C)(C)C` | 11/10 | C9H21Si | medium |
 | `DTBS` | di-tert-butylsilyl (Si-H retained) | `[*][SiH](C(C)(C)C)C(C)(C)C` | 10/9 | C8H19Si | medium |
+| `EOM` | ethoxymethyl; supplied Zhihu abbreviation table | `[*]COCC` | 5/4 | C3H7O | high |
 | `Et` | ethyl | `CC[*]` | 3/2 | C2H5 | high |
 | `Fmoc` | 9-fluorenylmethoxycarbonyl | `O=C(OCC1c2ccccc2c2ccccc21)[*]` | 18/20 | C15H11O2 | high |
 | `For` | formyl | `O=C[*]` | 3/2 | CHO | high |
@@ -229,6 +240,7 @@
 | `Hippuryl` | hippuryl (N-benzoylglycyl) | `O=C(NCC(=O)[*])c1ccccc1` | 13/13 | C9H8NO2 | high |
 | `His` | L-histidine | `N[C@@H](Cc1c[nH]cn1)C(=O)[*]` | 11/11 | C6H8N3O | high |
 | `Hiv` | 2-hydroxyisovaleryl | `CC(C)C(O)C(=O)[*]` | 8/7 | C5H9O2 | medium |
+| `Hmb` | 2-hydroxy-4-methoxybenzyl; supplied Zhihu abbreviation table | `[*]Cc1c(O)cc(OC)cc1` | 11/11 | C8H9O2 | high |
 | `Hph` | L-homophenylalanine | `N[C@@H](CCCc1ccccc1)C(=O)[*]` | 14/14 | C11H14NO | medium |
 | `Hse` | L-homoserine residue | `N[C@@H](CCO)C(=O)[*]` | 8/7 | C4H8NO2 | high |
 | `Hyl` | L-5-hydroxylysine (2S,5R) residue | `N[C@@H](CC[C@@H](O)CN)C(=O)[*]` | 11/10 | C6H13N2O2 | medium |
@@ -297,6 +309,7 @@
 | `NMe2` | dimethylamino | `CN(C)[*]` | 4/3 | C2H6N | high |
 | `NO` | Common functional group; attachment at * | `*N=O` | 3/2 | NO | authored |
 | `NO2` | Common functional group; attachment at * | `*[N+](=O)[O-]` | 4/3 | NO2 | authored |
+| `Nos` | 4-nitrobenzenesulfonyl; distinct from ortho-Ns; supplied Zhihu abbreviation table | `[*]S(=O)(=O)c1ccc([N+](=O)[O-])cc1` | 13/13 | C6H4NO4S | high |
 | `Np` | 1-naphthyl | `[*]c1cccc2ccccc12` | 11/12 | C10H7 | medium |
 | `nPr` | n-propyl | `CCC[*]` | 4/3 | C3H7 | high |
 | `Nps` | 2-nitrophenylsulfenyl | `[O-][N+](=O)c1ccccc1S[*]` | 11/11 | C6H4NO2S | medium |
@@ -346,6 +359,7 @@
 | `PMB` | 4-methoxybenzyl | `COc1ccc(C[*])cc1` | 10/10 | C8H9O | high |
 | `Pmc` | 2,2,5,7,8-pentamethylchroman-6-sulfonyl | `CC1(C)CCc2c(C)c(S(=O)(=O)[*])c(C)c(C)c2O1` | 19/20 | C14H19O3S | medium |
 | `PNB` | 4-nitrobenzyl | `[O-][N+](=O)c1ccc(C[*])cc1` | 11/11 | C7H6NO2 | high |
+| `PNZ` | 4-nitrobenzyloxycarbonyl; supplied Zhihu abbreviation table | `[*]C(=O)OCc1ccc([N+](=O)[O-])cc1` | 14/14 | C8H6NO4 | high |
 | `PO3H2` | phosphono | `[*]P(=O)(O)O` | 5/4 | H2O3P | high |
 | `PPh2` | diphenylphosphino | `[*]P(c1ccccc1)c1ccccc1` | 14/15 | C12H10P | high |
 | `Pr` | n-propyl | `CCC[*]` | 4/3 | C3H7 | high |
@@ -371,6 +385,7 @@
 | `SES` | 2-(trimethylsilyl)ethanesulfonyl | `C[Si](C)(C)CCS(=O)(=O)[*]` | 10/9 | C5H13O2SSi | high |
 | `SEt` | ethylthio | `CCS[*]` | 4/3 | C2H5S | high |
 | `SH` | Common functional group; attachment at * | `*S` | 2/1 | HS | authored |
+| `Sia` | 1,2-dimethylpropyl (secondary isoamyl); visually checked against supplied PDF | `[*]C(C)C(C)C` | 6/5 | C5H11 | high |
 | `SMe` | methylthio | `CS[*]` | 3/2 | CH3S | high |
 | `SnBu3` | tributylstannyl | `[*][Sn](CCCC)(CCCC)CCCC` | 14/13 | C12H27Sn | high |
 | `SO2CF3` | Common functional group; attachment at * | `*S(=O)(=O)C(F)(F)F` | 8/7 | CF3O2S | authored |
@@ -403,9 +418,14 @@
 | `Tf` | trifluoromethanesulfonyl | `FC(F)(F)S(=O)(=O)[*]` | 8/7 | CF3O2S | high |
 | `TFA` | trifluoroacetyl | `FC(F)(F)C(=O)[*]` | 7/6 | C2F3O | high |
 | `Tfe` | 2,2,2-trifluoroethyl | `FC(F)(F)C[*]` | 6/5 | C2H2F3 | high |
+| `Th` | thiophen-2-yl; supplied Zhihu abbreviation table | `[*]c1cccs1` | 6/6 | C4H3S | high |
 | `Thexyl` | thexyl (2,3-dimethylbutan-2-yl) | `CC(C)C(C)(C)[*]` | 7/6 | C6H13 | high |
+| `thexyl` | 1,1,2-trimethylpropyl; visually checked against supplied PDF | `[*]C(C)(C)C(C)C` | 7/6 | C6H13 | high |
 | `THP` | tetrahydropyran-2-yl | `[*]C1CCCCO1` | 7/7 | C5H9O | high |
 | `Thr` | L-threonine | `C[C@@H](O)[C@H](N)C(=O)[*]` | 8/7 | C4H8NO2 | high |
+| `Ti(OEt)3` | Authored metal-centred alkoxide attachment group | `[*][Ti](OCC)(OCC)OCC` | 11/10 | C6H15O3Ti | high |
+| `Ti(Oi-Pr)3` | Authored metal-centred alkoxide attachment group | `[*][Ti](OC(C)C)(OC(C)C)OC(C)C` | 14/13 | C9H21O3Ti | high |
+| `Ti(Ot-Bu)3` | Authored metal-centred alkoxide attachment group | `[*][Ti](OC(C)(C)C)(OC(C)(C)C)OC(C)(C)C` | 17/16 | C12H27O3Ti | high |
 | `Tic` | L-1,2,3,4-tetrahydroisoquinoline-3-carboxylic acid | `O=C([*])[C@@H]1Cc2ccccc2CN1` | 13/14 | C10H10NO | medium |
 | `TIPS` | triisopropylsilyl | `CC(C)[Si](C(C)C)(C(C)C)[*]` | 11/10 | C9H21Si | high |
 | `Tle` | L-tert-leucine residue | `N[C@@H](C(C)(C)C)C(=O)[*]` | 9/8 | C6H12NO | high |
@@ -424,5 +444,7 @@
 | `Val` | L-valine | `CC(C)[C@H](N)C(=O)[*]` | 8/7 | C5H10NO | high |
 | `Vi` | vinyl | `C=C[*]` | 3/2 | C2H3 | high |
 | `ZNO2` | 4-nitrobenzyloxycarbonyl | `[O-][N+](=O)c1ccc(COC(=O)[*])cc1` | 14/14 | C8H6NO4 | high |
+| `Zr(Oi-Pr)3` | Authored metal-centred alkoxide attachment group | `[*][Zr](OC(C)C)(OC(C)C)OC(C)C` | 14/13 | C9H21O3Zr | high |
+| `Zr(Ot-Bu)3` | Authored metal-centred alkoxide attachment group | `[*][Zr](OC(C)(C)C)(OC(C)(C)C)OC(C)(C)C` | 17/16 | C12H27O3Zr | high |
 
-<!-- generated by studio/tools/build_functional_groups_doc.py; catalog-count=361; source-count=369 -->
+<!-- generated by studio/tools/build_functional_groups_doc.py; catalog-count=383; source-count=391 -->

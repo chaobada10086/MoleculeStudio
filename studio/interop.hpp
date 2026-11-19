@@ -3,8 +3,12 @@
 #ifndef STUDIO_INTEROP_HPP
 #define STUDIO_INTEROP_HPP
 #include "next/integration/session.hpp"
+#include "next/arrows_curves/model.hpp"
 #include "engine/table_layout.hpp"
 #include "engine/atom_runs.hpp"
+#include "engine/bond_hydrogens.hpp"
+#include "engine/virtual_bonds.hpp"
+#include "engine/electron_graphics.hpp"
 #include "third_party/tinyxml2/tinyxml2.h"
 #include <windows.h>
 #include <functional>
@@ -12,6 +16,7 @@
 #include "cdx_binary.hpp"
 #include "page_defaults.hpp"
 #include "engine/name_link.hpp"
+#include "clipboard_image.hpp"
 namespace studioio {
 using namespace r62; using namespace core;
 struct Page {
@@ -71,10 +76,14 @@ inline Error exportXml(const Document& d,std::string* bytes){
     auto ft=root->FirstChildElement("fonttable");int font=3;
     if(ft&&ft->FirstChildElement("font"))font=ft->FirstChildElement("font")->IntAttribute("id",3);
     if(root->IntAttribute("CaptionFont",0)<=0)root->SetAttribute("CaptionFont",font);if(root->IntAttribute("LabelFont",0)<=0)root->SetAttribute("LabelFont",font);
+    auto ensureFont=[&](const std::string& name){if(!ft){ft=xml.NewElement("fonttable");root->InsertFirstChild(ft);}int next=1;for(auto f=ft->FirstChildElement("font");f;f=f->NextSiblingElement("font")){int id=f->IntAttribute("id",0);next=std::max(next,id+1);if(f->Attribute("name")&&name==f->Attribute("name"))return id;}auto f=xml.NewElement("font");f->SetAttribute("id",next);f->SetAttribute("name",name.c_str());f->SetAttribute("charset","iso-8859-1");ft->InsertEndChild(f);return next;};
+    root->SetAttribute("CaptionFont",ensureFont(d.defaultFont()));if(auto labelFont=d.documentExtensions().findValue("studio.style.LabelFontName"))root->SetAttribute("LabelFont",ensureFont(*labelFont));
+    root->SetAttribute("BondLength",d.defaultBondLength());root->SetAttribute("LineWidth",d.defaultLineWidth());
     root->SetAttribute("CreationProgram","Molecule Studio");
+    if(!root->Attribute("BondSpacing"))root->SetAttribute("BondSpacing",18);
     double labelSize=10;auto label=d.documentExtensions().findValue("studio.style.LabelSize");if(label){double n=std::atof(label->c_str());if(std::isfinite(n)&&n>0)labelSize=n;}
     root->SetAttribute("LabelSize",labelSize);root->SetAttribute("CaptionSize",d.defaultTextSize());
-    for(const char* key:{"BondSpacing","MarginWidth","LabelFace","BoldWidth","HashSpacing"})if(auto value=d.documentExtensions().findValue(std::string("studio.style.")+key))root->SetAttribute(key,value->c_str());
+    for(const char* key:{"ChainAngle","BondSpacing","MarginWidth","LabelFace","BoldWidth","HashSpacing"})if(auto value=d.documentExtensions().findValue(std::string("studio.style.")+key))root->SetAttribute(key,value->c_str());
     if(ft)for(auto f=ft->FirstChildElement("font");f;f=f->NextSiblingElement("font"))f->SetAttribute("charset","iso-8859-1");
     Page p=Page::get(d);if(!p.valid())return Error(ErrorCode::InvalidArgument,"纸张设置无效");
     // ChemDraw's pages mode derives the canvas from its printer paper (540x720
@@ -104,13 +113,26 @@ inline Error exportXml(const Document& d,std::string* bytes){
         // Keep drawing coordinates as they are, but move the exported copy into
         // the canvas. ChemDraw reads them unchanged, so the translation must not
         // touch the live document.
-        double minX=1e30,minY=1e30,maxX=-1e30,maxY=-1e30;
+        double minX=1e30,minY=1e30,maxX=-1e30,maxY=-1e30;bool offCanvasTlcX=false,offCanvasTlcY=false;
+        std::function<void(tinyxml2::XMLElement*)> inspectTlc=[&](tinyxml2::XMLElement* node){for(auto e=node->FirstChildElement();e;e=e->NextSiblingElement()){if(std::string(e->Name())=="tlcplate")for(auto key:{"TopLeft","TopRight","BottomLeft","BottomRight"})if(auto value=e->Attribute(key)){double x=0,y=0;std::istringstream in(value);if(in>>x>>y){offCanvasTlcX|=x<ox;offCanvasTlcY|=y<oy;}}inspectTlc(e);}};inspectTlc(pg);
         std::function<void(tinyxml2::XMLElement*,bool,double,double)> walk;
         walk=[&](tinyxml2::XMLElement* node,bool move,double dx,double dy){
             for(auto e=node->FirstChildElement();e;e=e->NextSiblingElement()){
-                for(const char* name:{"p","xyz","BoundingBox","CurvePoints","Head3D","Tail3D","Center3D","MajorAxisEnd3D","MinorAxisEnd3D"})if(auto attr=e->Attribute(name)){
+                // Unmodified imported elements may replay their original XML.
+                // Repair the old private origin before measuring the page bounds.
+                if(!move && e->Attribute("MoleculeStudioPath") && e->Attribute("CurvePoints")){
+                    std::istringstream native(e->Attribute("CurvePoints")), vertices(e->Attribute("MoleculeStudioPath"));
+                    double x,y,px,py;
+                    if(native>>x>>y && vertices>>px>>py && (std::abs(x-px)>1e-6 || std::abs(y-py)>1e-6)){
+                        const double shiftX=x-px,shiftY=y-py;
+                        std::ostringstream fixed;fixed.precision(12);fixed<<x<<' '<<y;
+                        while(vertices>>px>>py)fixed<<' '<<px+shiftX<<' '<<py+shiftY;
+                        e->SetAttribute("MoleculeStudioPath",fixed.str().c_str());
+                    }
+                }
+                for(const char* name:{"p","xyz","BoundingBox","CurvePoints","MoleculeStudioPath","Head3D","Tail3D","Center3D","MajorAxisEnd3D","MinorAxisEnd3D","TopLeft","TopRight","BottomLeft","BottomRight"})if(auto attr=e->Attribute(name)){
                     std::istringstream in(attr);std::vector<double> v;double n;while(in>>n)v.push_back(n);if(v.size()<2)continue;
-                    const bool corners=std::string(name)=="BoundingBox"||std::string(name)=="CurvePoints";
+                    const bool corners=std::string(name)=="BoundingBox"||std::string(name)=="CurvePoints"||std::string(name)=="MoleculeStudioPath";
                     if(!move){
                         minX=std::min(minX,v[0]);minY=std::min(minY,v[1]);maxX=std::max(maxX,v[0]);maxY=std::max(maxY,v[1]);
                         if(corners)for(size_t k=2;k+1<v.size();k+=2){minX=std::min(minX,v[k]);minY=std::min(minY,v[k+1]);maxX=std::max(maxX,v[k]);maxY=std::max(maxY,v[k+1]);}
@@ -126,8 +148,8 @@ inline Error exportXml(const Document& d,std::string* bytes){
         // A document read from a file already owns absolute coordinates, so it is
         // translated by the page origin only and its positions stay untouched.
         double dx=-ox,dy=-oy;
-        if(p.x<0&&minX<1e29&&minX+dx<24)dx+=24-minX-dx;
-        if(p.y<0&&minY<1e29&&minY+dy<24)dy+=24-minY-dy;
+        if((p.x<0||offCanvasTlcX)&&minX<1e29&&minX+dx<24)dx+=24-minX-dx;
+        if((p.y<0||offCanvasTlcY)&&minY<1e29&&minY+dy<24)dy+=24-minY-dy;
         walk(pg,true,dx,dy);
         // The root BoundingBox is the drawing's extent, as ChemDraw writes it,
         // not the page rectangle; the canvas size lives on the page element.
@@ -160,6 +182,7 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
     bool changed=true;while(changed){size_t n=chosen.size();auto scan=chosen;
         for(auto r:scan){if(r.kind==ObjectKind::Group){auto g=src.groups().alive(r.id);if(g)chosen.insert(g->members.begin(),g->members.end());}
             if(r.kind==ObjectKind::Bond){auto b=src.bonds().alive(r.id);if(b){chosen.insert(ObjectRef(ObjectKind::Atom,b->beginAtom));chosen.insert(ObjectRef(ObjectKind::Atom,b->endAtom));}}
+            if(r.kind==ObjectKind::Arrow){ObjectId a,b;if(virtual_bonds::endpoints(src,r,a,b)){chosen.insert(ObjectRef(ObjectKind::Atom,a));chosen.insert(ObjectRef(ObjectKind::Atom,b));}}
             if(r.kind==ObjectKind::Table){auto t=src.tables().alive(r.id);if(t)for(auto id:t->cells)if(id!=kInvalidObjectId)chosen.insert(ObjectRef(ObjectKind::Text,id));}}
         for(auto& b:src.bonds().records())if(b.isAlive()&&chosen.count(ObjectRef(ObjectKind::Atom,b.beginAtom))&&chosen.count(ObjectRef(ObjectKind::Atom,b.endAtom)))chosen.insert(ObjectRef(ObjectKind::Bond,b.id));
         changed=n!=chosen.size();
@@ -170,7 +193,12 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
         // re-emitted at their pre-paste coordinates on a later CDXML save.
         // A pasted copy gets fresh object ids, so a stored structure link would
         // point at unrelated objects; the copy starts unlinked instead.
-        for(auto& v:src.extensions(old).entries())if(v.key.compare(0,4,"pst.")!=0&&!namelink::isLinkKey(v.key))dst.extensions(fresh).set(v.key,v.value);
+        for(auto& v:src.extensions(old).entries())if((v.key.compare(0,4,"pst.")!=0||v.key.find("pst.attr.MoleculeStudioCatalytic")==0||v.key.compare(0,30,"pst.attr.MoleculeStudioProject")==0||v.key=="pst.attr.MoleculeStudioRole"||v.key=="pst.attr.MoleculeStudioLonePairs"||
+            v.key=="pst.attr.MoleculeStudioRadicalPosition"||v.key=="pst.attr.MoleculeStudioChargePosition"||
+            v.key=="pst.attr.MoleculeStudioLiteralLabel"||v.key=="pst.attr.MoleculeStudioLonePairPositions"||
+            v.key=="pst.attr.MoleculeStudioChargeCircle"||v.key=="pst.attr.BoldWidth"||v.key=="pst.attr.IgnoreWarnings"||v.key=="pst.attr.InterpretChemically"||v.key=="pst.attr.Visible"||v.key=="pst.attr.ElementList"||v.key=="pst.attr.GenericNickname"||
+            v.key=="pst.attr.GenericList"||v.key=="pst.attr.SubstituentsUpTo"||v.key=="pst.attr.SubstituentsExactly"||
+            v.key=="pst.attr.UnsaturatedBonds"||v.key=="pst.attr.RingBondCount")&&!namelink::isLinkKey(v.key))dst.extensions(fresh).set(v.key,v.value);
         if(old.kind==ObjectKind::Bond&&!dst.extensions(fresh).findValue("studio.graphics.width")){
             double width=src.defaultLineWidth();if(auto v=src.extensions(old).findValue("pst.attr.LineWidth"))width=std::atof(v->c_str());
             if(std::isfinite(width)&&width>0)dst.extensions(fresh).set("studio.graphics.width",std::to_string(width));
@@ -186,11 +214,34 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
         else if(r.kind==ObjectKind::Table){auto a=src.tables().alive(r.id);if(!a)continue;auto c=*a;c.sourceId=0;c.frame.min=c.frame.min+delta;c.frame.max=c.frame.max+delta;for(auto& cell:c.cells){auto it=map.find(ObjectRef(ObjectKind::Text,cell));cell=it==map.end()?kInvalidObjectId:it->second.id;}e=dst.addTable(c,&id);}
         else {const ObjectSlab<AnnotationRecord>* slab=r.kind==ObjectKind::Arrow?&src.arrows():r.kind==ObjectKind::Bracket?&src.brackets():r.kind==ObjectKind::Orbital?&src.orbitals():r.kind==ObjectKind::Symbol?&src.symbols():r.kind==ObjectKind::BioShape?&src.bioShapes():nullptr;if(!slab)continue;auto a=slab->alive(r.id);if(!a)continue;auto c=*a;c.sourceId=0;for(auto& pt:c.geometry)pt=pt+delta;for(auto& anchor:c.anchors){auto it=map.find(ObjectRef(ObjectKind::Atom,anchor));anchor=it==map.end()?kInvalidObjectId:it->second.id;}e=dst.addAnnotation(r.kind,c,&id);}
         add(r,id,e);
+        if(e.ok()&&r.kind==ObjectKind::Arrow){
+            arrows::ArrowParams params;bool native=false;
+            e=arrows::readArrow(src,r.id,&params,&native);if(!e.ok())return e;
+            if(native){
+                params.begin=params.begin+delta;params.end=params.end+delta;
+                auto remapElectron=[&](ObjectRef ref){auto found=map.find(ref);return found==map.end()?ObjectRef():found->second;};
+                params.electronSource=remapElectron(params.electronSource);
+                params.electronTarget=remapElectron(params.electronTarget);
+                if(!params.electronSource.valid())params.sourceVisualAnchor=0;if(!params.electronTarget.valid())params.targetVisualAnchor=0;
+                e=arrows::writeArrow(dst,id,params,dst.defaultLineWidth());if(!e.ok())return e;
+            }
+        }
         if(e.ok()&&r.kind==ObjectKind::Table){graphics::TableData data;bool used=false;e=graphics::readTable(src,r.id,&data,&used);if(!e.ok())return e;
             data.grid.frame.min=data.grid.frame.min+delta;data.grid.frame.max=data.grid.frame.max+delta;
             for(auto& cell:data.cells)if(cell.kind==graphics::CellKind::Text){auto found=map.find(ObjectRef(ObjectKind::Text,cell.text));if(found==map.end())return Error(ErrorCode::NotFound,"Table cell copy is missing");cell.text=found->second.id;}
             e=graphics::writeTable(dst,id,data);if(!e.ok())return e;
         }
+    }
+    for(const auto& entry:map)if(entry.first.kind==ObjectKind::Arrow){
+        arrows::ArrowParams original,current;bool valid=false;
+        arrows::readArrow(src,entry.first.id,&original,&valid);
+        if(!valid||(!original.mechanism&&!original.virtualBond))continue;
+        arrows::readArrow(dst,entry.second.id,&current,&valid);
+        auto remap=[&](ObjectRef ref){auto found=map.find(ref);return found==map.end()?ObjectRef():found->second;};
+        current.electronSource=remap(original.electronSource);current.electronTarget=remap(original.electronTarget);
+        current.sourceVisualAnchor=current.electronSource.valid()?original.sourceVisualAnchor:0;
+        current.targetVisualAnchor=current.electronTarget.valid()?original.targetVisualAnchor:0;
+        auto e=arrows::writeArrow(dst,entry.second.id,current,dst.defaultLineWidth());if(!e.ok())return e;
     }
     for(auto r:chosen)if(r.kind==ObjectKind::Group){auto a=src.groups().alive(r.id);if(!a)continue;auto c=*a;c.sourceId=0;c.members.clear();for(auto m:a->members){auto it=map.find(m);if(it!=map.end())c.members.push_back(it->second);}ObjectId id;auto e=dst.addGroup(c,&id);add(r,id,e);}
     return error;
@@ -378,7 +429,16 @@ inline bool readOleClipboard(UINT& fmt,std::string& bytes){
 }
 inline Error paste(integration::Session& s,HWND owner){
     UINT fmt=0;std::string bytes;
-    if(!readOleClipboard(fmt,bytes)){
+    // Chemical clipboard payloads remain editable. Otherwise prefer an actual
+    // image to accompanying text/URLs (common in browser image copies).
+    const bool chemical=IsClipboardFormatAvailable(nativeFormat())||IsClipboardFormatAvailable(RegisterClipboardFormatW(L"ChemDraw XML"))||IsClipboardFormatAvailable(cdxbinary::format());
+    const bool image=!chemical&&clipboard_image::available();
+    if(image){
+        double width=s.view().deviceRadiusToDocument(std::max(100.,s.renderView.widthPx)*.7);
+        double height=s.view().deviceRadiusToDocument(std::max(100.,s.renderView.heightPx)*.7);
+        if(!clipboard_image::read(owner,width,height,s.view().center-Vec2(12,12),bytes))return Error(ErrorCode::ParseError,"无法读取剪贴板图片，请重新复制后再试");
+    }
+    else if(!readOleClipboard(fmt,bytes)){
         if(!OpenClipboard(owner))return Error(ErrorCode::Locked,"剪贴板被占用，请重试");
         fmt=IsClipboardFormatAvailable(nativeFormat())?nativeFormat():IsClipboardFormatAvailable(RegisterClipboardFormatW(L"ChemDraw XML"))?RegisterClipboardFormatW(L"ChemDraw XML"):IsClipboardFormatAvailable(cdxbinary::format())?cdxbinary::format():CF_UNICODETEXT;
         HANDLE h=GetClipboardData(fmt);if(h){size_t n=GlobalSize(h);auto p=GlobalLock(h);if(p&&n<=128*1024*1024){if(fmt==CF_UNICODETEXT){auto w=static_cast<const wchar_t*>(p);size_t len=0;while(len<n/2&&w[len])++len;int z=WideCharToMultiByte(CP_UTF8,0,w,int(len),0,0,0,0);bytes.resize(z);WideCharToMultiByte(CP_UTF8,0,w,int(len),&bytes[0],z,0,0);}else{auto c=static_cast<const char*>(p);bytes.assign(c,c+n);if(fmt!=cdxbinary::format())while(!bytes.empty()&&bytes.back()==0)bytes.pop_back();}}if(p)GlobalUnlock(h);}
@@ -388,10 +448,14 @@ inline Error paste(integration::Session& s,HWND owner){
     if(fmt==cdxbinary::format()){std::string xml,why;if(!cdxbinary::toXml(bytes,xml,why))return Error(ErrorCode::ParseError,"ChemDraw CDX: "+why);bytes=std::move(xml);}
 
     auto source=std::make_shared<integration::Session>();Error e;if(fmt==nativeFormat()){std::istringstream in(bytes);e=integration::loadSafeNative(source->doc,in);}else if(bytes.find("<CDXML")!=std::string::npos)e=persistence::readCdxml(bytes,source->doc);else{ObjectId t;e=source->doc.addText(Vec2(),s.doc.defaultTextSize(),bytes,&t);}
-    if(!e.ok())return e;source->refresh();auto refs=source->all();if(refs.empty())return Error(ErrorCode::NotFound,"剪贴板中没有可编辑的对象");
+    if(!e.ok())return e;
+    bool repaired=false;
+    e=studio::bond_hydrogens::repairCondensedHydroxyls(source->doc,repaired);
+    if(!e.ok())return e;
+    source->refresh();auto refs=source->all();if(refs.empty())return Error(ErrorCode::NotFound,"剪贴板中没有可编辑的对象");
     // External = not this program's own clipboard payload. Plain text carries no
     // document format at all, so it never prompts.
-    const bool externalSource=fmt!=nativeFormat();
+    const bool externalSource=!image&&fmt!=nativeFormat();
     const bool formatKnown=externalSource&&(fmt==RegisterClipboardFormatW(L"ChemDraw XML")||fmt==cdxbinary::format());
     const DrawingFormat sourceFormat=drawingFormat(source->doc);
     const DrawingFormat targetFormat=drawingFormat(s.doc);
@@ -414,7 +478,7 @@ inline Error paste(integration::Session& s,HWND owner){
         s.selected=*inserted;s.activateCommand("chooseSelectionTool_Marquee");
         if(action==PasteFormatAction::AdoptSource)s.status="已粘贴 · 已整体采用复制源格式（"+drawingFormatSummary(sourceFormat)+"）";
         else if(action==PasteFormatAction::KeepTarget)s.status="已粘贴 · 保留当前文档格式（"+drawingFormatSummary(targetFormat)+"）";
-        else s.status="已粘贴";
+        else s.status=image?"已粘贴图片 · 可移动、缩放和撤销":"已粘贴";
     }return e;
 }
 inline void selectionOverlay(integration::Session& s,render::OverlayScene& out){
@@ -436,6 +500,8 @@ inline void selectionOverlay(integration::Session& s,render::OverlayScene& out){
         Vec2 rotation(cx,b.min.y-unit*12);segment(Vec2(cx,b.min.y),rotation+Vec2(0,unit*8),0x686868FF,1);
         auto rotationShape=[&](const std::vector<Vec2>& points,bool filled){Primitive p;p.kind=filled?PrimKind::Polygon:PrimKind::Polyline;for(auto pt:points)p.points.push_back(rotation+pt*unit);p.layer=LayerId(900);p.z=103;p.style.stroke=Paint(0x686868FF,!filled);p.style.strokeWidth=unit*1.8;p.style.fill=Paint(0x686868FF,filled);p.bounds=geom::computeBounds(p,p.style.strokeWidth);out.scene().add(p);};
         rotationShape(studio_rotation::arc(9),false);rotationShape(studio_rotation::arc(5),false);rotationShape(studio_rotation::arrow(),true);
+        const bool singleBond=s.selected.size()==1&&s.selected.front().kind==ObjectKind::Bond;
+        if(singleBond)continue;
         for(auto pt:handles){Primitive p;p.kind=PrimKind::Rect;p.points={pt-Vec2(unit*1.7,unit*1.7),pt+Vec2(unit*1.7,unit*1.7)};p.layer=LayerId(900);p.z=101;p.style.fill=Paint(color,true);p.style.stroke.enabled=false;p.bounds=Box(p.points[0],p.points[1]);out.scene().add(p);}
     }
 }

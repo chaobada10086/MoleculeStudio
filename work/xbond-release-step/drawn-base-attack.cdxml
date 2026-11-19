@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="307.6378 386.275094847 567.5978 466.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="13" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="14">
+            <n id="3" p="307.6378 425.9449" Charge="-1" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown" IgnoreWarnings="yes" GenericNickname="B" MoleculeStudioRole="base">
+                <objecttag id="15" Name="MoleculeStudio.GenericRole.base" Persistent="yes"/>
+                <t>
+                    <s font="3" size="10" face="96">B</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+            <b id="16" B="4" E="5" Order="1"/>
+            <n id="4" p="362.6378 455.9449" Charge="1" NumHydrogens="0"/>
+            <b id="19" B="4" E="6" Order="1"/>
+            <n id="5" p="362.6378 433.9449" NumHydrogens="3"/>
+            <b id="21" B="4" E="7" Order="1"/>
+            <n id="6" p="343.6378 466.9449" NumHydrogens="3"/>
+            <b id="22" B="9" E="10" Order="1"/>
+            <n id="7" p="381.6378 466.9449" NumHydrogens="3"/>
+            <b id="23" B="9" E="11" Order="1"/>
+            <n id="8" p="535.95610375 449.049429318" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown" IgnoreWarnings="yes" GenericNickname="B" MoleculeStudioRole="base">
+                <objecttag id="24" Name="MoleculeStudio.GenericRole.base" Persistent="yes"/>
+                <t>
+                    <s font="3" size="10" face="96">B</s>
+                </t>
+            </n>
+            <b id="25" B="9" E="12" Order="1"/>
+            <n id="9" p="548.5978 455.9449" NumHydrogens="0"/>
+            <b id="26" B="8" E="9" Order="1"/>
+            <n id="10" p="548.5978 433.9449" NumHydrogens="3"/>
+            <n id="11" p="529.5978 466.9449" NumHydrogens="3"/>
+            <n id="12" p="567.5978 466.9449" NumHydrogens="3"/>
+        </fragment>
+        <graphic id="27" GraphicType="Symbol" SymbolType="Plus" BoundingBox="368.699977826 452.4449 375.899977826 452.4449" LineWidth="0.59999999999999998">
+            <represent object="4" attribute="Charge"/>
+        </graphic>
+        <curve id="17" CurvePoints="312.6378 425.9449 312.6378 425.9449 316.395394095 443.28299626 331.133772091 455.899770385 348.911665993 456.665269277 348.911665993 456.665269277" CurveType="0" BoundingBox="312.2878 386.275094847 371.701003436 459.962893845" Tail3D="312.6378 425.9449 0" Head3D="357.6378 455.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="2250" ArrowheadCenterSize="1969" ArrowheadWidth="563" MoleculeStudioElectronSource="atom:3" MoleculeStudioElectronTarget="atom:4" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=1;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=13.5;hwidth=6.75;hend=1;hbegin=0;bx=15;by=5;ex=60;ey=35;sag=11.201011785965965;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <curve id="18" MoleculeStudioArrowPart="17" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="357.6378 455.9449 357.6378 455.9449 357.6378 455.9449 344.010073301 453.544593503 344.010073301 453.544593503 344.010073301 453.544593503 346.04060379 456.49000556 346.04060379 456.49000556 346.04060379 456.49000556 344.295302955 459.612893845 344.295302955 459.612893845 344.295302955 459.612893845" color="0"/>
+        <arrow id="20" BoundingBox="391.2478 443.8449 473.9478 449.0449" Tail3D="391.5978 446.4449 0" Head3D="473.5978 446.4449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" MoleculeStudioArrow="v=1;preset=8;family=0;size=1;line=0;shafts=1;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=93.959999999999994;by=25.5;ex=175.95999999999998;ey=25.5;sag=0;sep=3.375;split=0.5;osplit=0.5;scale=1;"/>
+    </page>
+</CDXML>

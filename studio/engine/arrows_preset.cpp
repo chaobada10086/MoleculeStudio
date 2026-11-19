@@ -1,6 +1,7 @@
 #include "next/arrows_curves/preset.hpp"
 
 #include <cmath>
+#include <algorithm>
 #include <cstring>
 
 namespace r62 {
@@ -225,6 +226,14 @@ const PresetSpec kPresets[] = {
        "120 Double", ArrowFamily::Arc, ArrowSize::Large, ArrowLine::Solid,
        ArrowHeadShape::Solid, HeadSides::Both, ShaftCount::Double, ArcSweep::Deg120,
        ArcDirection::Clockwise, false, true, "" },
+    { 58, "chooseArrowTool_FreeArc", "r62.tool.arrow.free.arc",
+       "自由弧线箭头", ArrowFamily::Arc, ArrowSize::Large, ArrowLine::Solid,
+       ArrowHeadShape::Solid, HeadSides::Both, ShaftCount::One, ArcSweep::Deg90,
+       ArcDirection::Clockwise, false, true, "independent circular arc gesture" },
+    { 57, "chooseArrowTool_MechanismFishhook", "r62.tool.arrow.mechanism.fishhook",
+       "机理鱼钩箭头", ArrowFamily::Arc, ArrowSize::Large, ArrowLine::Solid,
+       ArrowHeadShape::Solid, HeadSides::Right, ShaftCount::One, ArcSweep::Deg90,
+       ArcDirection::Clockwise, false, true, "single electron mechanism" },
     { 49, "chooseArrowTool_90_CW", "r62.tool.arrow.arc90.cw",
        "90 CW", ArrowFamily::Arc, ArrowSize::Large, ArrowLine::Solid,
        ArrowHeadShape::Solid, HeadSides::Both, ShaftCount::One, ArcSweep::Deg90,
@@ -436,7 +445,7 @@ ArrowParams resolvePreset(uint32_t presetId, const core::Vec2& begin,
 
     // Unbalanced: the two halves get DIFFERENT lengths, which is the whole point
     // of the preset. [GUIDE p109] "equilibrium arrows of unequal lengths".
-    out.splitRatio = contains(p->sourceCommand, "Unbalanced") ? 0.62 : 0.5;
+    out.splitRatio = contains(p->sourceCommand, "Unbalanced") ? 0.72 : 0.5;
     out.originalSplitRatio = out.splitRatio;
 
     (void)documentLineWidth;   // stroke width is derived on demand by strokeWidthFor
@@ -463,6 +472,14 @@ ArrowParams applyPresetStyle(const ArrowParams& current, uint32_t presetId,
     return out;
 }
 
+bool isMechanismArrow(const ArrowParams& p){return p.mechanism||p.virtualBond||p.presetId==49||p.presetId==57;}
+ArrowParams withHeadTier(ArrowParams p,int tier){
+    if(isMechanismArrow(p))return p;tier=std::max(0,std::min(4,tier));
+    const double lengths[]={3.2,6,9,13.5,18},widths[]={2.24,3.1,4.5,6.75,9};
+    if(p.head.shape==ArrowHeadShape::HalfArrow){double ratio=p.head.length>0?lengths[tier]/p.head.length:1;p.separation*=ratio;p.head.width*=ratio;}else p.head.width=widths[tier];
+    p.head.length=lengths[tier];return p;
+}
+const char* headTierName(int tier){const char* names[]={"小","较小","中","较大","大"};return names[std::max(0,std::min(4,tier))];}
 const CurveStyleSpec* curveStyles() { return kCurveStyles; }
 
 size_t curveStyleCount() { return sizeof(kCurveStyles) / sizeof(kCurveStyles[0]); }

@@ -65,7 +65,13 @@ class OcsrServiceError(ValueError):
 @contextmanager
 def service_session(base):
     base = Path(base).resolve()
-    runtime = Path(os.environ.get('MOLECULE_STUDIO_OCSR_RUNTIME') or base / 'ocsr_runtime')
+    configured = os.environ.get('MOLECULE_STUDIO_OCSR_RUNTIME')
+    runtime = Path(configured) if configured else base / 'ocsr_runtime'
+    local = os.environ.get('LOCALAPPDATA')
+    if not configured and not runtime.exists() and local:
+        installed = Path(local) / 'Programs' / 'MoleculeStudio' / 'ocsr_runtime'
+        if installed.is_dir():
+            runtime = installed
     try: python, site = prepare_runtime(runtime)
     except (OSError, ValueError) as exc:
         raise OcsrServiceError('本地识别运行时初始化失败：' + str(exc), None, 'service_startup') from None
@@ -331,7 +337,16 @@ def recognize_regions(engine, attachments, args, base, number, style):
                 response = _recognize(request, source, page, crop, rendered)
                 root, atoms = _load_cdxml(response, records)
                 region_warnings = [n.text for n in response.findall('warning') if n.text]
+                # Derive the reusable structure from the checked native drawing.
+                spec = ''
+                if response.get('insertable') == '1':
+                    try:
+                        from chemistry_open import identity, one_molecule
+                        spec = 'smiles:' + identity(one_molecule(ET.tostring(root,encoding='unicode'),max_atoms=400))
+                    except (ValueError, RuntimeError) as exc:
+                        region_warnings.append('候选结构不能直接用作反应物：'+str(exc)[:120])
                 results.append({
+                    'spec': spec,
                     'index': index,
                     'crop': [round(v, 6) for v in crop],
                     'confidence': response.get('confidence') or '',

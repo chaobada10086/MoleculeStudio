@@ -1,0 +1,36 @@
+<CDXML BondLength="20" LineWidth="0.59999999999999998" LabelSize="10" CaptionSize="10" LabelFont="3" CaptionFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="277.6378 400.9449 317.6378 440.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" name="Arial" charset="iso-8859-1"/>
+    </fonttable>
+    <page id="1" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <n id="6" p="297.6378 420.9449" MoleculeStudioProjection="0">
+            <objecttag id="15" Name="MoleculeStudioProjection=0"/>
+        </n>
+        <b id="11" B="6" E="7" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+            <objecttag id="16" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+        </b>
+        <n id="7" p="277.6378 420.9449"/>
+        <b id="12" B="6" E="8" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+            <objecttag id="17" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+        </b>
+        <n id="8" p="317.6378 420.9449"/>
+        <b id="13" B="6" E="9" Order="1" MoleculeStudioProjectionBegin="0 1 -1">
+            <objecttag id="18" Name="MoleculeStudioProjectionBegin=0 1 -1"/>
+        </b>
+        <n id="9" p="297.6378 400.9449"/>
+        <b id="14" B="6" E="10" Order="1" MoleculeStudioProjectionBegin="0 -1 -1">
+            <objecttag id="19" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+        </b>
+        <n id="10" p="297.6378 440.9449"/>
+    </page>
+</CDXML>

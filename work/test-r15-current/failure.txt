@@ -1,0 +1,1 @@
+projection mechanism: base arrow must not cross a substrate bond

@@ -47,6 +47,9 @@ inline std::string expand(const std::string& source){
         if(connections.size()!=1)throw std::runtime_error("官能团连接点定义不完整");auto link=connections[0];
         int anchorId=link->IntAttribute("B")==extId?link->IntAttribute("E"):link->IntAttribute("B");
         if(!nodes.count(anchorId))throw std::runtime_error("官能团缺少连接原子");
+        // A compact residue can acquire a charge or an unpaired electron in a
+        // mechanism step. Keep that state on its real attachment atom.
+        for(const char* key:{"Charge","Radical"})if(auto state=node->Attribute(key))nodes[anchorId]->SetAttribute(key,state);
         auto origin=point(node),anchor=point(nodes[anchorId]),endpoint=point(ext);double angle=0,scale=1;
         std::vector<double> lengths;for(auto b=f->FirstChildElement("b");b;b=b->NextSiblingElement("b")){auto a=nodes.find(b->IntAttribute("B")),z=nodes.find(b->IntAttribute("E"));if(a==nodes.end()||z==nodes.end())throw std::runtime_error("官能团化学键端点缺失");auto p=point(a->second),q=point(z->second);double d=std::hypot(p.first-q.first,p.second-q.second);if(d>1e-6)lengths.push_back(d);}
         if(!lengths.empty()){std::sort(lengths.begin(),lengths.end());scale=root->DoubleAttribute("BondLength",14.4)/lengths[lengths.size()/2];}

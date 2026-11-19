@@ -1,0 +1,9 @@
+A002-B product correct; 2 native arrows; undo and redo verified
+A040-B product correct; 3 native arrows; undo and redo verified
+A047-B product correct; 2 native arrows; undo and redo verified
+A064-A product correct; 3 native arrows; undo and redo verified
+B018-C product correct; 2 native arrows; undo and redo verified
+A048-A product and 1 native arrows verified
+A048-B product and 3 native arrows verified
+A048-C product and 3 native arrows verified
+A048-D product and 1 native arrows verified

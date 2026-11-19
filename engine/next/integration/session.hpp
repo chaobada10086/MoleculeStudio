@@ -47,7 +47,7 @@ public:
     const render::Scene& displayScene() const {return moving?dragScene:gpuScene;}
     // A rigid drag can reuse GPU triangles; boundary bonds keep the CPU path.
     bool rigidDragPreview(Vec2* delta,std::vector<uint64_t>* keys) const {
-        if(!moving||movingBoundary||movingSlots.empty()||dragScene.size()!=gpuScene.size())return false;
+        if(!moving||dragBaseActive||movingBoundary||!deferredDragArrows.empty()||movingSlots.empty()||dragScene.size()!=gpuScene.size())return false;
         bool first=true;
         for(const auto& entry:movingSlots)for(size_t i:entry.second){
             if(i+2>=dragScene.size()||!scene.primitives()[i].cacheKey)return false;
@@ -67,6 +67,9 @@ public:
     std::vector<ObjectRef> selected;
     std::string status, sourcePath;
     bool dirty, fixedLen, fixedAngle, dragFixedLength; Document dragBase; bool dragBaseActive=false;
+    bool arcBendLocked=false;double arcBendRatio=.2071067811865475;
+    bool arcCurvatureLocked=false;double arcCurvature=0.;bool arcCurvatureMajor=false;
+    int arrowHeadTier=3;
     double graphicsWidth=0;uint32_t graphicsColor=0x000000FFu;
     bool whiteCanvas;   // OLE editor: use a white full-canvas backdrop
     uint64_t serial, viewSerial;
@@ -78,6 +81,9 @@ public:
     const Document& document() const override {return doc;}
     CommandLog& log() override {return history;}
     PreviewScene& preview() override {return ghost;}
+    // Hand an existing-board click back to the UI while it distinguishes a
+    // single click from the first half of a double-click.
+    bool deferTlcSpotClick(){bool pending=tlcSpotting;tlcSpotting=false;return pending;}
     const std::vector<ObjectRef>& selection() const override {return selected;}
     void setSelection(const std::vector<ObjectRef>& x) override {selected=x;}
     void addToSelection(const std::vector<ObjectRef>& x) override;
@@ -120,6 +126,7 @@ public:
     ObjectRef topLevelRef(const ObjectRef& ref) const;
     std::vector<ObjectRef> topLevelSelection(const std::vector<ObjectRef>& refs) const;
     render::OverlayScene overlay();
+    const std::map<ObjectId,Box>& valenceWarnings();
     bool activateCommand(const std::string&);
     ObjectId editAtom;
     // The text object created by the last T09 placement; the shell opens the
@@ -129,6 +136,9 @@ public:
     interaction::SnapResult bondSnap;
     bool bondDrawing;
 private:
+    DocumentId valenceWarningDocument=0;
+    uint64_t valenceWarningSerial=0;
+    std::map<ObjectId,Box> valenceWarningBounds;
     spatial::Index objectIndex, candidateIndex;
     std::vector<ObjectRef> objectRefs;
     std::vector<interaction::SnapCandidate> candidates;
@@ -140,10 +150,19 @@ private:
     // instead of a new plate drag.
     bool tlcSpotting;
     ObjectId tlcFigure;
+    bool tlcSpotDragging=false;
+    bool tlcSpotCopy=false;
+    uint32_t tlcSpotId=0;
+    experimental::Spot tlcSpotStart;
+    bool arrowMiddleDragging=false;
+    ObjectId arrowMiddleId=kInvalidObjectId;
     std::vector<Vec2> lasso;
     std::set<ObjectRef> movingRefs;
     std::map<ObjectRef,std::vector<size_t>> movingSlots;
     bool movingBoundary=false;
+    std::set<ObjectRef> deferredDragArrows;
+    std::vector<size_t> deferredDragSlots;
+    bool dragCatalytic=false;
     Error buildScene();
     static interaction::RouterOutcome action(void*,const interaction::ActionRequest&);
 };

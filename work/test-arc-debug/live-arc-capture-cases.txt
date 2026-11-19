@@ -1,0 +1,2 @@
+0 0 0.5 1 0 result=0 expected=0 middle=0,0 capture=0,0 flags=000000000000 owner=T05
+0 0 0.5 1 58 result=4294967295 expected=0 middle=0,0 capture=0,0 flags=000000000000 owner=T05

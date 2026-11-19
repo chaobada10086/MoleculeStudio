@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="20" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="277.6378 295.9449 317.6378 545.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="29" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="30">
+            <n id="3" p="297.6378 295.9449"/>
+            <b id="31" B="3" E="4" Order="1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="56" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="4" p="297.6378 315.9449" MoleculeStudioProjection="0">
+                <objecttag id="57" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="32" B="4" E="5" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="58" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="5" p="277.6378 315.9449"/>
+            <b id="33" B="4" E="6" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="59" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="6" p="317.6378 315.9449"/>
+            <b id="34" B="4" E="7" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="60" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="61" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="7" p="297.6378 345.9449" MoleculeStudioProjection="0">
+                <objecttag id="62" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="35" B="7" E="8" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="63" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="8" p="277.6378 345.9449"/>
+            <b id="36" B="7" E="9" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="64" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="9" p="317.6378 345.9449"/>
+            <b id="37" B="7" E="10" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="65" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="66" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="10" p="297.6378 375.9449" MoleculeStudioProjection="0">
+                <objecttag id="67" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="38" B="10" E="11" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="68" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="11" p="277.6378 375.9449"/>
+            <b id="39" B="10" E="12" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="69" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="12" p="317.6378 375.9449"/>
+            <b id="40" B="10" E="13" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="70" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="71" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="13" p="297.6378 405.9449" MoleculeStudioProjection="0">
+                <objecttag id="72" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="41" B="13" E="14" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="73" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="14" p="277.6378 405.9449"/>
+            <b id="42" B="13" E="15" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="74" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="15" p="317.6378 405.9449"/>
+            <b id="43" B="13" E="16" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="75" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="76" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="16" p="297.6378 435.9449" MoleculeStudioProjection="0">
+                <objecttag id="77" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="44" B="16" E="17" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="78" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="17" p="277.6378 435.9449"/>
+            <b id="45" B="16" E="18" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="79" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="18" p="317.6378 435.9449"/>
+            <b id="46" B="16" E="19" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="80" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="81" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="19" p="297.6378 465.9449" MoleculeStudioProjection="0">
+                <objecttag id="82" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="47" B="19" E="20" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="83" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="20" p="277.6378 465.9449"/>
+            <b id="48" B="19" E="21" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="84" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="21" p="317.6378 465.9449"/>
+            <b id="49" B="19" E="22" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="85" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="86" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="22" p="297.6378 495.9449" MoleculeStudioProjection="0">
+                <objecttag id="87" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="50" B="22" E="23" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="88" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="23" p="277.6378 495.9449"/>
+            <b id="51" B="22" E="24" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="89" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="24" p="317.6378 495.9449"/>
+            <b id="52" B="22" E="25" Order="1" MoleculeStudioProjectionBegin="0 -1 -1" MoleculeStudioProjectionEnd="0 1 -1">
+                <objecttag id="90" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+                <objecttag id="91" Name="MoleculeStudioProjectionEnd=0 1 -1"/>
+            </b>
+            <n id="25" p="297.6378 525.9449" MoleculeStudioProjection="0">
+                <objecttag id="92" Name="MoleculeStudioProjection=0"/>
+            </n>
+            <b id="53" B="25" E="26" Order="1" MoleculeStudioProjectionBegin="-1 -0 1">
+                <objecttag id="93" Name="MoleculeStudioProjectionBegin=-1 -0 1"/>
+            </b>
+            <n id="26" p="277.6378 525.9449"/>
+            <b id="54" B="25" E="27" Order="1" MoleculeStudioProjectionBegin="1 -0 1">
+                <objecttag id="94" Name="MoleculeStudioProjectionBegin=1 -0 1"/>
+            </b>
+            <n id="27" p="317.6378 525.9449"/>
+            <b id="55" B="25" E="28" Order="1" MoleculeStudioProjectionBegin="0 -1 -1">
+                <objecttag id="95" Name="MoleculeStudioProjectionBegin=0 -1 -1"/>
+            </b>
+            <n id="28" p="297.6378 545.9449"/>
+        </fragment>
+    </page>
+</CDXML>

@@ -1,0 +1,6 @@
+{
+  "conversion_pairs": 25,
+  "isomeric_identity": true,
+  "cyclopentane_preserved": true,
+  "ring_clears_projection_bonds": true
+}

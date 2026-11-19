@@ -45,6 +45,47 @@ std::string intToStr(int v) {
 // that know where the bytes live.
 static const char* const kLabelKey = "cdxml.attr.r62ChemLabel";
 
+int carbonStateValence(int charge,int radical) {
+    if(charge < -1 || charge > 1 || (charge && radical))return -1;
+    if(radical==int(core::Radical::Doublet))return 3;
+    if(radical==int(core::Radical::Singlet)||radical==int(core::Radical::Triplet))return 2;
+    return radical==0?(charge?3:4):-1;
+}
+
+// Charge/radical tools remove an implicit H from skeletal carbon; explicit
+// hydrogen atoms (including isotope-labelled H) remain ordinary graph nodes.
+// Store the resulting count so rendering, formula and external chemistry agree.
+core::Error carbonElectronState(const core::Document& doc,const core::AtomRecord& atom,
+                               core::AtomSemantics* next) {
+    if(atom.element!=6)return core::Error();
+    const std::string& label=doc.atomLabel(atom.id);
+    if(!label.empty()&&label!="C")return core::Error();
+    const auto& bag=doc.extensions(core::ObjectRef(core::ObjectKind::Atom,atom.id));
+    bool hidden=false;
+    for(const auto& entry:bag.entries())if((entry.key=="studio.nickname.fragment"||entry.key=="studio.atom.runs"||entry.key==kLabelKey||entry.key=="studio.label.text"||entry.key.find("query")!=std::string::npos||entry.key.find("ElementList")!=std::string::npos)&&!entry.value.empty())hidden=true;
+    if(atom.semantics.nodeType!=uint8_t(core::NodeType::Element)){
+        if(atom.semantics.nodeType!=uint8_t(core::NodeType::Query)||!label.empty()||hidden)
+            return core::Error(core::ErrorCode::InvalidArgument,"请先展开缩写或明确查询原子，再修改其电子状态。");
+        next->nodeType=uint8_t(core::NodeType::Element);
+    }
+    int before=carbonStateValence(atom.semantics.charge,atom.semantics.radical);
+    int after=carbonStateValence(next->charge,next->radical);
+    if(before<0||after<0)return core::Error(core::ErrorCode::InvalidArgument,"碳原子目前支持中性、正负一价或单独的自由基状态；请先恢复中性后再切换。");
+    int sum=0;
+    if(atom.semantics.aromatic)return core::Error(core::ErrorCode::InvalidArgument,"芳香碳的电荷和自由基需明确电子结构，暂不自动调整氢数。");
+    for(auto id:doc.incidentBonds(atom.id))if(auto b=doc.bonds().alive(id)){
+        if(b->semantics!=core::BondSemantics::Normal||int(b->order)<1||int(b->order)>3)
+            return core::Error(core::ErrorCode::InvalidArgument,"特殊键上的碳暂不自动调整氢数，请先明确键级。");
+        sum+=int(b->order);
+    }
+    if(sum>after)return core::Error(core::ErrorCode::InvalidArgument,"该碳没有可移除的隐含氢；请先手动调整显式键或氢原子。");
+    int h=atom.semantics.implicitHydrogens<0?std::max(0,before-sum):atom.semantics.implicitHydrogens;
+    h=std::max(0,h+after-before);
+    if(h+sum>after)return core::Error(core::ErrorCode::InvalidArgument,"该碳的显式氢数与价态冲突，请先检查氢数。");
+    next->implicitHydrogens=static_cast<int8_t>(h);
+    return core::Error();
+}
+
 AtomLabel labelFromRecord(const core::Document& document, core::ObjectId atom,
                           const std::vector<AbbreviationEntry>& abbreviations) {
     AtomLabel label;
@@ -280,7 +321,7 @@ core::Command setLabelTextCommand(core::ObjectId atom, const std::string& text,
 
 core::Command setChargeCommand(const std::vector<core::ObjectId>& atoms, int charge) {
     std::vector<core::ObjectId> copy(atoms);
-    return core::Command("chem.setCharge", core::kInvalidateAppearance,
+    return core::Command("chem.setCharge", core::kInvalidateAppearance|core::kInvalidateSemantics,
         [copy, charge](core::CommandContext& ctx) -> core::CommandResult {
             if (!validChargeValue(charge))
                 return core::CommandResult::fail(core::ErrorCode::InvalidArgument,
@@ -292,12 +333,14 @@ core::Command setChargeCommand(const std::vector<core::ObjectId>& atoms, int cha
                 if (r->semantics.charge == charge) continue;
                 core::AtomSemantics s = r->semantics;
                 s.charge = static_cast<int8_t>(charge);
+                core::Error adjusted=carbonElectronState(ctx.document,*r,&s);
+                if(!adjusted.ok())return core::CommandResult::fail(adjusted.code,adjusted.message);
                 core::Error e = ctx.document.setAtomSemantics(copy[i], s);
                 if (!e.ok()) return core::CommandResult::fail(e.code, e.message);
                 ++changed;
             }
             if (changed == 0) return core::CommandResult::noChange();
-            return core::CommandResult::success(core::kInvalidateAppearance);
+            return core::CommandResult::success(core::kInvalidateAppearance|core::kInvalidateSemantics);
         });
 }
 
@@ -326,7 +369,7 @@ core::Command setIsotopeCommand(const std::vector<core::ObjectId>& atoms, int is
 
 core::Command setRadicalCommand(const std::vector<core::ObjectId>& atoms, int radical) {
     std::vector<core::ObjectId> copy(atoms);
-    return core::Command("chem.setRadical", core::kInvalidateAppearance,
+    return core::Command("chem.setRadical", core::kInvalidateAppearance|core::kInvalidateSemantics,
         [copy, radical](core::CommandContext& ctx) -> core::CommandResult {
             if (!radicalSupported(radical))
                 return core::CommandResult::fail(core::ErrorCode::InvalidArgument,
@@ -338,12 +381,14 @@ core::Command setRadicalCommand(const std::vector<core::ObjectId>& atoms, int ra
                 if (r->semantics.radical == radical) continue;
                 core::AtomSemantics s = r->semantics;
                 s.radical = static_cast<uint8_t>(radical);
+                core::Error adjusted=carbonElectronState(ctx.document,*r,&s);
+                if(!adjusted.ok())return core::CommandResult::fail(adjusted.code,adjusted.message);
                 core::Error e = ctx.document.setAtomSemantics(copy[i], s);
                 if (!e.ok()) return core::CommandResult::fail(e.code, e.message);
                 ++changed;
             }
             if (changed == 0) return core::CommandResult::noChange();
-            return core::CommandResult::success(core::kInvalidateAppearance);
+            return core::CommandResult::success(core::kInvalidateAppearance|core::kInvalidateSemantics);
         });
 }
 
@@ -480,7 +525,7 @@ RefreshResult refreshAtomDerived(const core::Document& document, core::ObjectId 
         }
         if (b->semantics == core::BondSemantics::Aromatic) {
             env.aromaticBondCount += 1;
-            order = 1;
+            // A Kekule double bond keeps its explicit order even when tagged aromatic.
         }
         env.bondOrderSum += order;
         env.bondCount += 1;

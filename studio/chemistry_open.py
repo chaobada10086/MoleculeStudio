@@ -11,10 +11,12 @@ import sys
 import xml.etree.ElementTree as ET
 
 BASE = Path(__file__).resolve().parent
+sys.path.insert(0, str(BASE))
 RUNTIME = BASE / 'chemistry_runtime'
 sys.path.insert(0, str(RUNTIME / 'python-site'))
 from rdkit import Chem
 from rdkit.Chem import rdDepictor, rdMolDescriptors
+from rdkit.Geometry import Point2D
 
 
 def java(jar, args, text=None):
@@ -182,7 +184,7 @@ def expand_display(source):
     return ET.tostring(root,encoding='unicode')
 
 
-def one_molecule(source, mime='text/xml', allow_disconnected=False, allow_queries=False, max_atoms=200):
+def one_molecule(source, mime='text/xml', allow_disconnected=False, allow_queries=False, max_atoms=200, preserve_hydrogens=False):
     if mime == 'chemical/x-daylight-smiles':
         mols = [Chem.MolFromSmiles(source.strip())]
     elif mime == 'chemical/x-helm':
@@ -191,7 +193,32 @@ def one_molecule(source, mime='text/xml', allow_disconnected=False, allow_querie
         mols = [Chem.MolFromMolBlock(source, removeHs=False)]
     else:
         root = ET.fromstring(source)
+        # Keep the editable drawing parallel; RDKit needs its own unknown-stereo
+        # display hint to avoid inferring E/Z from these two-dimensional coordinates.
+        for bond in root.iter('b'):
+            if bond.get('Order') == '2' and bond.get('MoleculeStudioUnspecifiedEZ') == 'yes':
+                bond.set('Display', 'Wavy')
         expand_known_nicknames(root)
+        # Imported/previously expanded nicknames already have child coordinates.
+        # Those are a local template frame, while the outer node may have moved
+        # during a reaction. Put the attachment atom on its actual parent node
+        # before RDKit interprets adjacent wedges; stale template coordinates
+        # otherwise turn a true SN2 inversion into apparent retention.
+        for node in list(root.iter('n')):
+            fragment = node.find('fragment')
+            if fragment is None or not node.get('p'): continue
+            external = [n for n in fragment.findall('n') if n.get('NodeType') == 'ExternalConnectionPoint']
+            if len(external) != 1: continue
+            ident = external[0].get('id')
+            links = [b for b in fragment.findall('b') if ident in (b.get('B'), b.get('E'))]
+            if len(links) != 1: continue
+            anchor_id = links[0].get('E') if links[0].get('B') == ident else links[0].get('B')
+            anchor = next((n for n in fragment.findall('n') if n.get('id') == anchor_id), None)
+            if anchor is None or not anchor.get('p'): continue
+            px, py = map(float, node.get('p').split()[:2]); ax, ay = map(float, anchor.get('p').split()[:2])
+            for child in fragment.iter('n'):
+                if child.get('p'):
+                    x, y = map(float, child.get('p').split()[:2]); child.set('p', f'{x+px-ax:.12g} {y+py-ay:.12g}')
         # A labelled R group must never be silently treated as a carbon atom.
         for node in root.iter('n'):
             kind = node.get('NodeType', '')
@@ -220,20 +247,53 @@ def one_molecule(source, mime='text/xml', allow_disconnected=False, allow_querie
             for bond in list(fragment.findall('b')):
                 fragment.remove(bond)
                 fragment.append(bond)
-        mols=list(Chem.MolsFromCDXML(ET.tostring(root,encoding='unicode')))
+        mols=list(Chem.MolsFromCDXML(ET.tostring(root,encoding='unicode'),removeHs=not preserve_hydrogens and not any('MoleculeStudioProjection' in n.attrib for n in root.iter('n'))))
         for parsed in mols:
             if parsed is None: continue
             for atom in parsed.GetAtoms():
                 index=atom.GetAtomMapNum()-1
                 if 0<=index<len(node_ids): atom.SetIntProp('_STUDIO_CDX_ID',node_ids[index])
                 atom.SetAtomMapNum(0)
+        from rdkit.Geometry import Point3D
+        nodes={int(n.get('id')):n for n in root.iter('n') if n.get('id')}
+        edges=list(root.iter('b'))
+        def attachment(ident):
+            # RDKit replaces a nickname wrapper by its real attachment atom.
+            # Resolve that graph identity rather than falling back to coordinates.
+            visited=set()
+            while ident in nodes and ident not in visited:
+                visited.add(ident);fragment=nodes[ident].find('fragment')
+                if fragment is None: break
+                external=[n.get('id') for n in fragment.findall('n') if n.get('NodeType')=='ExternalConnectionPoint']
+                if len(external)!=1: break
+                link=next((b for b in fragment.findall('b') if external[0] in (b.get('B'),b.get('E'))),None)
+                if link is None: break
+                ident=int(link.get('E') if link.get('B')==external[0] else link.get('B'))
+            return ident
+        for parsed in mols:
+            if parsed is None: continue
+            ids={a.GetIntProp('_STUDIO_CDX_ID'):a.GetIdx() for a in parsed.GetAtoms() if a.HasProp('_STUDIO_CDX_ID')}
+            for ident,node in nodes.items():
+                if 'MoleculeStudioProjection' not in node.attrib or ident not in ids: continue
+                vectors={}
+                for edge in edges:
+                    begin,end=int(edge.get('B','0')),int(edge.get('E','0'))
+                    key='MoleculeStudioProjectionBegin' if begin==ident else 'MoleculeStudioProjectionEnd' if end==ident else ''
+                    other=attachment(end if begin==ident else begin)
+                    if key and edge.get(key) and other in ids:vectors[ids[other]]=tuple(map(float,edge.get(key).split()))
+                if len(vectors)!=4: continue
+                trial=Chem.Mol(parsed);conf=Chem.Conformer(trial.GetNumAtoms());conf.Set3D(True)
+                for j in range(trial.GetNumAtoms()):conf.SetAtomPosition(j,Point3D(0,0,0))
+                for j,v in vectors.items():conf.SetAtomPosition(j,Point3D(*v))
+                trial.RemoveAllConformers();trial.AddConformer(conf);Chem.AssignAtomChiralTagsFromStructure(trial,replaceExistingTags=True)
+                parsed.GetAtomWithIdx(ids[ident]).SetChiralTag(trial.GetAtomWithIdx(ids[ident]).GetChiralTag())
     if not mols or any(m is None for m in mols):
         raise ValueError('无法读取完整的分子结构')
     if not allow_disconnected and (len(mols) != 1 or len(Chem.GetMolFrags(mols[0])) != 1):
         raise ValueError('请仅选中一个完整分子后重试；当前选区包含多个组分')
     combined = mols[0]
     for other in mols[1:]: combined = Chem.CombineMols(combined, other)
-    mol = Chem.RemoveHs(combined)
+    mol = combined if preserve_hydrogens else Chem.RemoveHs(combined)
     if not mol.GetNumAtoms() or mol.GetNumAtoms() > max_atoms:
         raise ValueError(f'此功能支持 1–{max_atoms} 个重原子的完整分子')
     if not allow_queries and any(a.GetAtomicNum() == 0 for a in mol.GetAtoms()):
@@ -258,18 +318,52 @@ def systematic_name(mol):
     return name
 
 
-def to_cdxml(mol, explicit_hydrogens=False, preserve_coordinates=False):
+def face_site(mol, atom_number, side):
+    """Rotate the depiction so the open sector of an atom faces its partner."""
+    if not 1 <= atom_number <= mol.GetNumAtoms() or side not in ('left','right'):
+        raise ValueError('face_site 需要有效的原子序号和 left/right')
+    if not mol.GetNumBonds():
+        return
+    conf = mol.GetConformer()
+    points = [conf.GetAtomPosition(i) for i in range(mol.GetNumAtoms())]
+    origin = points[atom_number-1]
+    samples = [(p.x,p.y) for i,p in enumerate(points) if i != atom_number-1]
+    lengths = []
+    for bond in mol.GetBonds():
+        a,b = points[bond.GetBeginAtomIdx()],points[bond.GetEndAtomIdx()]
+        lengths.append(math.hypot(a.x-b.x,a.y-b.y))
+        samples.append(((a.x+b.x)/2,(a.y+b.y)/2))
+    unit = max(.001, sorted(lengths)[len(lengths)//2])
+    samples = [((x-origin.x)/unit,(y-origin.y)/unit) for x,y in samples]
+    def cost(angle):
+        dx,dy = math.cos(angle),math.sin(angle)
+        penalty = 0.
+        for x,y in samples:
+            along = dx*x+dy*y
+            if along>0:
+                clearance = abs(dx*y-dy*x)
+                penalty += max(0.,.8-clearance)**2 / (.4+along) + .002*along
+        return penalty
+    target = 0 if side=='right' else math.pi
+    ray = min((target+k*math.pi/6 for k in range(12)),key=cost)
+    cos,sin = math.cos(target-ray),math.sin(target-ray)
+    for i,p in enumerate(points):
+        conf.SetAtomPosition(i,(cos*p.x-sin*p.y,sin*p.x+cos*p.y,p.z))
+
+
+def to_cdxml(mol, explicit_hydrogens=False, preserve_coordinates=False, plain_unspecified_bonds=False):
     # WedgeMolBonds replaces SMILES bond directions used by RemoveHs.
     # Compare the payload to the untouched input, never to the wedged copy.
     expected_identity = identity(mol)
     # A stereogenic alkene with unspecified E/Z must remain unspecified after
-    # coordinate-based readers inspect its drawing. CDXML represents this as a
-    # crossed double bond (Display=Wavy), not as a definite geometric isomer.
+    # coordinate-based readers inspect its drawing.
     unspecified_double_bonds = {info.centeredOn for info in Chem.FindPotentialStereo(mol)
         if info.type == Chem.StereoType.Bond_Double and info.specified != Chem.StereoSpecified.Specified}
     work = Chem.Mol(mol)
     if not preserve_coordinates or not work.GetNumConformers():
         rdDepictor.Compute2DCoords(work)
+        from branched_alkyl_layout import molecule as project_alkyl
+        project_alkyl(work)
     Chem.WedgeMolBonds(work, work.GetConformer())
     kekule = Chem.Mol(work)
     Chem.Kekulize(kekule, clearAromaticFlags=True)
@@ -313,7 +407,10 @@ def to_cdxml(mol, explicit_hydrogens=False, preserve_coordinates=False):
             if direction == Chem.BondDir.BEGINDASH:
                 attrs['Display'] = 'WedgeBegin' if swap_wedges else 'WedgedHashBegin'
             if bond.GetIdx() in unspecified_double_bonds:
-                attrs['Display'] = 'Wavy'
+                if plain_unspecified_bonds:
+                    attrs['MoleculeStudioUnspecifiedEZ'] = 'yes'
+                else:
+                    attrs['Display'] = 'Wavy'
             ET.SubElement(frag, 'b', attrs)
         return ET.tostring(root, encoding='unicode')
 
@@ -325,7 +422,11 @@ def to_cdxml(mol, explicit_hydrogens=False, preserve_coordinates=False):
     for y_sign, swap_wedges in ((-1, False), (-1, True), (1, False), (1, True)):
         output = build(y_sign, swap_wedges)
         try:
-            got = identity(one_molecule(output, allow_disconnected=True, max_atoms=400))
+            has_h_nodes = any(atom.GetAtomicNum()==1 for atom in mol.GetAtoms())
+            parsed = one_molecule(output, allow_disconnected=True, max_atoms=400, preserve_hydrogens=has_h_nodes)
+            if has_h_nodes and parsed.GetNumAtoms()!=mol.GetNumAtoms():
+                raise ValueError("显式氢未通过 CDXML 往返校验")
+            got = identity(parsed)
         except Exception:
             continue
         if got == expected_identity:
@@ -488,10 +589,89 @@ def predict_cnmr(mol): return predict_ml_nmr(mol,'13C')
 def predict_fnmr(mol): return predict_ml_nmr(mol,'19F')
 
 
+def _clean_preserving_pose(mol, reference, fixed_ids, scale):
+    """Depict each component in its original frame; selected atoms alone can move."""
+    original={a.GetIdx():reference[a.GetIntProp('_STUDIO_CDX_ID')]
+              for a in mol.GetAtoms()}
+    original={i:(p[0]/scale,-p[1]/scale) for i,p in original.items()}
+    mappings=[]
+    parts=Chem.GetMolFrags(mol,asMols=True,sanitizeFrags=False,fragsMolAtomMapping=mappings)
+    final=Chem.Conformer(mol.GetNumAtoms())
+    for part,indices in zip(parts,mappings):
+        locked={i:Point2D(*original[whole]) for i,whole in enumerate(indices)
+                if part.GetAtomWithIdx(i).GetIntProp('_STUDIO_CDX_ID') in fixed_ids}
+        # A singly attached selected branch keeps its original exit ray.
+        # Constraining the fixed scaffold alone lets the depicter fold a COOH
+        # stem into a ring despite leaving every unselected atom unmoved.
+        moving=set(range(len(indices)))-set(locked);seen=set()
+        for root in sorted(moving):
+            if root in seen:continue
+            branch=[root];seen.add(root);boundary=[]
+            for i in branch:
+                for neighbor in part.GetAtomWithIdx(i).GetNeighbors():
+                    j=neighbor.GetIdx()
+                    if j in locked:boundary.append((i,j))
+                    elif j not in seen:seen.add(j);branch.append(j)
+            if len(boundary)!=1 or len(branch)<2:continue
+            tip,parent=boundary[0];x,y=original[indices[tip]];px,py=original[indices[parent]]
+            span=math.hypot(x-px,y-py)
+            if span>1e-8:locked[tip]=Point2D(px+(x-px)*1.5/span,py+(y-py)*1.5/span)
+        rdDepictor.Compute2DCoords(part,canonOrient=False,clearConfs=True,coordMap=locked,
+                                  forceRDKit=True,useRingTemplates=True)
+        conf=part.GetConformer()
+        points=[(conf.GetAtomPosition(i).x,conf.GetAtomPosition(i).y) for i in range(len(indices))]
+        if not locked:
+            # A ring system is the visual frame. Align atom identities within the
+            # largest one, so changing a side chain cannot swing the ring around.
+            rings={a.GetIdx() for a in part.GetAtoms() if a.IsInRing() and not a.HasProp("_STUDIO_LAYOUT_ABBREVIATION")};systems=[]
+            while rings:
+                system=[min(rings)];rings.remove(system[0])
+                for i in system:
+                    for a in part.GetAtomWithIdx(i).GetNeighbors():
+                        j=a.GetIdx()
+                        if j in rings and part.GetBondBetweenAtoms(i,j).IsInRing():rings.remove(j);system.append(j)
+                systems.append(system)
+            visible=[a.GetIdx() for a in part.GetAtoms() if not a.HasProp("_STUDIO_LAYOUT_ABBREVIATION")]
+            frame=max(systems,key=lambda ids:sum(part.GetAtomWithIdx(i).GetMass() for i in ids)) if systems else (visible or list(range(len(indices))))
+            old=[original[indices[i]] for i in frame];new=[points[i] for i in frame]
+            target=tuple(sum(p[k] for p in old)/len(old) for k in (0,1))
+            pivot=tuple(sum(p[k] for p in new)/len(new) for k in (0,1))
+            best=None
+            for reflect in (1.,-1.):
+                dot=cross=0.
+                for a,b in zip(new,old):
+                    x,y=(a[0]-pivot[0])*reflect,a[1]-pivot[1];u,v=b[0]-target[0],b[1]-target[1]
+                    dot+=x*u+y*v;cross+=x*v-y*u
+                angle=math.atan2(cross,dot);c,s=math.cos(angle),math.sin(angle)
+                trial=[(target[0]+(p[0]-pivot[0])*reflect*c-(p[1]-pivot[1])*s,
+                        target[1]+(p[0]-pivot[0])*reflect*s+(p[1]-pivot[1])*c) for p in points]
+                score=sum((trial[i][0]-original[indices[i]][0])**2+(trial[i][1]-original[indices[i]][1])**2 for i in frame)
+                # Break symmetric-frame ties by the complete drawing's motion.
+                score+=1e-7*sum((p[0]-original[indices[i]][0])**2+(p[1]-original[indices[i]][1])**2 for i,p in enumerate(trial))
+                if best is None or score<best[0]:best=score,trial
+            points=best[1]
+            if systems:
+                # Rebuild substituents from that aligned ring frame. Merely
+                # rotating a canonical depiction can leave chains folded back.
+                frame_map={i:Point2D(*points[i]) for i in frame}
+                rdDepictor.Compute2DCoords(part,canonOrient=False,clearConfs=True,coordMap=frame_map,
+                                          forceRDKit=True,useRingTemplates=True)
+                conf=part.GetConformer()
+                points=[(conf.GetAtomPosition(i).x,conf.GetAtomPosition(i).y) for i in range(len(indices))]
+        for i,whole in enumerate(indices):
+            point=(locked[i].x,locked[i].y) if i in locked else points[i]
+            final.SetAtomPosition(whole,(point[0],point[1],0.))
+    mol.RemoveAllConformers();mol.AddConformer(final,assignId=True)
+    from branched_alkyl_layout import molecule as project_alkyl
+    project_alkyl(mol,[a.GetIdx() for a in mol.GetAtoms() if a.GetIntProp('_STUDIO_CDX_ID') in fixed_ids])
+
+
 def clean_structure(source):
     """RDKit 2D depiction, keeping the user's atom IDs and collapsed labels."""
-    root=ET.fromstring(source);expand_known_nicknames(root)
-    mol=one_molecule(ET.tostring(root,encoding='unicode'),allow_disconnected=True,allow_queries=True)
+    root=ET.fromstring(source)
+    fixed_ids={int(i) for i in root.attrib.pop('MoleculeStudioCleanFixedAtoms','').split()}
+    expand_known_nicknames(root)
+    mol=one_molecule(ET.tostring(root,encoding='unicode'),allow_disconnected=True,allow_queries=True,preserve_hydrogens=True)
     before=identity(mol)
     id_to_index={a.GetIntProp('_STUDIO_CDX_ID'):a.GetIdx() for a in mol.GetAtoms() if a.HasProp('_STUDIO_CDX_ID')}
     if len(id_to_index)!=mol.GetNumAtoms():raise ValueError('开源整理无法建立完整原子映射，保留原结构')
@@ -511,10 +691,43 @@ def clean_structure(source):
         aliases[node_id]=[int(n.get('id')) for n in fragment.iter('n') if int(n.get('id')) in id_to_index]
         outer=node.get('BondOrdering','').split() or [b.get('id')for b in root.iter('b')if str(node_id) in (b.get('B'),b.get('E'))]
         for bond_id,anchor in zip(outer,anchors):ports[(node_id,int(bond_id))]=anchor
-    rdDepictor.Compute2DCoords(mol,clearConfs=True,forceRDKit=True,useRingTemplates=True)
+    reference={i:tuple(map(float,n.get('p','0 0').split())) for i,n in nodes.items()}
+    locked={i for i in fixed_ids if i in id_to_index}
+    for parent,children in aliases.items():
+        anchors=[anchor for (node,_),anchor in ports.items() if node==parent and anchor in reference]
+        members=anchors or children
+        if not members:continue
+        centre=tuple(sum(reference[i][axis] for i in members)/len(members) for axis in (0,1))
+        shift=tuple(reference[parent][axis]-centre[axis] for axis in (0,1))
+        # Hidden fragment definitions use their own coordinates. Dock the real
+        # connection atom at the visible abbreviation before constraining it.
+        for node in nodes[parent].iter('n'):
+            i=int(node.get('id'))
+            if i!=parent:reference[i]=tuple(reference[i][axis]+shift[axis] for axis in (0,1))
+        if parent in fixed_ids:locked.update(members)
+    for children in aliases.values():
+        for node_id in children:
+            if node_id in id_to_index:mol.GetAtomWithIdx(id_to_index[node_id]).SetBoolProp('_STUDIO_LAYOUT_ABBREVIATION',True)
+    scale=float(root.get('BondLength','30'))/1.5
+    _clean_preserving_pose(mol,reference,locked,scale)
     for bond in mol.GetBonds():bond.SetBondDir(Chem.BondDir.NONE)
     Chem.WedgeMolBonds(mol,mol.GetConformer())
-    scale=float(root.get('BondLength','30'))/1.5;conf=mol.GetConformer()
+    conf=mol.GetConformer()
+    # Drawing convention for terminal R-N=C=O: carry the substituent axis
+    # straight through the heterocumulene, retaining both bond lengths.
+    for n in mol.GetAtoms():
+        if n.GetAtomicNum()!=7 or n.GetDegree()!=2 or n.GetFormalCharge():continue
+        for b in n.GetBonds():
+            c=b.GetOtherAtom(n)
+            if b.GetBondType()!=Chem.BondType.DOUBLE or c.GetAtomicNum()!=6 or c.GetDegree()!=2:continue
+            oxygen=[x.GetOtherAtom(c) for x in c.GetBonds() if x.GetBondType()==Chem.BondType.DOUBLE and x.GetOtherAtom(c).GetAtomicNum()==8 and x.GetOtherAtom(c).GetDegree()==1]
+            if not oxygen:continue
+            o=oxygen[0];r=next(x for x in n.GetNeighbors() if x.GetIdx()!=c.GetIdx())
+            if any(x.GetIntProp('_STUDIO_CDX_ID') in locked or x.HasProp('_STUDIO_LAYOUT_ABBREVIATION') for x in (c,o)):continue
+            origin=conf.GetAtomPosition(n.GetIdx());axis=origin-conf.GetAtomPosition(r.GetIdx())
+            if axis.Length()<1e-8:continue
+            axis/=axis.Length();cl=(conf.GetAtomPosition(c.GetIdx())-origin).Length();ol=(conf.GetAtomPosition(o.GetIdx())-conf.GetAtomPosition(c.GetIdx())).Length()
+            conf.SetAtomPosition(c.GetIdx(),origin+axis*cl);conf.SetAtomPosition(o.GetIdx(),origin+axis*(cl+ol))
     positions={node_id:(conf.GetAtomPosition(i).x*scale,-conf.GetAtomPosition(i).y*scale)for node_id,i in id_to_index.items()}
     for node_id,children in aliases.items():
         anchors=[anchor for (parent,_),anchor in ports.items()if parent==node_id and anchor in positions]
@@ -587,8 +800,14 @@ def _place_label(direction, centre, reach, atoms, segments, boxes, own_atom=None
 def stereo_labels(source):
     """CIP labels computed by RDKit and placed beside each centre in document units."""
     root = ET.fromstring(source)
-    mol = one_molecule(source)
+    from projection_stereo import labels as projection_labels
+    projection_records, projection_skipped = projection_labels(root)
+    if not list(root.iter('n')):
+        return '\n'.join(['stereolabels\t1']+projection_records+['skipped\t%d'%projection_skipped])+'\n'
+    mol = one_molecule(source, allow_disconnected=True)
     Chem.AssignStereochemistry(mol, cleanIt=True, force=True)
+    from rdkit.Chem import rdCIPLabeler
+    rdCIPLabeler.AssignCIPLabels(mol)
     points = {}
     for node in root.iter('n'):
         if node.get('id') and node.get('p'):
@@ -612,9 +831,11 @@ def stereo_labels(source):
     bond_length = lengths[len(lengths) // 2] if lengths else float(root.get('BondLength', '30'))
     boxes = []
     records = ['stereolabels\t1']
-    skipped = 0
+    skipped = projection_skipped
     for index, label in Chem.FindMolChiralCenters(mol, includeUnassigned=True, useLegacyImplementation=False):
-        if label not in ('R', 'S'):
+        atom = mol.GetAtomWithIdx(index)
+        label = atom.GetProp('_CIPCode') if atom.HasProp('_CIPCode') else label
+        if label not in ('R', 'S', 'r', 's'):
             skipped += 1; continue
         node_id = by_index[index]
         own_rings = [c for c, ring in zip(ring_centroids, rings) if node_id in ring]
@@ -633,11 +854,12 @@ def stereo_labels(source):
         records.append('atom\t%d\t%s\t%.4f\t%.4f' % (node_id, label, point[0], point[1]))
     for info in Chem.FindPotentialStereo(mol):
         if info.type != Chem.StereoType.Bond_Double: continue
-        if not info.specified:
+        if info.specified != Chem.StereoSpecified.Specified:
             skipped += 1; continue
         bond = mol.GetBondWithIdx(info.centeredOn)
         # StereoDescriptor (Bond_Trans / Bond_Cis) is not the BondStereo enum.
-        label = 'E' if str(info.descriptor).endswith('Bond_Trans') else 'Z'
+        label = bond.GetProp('_CIPCode') if bond.HasProp('_CIPCode') else ''
+        if label not in ('E', 'Z'): skipped += 1; continue
         start, end = by_index[bond.GetBeginAtomIdx()], by_index[bond.GetEndAtomIdx()]
         bond_id = bond_ids.get(frozenset((start, end)))
         if bond_id is None: continue
@@ -651,6 +873,7 @@ def stereo_labels(source):
         point = _place_label(direction, middle, bond_length * .5, atoms, segments, boxes, outward_only=bool(own_rings))
         boxes.append(point)
         records.append('bond\t%d\t%s\t%.4f\t%.4f' % (bond_id, label, point[0], point[1]))
+    records.extend(projection_records)
     records.append('skipped\t%d' % skipped)
     return '\n'.join(records) + '\n'
 

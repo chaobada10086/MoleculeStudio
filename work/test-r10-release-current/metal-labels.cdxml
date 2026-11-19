@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="22" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="437.6378 450.9449 647.6378 835.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+        <font id="4" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="35" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="36">
+            <n id="3" p="459.6378 450.9449"/>
+            <b id="37" B="3" E="4" Order="1"/>
+            <n id="4" p="437.6378 450.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">RuL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <b id="38" B="5" E="6" Order="1"/>
+            <n id="5" p="625.6378 450.9449"/>
+            <b id="39" B="7" E="8" Order="1"/>
+            <n id="6" p="647.6378 450.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">RuL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <b id="40" B="9" E="10" Order="1"/>
+            <n id="7" p="459.6378 505.9449"/>
+            <b id="41" B="11" E="12" Order="1"/>
+            <n id="8" p="437.6378 505.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">RuL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <b id="42" B="13" E="14" Order="1"/>
+            <n id="9" p="625.6378 505.9449"/>
+            <b id="43" B="15" E="16" Order="1"/>
+            <n id="10" p="647.6378 505.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">RuL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <b id="44" B="17" E="18" Order="1"/>
+            <n id="11" p="459.6378 560.9449"/>
+            <b id="45" B="19" E="20" Order="1"/>
+            <n id="12" p="437.6378 560.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">PdL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <b id="46" B="21" E="22" Order="1"/>
+            <n id="13" p="625.6378 560.9449"/>
+            <b id="47" B="23" E="24" Order="1"/>
+            <n id="14" p="647.6378 560.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">PdL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <b id="48" B="25" E="26" Order="1"/>
+            <n id="15" p="459.6378 615.9449"/>
+            <b id="49" B="27" E="28" Order="1"/>
+            <n id="16" p="437.6378 615.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">PdCl2</s>
+                </t>
+            </n>
+            <b id="50" B="29" E="30" Order="1"/>
+            <n id="17" p="625.6378 615.9449"/>
+            <b id="51" B="31" E="32" Order="1"/>
+            <n id="18" p="647.6378 615.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">PdCl2</s>
+                </t>
+            </n>
+            <b id="52" B="33" E="34" Order="1"/>
+            <n id="19" p="459.6378 670.9449"/>
+            <n id="20" p="437.6378 670.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">Pd(PPh3)2Cl2</s>
+                </t>
+            </n>
+            <n id="21" p="625.6378 670.9449"/>
+            <n id="22" p="647.6378 670.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">Pd(PPh3)2Cl2</s>
+                </t>
+            </n>
+            <n id="23" p="459.6378 725.9449"/>
+            <n id="24" p="437.6378 725.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">IrL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <n id="25" p="625.6378 725.9449"/>
+            <n id="26" p="647.6378 725.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">IrL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <n id="27" p="459.6378 780.9449"/>
+            <n id="28" p="437.6378 780.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">FeL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <n id="29" p="625.6378 780.9449"/>
+            <n id="30" p="647.6378 780.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">FeL</s>
+                    <s font="4" size="10" face="32">n</s>
+                </t>
+            </n>
+            <n id="31" p="459.6378 835.9449"/>
+            <n id="32" p="437.6378 835.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Right">
+                    <s font="4" size="10" face="96">Ni(CO)4</s>
+                </t>
+            </n>
+            <n id="33" p="625.6378 835.9449"/>
+            <n id="34" p="647.6378 835.9449" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t LabelAlignment="Left">
+                    <s font="4" size="10" face="96">Ni(CO)4</s>
+                </t>
+            </n>
+        </fragment>
+    </page>
+</CDXML>

@@ -1,0 +1,1853 @@
+fixture atom: pass
+unselected atom is captured by the mouse: pass
+captured atom retains native shortcut: pass
+atom shortcut edits captured structure rather than selecting a tool: pass
+captured atom shortcut undoes normally: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+unselected bond is captured by the mouse: pass
+captured bond retains native shortcut: pass
+captured bond digits change bond order: pass
+fixture atom: pass
+unselected atom is captured by the mouse: pass
+captured atom retains native shortcut: pass
+atom shortcut edits captured structure rather than selecting a tool: pass
+captured atom 2 still adds carbonyl: pass
+captured atom shortcut undoes normally: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+unselected bond is captured by the mouse: pass
+captured bond retains native shortcut: pass
+captured bond digits change bond order: pass
+fixture atom: pass
+unselected atom is captured by the mouse: pass
+captured atom retains native shortcut: pass
+atom shortcut edits captured structure rather than selecting a tool: pass
+captured atom shortcut undoes normally: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+unselected bond is captured by the mouse: pass
+captured bond retains native shortcut: pass
+captured bond digits change bond order: pass
+fixture atom: pass
+unselected atom is captured by the mouse: pass
+captured atom retains native shortcut: pass
+atom shortcut edits captured structure rather than selecting a tool: pass
+captured atom shortcut undoes normally: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+unselected bond is captured by the mouse: pass
+captured bond retains native shortcut: pass
+captured bond digits fuse native ring size: pass
+fixture atom: pass
+unselected atom is captured by the mouse: pass
+captured atom retains native shortcut: pass
+atom shortcut edits captured structure rather than selecting a tool: pass
+captured atom shortcut undoes normally: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+unselected bond is captured by the mouse: pass
+captured bond retains native shortcut: pass
+captured bond digits fuse native ring size: pass
+fixture atom: pass
+unselected atom is captured by the mouse: pass
+captured atom retains native shortcut: pass
+atom shortcut edits captured structure rather than selecting a tool: pass
+captured atom X retains original label shortcut: pass
+captured atom shortcut undoes normally: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+unselected bond is captured by the mouse: pass
+captured bond retains native shortcut: pass
+bond X retains generic single tool fallback: pass
+fixture atom: pass
+blank canvas has no capture despite a selected atom: pass
+no capture switches tool even when selection exists: pass
+no capture shortcut chooses requested tool: pass
+tool shortcut does not modify structure: pass
+tool digit is left for text entry while editor is focused: pass
+no capture shortcut chooses requested tool: pass
+tool shortcut does not modify structure: pass
+tool digit is left for text entry while editor is focused: pass
+no capture shortcut chooses requested tool: pass
+tool shortcut does not modify structure: pass
+tool digit is left for text entry while editor is focused: pass
+no capture shortcut chooses requested tool: pass
+tool shortcut does not modify structure: pass
+tool digit is left for text entry while editor is focused: pass
+no capture shortcut chooses requested tool: pass
+tool shortcut does not modify structure: pass
+tool digit is left for text entry while editor is focused: pass
+no capture shortcut chooses requested tool: pass
+tool shortcut does not modify structure: pass
+tool digit is left for text entry while editor is focused: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+N/O element shortcut accepts positive valence: pass
+N/O shortcut creates saturated positive atom: pass
+N/O shortcut charge and element undo together: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+N/O element shortcut accepts positive valence: pass
+N/O shortcut creates saturated positive atom: pass
+N/O shortcut charge and element undo together: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+set compact phosphonium label: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+the atom has a visible charge: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+the atom has a visible charge: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set atom-owned marker semantics: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+activate marker test tool: pass
+canvas press captures the intended electron marker: pass
+electron-marker motion only previews: pass
+drag moves just the marker within its range: pass
+electron marker placement is one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set deletable electron state: pass
+activate marker eraser: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+set deletable electron state: pass
+activate marker eraser: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set deletable electron state: pass
+marker click leaves the atom intact and directs Delete to the dot: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+set deletable electron state: pass
+set imported marker label: pass
+activate marker eraser: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+imported nitrogen label loses its minus and displays NH2: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+set deletable electron state: pass
+activate marker eraser: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+set deletable electron state: pass
+marker click leaves the atom intact and directs Delete to the dot: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+set deletable electron state: pass
+activate marker eraser: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+set deletable electron state: pass
+set imported marker label: pass
+activate marker eraser: pass
+remove only the marker, keeping the original atoms and bonds: pass
+recompute hydrogen count for the remaining bonds: pass
+clear obsolete marker position and circle: pass
+marker removal and hydrogen update are one undo step: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+press-drag selects the terminal bond and previews only its free end: pass
+terminal bond visibly turns from above the ring to below it: pass
+mouse-up commits the displayed planar angle: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+both ring skeletons and the other branch stay fixed: pass
+rotated bond keeps its length and connectivity: pass
+planar bond rotation is one undoable and redoable edit: pass
+bond rotation handle also supports angle snapping: pass
+losing capture cancels the rotation preview: pass
+ring bonds do not stretch or translate when dragged: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+zoomed-out fixture overlaps the old atom radius: pass
+select the middle of the short bond and still hit its actual endpoint: pass
+first drag on short bond starts planar rotation: pass
+short bond rotates only its attached branch at ordinary zoom: pass
+first-drag rotation undoes exactly: pass
+generated-product style multi-selection fixture: pass
+click a bond inside the multi-selection to select only the bond: pass
+selected bond rotates without dragging the previous selection: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+carbonyl fixture has a redo entry: pass
+capture actual carbonyl ink: pass
+mechanism hover highlights the double bond: pass
+key 1 immediately replaces double-bond scene geometry: pass
+capture preview updates without another mouse event: pass
+carbonyl oxygen becomes a hydroxyl on key 1: pass
+the refreshed canvas displays OH immediately: pass
+one undo restores C=O: pass
+redo restores OH: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+short return starts on visible C–O ink: pass
+draw the reference C–O return with normal gestures: pass
+short return captures the oxygen body independently of the H atoms and plus sign: pass
+short return has a visible solid arrowhead: pass
+visible arrowhead is close to the O and its axis enters the chosen glyph: pass
+the short curve clears printed glyphs and starts beside the selected bond: pass
+C–O cleavage generates a tertiary carbocation: pass
+the generated charge starts at the default position without a stored offset: pass
+actual mouse press picks the generated positive charge within the selected product: pass
+dragging the generated charge changes its direction and clamps its range: pass
+the carbocation center and its formal charge stay on the original atom: pass
+moving the generated marker is one undoable edit: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+ring migration fixture has visible bond targets: pass
+draw both screenshot arrows with normal pointer capture: pass
+read each drawn rearrangement arrow: pass
+read each drawn rearrangement arrow: pass
+both migration and oxygen donation retain their captured endpoints: pass
+jointly infer ring expansion and oxygen donation: pass
+oxygen arrow can also target the carbon directly and arrow order does not matter: pass
+infer the same reaction from nearby unbound tips and the displayed carbocation sign: pass
+lay out the expanded ring without stretching its closing bond: pass
+the original five-membered migrating ring becomes a six-membered ring at the spiro center: pass
+produce protonated carbonyl and consume the drawn oxygen pair: pass
+generate the rearrangement through the actual app command: pass
+the generated carbonyl has one attached proton: pass
+the visible H in the charged carbonyl has its own drag area: pass
+a click on the inline H does not change the molecule: pass
+dragging the H previews an explicit hydrogen and leaves the live document untouched: pass
+Escape cancels proton extraction: pass
+the exposed H is selected: pass
+one implicit H becomes explicit and the host position and charge are preserved: pass
+the new bond follows the drag direction and stops at one and a half standard lengths: pass
+the exposed H has one bond: pass
+the extracted H is covalently bonded to the original oxygen: pass
+the new O–H single bond has visible ink available to mechanism arrows: pass
+proton extraction is one undoable edit: pass
+rearrangement and both arrow bindings undo together: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+main-group lone-pair capacity matches the tested valence: pass
+lone-pair button respects actual capacity: pass
+newly supported lone pairs appear as real, capturable glyphs: pass
+fixture atom: pass
+type compact phosphine through the atom label editor: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+fixture atom: pass
+type compact phosphine through the atom label editor: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+fixture atom: pass
+type compact phosphine through the atom label editor: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+fixture atom: pass
+type compact phosphine through the atom label editor: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+typed triphenylphosphine caption fixture: pass
+commit phosphine through the actual caption editor: pass
+phosphine caption uses separate styled runs including the subscript: pass
+lone-pair ribbon button is visible: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+typed triphenylphosphine caption fixture: pass
+commit phosphine through the actual caption editor: pass
+phosphine caption uses separate styled runs including the subscript: pass
+lone-pair ribbon button is visible: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+typed triphenylphosphine caption fixture: pass
+commit phosphine through the actual caption editor: pass
+lone-pair ribbon button is visible: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+typed triphenylphosphine caption fixture: pass
+commit phosphine through the actual caption editor: pass
+lone-pair ribbon button is visible: pass
+triphenylphosphine becomes an atom-owned annotation: pass
+triphenylphosphine keeps its spelling and receives one lone pair: pass
+lone pair is above the phosphorus in either label order: pass
+phosphine does not gain a second lone pair: pass
+grab the compact phosphine lone pair: pass
+drag range is measured from the drawn P: pass
+a mechanism arrow can start from the phosphine lone pair: pass
+dragging and adding the phosphine lone pair undo independently: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+choose the regular double-bond tool: pass
+regular bond test has an HN or NH label: pass
+visible H and N lie beyond the old nucleus-only halo: pass
+regular tool hovers on the full label and still reports the original N position: pass
+ordinary bond press starts at the original N even far from its center: pass
+regular tool hovers on the full label and still reports the original N position: pass
+ordinary bond press starts at the original N even far from its center: pass
+regular double-bond drag preview snaps to the labeled nitrogen: pass
+regular bond joins the existing N instead of adding a duplicate atom: pass
+committed double bond is attached to the correct N: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+choose the regular double-bond tool: pass
+regular bond test has an HN or NH label: pass
+visible H and N lie beyond the old nucleus-only halo: pass
+regular tool hovers on the full label and still reports the original N position: pass
+ordinary bond press starts at the original N even far from its center: pass
+regular tool hovers on the full label and still reports the original N position: pass
+ordinary bond press starts at the original N even far from its center: pass
+regular double-bond drag preview snaps to the labeled nitrogen: pass
+regular bond joins the existing N instead of adding a duplicate atom: pass
+committed double bond is attached to the correct N: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+benzene vertex captures the carbon in blue within four screen pixels: pass
+benzene bond interior captures the bond in orange: pass
+drag preview distinguishes the bond source and carbon target: pass
+commit benzene vertex capture: pass
+committed arrow retains the carbon target and bond source: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+benzene vertex captures the carbon in blue within four screen pixels: pass
+benzene bond interior captures the bond in orange: pass
+drag preview distinguishes the bond source and carbon target: pass
+commit benzene vertex capture: pass
+committed arrow retains the carbon target and bond source: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+benzene vertex captures the carbon in blue within four screen pixels: pass
+benzene bond interior captures the bond in orange: pass
+drag preview distinguishes the bond source and carbon target: pass
+commit benzene vertex capture: pass
+committed arrow retains the carbon target and bond source: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+benzene vertex captures the carbon in blue within four screen pixels: pass
+benzene bond interior captures the bond in orange: pass
+drag preview distinguishes the bond source and carbon target: pass
+commit benzene vertex capture: pass
+committed arrow retains the carbon target and bond source: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+benzene vertex captures the carbon in blue within four screen pixels: pass
+benzene bond interior captures the bond in orange: pass
+drag preview distinguishes the bond source and carbon target: pass
+commit benzene vertex capture: pass
+committed arrow retains the carbon target and bond source: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+benzene vertex captures the carbon in blue within four screen pixels: pass
+benzene bond interior captures the bond in orange: pass
+drag preview distinguishes the bond source and carbon target: pass
+commit benzene vertex capture: pass
+committed arrow retains the carbon target and bond source: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+nitrogen fixture uses mechanism tool: pass
+HN exposes both displayed glyphs for capture: pass
+clickable H belongs to the left nitrogen: pass
+right N captures eleven pixels from the visible glyph: pass
+capture names the nitrogen: pass
+both N=N strokes are visible: pass
+either actual double-bond stroke still captures the bond: pass
+either actual double-bond stroke still captures the bond: pass
+nearby empty area stays free: pass
+Alt still bypasses capture: pass
+left H and N have separate visible glyphs: pass
+the zoomed HN gap exceeds the old per-glyph capture radius: pass
+left N captures over its glyph, in the HN gap, and near its edge at high zoom: pass
+left N captures over its glyph, in the HN gap, and near its edge at high zoom: pass
+left N captures over its glyph, in the HN gap, and near its edge at high zoom: pass
+clicking inside the HN gap anchors at the left nitrogen: pass
+dragging into the HN gap targets the left nitrogen: pass
+a click on the far end of the HN label does not create an arrow: pass
+drag preview and mouse-up capture the same N target: pass
+saved arrow binds to the right-hand nitrogen: pass
+edit an existing endpoint through the HN label: pass
+edited arrow binds to the left-hand nitrogen: pass
+start a new arrow from the full HN label: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+nitrogen fixture uses mechanism tool: pass
+HN exposes both displayed glyphs for capture: pass
+clickable H belongs to the left nitrogen: pass
+right N captures eleven pixels from the visible glyph: pass
+capture names the nitrogen: pass
+both N=N strokes are visible: pass
+either actual double-bond stroke still captures the bond: pass
+either actual double-bond stroke still captures the bond: pass
+nearby empty area stays free: pass
+Alt still bypasses capture: pass
+left H and N have separate visible glyphs: pass
+the zoomed HN gap exceeds the old per-glyph capture radius: pass
+left N captures over its glyph, in the HN gap, and near its edge at high zoom: pass
+left N captures over its glyph, in the HN gap, and near its edge at high zoom: pass
+left N captures over its glyph, in the HN gap, and near its edge at high zoom: pass
+clicking inside the HN gap anchors at the left nitrogen: pass
+dragging into the HN gap targets the left nitrogen: pass
+a click on the far end of the HN label does not create an arrow: pass
+drag preview and mouse-up capture the same N target: pass
+saved arrow binds to the right-hand nitrogen: pass
+edit an existing endpoint through the HN label: pass
+edited arrow binds to the left-hand nitrogen: pass
+start a new arrow from the full HN label: pass
+typed Nu colon fixture: pass
+typed Nu: converts into the anionic symbolic nucleophile: pass
+new Nu carries a negative charge: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+Nu capture fixture uses mechanism tool: pass
+Nu anion displays one real pair: pass
+hover over either colon dot identifies the Nu lone pair: pass
+draw from the Nu lone pair to a displaced positive charge: pass
+Nu pair and positive charge both retain exact bindings: pass
+endpoints stay beside the two visible symbols: pass
+displaced positive charge is accepted by generation: pass
+grab the Nu lone pair through its rendered dots: pass
+lone pair rotates within the allowed radius: pass
+attached arrow follows the relocated lone pair: pass
+save Nu charge capture: pass
+reopen Nu charge capture: pass
+Nu pair and charge bindings survive reopening: pass
+moved lone pair survives reopening relative to its atom: pass
+save Nu charge capture: pass
+reopen Nu charge capture: pass
+Nu pair and charge bindings survive reopening: pass
+moved lone pair survives reopening relative to its atom: pass
+Nu anion forms one bond and becomes neutral: pass
+new Nu–C bond neutralizes the carbocation center: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+proton button inserts an atom: pass
+proton button creates genuine H+ semantics: pass
+OH pair and H+ sign are visible: pass
+routing receives separate O and H glyphs: pass
+the donor's attached H is an obstacle even close to the start: pass
+draw the standard mechanism arrow from OH to H+: pass
+full arrow binds to the H+ sign: pass
+automatically drawn shaft clears both OH and proton glyphs: pass
+OH pair to H+ carries the visual pair index into the reaction: pass
+generate with two authored donor pairs: pass
+consume only the selected pair and retain the other pair's authored position: pass
+unbound full arrow gets the correct message: pass
+protonation produces oxonium and neutral bonded hydrogen: pass
+protonation creates the O–H single bond: pass
+the authored pair remains in the reactant and is absent on the product donor: pass
+the other OH retains its unreacted lone pair: pass
+fixture atom: pass
+circled charge keeps its chemical sign: pass
+circled charge renders a hollow outline: pass
+switching to the plain sign preserves the hydrogen count: pass
+fixture atom: pass
+circled charge keeps its chemical sign: pass
+circled charge renders a hollow outline: pass
+switching to the plain sign preserves the hydrogen count: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+selected handle fixture has visible bond ink: pass
+add selected arrow beside real ink: pass
+selected ink test uses arrow tool: pass
+real ink hover wins over nearby selected endpoint without editing: pass
+real ink press starts new arrow rather than editing nearby handle: pass
+exact handle outside ink has no false source preview: pass
+exact handle outside ink still edits selected arrow: pass
+fixture atom: pass
+fixture atom: pass
+add selected arrow beside real ink: pass
+selected ink test uses arrow tool: pass
+real ink hover wins over nearby selected endpoint without editing: pass
+real ink press starts new arrow rather than editing nearby handle: pass
+exact handle outside ink has no false source preview: pass
+exact handle outside ink still edits selected arrow: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+save independent visual sites: pass
+reopen independent visual sites: pass
+native and CDXML retain visual sites and semantic bindings: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+save independent visual sites: pass
+reopen independent visual sites: pass
+native and CDXML retain visual sites and semantic bindings: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+copy atoms and visual-site arrow: pass
+copied visual sites retain remapped semantic atoms: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+save independent visual sites: pass
+reopen independent visual sites: pass
+native and CDXML retain visual sites and semantic bindings: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+save independent visual sites: pass
+reopen independent visual sites: pass
+native and CDXML retain visual sites and semantic bindings: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+read saved arrow before endpoint handle drag: pass
+saved arrow endpoint atom exists: pass
+saved arrow exposes actual endpoint handle: pass
+drag existing saved arrow handle to atom or charge glyph: pass
+handle drag edits existing arrow without adding one: pass
+saved arrow handle drag retains host and changes requested visual site: pass
+endpoint edit preserves opposite visual site: pass
+saved arrow edited endpoint clears selected glyph without drifting: pass
+saved arrow endpoint edit undo: pass
+saved arrow endpoint edit redo: pass
+copy atoms and visual-site arrow: pass
+copied visual sites retain remapped semantic atoms: pass
+fixture atom: pass
+fixture atom: pass
+draw independent atom or signed-charge capture sites: pass
+read visual-site gesture arrow: pass
+both endpoints retain selected atom versus charge visual site: pass
+visual endpoints stay beside the selected glyphs: pass
+reversal swaps both visual capture sites: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+local bond source exists: pass
+draw local bond to its charged atom sign: pass
+local bond return retains positive or negative charge target site: pass
+local bond target remains beside selected charge rather than atom body: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+local bond source exists: pass
+draw local bond to its charged atom sign: pass
+local bond return retains positive or negative charge target site: pass
+local bond target remains beside selected charge rather than atom body: pass
+fixture atom: pass
+hover fixture uses actual generic B minus: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+hover bond center exists: pass
+idle B minus sign hover displays capture circle: pass
+idle capture leaves document selection and history unchanged: pass
+idle atom glyph hover displays capture circle: pass
+idle capture leaves document selection and history unchanged: pass
+idle bond hover displays capture circle: pass
+idle capture leaves document selection and history unchanged: pass
+idle capture circle clears over blank canvas: pass
+idle capture returns when hovering B charge again: pass
+idle capture clears on mouse leave: pass
+idle B capture returns before switching tool: pass
+switching away from mechanism tool clears idle capture: pass
+hover without pointer down never creates an arrow: pass
+hover departure leaves document selection and history unchanged: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+actual rendered single or both double strokes available: pass
+v18 idle circle belongs to exact atom or bond: pass
+v18 hover circle follows visible dot or noncentral bond ink: pass
+noncentral bond hover is read only: pass
+draw from actual noncentral single or double bond stroke: pass
+noncentral bond ink gesture stores bond semantics and visual site: pass
+noncentral bond start does not jump to bond midpoint: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+actual rendered single or both double strokes available: pass
+v18 idle circle belongs to exact atom or bond: pass
+v18 hover circle follows visible dot or noncentral bond ink: pass
+noncentral bond hover is read only: pass
+draw from actual noncentral single or double bond stroke: pass
+noncentral bond ink gesture stores bond semantics and visual site: pass
+noncentral bond start does not jump to bond midpoint: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+actual rendered single or both double strokes available: pass
+v18 idle circle belongs to exact atom or bond: pass
+v18 hover circle follows visible dot or noncentral bond ink: pass
+noncentral bond hover is read only: pass
+draw from actual noncentral single or double bond stroke: pass
+noncentral bond ink gesture stores bond semantics and visual site: pass
+noncentral bond start does not jump to bond midpoint: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+create oxygen or skeletal carbon radical: pass
+actual radical dot position exists: pass
+v18 idle circle belongs to exact atom or bond: pass
+v18 hover circle follows visible dot or noncentral bond ink: pass
+radical dot hover is read only: pass
+fishhook begins at actual radical dot: pass
+radical fishhook keeps single electron and host atom: pass
+radical fishhook begins beside visible dot: pass
+radical visual site reverses with its semantic host: pass
+save radical visual capture: pass
+reopen radical visual capture: pass
+native and CDXML keep radical site and electron state: pass
+save radical visual capture: pass
+reopen radical visual capture: pass
+native and CDXML keep radical site and electron state: pass
+copy radical visual capture: pass
+copy keeps remapped radical site: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+create oxygen or skeletal carbon radical: pass
+actual radical dot position exists: pass
+v18 idle circle belongs to exact atom or bond: pass
+v18 hover circle follows visible dot or noncentral bond ink: pass
+radical dot hover is read only: pass
+fishhook begins at actual radical dot: pass
+radical fishhook keeps single electron and host atom: pass
+radical fishhook begins beside visible dot: pass
+radical visual site reverses with its semantic host: pass
+save radical visual capture: pass
+reopen radical visual capture: pass
+native and CDXML keep radical site and electron state: pass
+save radical visual capture: pass
+reopen radical visual capture: pass
+native and CDXML keep radical site and electron state: pass
+copy radical visual capture: pass
+copy keeps remapped radical site: pass
+fixture atom: pass
+fixture atom: pass
+create two real radical donors: pass
+draw paired actual radical-dot fishhooks: pass
+draw paired actual radical-dot fishhooks: pass
+paired radical source and target capture exact dots: pass
+paired radical source and target capture exact dots: pass
+radical visual sites infer single electron moves: pass
+paired dot-origin fishhooks form editable chemical bond: pass
+radical coupling consumes unpaired electrons without changing total charge: pass
+radical coupling consumes unpaired electrons without changing total charge: pass
+paired radical product is ethane graph: pass
+save complete radical-dot coupling: pass
+reopen complete radical-dot coupling: pass
+reopened coupling retains both radical visual sites: pass
+reopened coupling retains both radical visual sites: pass
+saved radical dots still infer valid chemistry: pass
+saved radical-dot arrows still form chemical bond: pass
+save complete radical-dot coupling: pass
+reopen complete radical-dot coupling: pass
+reopened coupling retains both radical visual sites: pass
+reopened coupling retains both radical visual sites: pass
+saved radical dots still infer valid chemistry: pass
+saved radical-dot arrows still form chemical bond: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+draw tert-butyl fishhook into blank space: pass
+draw tert-butyl fishhook into blank space: pass
+read free-tip arrow: pass
+read free-tip arrow: pass
+two visibly free arrowheads: pass
+a lone free fishhook cannot invent a partner: pass
+nearby free fishhooks infer one new radical coupling bond: pass
+two tertiary radicals are consumed: pass
+two tertiary radicals are consumed: pass
+two tertiary radicals are consumed: pass
+two tertiary radicals are consumed: pass
+two tertiary radicals are consumed: pass
+two tertiary radicals are consumed: pass
+two tertiary radicals are consumed: pass
+two tertiary radicals are consumed: pass
+two tert-butyl radicals form one C8H18 product: pass
+read free-tip arrow: pass
+read free-tip arrow: pass
+read free-tip arrow: pass
+generation keeps the meeting arrowheads free and reusable: pass
+fixture atom: pass
+fixture atom: pass
+charge ribbon without selection is inert: pass
+negative ribbon creates CH3 anion: pass
+hover plus handled: pass
+hover plus creates carbocation without editing selected neighbour: pass
+hover charge undo: pass
+hover charge redo: pass
+positive ribbon sets positive charge: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+mechanism insertion removes one explicit H and its bond: pass
+inserted marker owns atom semantics: pass
+undo restores explicit H and its bond: pass
+redo removes explicit H: pass
+selection tool grabs the actual attached symbol: pass
+drag previews without editing document: pass
+drag can orbit but stops close to its unchanged host: pass
+save attached marker: pass
+reopen attached marker: pass
+marker offset survives native and CDXML roundtrip: pass
+save attached marker: pass
+reopen attached marker: pass
+marker offset survives native and CDXML roundtrip: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+mechanism insertion removes one explicit H and its bond: pass
+inserted marker owns atom semantics: pass
+undo restores explicit H and its bond: pass
+redo removes explicit H: pass
+selection tool grabs the actual attached symbol: pass
+drag previews without editing document: pass
+drag can orbit but stops close to its unchanged host: pass
+save attached marker: pass
+reopen attached marker: pass
+marker offset survives native and CDXML roundtrip: pass
+save attached marker: pass
+reopen attached marker: pass
+marker offset survives native and CDXML roundtrip: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+mechanism insertion removes one explicit H and its bond: pass
+inserted marker owns atom semantics: pass
+undo restores explicit H and its bond: pass
+redo removes explicit H: pass
+selection tool grabs the actual attached symbol: pass
+drag previews without editing document: pass
+drag can orbit but stops close to its unchanged host: pass
+save attached marker: pass
+reopen attached marker: pass
+marker offset survives native and CDXML roundtrip: pass
+save attached marker: pass
+reopen attached marker: pass
+marker offset survives native and CDXML roundtrip: pass
+fixture atom: pass
+fixture atom: pass
+add attached arrow before copy: pass
+copy atom and bound arrow: pass
+copy retains the radical's relative location: pass
+previously copied radical is draggable without a placement attribute: pass
+copied radical remains bounded and mobile: pass
+moving a copied radical updates the bound fishhook: pass
+fixture atom: pass
+lone pair ribbon adds semantic display state: pass
+lone pair ribbon preserves formal charge: pass
+lone pair button undo: pass
+lone pair button redo: pass
+one lone pair belongs to oxygen: pass
+save lone pair semantic state: pass
+reopen lone pair semantic state: pass
+native and CDXML retain attached lone pair: pass
+save lone pair semantic state: pass
+reopen lone pair semantic state: pass
+native and CDXML retain attached lone pair: pass
+copy atom with lone pair: pass
+copied lone pair remains on remapped atom: pass
+copied lone pair position follows translated atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+capture O minus fixture: pass
+drag from oxygen charge to bond: pass
+capture colors survive custom graphics color; source=yes target=yes tool=chooseArrowTool_90_CW status=来源：负电荷 → 目标：化学键: pass
+commit captured electron arrow: pass
+charge-origin arrow preserves explicit atom and bond bindings: pass
+arrow keeps charge-origin glyph clearance within 1.8 points: pass
+B caption fixture: pass
+selected B caption minus handled: pass
+B caption becomes chemical B minus: pass
+repeated B minus is idempotent and adds no undo entry: pass
+B caption conversion undo: pass
+B caption conversion redo: pass
+hover B hydrogen shortcut handled: pass
+B H creates actual bond and neutral base: pass
+B H undo: pass
+B H redo: pass
+independent mechanism fishhook activated: pass
+mechanism fishhook defaults to requested right barb: pass
+fishhook geometry for either bend: pass
+right fishhook stays on the selected side for either bend: pass
+explicit left fishhook is respected without curvature flipping: pass
+fishhook curve and terminal neck have no visible angular join: pass
+fishhook geometry for either bend: pass
+right fishhook stays on the selected side for either bend: pass
+explicit left fishhook is respected without curvature flipping: pass
+fishhook curve and terminal neck have no visible angular join: pass
+smooth fishhook demonstration: pass
+smooth fishhook demonstration: pass
+smooth fishhook demonstration: pass
+smooth fishhook demonstration: pass
+save keyboard B H result: pass
+reversed BH role: pass
+short H B bound arrows infer proton transfer: pass
+short H B proton transfer generates product: pass
+departing B is unbonded minus: pass
+hydrogen transfers from B to oxygen: pass
+reversed BH role: pass
+short H B unbound arrows infer proton transfer: pass
+short H B proton transfer generates product: pass
+departing B is unbonded minus: pass
+hydrogen transfers from B to oxygen: pass
+fixture atom: pass
+pointer is away from selected atoms: pass
+isolated neutral carbon starts CH4: pass
+selected carbon charge key handled: pass
+selected carbon charge key produces CH3 ion: pass
+formula reports changed hydrogens and charge: pass
+charge and hydrogen change undo together: pass
+charge and hydrogen redo together: pass
+pointer is away from selected atoms: pass
+neutralizing charge key handled: pass
+neutralizing restores fourth hydrogen: pass
+fixture atom: pass
+pointer is away from selected atoms: pass
+isolated neutral carbon starts CH4: pass
+selected carbon charge key handled: pass
+selected carbon charge key produces CH3 ion: pass
+formula reports changed hydrogens and charge: pass
+charge and hydrogen change undo together: pass
+charge and hydrogen redo together: pass
+pointer is away from selected atoms: pass
+neutralizing charge key handled: pass
+neutralizing restores fourth hydrogen: pass
+fixture atom: pass
+pointer is away from selected atoms: pass
+radical action produces CH3 doublet: pass
+carbon radical renders one solid dot: pass
+radical and hydrogen undo together: pass
+radical toggle restores CH4: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+pointer is away from selected atoms: pass
+degree two carbon charge key handled: pass
+frozen CH2 count becomes CH1 for charged or radical carbon: pass
+frozen hydrogen undo restores exactly two: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+pointer is away from selected atoms: pass
+degree two carbon charge key handled: pass
+frozen CH2 count becomes CH1 for charged or radical carbon: pass
+frozen hydrogen undo restores exactly two: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+pointer is away from selected atoms: pass
+frozen CH2 count becomes CH1 for charged or radical carbon: pass
+frozen hydrogen undo restores exactly two: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+fixture bond: pass
+explicit hydrogens and deuterium survive rejected charge edit: pass
+explicit four bond carbon radical rejects without deleting hydrogen: pass
+fixture atom: pass
+pointer is away from selected atoms: pass
+mixed valid invalid selected charge edit is atomic: pass
+fixture atom: pass
+fixture atom: pass
+pointer is away from selected atoms: pass
+multiple selected charge key handled: pass
+both selected atoms updated: pass
+multiple selected charge edit one undo: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+dimethyl malonate neutral formula: pass
+pointer is away from selected atoms: pass
+malonate central carbon negative key handled: pass
+malonate carbanion removes one hidden hydrogen: pass
+skeletal carbanion renders horizontal minus without carbon glyph: pass
+save malonate carbanion: pass
+reopen malonate carbanion: pass
+saved carbanion keeps correct hydrogen formula: pass
+neutralize malonate before explicit proton fixture: pass
+fixture atom: pass
+fixture bond: pass
+fixture atom: pass
+create symbolic base B minus: pass
+symbolic base has no invented concrete formula: pass
+fixture atom: pass
+real boron retains element five: pass
+symbolic B minus deprotonates malonate: pass
+base reaction product roles identified: pass
+proton transfers to B while alpha carbon becomes CH minus: pass
+symbolic base does not alter true boron spectator: pass
+save symbolic base proton transfer: pass
+reopen symbolic base proton transfer: pass
+symbolic B stays non-elemental on reload: pass
+symbolic B stays non-elemental on reload: pass
+both symbolic base states survive save: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+create symbolic Nu minus: pass
+symbolic nucleophile has no invented concrete formula: pass
+symbolic Nu minus substitution generates product: pass
+Nu product and chloride charge correct: pass
+new Nu carbon bond exists: pass
+save symbolic nucleophile result: pass
+copy symbolic nucleophile scheme: pass
+copy preserves symbolic role marker: pass
+copy preserves symbolic role marker: pass
+copy retains reagent and product symbolic roles: pass
+save native symbolic role: pass
+reopen native symbolic role: pass
+native save preserves symbolic roles: pass
+actual manual short arrow defaults to fine stroke: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+short arrow clipping retains electron references: pass
+short arrow has a filled swept tip with a recessed tail: pass
+save short arrow record: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+short arrow clipping retains electron references: pass
+short arrow has a filled swept tip with a recessed tail: pass
+save short arrow record: pass
+fixture atom: pass
+fixture atom: pass
+short arrow clipping retains electron references: pass
+short arrow has a filled swept tip with a recessed tail: pass
+short labelled fixture has actual glyph outlines: pass
+save short arrow record: pass
+fixture atom: pass
+fixture atom: pass
+short arrow clipping retains electron references: pass
+short arrow has a filled swept tip with a recessed tail: pass
+short labelled fixture has actual glyph outlines: pass
+save short arrow record: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+short arrow clipping retains electron references: pass
+short arrow has a filled swept tip with a recessed tail: pass
+short labelled fixture has actual glyph outlines: pass
+save short arrow record: pass
+save short arrow fixture: pass
+short arrows retain readable curved shafts and fine strokes: pass
+short curves and heads stay outside actual glyph boxes: pass
+reopen short arrow fixture: pass
+short arrow route head and references persist: pass
+short arrow route head and references persist: pass
+short arrow route head and references persist: pass
+short arrow route head and references persist: pass
+short arrow route head and references persist: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture atom: pass
+fixture bond: pass
+fixture bond: pass
+fixture bond: pass
+real CO2Me nickname fragments installed: pass
+nickname reaction arrow: pass
+nickname reaction arrow: pass
+generation status: 已换到下一行左侧生成下一步结构（2 次电子转移）；原结构保留，可继续编辑或撤销。
+nickname alkylation keeps both ester groups compact: pass
+compact malonate methylation has correct formula and iodide charge: pass
+both generated ester labels retain their abbreviations: pass
+source CO2Me labels and hidden fragments remain intact: pass
+compact product insertion undoes atomically: pass
+nickname product redo: pass
+save nickname alkylation: pass

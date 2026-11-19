@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="224.273032899 391.050495243 367.103687144 450.41717916">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="28" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="29">
+            <n id="3" p="352.463051846 419.045231282" NumHydrogens="1" color="0"/>
+            <b id="30" B="3" E="4" Order="2" color="0"/>
+            <n id="4" p="339.313699128 424.915028815" NumHydrogens="1" color="0"/>
+            <b id="31" B="4" E="5" Order="1" color="0"/>
+            <n id="5" p="327.65562899 416.462254085" Element="7" NumHydrogens="0" color="0"/>
+            <b id="32" B="5" E="6" Order="1" color="0"/>
+            <n id="6" p="329.146911569 402.13968182" NumHydrogens="0" color="0"/>
+            <b id="33" B="6" E="7" Order="2" color="0"/>
+            <n id="7" p="317.488841431 393.68690709" Element="8" NumHydrogens="0" color="0"/>
+            <b id="34" B="6" E="8" Order="1" color="0"/>
+            <n id="8" p="342.296264287 396.269884287" Element="7" NumHydrogens="0" color="0"/>
+            <b id="35" B="8" E="9" Order="2" color="0"/>
+            <n id="9" p="353.954334426 404.722659017" NumHydrogens="0" color="0"/>
+            <b id="36" B="9" E="10" Order="1" color="0"/>
+            <n id="10" p="367.103687144 398.852861483" Element="7" NumHydrogens="2" color="0"/>
+            <b id="37" B="11" E="5" Order="1" Display="WedgeBegin" color="0"/>
+            <n id="11" p="314.506276271 422.332051619" NumHydrogens="1" color="0"/>
+            <b id="38" B="11" E="12" Order="1" color="0"/>
+            <n id="12" p="311.526046625 436.420281858" NumHydrogens="1" color="0"/>
+            <b id="39" B="12" E="13" Order="1" color="0"/>
+            <n id="13" p="297.206401845 437.939417596" NumHydrogens="1" color="0"/>
+            <b id="40" B="13" E="14" Order="1" color="0"/>
+            <n id="14" p="291.336604312 424.790064878" NumHydrogens="1" color="0"/>
+            <b id="41" B="14" E="15" Order="1" color="0"/>
+            <n id="15" p="302.028514708 415.144182229" Element="8" NumHydrogens="0" color="0"/>
+            <b id="42" B="14" E="16" Order="1" Display="WedgeBegin" color="0"/>
+            <n id="16" p="277.248374073 421.809835231" NumHydrogens="2" color="0"/>
+            <b id="43" B="16" E="17" Order="1" color="0"/>
+            <n id="17" p="272.785213536 408.118955128" Element="8" NumHydrogens="0" color="0"/>
+            <b id="44" B="17" E="18" Order="1" color="0"/>
+            <n id="18" p="258.696983298 405.138725481" Element="15" NumHydrogens="0" color="0"/>
+            <b id="45" B="18" E="19" Order="2" color="0"/>
+            <n id="19" p="255.716753652 419.22695572" Element="8" NumHydrogens="0" color="0"/>
+            <b id="46" B="18" E="20" Order="1" color="0"/>
+            <n id="20" p="261.677212944 391.050495243" Element="8" NumHydrogens="1" color="0"/>
+            <b id="47" B="18" E="21" Order="1" color="0"/>
+            <n id="21" p="244.60875306 402.158495835" Element="8" NumHydrogens="0" color="0"/>
+            <b id="48" B="21" E="22" Order="1" color="0"/>
+            <n id="22" p="234.983683357 412.869146292" Element="15" NumHydrogens="0" color="0"/>
+            <b id="49" B="22" E="23" Order="2" color="0"/>
+            <n id="23" p="224.273032899 403.24407659" Element="8" NumHydrogens="0" color="0"/>
+            <b id="50" B="22" E="24" Order="1" color="0"/>
+            <n id="24" p="245.694333815 422.494215994" Element="8" NumHydrogens="1" color="0"/>
+            <b id="51" B="22" E="25" Order="1" color="0"/>
+            <n id="25" p="225.358613655 423.57979675" Element="8" NumHydrogens="1" color="0"/>
+            <b id="52" B="13" E="26" Order="1" Display="WedgedHashBegin" color="0"/>
+            <n id="26" p="290.018532456 450.41717916" Element="8" NumHydrogens="1" color="0"/>
+            <b id="53" B="12" E="27" Order="1" Display="WedgedHashBegin" color="0"/>
+            <n id="27" p="321.171929274 447.112192254" Element="8" NumHydrogens="1" color="0"/>
+            <b id="54" B="9" E="3" Order="1" color="0"/>
+            <b id="55" B="15" E="11" Order="1" color="0"/>
+        </fragment>
+    </page>
+</CDXML>

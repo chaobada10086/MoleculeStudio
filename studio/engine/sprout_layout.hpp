@@ -1,6 +1,8 @@
 #pragma once
 #include "next/rings_chains/rings_chains.hpp"
 #include "alkyne_sprout.hpp"
+#include "chair_layout.hpp"
+#include "projection_molecule.hpp"
 #include <map>
 #include <set>
 #include <algorithm>
@@ -80,11 +82,35 @@ struct Environment{
     }
 };
 inline rings_chains::SproutDirection resolve(const Document& doc,ObjectId atom,double preferred=-30.){
+    const auto chair=chair_layout::target(doc,atom,Vec2(),true);
+    if(chair.recognized){rings_chains::SproutDirection r;r.ok=chair.available;if(r.ok)r.directionDeg=core::angleOf(chair.end-doc.atoms().alive(atom)->position);else r.rejectReason="椅式环的直立、平伏位置已占用，请拖动指定方向";return r;}
     auto env=rings_chains::buildSproutEnvironment(doc,atom,25.);
     auto result=rings_chains::resolveSproutDirection(env,preferred);
     if(!doc.atoms().alive(atom)){result.ok=false;result.rejectReason="sprout anchor is missing";return result;}
     if(!result.ok)return result;
     Environment obstacles(doc,atom);std::vector<double> canonical;
+    // Projection spokes already encode the outgoing direction. A ring grown
+    // at their terminal carbon belongs outside the projection, not at the
+    // ordinary zigzag angle which folds it back into Fischer/Newman centres.
+    if(doc.incidentBonds(atom).size()==1){auto b=doc.bonds().alive(doc.incidentBonds(atom).front());auto other=b->beginAtom==atom?b->endAtom:b->beginAtom;
+        const int kind=projection_molecule::kind(doc,other);
+        if(kind>=0&&kind<3){auto ray=doc.atoms().alive(atom)->position-doc.atoms().alive(other)->position;double angle=core::angleOf(ray),score=0;
+            if(obstacles.score(angle,env.neighbourDirectionsDeg,&score)){result.ok=true;result.directionDeg=angle;return result;}
+        }
+    }
+    // Angular methyl at a trigonal-looking three-single-bond junction. Keep
+    // the near-vertical stem as the axis instead of taking an oblique gap.
+    const auto* center=doc.atoms().alive(atom);
+    if(center->element==6&&env.neighbourDirectionsDeg.size()==3){
+        bool singles=true;
+        for(auto id:doc.incidentBonds(atom)){auto b=doc.bonds().alive(id);if(!b||b->order!=BondOrder::Single||b->semantics!=BondSemantics::Normal)singles=false;}
+        auto ns=env.neighbourDirectionsDeg;std::sort(ns.begin(),ns.end());
+        bool trigonal=true;for(size_t i=0;i<3;++i)if(std::abs(std::fmod(ns[(i+1)%3]-ns[i]+360.,360.)-120.)>12.)trigonal=false;
+        if(singles&&trigonal)for(double n:ns)if(std::min(gap(n,90.),gap(n,270.))<12.){
+            const double angular=std::fmod(n+540.,360.);double score=0;
+            if(obstacles.score(angular,ns,&score)){result.ok=true;result.directionDeg=angular;return result;}
+        }
+    }
     double linear=0;bool sp=spContinuationAngle(doc,atom,&linear);
     if(sp)canonical.push_back(linear);
     else if(env.neighbourDirectionsDeg.empty())canonical.push_back(preferred);

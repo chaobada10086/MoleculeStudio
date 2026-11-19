@@ -1,0 +1,36 @@
+{
+  "opsin_release": "2.9.0",
+  "java_release": "jdk-21.0.12.1+1",
+  "downloads": [
+    {
+      "url": "https://github.com/dan2097/opsin/releases/download/2.9.0/opsin-cli-2.9.0-jar-with-dependencies.jar",
+      "file": "opsin.jar",
+      "sha256": "c2e29326c281f87b59a05d934d8589adac6e9d17b95b984931b3e739111b360f"
+    },
+    {
+      "url": "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jre_x64_windows_hotspot_21.0.12.1_1.zip",
+      "file": "java.zip",
+      "sha256": "d35f31e712f0fcf6ac5a093edc90204fbff22f720ba3950bd09d331d5e621636"
+    },
+    {
+      "url": "https://zenodo.org/records/4629851/files/ambit-hnmr.jar?download=1",
+      "file": "ambit-hnmr.jar",
+      "sha256": "107b8ade0721766149c1dd0480e0b78ff65cd5c9714ea53b322464a0192d9b27"
+    },
+    {
+      "url": "https://zenodo.org/records/4629851/files/hnmr-knowledgebase.txt?download=1",
+      "file": "hnmr-knowledgebase.txt",
+      "sha256": "eed0f70f7b1cc9d2936b3409f053935f1ef6617d851abf9bf82520902c45d3d2"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/dan2097/opsin/master/LICENSE.txt",
+      "file": "OPSIN-LICENSE.txt",
+      "sha256": "aeeafe2053175a5b34cb2ded4410581ccd36b82c734315be1a7a81c6f9fb4834"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/oxpig/nispo/main/LICENSE",
+      "file": "NISPO-LICENSE.txt",
+      "sha256": "78a2733c8d8f1d5eae07a9cd0498e9bc82b5039e5d43d81df4f40b05e24733f3"
+    }
+  ]
+}

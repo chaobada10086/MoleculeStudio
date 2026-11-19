@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="22" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="150 70.0686798187 490 401">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+        <color r="0" g="0" b="0.50196078431372548"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="12" BoundingBox="0 0 600 650" Width="600" Height="650" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="600" MoleculeStudioPageHeight="650">
+        <fragment id="13">
+            <n id="3" p="290 161" Element="46" NumHydrogens="0" LabelDisplay="Shown" color="10">
+                <t LabelAlignment="Left" color="10">
+                    <s font="3" size="10" face="96" color="10">Pd</s>
+                </t>
+            </n>
+            <b id="14" B="3" E="4" Order="1"/>
+            <n id="4" p="290 139" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">R1</s>
+                </t>
+            </n>
+            <b id="16" B="5" E="6" Order="1"/>
+            <n id="5" p="150 281" Element="46" NumHydrogens="0" LabelDisplay="Shown" color="10">
+                <t LabelAlignment="Left" color="10">
+                    <s font="3" size="10" face="96" color="10">Pd</s>
+                </t>
+            </n>
+            <b id="18" B="7" E="8" Order="1"/>
+            <n id="6" p="150 259" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">R2</s>
+                </t>
+            </n>
+            <b id="20" B="9" E="10" Order="1"/>
+            <n id="7" p="290 401" Element="46" NumHydrogens="0" LabelDisplay="Shown" color="10">
+                <t LabelAlignment="Left" color="10">
+                    <s font="3" size="10" face="96" color="10">Pd</s>
+                </t>
+            </n>
+            <n id="8" p="290 379" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">R3</s>
+                </t>
+            </n>
+            <n id="9" p="430 281" Element="46" NumHydrogens="0" LabelDisplay="Shown" color="10">
+                <t LabelAlignment="Left" color="10">
+                    <s font="3" size="10" face="96" color="10">Pd</s>
+                </t>
+            </n>
+            <n id="10" p="430 259" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">R4</s>
+                </t>
+            </n>
+            <n id="11" p="490 120" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown">
+                <t>
+                    <s font="3" size="10" face="96">RZnX</s>
+                </t>
+            </n>
+        </fragment>
+        <arrow id="15" BoundingBox="163.31323771 162.015036096 339.437409761 349.285311388" Tail3D="275.574124555 162.365036096 0" Head3D="164.425875445 257.634963904 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1000" ArrowheadCenterSize="875" ArrowheadWidth="258" Center3D="270.0167121 268.352830783 0" MajorAxisEnd3D="189.434231495 337.423528444 0" MinorAxisEnd3D="200.946014438 187.770350178 0" AngularSize="87.205637945407247" MoleculeStudioCatalytic="cycle" MoleculeStudioElectronSource="atom:3" MoleculeStudioElectronTarget="atom:5" MoleculeStudioArrow="v=1;preset=58;family=1;size=2;line=0;shafts=1;sweep=5;dir=1;hshape=1;hside=1;hlen=6;hwidth=3.1000000000000001;hend=1;hbegin=0;bx=275.57412455505937;by=162.36503609566341;ex=164.42587544494063;ey=257.63496390433659;sag=29.278177829171547;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <arrow id="17" BoundingBox="164.075875445 190.714688612 339.437409761 379.679197568" Tail3D="164.425875445 282.365036096 0" Head3D="275.574124555 377.634963904 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1000" ArrowheadCenterSize="875" ArrowheadWidth="258" Center3D="270.0167121 271.647169217 0" MajorAxisEnd3D="350.599192704 340.717866878 0" MinorAxisEnd3D="200.946014438 352.229649822 0" AngularSize="87.205637945407247" MoleculeStudioCatalytic="cycle" MoleculeStudioElectronSource="atom:5" MoleculeStudioElectronTarget="atom:7" MoleculeStudioArrow="v=1;preset=58;family=1;size=2;line=0;shafts=1;sweep=5;dir=1;hshape=1;hside=1;hlen=6;hwidth=3.1000000000000001;hend=1;hbegin=0;bx=164.42587544494063;by=282.36503609566341;ex=275.57412455505937;ey=377.63496390433659;sag=29.278177829171547;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <arrow id="19" BoundingBox="240.562590239 190.714688612 416.68676229 377.984963904" Tail3D="304.425875445 377.634963904 0" Head3D="415.574124555 282.365036096 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1000" ArrowheadCenterSize="875" ArrowheadWidth="258" Center3D="309.9832879 271.647169217 0" MajorAxisEnd3D="390.565768505 202.576471556 0" MinorAxisEnd3D="379.053985562 352.229649822 0" AngularSize="87.205637945407247" MoleculeStudioCatalytic="cycle" MoleculeStudioElectronSource="atom:7" MoleculeStudioElectronTarget="atom:9" MoleculeStudioArrow="v=1;preset=58;family=1;size=2;line=0;shafts=1;sweep=5;dir=1;hshape=1;hside=1;hlen=6;hwidth=3.1000000000000001;hend=1;hbegin=0;bx=304.42587544494063;by=377.63496390433659;ex=415.57412455505937;ey=282.36503609566347;sag=29.27817782917154;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <arrow id="21" BoundingBox="240.562590239 160.320802432 415.924124555 349.285311388" Tail3D="415.574124555 257.634963904 0" Head3D="304.425875445 162.365036096 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1000" ArrowheadCenterSize="875" ArrowheadWidth="258" Center3D="309.9832879 268.352830783 0" MajorAxisEnd3D="229.400807296 199.282133122 0" MinorAxisEnd3D="379.053985562 187.770350178 0" AngularSize="87.205637945407233" MoleculeStudioCatalytic="cycle" MoleculeStudioElectronSource="atom:9" MoleculeStudioElectronTarget="atom:3" MoleculeStudioArrow="v=1;preset=58;family=1;size=2;line=0;shafts=1;sweep=5;dir=1;hshape=1;hside=1;hlen=6;hwidth=3.1000000000000001;hend=1;hbegin=0;bx=415.57412455505937;by=257.63496390433664;ex=304.42587544494063;ey=162.36503609566341;sag=29.278177829171554;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <arrow id="22" BoundingBox="200.596014438 70.0686798187 482.561209159 389.535900502" Tail3D="482.211209159 121.826126292 0" Head3D="200.946014438 187.770350178 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1000" ArrowheadCenterSize="875" ArrowheadWidth="258" Center3D="359.163738168 229.80229016 0" MajorAxisEnd3D="199.780127827 267.170683696 0" MinorAxisEnd3D="321.795344633 70.4186798187 0" AngularSize="123.85502612829409" MoleculeStudioCatalytic="in" MoleculeStudioElectronSource="atom:11" MoleculeStudioElectronTarget="arrow:15" MoleculeStudioArrow="v=1;preset=58;family=1;size=2;line=0;shafts=1;sweep=5;dir=1;hshape=1;hside=1;hlen=6;hwidth=3.1000000000000001;hend=1;hbegin=0;bx=482.21120915888542;by=121.82612629173596;ex=200.94601443826537;ey=187.77035017797624;sag=86.667684509664966;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+    </page>
+</CDXML>

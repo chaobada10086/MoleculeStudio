@@ -27,9 +27,10 @@ def draw(engine,args,number,style):
         if charge:attrs['Charge']=str(charge)
         if element==16:attrs['NumHydrogens']=str(hydrogens)
         ET.SubElement(fragment,'n',attrs)
-    for i,(a,b,order,wedge) in enumerate(entry['bonds']):
+    for i,(a,b,order,display) in enumerate(entry['bonds']):
         attrs={'id':str(3+len(entry['atoms'])+i),'B':str(a+3),'E':str(b+3),'Order':str(order)}
-        if wedge:attrs['Display']='WedgeBegin' if wedge==1 else 'WedgedHashBegin'
+        if display in (1,2):attrs['Display']='WedgeBegin' if display==1 else 'WedgedHashBegin'
+        if display in (3,4):attrs['MoleculeStudioBridgeLayer']='back' if display==3 else 'front'
         ET.SubElement(fragment,'b',attrs)
     from ai_scene import bounds
     box=bounds(engine.scene);width=(max(a[0] for a in entry['atoms'])-min(a[0] for a in entry['atoms']))*length
@@ -39,3 +40,32 @@ def draw(engine,args,number,style):
     node=ET.Element('molecule',attrs);node.text=ET.tostring(root,encoding='unicode')
     created=engine.record_creation(node);engine.actions.append(node);engine.molecules+=1
     return dict(staged=True,**created,template=key,name=entry['name'],variant=entry['variant'],formula=entry['formula'],layout='native-library',source='native ring library')
+
+
+@lru_cache(maxsize=1)
+def reagents():
+    path=Path(__file__).with_name('reagents.json')
+    return {Path(item['file']).stem:item for item in json.loads(path.read_text(encoding='utf-8'))['reagents']}
+
+def reagent_tool(engine,name,args,number):
+    if name=='search_reagent_library':
+        query=args['query'].strip().casefold()
+        offset=args.get('offset',0)
+        if type(offset) is not int or offset<0: raise ValueError('offset 必须为非负整数')
+        matches=[dict(id=key,**{k:item.get(k,'') for k in ('title','alias','category','formula')})
+                 for key,item in reagents().items() if any(query in str(item.get(k,'')).casefold()
+                 for k in ('title','alias','formula','category'))]
+        return dict(total=len(matches),reagents=matches[offset:offset+30],next_offset=offset+30 if offset+30<len(matches) else None)
+    item=reagents().get(args['id'])
+    if not item: raise ValueError('试剂 ID 无效，请先查询试剂库')
+    path=Path(__file__).with_name('reagent_templates')/item['file']
+    node=ET.Element('molecule',x=str(number(args,'x')),y=str(number(args,'y')))
+    root=ET.parse(path).getroot()
+    for bond in root.findall(".//b[@Order='2'][@Display='Wavy']"):
+        del bond.attrib['Display']
+        bond.set('MoleculeStudioUnspecifiedEZ','yes')
+    node.text=ET.tostring(root,encoding='unicode')
+    result=engine.record_creation(node)
+    engine.actions.append(node)
+    engine.molecules+=1
+    return dict(staged=True,**result,name=item['title'],source='native reagent library')

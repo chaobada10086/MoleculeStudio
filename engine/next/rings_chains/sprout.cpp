@@ -62,6 +62,7 @@ SproutEnvironment buildSproutEnvironmentImpl(const core::Document& document,
                                              core::ObjectId atom,
                                              double minGapDegrees) {
     SproutEnvironment env;
+    if(auto v=document.documentExtensions().findValue("studio.style.ChainAngle")){double angle=std::atof(v->c_str());if(std::isfinite(angle)&&angle>=30&&angle<=180)env.chainAngleDegrees=angle;}
     env.minGapDegrees = minGapDegrees;
     const core::AtomRecord* self = document.atoms().alive(atom);
     if (!self) return env;
@@ -135,8 +136,8 @@ SproutDirection resolveSproutDirection(const SproutEnvironment& environment,
             const double d = angleGapDeg(sorted[i], preferredDeg);
             if (d < nearestDist) { nearestDist = d; nearest = sorted[i]; }
         }
-        const double candA = normalizeDeg(nearest + 120.0);
-        const double candB = normalizeDeg(nearest - 120.0);
+        const double candA = normalizeDeg(nearest + environment.chainAngleDegrees);
+        const double candB = normalizeDeg(nearest - environment.chainAngleDegrees);
 
         double refA = preferredDeg;
         double refB = preferredDeg;

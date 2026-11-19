@@ -148,7 +148,7 @@ static const MenuKey menuKeys[]={
 {"Ctrl+P","print","Print Document"},
 {"Alt+f4","quit",""},
 {"Ctrl+Shift+Z","redo","Redo"},
-{"Ctrl+Y","repeatLastAction",""},
+{"Ctrl+Y","redo","Redo"},
 {"Ctrl+Shift+H","rotateObjects180Horizontal","Rotates 180 Horizontally"},
 {"Ctrl+Shift+V","rotateObjects180Vertical","Rotate 180 vertically"},
 {"Ctrl+S","saveDocument","Save Document"},

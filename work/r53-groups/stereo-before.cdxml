@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3">
+<colortable>
+<color r="1" g="1" b="1"/>
+<color r="0" g="0" b="0"/>
+<color r="1" g="0" b="0"/>
+<color r="1" g="1" b="0"/>
+<color r="0" g="1" b="0"/>
+<color r="0" g="1" b="1"/>
+<color r="0" g="0" b="1"/>
+<color r="1" g="0" b="1"/>
+</colortable>
+<fonttable><font id="3" charset="iso-8859-1" name="Times New Roman"/></fonttable>
+<page id="8">
+<fragment id="9">
+<n id="3" p="0 0"/>
+<b id="10" B="3" E="4" Order="1" Display="WedgeBegin"/>
+<n id="4" p="30 0" NodeType="Nickname" LabelDisplay="Shown"><fragment id="11">
+    <n id="12" p="77.14 -0.00" NodeType="ExternalConnectionPoint"/>
+    <n id="13" p="32.14 -0.00" Element="6" NumHydrogens="0"/>
+    <n id="14" p="9.64 38.97" Element="6" NumHydrogens="1"/>
+    <n id="15" p="-35.36 38.97" Element="6" NumHydrogens="1"/>
+    <n id="16" p="-57.86 -0.00" Element="6" NumHydrogens="1"/>
+    <n id="17" p="-35.36 -38.97" Element="6" NumHydrogens="1"/>
+    <n id="18" p="9.64 -38.97" Element="6" NumHydrogens="1"/>
+    <b id="19" B="12" E="13" Order="1"/>
+    <b id="20" B="13" E="14" Order="2"/>
+    <b id="21" B="14" E="15" Order="1"/>
+    <b id="22" B="15" E="16" Order="2"/>
+    <b id="23" B="16" E="17" Order="1"/>
+    <b id="24" B="17" E="18" Order="2"/>
+    <b id="25" B="18" E="13" Order="1"/>
+</fragment>
+<t><s font="3" size="10" face="96">Ph</s></t></n>
+<b id="26" B="3" E="5" Order="1"/>
+<n id="5" p="-15 -25" Element="9"/>
+<b id="27" B="3" E="6" Order="1"/>
+<n id="6" p="-15 25" Element="17"/>
+<b id="28" B="3" E="7" Order="1"/>
+<n id="7" p="0 30" Element="35"/>
+
+</fragment>
+</page>
+</CDXML>

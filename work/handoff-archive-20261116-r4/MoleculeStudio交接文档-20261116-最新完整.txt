@@ -1,0 +1,143 @@
+﻿MoleculeStudio 交接文档（2026-11-16 最新完整）
+生成时间：2026-11-16 00:21:36
+
+一、接手顺序与用户当前意图
+1. 本轮“椅式环己烷投影及直立/平伏成键调整”已经完成，专项与整体回归通过，程序已更新。
+2. 用户明确要求：完成本轮后写交接文档，因为对话过长；用户已发现并复现一个重大 Bug，要交给新对话处理。
+3. 重大 Bug 的现象、复现步骤和对应文件尚未提供。不要把它说成已定位/已修复，不要擅自认定是下文某个旧问题。新会话先接收用户复现描述，再在明确版本上验证。
+4. 当前没有编译或测试任务在后台运行。本轮未提交 Git、未推送、未创建 PR。仓库有大量前序未提交改动，不能 reset/checkout 覆盖它们。
+
+二、唯一正确的路径与版本
+源码仓库：C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio
+本对话工作目录：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026
+最终构建：C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\out\Studio\MoleculeStudio-Chair-20261116.exe
+实际安装程序：C:\Users\ChaobaDa\AppData\Local\Programs\MoleculeStudio\MoleculeStudio.exe
+桌面入口：C:/Users/ChaobaDa/Desktop/MoleculeStudio.lnk
+工作目录最新版入口：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-最新版.lnk
+最终 EXE SHA256：ab28151445f6a01dae11460344a74b7d844b41b5f240eeac3a1dd9686ea47352
+桌面安装程序、最终构建、outputs/MoleculeStudio-实体机测试版.exe 已核对同一哈希。
+构建清单：C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\out\Studio\manifest.json
+上一个圈电荷版本：C:\Users\ChaobaDa\Documents\GitHub\MoleculeStudio\out\Studio\MoleculeStudio-CircleCompat-20261115.exe
+本轮安装前备份：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\installed-before-chair-20261116
+发布验证：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-20261116-椅式环与接键\verification.json
+本轮发布时检测是否有旧的安装实例需要重启：False。该值只反映发布时点；接手时请重新检查进程路径，不把历史状态当成当前状态。
+不要只改 out 目录的一份 EXE 却留下桌面实际安装程序为旧版；历史上已因此出现“修了但用户仍看到旧行为”。
+
+三、本轮椅式环改动（独立实现，没有复制 ChemDraw 逆向代码）
+问题：第二种椅式图以前是第一种转 30 度；默认接键沿用碳链 120 度方向，造成两根斜键像普通分叉，直立和平伏不清楚。
+结果：两种椅式使用互相上下翻转的浅投影；保留两条较长浅斜边和较短端部折边。默认轴向竖直，六个顶点的直立方向交替向上/向下；平伏方向由投影价键框架独立计算。
+单击环原子先增加平伏键，再增加直立键；已有位置不重复占用。拖动时按鼠标方向选择两种价键方向，预览与提交端点一致，避免后续 15 度取整把方向扭回普通分叉。Alt 释放该约束；关闭锁定角度保留自由拖动。明确拖到其他原子上的接键沿用原有捕捉，不能破坏有意闭环。
+直立/平伏键采用投影长度（默认键长的 0.50 / 0.65），使画面接近用户教材参考图。
+识别方式：从目标原子搜索六元单键环，将当前坐标拟合模板以求旋转框架，不依赖屏幕坐标或私有 atom 属性。因此正常保存/重开、旋转、复制后的新版椅式仍可识别。普通正六边形不应用该规则。
+稠合：根据共享边的投影长度缩放整个椅式，原有两个共享原子位置保持精确不动，避免只拉扯端点导致畸变。
+限制：不自动重排旧文档，不保证任意手画/严重变形的椅式都会识别；旧版形状没有静默替换。这里是二维示意图几何，不自动给分子指定绝对构型，也不是已有取代椅式的自动构象翻转算法。
+
+本轮源文件（均相对源码仓库）：
+- engine/next/rings_chains/presets.cpp：六顶点投影，Chair2 上下反射，默认旋转改为 0。
+- engine/next/rings_chains/rings_chains.hpp：两个投影的接口说明。
+- engine/next/rings_chains/place.cpp：稠合共享短边的统一缩放。
+- studio/engine/chair_layout.hpp：六元环坐标拟合、直立/平伏框架、位置占用及候选端点。
+- studio/engine/sprout_layout.hpp：自动接键优先使用椅式规则。
+- studio/engine/session.cpp：鼠标预览/拖动/提交共用椅式端点，保护明确原子捕捉。
+- studio/engine/chemistry_actions.cpp：原子快捷键接键共用投影方向及长度。
+- studio/chair_layout_checks.hpp：专项、示例图、标准 CDXML/CDX 导出。
+- studio/current_fixes_checks.hpp：接入专项回归。
+- studio/studio.cpp 的 chairIconVertices 从同一预设生成图标，所以两个按钮图标会同步更新。
+
+四、本轮验证与交付
+专项：两种椅式 × 四种旋转 × 两种键长，共 16 组；每组检查六个顶点轴向、平伏/直立依次插入、预览与提交、旋转后的轴向拖动、撤销、CDXML 重开。另检查两种椅式 × 三方向的稠合共享边与端点保留，及普通六元环不误识别。
+快速接键：20 组既有布局/旋转/立体保护/障碍与快捷键检查通过。
+全量 --test 通过，包括绘图、保存、复制粘贴、OLE、文字、快捷键、模板、命名、整理结构、箭头等原有回归。本轮不能据此宣称未描述的重大 Bug 已不存在。
+专项输出：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\perspective-audit\chair-release16-fixes
+快速接键输出：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\perspective-audit\chair-release16-sprout
+全量输出：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\perspective-audit\chair-release16-full
+运行日志：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\chair-tests-release16.log
+最终编译日志：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\chair-build-final.log
+本轮早期 chair-final-fixes 下有一次测试自身包围盒初始化错误的 failure.txt，随后已修正测试，不是最终验证目录。不要用旧 failure 当最终失败，也不要删掉诊断历史。
+最终发布目录：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-20261116-椅式环与接键
+效果图：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-20261116-椅式环与接键\chair-axial-equatorial.png
+示例 CDXML：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-20261116-椅式环与接键\chair-axial-equatorial.cdxml
+示例 CDX：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-20261116-椅式环与接键\chair-axial-equatorial.cdx
+更新包：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-椅式环接键-20261116.zip
+独立预检查程序与干净画面预览：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\chair-20261116
+最终发布脚本：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\publish-chair.ps1
+只更新 EXE 并保留安装目录运行时与用户设置，不能删除安装目录/Python/INI/自定义模板。
+
+五、紧接本轮之前：圈电荷与 ChemDraw 原生兼容修复
+用户桌面 asdf.cdxml 是 19 原子、18 键的圈正/圈负、普通电荷、自由基、卡宾、δ 标注及醋酸示例。请注意用户曾在同名路径反复换文件，不能用更早 fixture 当作最新问题样本。
+原始快照：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\circle-compat-20261115\user-original.cdxml
+该快照 SHA256：6a12c644ce1b7e94c583e74af7635f66d30ceafd81822f1e557250654921b271
+修复文件：C:/Users/ChaobaDa/Desktop/asdf-圈电荷修复.cdxml
+含当时未保存弧线编辑的文件：C:/Users/ChaobaDa/Desktop/asdf-圈电荷修复-当前编辑.cdxml
+完整原生备份：C:/Users/ChaobaDa/Desktop/asdf-圈电荷修复-当前编辑.r62doc
+同一原生备份原件：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\circle-compat-20261115\user-live-before-update.r62doc
+原始 Desktop/asdf.cdxml 没有被我们的修复覆盖；如现在不同，应先确认用户后续修改。
+前轮发布目录：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\outputs\MoleculeStudio-20261115-圈电荷兼容修复
+
+已用本机 ChemDraw Professional UI 实测 CDXML 和本软件编码的 CDX，另存并重新读取。修复后原生诊断无 Warning，电子语义/原子归属保持，无重复符号；CDXML 最大坐标舍入误差约 0.00646 pt，原生 CDX 约 0.000019 pt。
+问题根因与实现：
+1. CirclePlus/CircleMinus 尺寸误用了普通 Plus/Minus 换算。原生 SVG 测得：span=13.95、LineWidth=0.6 时圆半径为 6.44 pt；圈半径=span×4/9+LineWidth×0.4。按编辑器圈半径及笔画宽度反算 handle 距离，保持标准 SymbolType 和 represent Charge 属性。
+2. 独立原生圈符号的 raw renderer 原来没有圆圈分支，现已补齐 CirclePlus/CircleMinus 的空心圈及相应正负号。
+3. δ+/δ− 是文本标注，写 InterpretChemically=no，避免被当化学式误报；CDXBooleanImplied 的显式 false 以前被丢弃，现在与 ChemDraw 实际记录一样写 1 字节零，不能通过省略继承文档 yes。
+4. 没有全局关闭原子价态警告，也没有全局屏蔽真正的符号重叠。
+主要源码：studio/engine/electron_graphics.hpp、cdxml_graphics.hpp、cdxml_writer.cpp、studio/cdx_binary.hpp、studio/native_compat_checks.hpp。
+前轮原生证据目录：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\circle-compat-20261115
+证据包括 circle-native-bad-resaved.cdxml/.svg、circle-native-fixed-resaved.cdxml/.cdx、studio-cdx-native-resaved.cdxml、native-*-verification.json、native-measurements.txt。
+本轮 current-fixes 再次执行了圈电荷 18 组尺寸/笔画检查和旧文件连续三次保存检查。
+
+六、其他必须保留的既有功能与用户决定
+- 结构透视 Structure Perspective：开始栏与选择工具相邻，去掉开始栏剪切按钮；苯环压扁及前方键适当加粗，拖动方向/光标需正确。全部实现自行编写，逆向源码只允许研究效果，禁止复制进软件。
+- 光敏剂/大位阻模板立体示意；模板库金属醇盐、单连接基团扩充。i-Pr 的 i 斜体，Pr 和连字符正体，这是用户明确选择，不按教材无斜体截图推翻。
+- 金属复合标签优先将金属作为接键位置；配体可右键展开，新增配体朝骨架外侧排列并按真实文字边界留出可见 M–L 键。保护原骨架、金属位置、多齿配体和已指定楔线构型。
+- BH 作为两个可编辑原子/隐藏逻辑键，按普通连续文字 BH 的正常字间距、基线排布，不能再次拉开或上下错位。
+- 酯基两阶段展开：COOR 先到 C(=O)OR，再展开 OR；叠氮 3 为下标，电荷上标；应直线的累计双键保持直线；自动电荷/孤对/卡宾位置靠近所属原子。
+- 投稿绘图设置：可独立调整全部参数；ACS 1996 示例是 Arial 10 pt、ChainAngle120°、BondSpacing18%、BondLength14.4 pt、BoldWidth2、LineWidth0.6、MarginWidth1.6、HashSpacing2.5。其余预设已做过前序核对；用户可以预设为基础创建自定义参数，不能锁死为某期刊。
+- 自由弧线：先定起终点，再定弧度；右键复制/粘贴弧度；锁定只约束以后新画/调整的弧线，不立即改已有画布。反应箭头在前、弧线其次、机理最后；机理包含双电子和鱼钩。
+- 箭头头部五档名称只能是“小、较小、中、较大、大”，非机理全局生效，机理维持独立尺寸；预览虚线应与落笔一致；空心/半箭头几何和弧线箭头头部居中已修过。
+- 普通反应弧线可末端捕捉其他箭头形成分支；卡宾机理两根箭头不应合并。电荷/自由基/卡宾符号及所属原子应等价参与推演；小分子产物整理和三元环生成不能丢。
+- B−、Nu−、H+ 为纯图标按钮；电荷工具去掉占空间的文字；悬停提示同步显示实际快捷键；左下角只显示工具名及存在的快捷键。
+- 插入连烯与选择原子锚点逻辑、五元环/苯环/椅式选中原子的插入预览不得偏移。
+- 右键只显示可用项目，不能让大量灰色条目占菜单。
+相关查找入口：studio/functional_groups.hpp、metal_expansion_layout.hpp、mechanism_role_actions.hpp、drawing_settings.hpp、shortcut_hints.hpp、ribbon_tabs.hpp；studio/engine 下 mechanism_*.hpp、free_arc.hpp、arrows_*.cpp、molecular_render.hpp 等。
+
+七、早先原生兼容与保存结构修复（不要回退）
+- studio/engine/cdxml_writer.cpp 对带电杂原子生成显式化学标签/上标电荷，避免 Br− 变中性；旧带电节点及通用角色节点即使 untouched 也需重新生成。
+- 通用 B/Nu 使用持久 objecttag Name=MoleculeStudio.GenericRole.base|nucleophile，恢复为 Query；不可把真正元素硼一律当通用碱。
+- Radical XML 枚举为 Singlet/Doublet/Triplet，CDX 则为数值枚举；用原生 Electron/LonePair 符号及 represent 绑定原子，读取后晋升所属原子的 marker，去掉重复图形。
+- Visible=no 的隐藏 BH 键读取到持久属性，渲染、标签 reflow 不把隐藏键当可见方向。
+- writer 预留 source/raw/死对象中所有容器与子对象 ID，防止新 objecttag 复用已有 page/fragment ID。
+- sourceGap/sourceTagIds 等保留原对象前方的容器片段；消耗/移除电子图形时仍要发出其前导 </fragment>，否则保存出现未闭合 XML。
+- Session::open 按 VjCD0100 头识别 CDX。Session::save 有拒绝覆盖 sourcePath 的原子写保护；测试中重复保存临时 fixture 时清 sourcePath，不能粗暴删全局保护。
+- 名义相同的 engine/next 原文件不一定真正链接。studio/build.py 的 overrides 会用 studio/engine 同名源覆盖，需要看 out/Studio/manifest.json 中每个 engine_sources 的实际 path。
+
+八、另一个未定性的历史观察（不能冒充用户新重大 Bug）
+前轮 Computer Use 给带“未命名结构 + 当前图”的多标签主窗口发送 Ctrl+Shift+S 时，曾保存出只有空白文档的 1803 字节 .r62doc，而画布仍显示另一标签。可能与工具焦点/主子窗口命令路由有关，尚未作为产品 Bug 定性、未修复。
+当时用户真正绘图已提前保存为 47643 字节的 user-live-before-update.r62doc；错误的新文件已用该完整备份覆盖，另用当前引擎导出同名“当前编辑.cdxml”，验证 19 原子/18 键、所有电子语义、零重复符号、坐标零偏移。
+如新用户复现涉及多标签保存/切换/空文件，可重点查 studio/tabs_host.hpp 的 active tab、WM_KEYDOWN、g_currentApp，以及 studio/studio.cpp 的 canvasProc、save、文件菜单路由。不要未经新复现就归因。
+
+九、构建与验证操作
+PowerShell；无须再次请求普通可逆修改权限。不要在编译期间编辑任何 C++ 头/源文件；曾有并发改头引发 ABI/陈旧对象风险。
+Python：C:/Users/ChaobaDa/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe
+RDKit 运行时：C:/Users/ChaobaDa/AppData/Local/Programs/MoleculeStudio/python/python.exe
+编译器：C:/tools/mingw64/bin/g++.exe
+完整构建（workdir=源码仓库）：
+& 'C:/Users/ChaobaDa/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' studio/build.py --dx11 --jobs 4 --compiler C:/tools/mingw64/bin/g++.exe --exe MoleculeStudio-Chair-20261116.exe
+主 TU 通常编译约 2–3 分钟，内存约 3GB；头变化会重新编译引擎。日志未实时刷新不代表没在运行，可只读检查 cc1plus CPU。
+可选快速 relink：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\relink-current.py。它只在 header_digest 和全部 studio_sources 与上次 manifest 一致时重用 studio.o；仅 engine .cpp 改动可用。头或主 TU 改过必须完整构建，不绕过检查。
+本轮验证脚本：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\run-chair-final.ps1
+包装脚本：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\verify-chair.ps1
+通用验证：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\verify-perspective.ps1
+包装会备份/恢复 interface.ini 和剪贴板，并启动 Hidden 测试进程。检查退出码、failure.txt 和证据时间戳，不能误用旧测试 JSON。
+命令模式：--current-fixes-check、--rapid-sprout-check、--test；前序还有 --mechanism-step-check、--electron-state-check 等，在 studio.cpp 的参数分派可查。
+独立预检查：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\chair-20261116\build-chair-probe.py 与 chair-probe.exe，直接链接当前引擎对象，不替代最终应用内验证。
+示例原生往返比较器：C:\Users\ChaobaDa\Documents\Codex\2026-11-14\c-users-chaobada-documents-codex-2026\work\circle-compat-20261115\roundtrip-probe.cpp。注意该辅助程序 main 接收窄 argv，从 PowerShell 传中文路径可能乱码，测试用 ASCII 临时路径；不要据此断言软件 Unicode 文件 API 有 Bug。原生 UI 验证标志只能对实际 ChemDraw UI 另存过的文件使用。
+
+十、电脑操作和交接纪律
+用户希望主动做完，及时简短更新，不要长时间沉默或反复让用户确认已授权的普通修复。不要为了节省时间停在只写计划/只生成代码。
+Computer Use 技能：C:/Users/ChaobaDa/.codex/plugins/cache/openai-bundled/computer-use/26.1111.21308/skills/computer-use/SKILL.md
+控制 Windows 前按技能读 guidance/api/confirmations，使用 @oai/sky（node_repl），不要另写 Win32/COM 自动化控制窗口。
+get_window_state 的截图必须真实观察；每次动作后刷新。窗口 handle、accessibility index、坐标都可能变，先 fresh inventory。出现 user input detected 要先刷新，再继续；不要接管 ChatGPT 窗口。
+sky.type_text 经剪贴板输入，不能与正在测试剪贴板的全量测试并发；某些传统下拉框不接受粘贴，可能把文字粘到画布，必须观察并撤销。
+原生 ChemDraw 安装路径：C:/Program Files/RevvitySignalsSoftware/ChemDrawApplications_x64/ChemDraw.exe
+保存用户打开的文档前保留原生备份，不覆盖原始用户示例，不丢未保存修改。若更新时旧实例开着，可在允许时先备份再替换程序文件，不强杀用户进程。
+后续新会话请以本文件和当前源码/进程/文件实际状态为准，历史记录只作为路线，不把旧状态当现在。

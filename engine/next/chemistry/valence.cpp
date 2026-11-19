@@ -22,6 +22,10 @@ std::string intToStr(int v) {
     return std::string(buf);
 }
 
+bool closedShellNitrogen(const AtomEnvironment& env) {
+    return env.element == 7 && env.charge >= -1 && env.charge <= 1 && env.radical == 0;
+}
+
 } // namespace
 
 // ---------------------------------------------------------------------------
@@ -61,7 +65,7 @@ HydrogenResult implicitHydrogens(const AtomEnvironment& env) {
     }
 
     const ElementInfo& info = elementInfo(env.element);
-    const int valence = conventionalValenceFor(env.element, env.bondOrderSum);
+    const int valence = (env.element==7&&env.charge>=-1&&env.charge<=1) ? 3 : conventionalValenceFor(env.element, env.bondOrderSum);
     r.conventionalValence = valence;
     if (valence < 0) {
         r.note = info.valenceNote[0] ? info.valenceNote
@@ -69,10 +73,26 @@ HydrogenResult implicitHydrogens(const AtomEnvironment& env) {
         return r;
     }
 
-    // Charged atoms shift the electron count: N+ has one fewer bond-worth, O- has
-    // one more.  This is the standard electron-bookkeeping adjustment and is the
-    // reason a charged N/O example in the acceptance list behaves the way it does.
-    const int expected = valence + env.charge;
+    // Neutral N has valence three. A closed-shell N+ with four bond orders
+    // is already saturated (nitro, ammonium); do not promote it to valence five.
+    int expected = valence + env.charge;
+    if((env.element==7||env.element==8)&&env.charge>=-1&&env.charge<=1){
+        if(env.radical==int(core::Radical::Doublet))--expected;
+        else if(env.radical==int(core::Radical::Singlet)||env.radical==int(core::Radical::Triplet))expected-=2;
+    }
+    // Carbon ions are trivalent for either sign; adding positive charge must
+    // never predict CH5+. A carbon doublet has one fewer implicit H, while the
+    // singlet/triplet carbene states have two fewer.
+    if(env.element==6){
+        if(env.charge < -1 || env.charge > 1 || (env.charge&&env.radical)){
+            r.note="carbon charge/radical combination requires explicit hydrogens";
+            if(env.explicitHydrogens>=0){r.count=env.explicitHydrogens;r.valid=true;}
+            return r;
+        }
+        expected=env.charge?3:4;
+        if(env.radical==int(core::Radical::Doublet))expected=3;
+        else if(env.radical==int(core::Radical::Singlet)||env.radical==int(core::Radical::Triplet))expected=2;
+    }
     int count = expected - env.bondOrderSum;
     if (count < 0) {
         r.overCoordinated = true;
@@ -88,7 +108,7 @@ HydrogenResult implicitHydrogens(const AtomEnvironment& env) {
     r.valid = true;
     if (env.aromaticBondCount > 0) {
         r.aromaticApproximation = true;
-        r.note = "aromatic bonds counted as order 1; hydrogen count may be low";
+        r.note = "aromatic hydrogen count depends on the supplied bond orders";
     }
     if (info.isMetal) {
         // Metals normally reach zero hydrogens; if the table has no valence this
@@ -118,7 +138,8 @@ std::vector<ChemicalWarning> warningsForAtom(const AtomEnvironment& env, int ato
     const ElementInfo& info = elementInfo(env.element);
 
     // 1. Over-valence.  Only possible when the element HAS a conventional valence.
-    const int valence = conventionalValenceFor(env.element, env.bondOrderSum);
+    const int valence = closedShellNitrogen(env) ? 3 + env.charge :
+        conventionalValenceFor(env.element, env.bondOrderSum);
     if (valence > 0 && env.bondOrderSum > valence) {
         out.push_back(ChemicalWarning(WarningCode::OverValence, atomId,
             std::string("bond order sum ") + intToStr(env.bondOrderSum) +

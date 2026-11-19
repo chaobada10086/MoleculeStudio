@@ -1,3 +1,4 @@
+#include "tlc_preferences.hpp"
 #include "next/experimental/render_bridge.hpp"
 
 #include "next/experimental/model.hpp"
@@ -265,6 +266,12 @@ core::Error appendFigurePrimitives(const PlateFigure& figure, const PlateFrame& 
 
     for (size_t i = 0; i < figure.spots.size(); ++i) {
         const Spot& spot = figure.spots[i];
+        for(const auto& slice:studio_tlc::tailSlices(spot)){
+            std::vector<core::Vec2> tail;for(auto uv:slice.points)tail.push_back(frame.pointAt(uv.x,uv.y));
+            render::Style fade=style;fade.stroke.enabled=false;
+            fade.fill=render::Paint(withOpacity(spot.fillRGBA,slice.opacity),true);
+            out->push_back(makeFilled(tail,fade,source,version,layer,baseZ+5));
+        }
         const std::vector<core::Vec2> poly =
             ellipsePolygon(frame, spot.u, spot.v, spot.radiusU, spot.radiusV, 24);
         render::Style s = style;

@@ -15,7 +15,7 @@ void App::arrowShortcutCheck(const std::string& dir){
     auto fire=[&](){s.activateCommand("chooseSelectionTool_Marquee");invalidate(false);require(shortcut('E',0),"the arrow shortcut is bound");return s.entries[s.activeIndex].command;};
     int presses=0;
     for(size_t i=0;i<arrows::arrowPresetCount();++i){
-        auto& preset=arrows::arrowPresets()[i];if(!preset.implemented)continue;
+        auto& stored=arrows::arrowPresets()[i];if(!stored.implemented)continue;auto& preset=*(stored.family==arrows::ArrowFamily::Arc&&stored.presetId!=49&&stored.presetId!=57?arrows::presetById(58):&stored);
         chooseArrowPreset(preset.presetId);require(arrowPreset==preset.presetId,"menu stores the chosen preset");
         require(arrowCommand()==preset.sourceCommand,"one source of truth for the arrow command");
         require(homeCommand()==preset.sourceCommand,"home arrow icon shows the chosen preset");
@@ -30,12 +30,13 @@ void App::arrowShortcutCheck(const std::string& dir){
      require(s.entries[s.activeIndex].command==preset->sourceCommand,"WM_KEYDOWN E activates the chosen preset");}
     
     // Draw with the shortcut-selected tool: solid, dashed/equilibrium and arc.
-    const char* fixtures[]={"chooseArrowTool_Large_Solid","chooseArrowTool_Large_Equilibrium","chooseArrowTool_270_CW"};
+    const char* fixtures[]={"chooseArrowTool_Large_Solid","chooseArrowTool_Large_Equilibrium",arrows::presetById(58)->sourceCommand};
     for(int f=0;f<3;++f)for(int repeat=0;repeat<2;++repeat){
         auto preset=arrows::presetByCommand(fixtures[f]);require(preset&&preset->implemented,"fixture preset is implemented");
         chooseArrowPreset(preset->presetId);require(fire()==preset->sourceCommand,"shortcut selects the fixture preset");
         size_t before=s.doc.arrows().size();double y=double(f)*90.+double(repeat)*30.;
         s.gesture(PointerPhase::Down,Vec2(-240,y));s.gesture(PointerPhase::Up,Vec2(-60,y));
+        if(preset->presetId==58){auto bend=Vec2(-150,y+25);s.gesture(PointerPhase::Move,bend);s.gesture(PointerPhase::Down,bend);s.gesture(PointerPhase::Up,bend);}
         require(s.doc.arrows().size()==before+1,"shortcut-selected tool draws an arrow");
         arrows::ArrowParams params;bool ok=false;
         require(arrows::readArrow(s.doc,ObjectId(s.doc.arrows().size()-1),&params,&ok).ok()&&ok,"drawn arrow is readable");
@@ -43,7 +44,7 @@ void App::arrowShortcutCheck(const std::string& dir){
     }
     
     // The Graphics tab selector and its hit test must agree with the preset.
-    auto fixture=arrows::presetByCommand("chooseArrowTool_270_CW");chooseArrowPreset(fixture->presetId);
+    auto fixture=arrows::presetByCommand(arrows::presetById(58)->sourceCommand);chooseArrowPreset(fixture->presetId);
     SetWindowPos(h,0,0,0,1100,900,SWP_NOMOVE|SWP_NOZORDER);scale=1;
     switchTab(1);
     layout();
@@ -69,5 +70,7 @@ void App::arrowShortcutCheck(const std::string& dir){
     loadRibbon();
     std::ofstream(dir+"/arrow-shortcut-checks.json")<<"{\"presets\":"<<presses<<",\"shortcut_uses_selected_preset\":true,\"wm_keydown_path\":true,\"drawn_arrow_preset\":true,\"graphics_selector_matches\":true,\"home_button_matches\":true,\"restart_restores_preset\":true}";
     ribbonCompact=oldCompact;ribbonVisible=oldVisible;switchTab(oldTab);layout();
+    arcWorkflowUiCheck(*this,dir);
+    arrowSizePreviewCheck(*this,dir);
     s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);
 }

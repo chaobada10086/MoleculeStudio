@@ -30,14 +30,14 @@ void App::stereoLabelCheck(const std::string& dir){
     Button stereo=*it;
     require(stereo.label=="构型标注","button label is 构型标注");
     auto position=size_t(it-chemistryQuick.begin());
-    auto image=std::find_if(chemistryQuick.begin(),chemistryQuick.end(),[](const Button& b){return b.cmd=="@imageToStructure";});
+    auto image=std::find_if(chemistryQuick.begin(),chemistryQuick.end(),[](const Button& b){return b.cmd=="@textTidy";});
     auto nmr=std::find_if(chemistryQuick.begin(),chemistryQuick.end(),[](const Button& b){return b.cmd=="@nmr";});
     require(image!=chemistryQuick.end()&&nmr!=chemistryQuick.end(),"neighbouring chemistry buttons exist");
-    require(position==size_t(image-chemistryQuick.begin())+1&&position+1==size_t(nmr-chemistryQuick.begin()),"button sits after 图片转结构 and before 预测核磁");
+    require(position==size_t(image-chemistryQuick.begin())+1&&position+1==size_t(nmr-chemistryQuick.begin()),"button sits after 文字整理 and before 预测核磁");
     for(auto& b:chemistryQuick)require(!b.r.IntersectsWith(stereo.r)||b.cmd=="@stereoLabels","chemistry quick buttons do not overlap");
 
     // The seven quick buttons keep three per row and never collide with a group.
-    require(chemistryQuick.size()==7,"chemistry quick group holds seven buttons");
+    require(chemistryQuick.size()==8,"chemistry quick group holds eight buttons");
     auto tidy=std::find_if(chemistryQuick.begin(),chemistryQuick.end(),[](const Button& b){return b.cmd=="@textTidy";});
     require(tidy!=chemistryQuick.end()&&tidy->label=="文字整理","文字整理 button sits in the chemistry quick group");
     for(int w:{800,1100,1500}){
@@ -103,7 +103,7 @@ void App::stereoLabelCheck(const std::string& dir){
     size_t reopenedLabels=0;for(auto& t:reopened.doc.texts().records())if(t.isAlive())++reopenedLabels;
     require(reopenedLabels==placed.size(),"labels persist in the saved CDXML");
     std::string savedText;for(auto& t:reopened.doc.texts().records())if(t.isAlive())savedText+=fullText(reopened.doc,t.id);
-    require(savedText.find('(S)')!=std::string::npos,"reopened labels keep the CIP text");
+    require(savedText.find("(S)")!=std::string::npos,"reopened labels keep the CIP text");
     std::ofstream(dir+"/stereo-label-checks.json")<<"{\"cases\":"<<checked<<",\"layout_three_per_row\":true,\"button_between_image_and_nmr\":true,\"single_undo\":true,\"replace_own_labels\":true,\"labels_outside_ring\":true,\"cdxml_roundtrip\":true,\"labels\":"<<placed.size()<<"}";
     reset();
     PostQuitMessage(0);

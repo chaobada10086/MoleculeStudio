@@ -1,0 +1,1 @@
+mechanism colour: glyph retains source colour

@@ -57,10 +57,24 @@ void App::settingsAiCheck(const std::string& dir){
         }
         reset();{ObjectId c,g,f,cl,br,b,extra;s.doc.addAtom(Vec2(),6,&c);s.doc.addAtom(Vec2(30,0),6,&g);s.doc.addAtom(Vec2(-15,-25),9,&f);s.doc.addAtom(Vec2(-15,25),17,&cl);s.doc.addAtom(Vec2(0,30),35,&br);s.doc.addBond(c,g,&b);s.doc.setBondDisplay(b,BondDisplay::Wedge);s.doc.addBond(c,f,&extra);s.doc.addBond(c,cl,&extra);s.doc.addBond(c,br,&extra);nicknames::apply(s.doc,g,"Ph");s.selected={ObjectRef(ObjectKind::Atom,g)};ready();std::ofstream(dir+"/stereo-before.cdxml")<<persistence::writeCdxmlToString(s.doc);execute(Button("","","","@expandGroups"));paint();execute(Button("","","","@collapseGroups"));paint();require(s.doc.bonds().alive(b)&&s.doc.bonds().alive(b)->beginAtom==c&&s.doc.bonds().alive(b)->endAtom==g&&s.doc.bonds().alive(b)->display==BondDisplay::Wedge,"external stereobond ID, direction and display preserved");std::ofstream(dir+"/stereo-after.cdxml")<<persistence::writeCdxmlToString(s.doc);}
         reset();ObjectId a,b,bondId;s.doc.addAtom(Vec2(),6,&a);s.doc.addAtom(Vec2(30,0),6,&b);s.doc.addBond(a,b,&bondId);s.activateCommand("chooseSelectionTool_Marquee");ready();auto originalR=s.doc.digest();pointerOverCanvas=true;pointerPixel=s.view().toDevice(s.doc.atoms().alive(b)->position);SendMessageW(canvas,WM_KEYDOWN,'R',0);paint();require(s.doc.atomLabel(b)=="R"&&s.doc.stats().aliveAtoms==2&&s.doc.stats().aliveBonds==1,"R key marks existing terminal without extra atom or bond");SendMessageW(canvas,WM_CHAR,'r',0);require(!textEditor.active,"R key character consumed");auto marked=s.doc.digest();require(s.undo().ok()&&s.doc.digest()==originalR,"R label one-step undo");require(s.undo(true).ok()&&s.doc.digest()==marked,"R label redo");SendMessageW(canvas,WM_KEYDOWN,'R',0);require(s.doc.stats().aliveAtoms==2,"repeated R does not duplicate group");
-        auto canvasDigest=s.doc.digest();execute(Button("","","","@customGroups"));require(settingsWindow.category==6&&IsWindowVisible(GetDlgItem(settingsWindow.hwnd,974)),"template entry opens custom group manager");require(IsWindowVisible(GetDlgItem(settingsWindow.hwnd,973)),"delete button visible");
-        size_t definitions=customgroups::entries().size();if(definitions){auto list=GetDlgItem(settingsWindow.hwnd,974);::SendMessageW(list,LB_SETCURSEL,0,0);::SendMessageW(list,WM_KEYDOWN,VK_DELETE,0);require(customgroups::entries().size()==definitions-1&&size_t(::SendMessageW(list,LB_GETCOUNT,0,0))==definitions-1,"Delete removes selected definition and refreshes list");require(s.doc.digest()==canvasDigest,"library deletion leaves document intact");}
-        ShowWindow(settingsWindow.hwnd,SW_HIDE);switchTab(5);screenshot(dir+"/templates-custom-groups.png");
-        log<<"single_selection=true\ncollapse=true\ncustom_roundtrip=true\nR_endpoint=true\nrepaint_without_click=true\ntemplate_entry=true\nDelete_key=true\npassed\n";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return;
+        auto canvasDigest=s.doc.digest();
+        showSettings(0);
+        require(!GetDlgItem(settingsWindow.hwnd,810+StudioSettingsWindow::kGroups)&&!GetDlgItem(settingsWindow.hwnd,974),"settings have no custom groups entry or controls");
+        ShowWindow(settingsWindow.hwnd,SW_HIDE);
+        switchTab(5);
+        const Button* manager=nullptr;
+        for(const auto& group:visibleGroups())for(const auto& button:group.items)if(button.cmd=="@customGroups"){
+            require(!manager,"only one functional group manager entry");manager=&button;
+        }
+        require(ribbonTabs.size()==7&&manager&&manager->enabled,"Templates owns the functional group manager");
+        const auto card=manager->r;
+        auto point=MAKELPARAM(int((card.X+card.Width/2)*scale),int((card.Y+card.Height/2)*scale));
+        SendMessageW(h,WM_LBUTTONUP,0,point);
+        require(groupsWindow.groupsOnly&&IsWindowVisible(GetDlgItem(groupsWindow.hwnd,974)),"template button opens the dedicated manager");
+        require(IsWindowVisible(GetDlgItem(groupsWindow.hwnd,973)),"delete button visible");
+        size_t definitions=customgroups::entries().size();if(definitions){auto list=GetDlgItem(groupsWindow.hwnd,974);::SendMessageW(list,LB_SETCURSEL,0,0);::SendMessageW(list,WM_KEYDOWN,VK_DELETE,0);require(customgroups::entries().size()==definitions-1&&size_t(::SendMessageW(list,LB_GETCOUNT,0,0))==definitions-1,"Delete removes selected definition and refreshes list");require(s.doc.digest()==canvasDigest,"library deletion leaves document intact");}
+        ShowWindow(groupsWindow.hwnd,SW_HIDE);screenshot(dir+"/templates-custom-groups.png");
+        log<<"single_selection=true\ncollapse=true\ncustom_roundtrip=true\nR_endpoint=true\nrepaint_without_click=true\ntemplates_entry=true\nDelete_key=true\npassed\n";s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return;
     }
     if(std::getenv("MOLECULE_STUDIO_EXPAND_REFRESH_CHECK")){
         _putenv_s("MOLECULE_STUDIO_GROUP_LIBRARY",(dir+"/groups.xml").c_str());customgroups::loaded()=false;customgroups::entries().clear();customgroups::readError().clear();customgroups::load();
@@ -91,7 +105,7 @@ void App::settingsAiCheck(const std::string& dir){
         _putenv_s("MOLECULE_STUDIO_GROUP_LIBRARY",(dir+"/groups.xml").c_str());customgroups::loaded()=false;customgroups::entries().clear();customgroups::readError().clear();customgroups::load();require(!customgroups::entries().empty(),"custom fixture loaded");
         const auto first=customgroups::entries().front();customgroups::entries().push_back({"PhPreview",nickdata::find("Ph")->fragment});customgroups::entries().push_back({"BrokenPreview","broken"});
         studio_i18n::pathOverride()=W(dir+"/interface.ini");ai.storageOverride=W(dir+"/ai");CreateDirectoryW(ai.storageOverride.c_str(),nullptr);
-        showSettings(6);auto& sw=settingsWindow;auto original=s.doc.digest();
+        showCustomGroups();auto& sw=groupsWindow;auto original=s.doc.digest();
         auto choose=[&](int row){::SendDlgItemMessageW(sw.hwnd,974,LB_SETCURSEL,row,0);::SendMessageW(sw.hwnd,WM_COMMAND,MAKEWPARAM(974,LBN_SELCHANGE),(LPARAM)GetDlgItem(sw.hwnd,974));};
         choose(0);require(sw.groupPreview&&sw.previewName==first.name&&sw.previewError.empty(),"selected custom group previews");
         std::vector<uint8_t> a,b;
@@ -122,22 +136,33 @@ void App::settingsAiCheck(const std::string& dir){
             wchar_t cell[1024]={};LVITEMW read={};read.iSubItem=0;read.pszText=cell;read.cchTextMax=1024;::SendMessageW(list,LVM_GETITEMTEXTW,0,(LPARAM)&read);require(std::wstring(cell)==studio_i18n::tr(L"原子热点"),"existing list cells relocalize");
             for(auto& row:studio_i18n::catalog()){require(row.second.text[language]&&*row.second.text[language],"all locale entries exist");if(language!=0&&language!=1&&language!=3)require(!studio_i18n::hasHan(row.second.text[language]),"no untranslated Chinese in locale catalog");require(std::wstring(row.second.text[language]).find(L'\u2047')==std::wstring::npos,"no tokenizer replacement symbols");}
             require(studio_i18n::tr(L"打开失败：C:\\temp\\开始.r62doc").find(L"C:\\temp\\开始.r62doc")!=std::wstring::npos,"paths in diagnostics are unchanged");
-            if(language==2){for(int tab=0;tab<6;++tab){ribbonTab=tab;layout();capture("en-tab-"+std::to_string(tab));}ribbonTab=0;layout();}
+            ribbonTab=5;layout();
+            bool opened=false;
+            for(const auto& group:visibleGroups())for(const auto& item:group.items)if(item.cmd=="@customGroups"){
+                require(!opened&&item.enabled&&item.r.X>=0,"functional group button reachable");
+                auto point=MAKELPARAM(int((item.r.X+item.r.Width/2)*scale),int((item.r.Y+item.r.Height/2)*scale));
+                SendMessageW(h,WM_LBUTTONUP,0,point);
+                require(IsWindowVisible(groupsWindow.hwnd)&&actual(groupsWindow.hwnd)==studio_i18n::tr(L"自定义官能团"),"localized functional group manager opens");
+                ShowWindow(groupsWindow.hwnd,SW_HIDE);opened=true;
+            }
+            require(opened,"functional group manager on Templates");
+            ribbonTab=0;layout();
+            if(language==2){for(size_t tab=0;tab<ribbonTabs.size();++tab){ribbonTab=tab;layout();capture("en-tab-"+std::to_string(tab));}ribbonTab=0;layout();}
             else if(language==0||language==3||language==5||language==6||language==8||language==11||language==12)capture("home-"+std::to_string(language));
         }
         require(s.doc.digest()==digest,"language changes leave document unchanged");
         DestroyWindow(tabFixture);DestroyWindow(button);DestroyWindow(editFixture);DestroyWindow(combo);DestroyWindow(list);studio_i18n::current()=0;
-        std::ofstream report(dir+"/full-i18n-results.json");report<<"{\"passed\":true,\"languages\":15,\"catalog_keys\":"<<studio_i18n::catalog().size()<<",\"live_controls\":true,\"combo_canonical_value\":true,\"hidden_controls\":true,\"user_input_verbatim\":true,\"document_unchanged\":true,\"no_chinese_leaks\":true,\"english_tabs\":6}";PostQuitMessage(0);return;
+        std::ofstream report(dir+"/full-i18n-results.json");report<<"{\"passed\":true,\"languages\":15,\"catalog_keys\":"<<studio_i18n::catalog().size()<<",\"live_controls\":true,\"combo_canonical_value\":true,\"hidden_controls\":true,\"user_input_verbatim\":true,\"document_unchanged\":true,\"no_chinese_leaks\":true,\"english_tabs\":7}";PostQuitMessage(0);return;
     }
     if(std::getenv("MOLECULE_STUDIO_SETTINGS_ONLY")){
         CreateDirectoryW(W(dir).c_str(),nullptr);studio_i18n::pathOverride()=W(dir+"/language-test.ini");studio_i18n::current()=0;
         ai.storageOverride=W(dir+"/ai");CreateDirectoryW(ai.storageOverride.c_str(),nullptr);
         showSettings(0);auto& sw=settingsWindow;auto digest=s.doc.digest();
-        require(!sw.completionReady&&!sw.groupsReady,"hidden lists are lazy");
+        require(!sw.completionReady,"hidden lists are lazy");
         sw.set(910,L"18.5");sw.set(950,L"User draft stays unchanged / 用户草稿");
         for(int category=0;category<8;++category){sw.select(category);UpdateWindow(sw.hwnd);
             for(int id=910;id<=981;++id)if(sw.group(id)>=0&&GetDlgItem(sw.hwnd,id))require(bool(IsWindowVisible(GetDlgItem(sw.hwnd,id)))==(sw.group(id)==category),"exclusive page visibility");}
-        require(sw.completionReady&&sw.groupsReady,"lists fill on first use");
+        require(sw.completionReady,"lists fill on first use");
         auto capture=[&](const std::string& file){UpdateWindow(sw.hwnd);RECT r;GetWindowRect(sw.hwnd,&r);int width=r.right-r.left,height=r.bottom-r.top;HDC dc=GetDC(sw.hwnd),mem=CreateCompatibleDC(dc);HBITMAP bmp=CreateCompatibleBitmap(dc,width,height);auto old=SelectObject(mem,bmp);PrintWindow(sw.hwnd,mem,2);SelectObject(mem,old);Bitmap image(bmp,nullptr);UINT n=0,bytes=0;GetImageEncodersSize(&n,&bytes);std::vector<BYTE> data(bytes);auto codecs=(ImageCodecInfo*)data.data();GetImageEncoders(n,bytes,codecs);for(UINT i=0;i<n;++i)if(wcscmp(codecs[i].MimeType,L"image/png")==0)image.Save(W(dir+"/"+file+".png").c_str(),&codecs[i].Clsid,0);DeleteObject(bmp);DeleteDC(mem);ReleaseDC(sw.hwnd,dc);};
         for(int language=0;language<15;++language){SendDlgItemMessageW(sw.hwnd,980,CB_SETCURSEL,language,0);SendMessageW(sw.hwnd,WM_COMMAND,MAKEWPARAM(980,CBN_SELCHANGE),0);
             require(studio_i18n::current()==language&&studio_i18n::load()==language,"language persists");
@@ -194,6 +219,23 @@ void App::settingsAiCheck(const std::string& dir){
     CreateDirectoryW(W(dir+"/ai").c_str(),nullptr);ai.storageOverride=W(dir+"/ai");drawingSettings.path=W(dir+"/drawing.ini");
     showSettings(0);require(IsWindow(settingsWindow.hwnd),"settings window exists");
     require(IsWindowVisible(GetDlgItem(settingsWindow.hwnd,910))&&!IsWindowVisible(GetDlgItem(settingsWindow.hwnd,920)),"drawing category controls");
+    {auto& sw=settingsWindow;auto original=drawingSettings;auto callback=sw.applyDrawing;bool silent=sw.silent;sw.silent=true;auto before=s.doc.digest();int applied=0;bool appliedCurrent=true;
+        sw.applyDrawing=[&](const DrawingSettings&,bool current){++applied;appliedCurrent=current;};
+        for(int id=1001;id<=1010;++id)require(IsWindowVisible(GetDlgItem(sw.hwnd,id)),"detailed drawing control visible");
+        for(size_t i=0;i<journalStyles().size();++i){sw.chooseDrawingStyle(int(i));auto d=sw.drawingDraft();const auto& preset=journalStyles()[i];require(std::abs(d.hashSpacing-preset.hashSpacing)<.0001&&std::abs(d.bondSpacing-preset.bondSpacing)<.0001&&d.captionFontName==preset.captionFont,"all journal presets fill independent values");}
+        sw.chooseDrawingStyle(0);sw.set(1001,L"110");sw.set(1002,L"24");sw.set(1003,L"3.2");sw.set(1004,L"2.3");sw.set(1005,L"3.5");sw.set(1008,L"Times New Roman");sw.set(1009,L"13");CheckDlgButton(sw.hwnd,912,BST_UNCHECKED);sw.dirty[0]=true;
+        require(sw.save()&&applied==1&&!appliedCurrent&&s.doc.digest()==before,"save detailed defaults without applying document");
+        DrawingSettings re;re.path=original.path;re.load();require(re.chainAngle==110&&re.boldWidth==3.2&&re.captionFontSize==13,"detailed UI values persist");
+        SendMessageW(sw.hwnd,WM_COMMAND,MAKEWPARAM(1006,BN_CLICKED),0);require(drawingSettings.templates().size()==1,"save-as button creates reusable template");
+        require(!sw.storeDrawingTemplate(L"ACS Document 1996",sw.drawingDraft()),"built-in templates protected");
+        sw.fillDrawingStyles();sw.chooseDrawingStyle(int(journalStyles().size()));require(sw.drawingDraft().chainAngle==110&&sw.drawingDraft().captionFontSize==13,"reuse custom template");
+        sw.set(1005,L"0");sw.dirty[0]=true;require(!sw.save()&&applied==1,"invalid detail rejected before apply");
+        sw.chooseDrawingStyle(int(journalStyles().size()));SendMessageW(sw.hwnd,WM_COMMAND,MAKEWPARAM(1007,BN_CLICKED),0);require(drawingSettings.templates().empty(),"delete button removes custom template");
+        {auto nextFamily=textEditor.nextFamily;auto nextSize=textEditor.nextSize;auto style=original;style.fontName=L"Arial";style.fontSize=9;style.captionFontName=L"Times New Roman";style.captionFontSize=13;style.chainAngle=110;style.bondSpacing=24;callback(style,true);
+         require(textEditor.nextFamily=="Times New Roman"&&textEditor.nextSize==13,"applied caption defaults reach native text editor");textEditor.begin(kInvalidObjectId,kInvalidObjectId,Vec2(60,60));require(textEditor.family=="Times New Roman"&&textEditor.size==13,"new native caption uses independent font and size");require(textEditor.finish(false).ok(),"cancel temporary caption");require(s.undo().ok()&&s.doc.digest()==before,"undo restores every detailed drawing setting");textEditor.nextFamily=nextFamily;textEditor.nextSize=nextSize;}
+        drawingSettings=original;drawingSettings.save();sw.applyDrawing=callback;sw.silent=silent;sw.dirty[0]=false;sw.populate();sw.select(0);
+        std::ofstream(dir+"/detailed-settings-ui-checks.json")<<"{\"passed\":true,\"all_presets\":true,\"independent_fields\":true,\"save_without_apply\":true,\"save_as\":true,\"reuse\":true,\"delete\":true,\"invalid_rejected\":true}";
+    }
     bool completionVisible=IsWindowVisible(GetDlgItem(settingsWindow.hwnd,917))!=0;require(completionVisible,"group completion toggle visible in settings");
     {auto before=s.doc.digest();bool original=chemcompletion::enabled();auto apply=settingsWindow.applyDrawing;int applied=0;
         settingsWindow.applyDrawing=[&](const DrawingSettings&,bool){++applied;};
@@ -241,7 +283,7 @@ void App::settingsAiCheck(const std::string& dir){
             query(L"zzzzzzzzzzzzzzzz");require(settingsWindow.completionKeys.empty()&&settingsWindow.text(802).find(L"没有匹配")!=std::wstring::npos,"empty search explains no match");query(L"");
             std::ofstream(dir+"/fuzzy-ui-checks.json")<<"{\"passed\":true,\"so4_visible\":true,\"formula_no_checkbox\":true,\"filtered_checkbox_identity\":true,\"no_match_explanation\":true}";
         }
-        for(int captureCategory:{1,5,6}){settingsWindow.set(968,captureCategory==5?L"SO4":L"");settingsWindow.fillCompletion();settingsWindow.select(captureCategory);UpdateWindow(settingsWindow.hwnd);// capture the page through the window itself, then encode with the
+        for(int captureCategory:{0,1,5,6}){settingsWindow.set(968,captureCategory==5?L"SO4":L"");settingsWindow.fillCompletion();settingsWindow.select(captureCategory);UpdateWindow(settingsWindow.hwnd);// capture the page through the window itself, then encode with the
          // same PNG encoder lookup the canvas screenshots use.
             RECT box;GetWindowRect(settingsWindow.hwnd,&box);
             int w=std::max(1,int(box.right-box.left)),h=std::max(1,int(box.bottom-box.top));
@@ -259,7 +301,7 @@ void App::settingsAiCheck(const std::string& dir){
                 Bitmap image(w,h,w*4,PixelFormat32bppARGB,(BYTE*)bits);
                 UINT count=0,bytes=0;GetImageEncodersSize(&count,&bytes);
                 std::vector<uint8_t> storage(bytes);auto codecs=(ImageCodecInfo*)storage.data();GetImageEncoders(count,bytes,codecs);
-                for(UINT i=0;i<count;++i)if(wcscmp(codecs[i].MimeType,L"image/png")==0){image.Save(W(dir+(captureCategory==1?"/ai-api-settings.png":captureCategory==5?"/completion-settings.png":"/custom-group-settings.png")).c_str(),&codecs[i].Clsid,0);break;}
+                for(UINT i=0;i<count;++i)if(wcscmp(codecs[i].MimeType,L"image/png")==0){image.Save(W(dir+(captureCategory==0?"/drawing-settings.png":captureCategory==1?"/ai-api-settings.png":captureCategory==5?"/completion-settings.png":"/custom-group-settings.png")).c_str(),&codecs[i].Clsid,0);break;}
             }
             if(bitmap)DeleteObject(bitmap);
             SetForegroundWindow(settingsWindow.hwnd);

@@ -1,0 +1,1 @@
+projection: hover element shortcut handles key and character

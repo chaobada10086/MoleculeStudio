@@ -2,6 +2,9 @@
 #define STUDIO_INLINE_TEXT_HPP
 #include "chem_italic.hpp"
 #include "chem_completion.hpp"
+#include "engine/ion_labels.hpp"
+#include "engine/bond_hydrogens.hpp"
+#include "text_tidy_backup.hpp"
 // Host callbacks for the inline text editor. They are injected at
 // initialize() and required by begin(): a missing host throws immediately,
 // so the silent "typing goes nowhere" failure mode of unwired callbacks
@@ -125,7 +128,7 @@ struct InlineTextEditor {
     void begin(ObjectId t,ObjectId a,Vec2 p,bool atEnd=true,double wrap=0){
         if(active&&!finish(true).ok())return;ImmAssociateContextEx(canvas,nullptr,IACE_DEFAULT);session->cancel();resizing=false;text=t;atom=a;anchor=p;widthLimit=a==kInvalidObjectId?wrap:0;
         composing=false;spacingFace.clear();measuredStyles.clear();ascentKey.clear();lineHeight=0;format=TextFormat();format.colorRGBA=session->graphicsColor;size=nextSize;family=nextFamily;format.flags=nextFlags;initial.clear();initialColors.clear();
-        if(a!=kInvalidObjectId){format.colorRGBA=0x000000FFu;size=10;if(auto v=session->doc.documentExtensions().findValue("studio.style.LabelSize"))size=std::atof(v->c_str());family=session->doc.defaultFont();anchor=session->doc.atoms().get(a)->position;TextRun r;r.utf8=session->doc.atomLabel(a);if(r.utf8.empty())r.utf8=core::elementSymbol(session->doc.atoms().get(a)->element);initial=studioatom::runs(session->doc,a);if(initial.empty())initial.push_back(r);if(blankStart(a))initial.clear();}
+        if(a!=kInvalidObjectId){format.colorRGBA=0x000000FFu;size=10;if(auto v=session->doc.documentExtensions().findValue("studio.style.LabelSize"))size=std::atof(v->c_str());family=session->doc.defaultFont();if(auto f=session->doc.documentExtensions().findValue("studio.style.LabelFontName"))family=*f;anchor=session->doc.atoms().get(a)->position;TextRun r;r.fontName=family;r.size=size;r.utf8=session->doc.atomLabel(a);if(r.utf8.empty())r.utf8=core::elementSymbol(session->doc.atoms().get(a)->element);initial=studioatom::runs(session->doc,a);if(initial.empty())initial.push_back(r);if(blankStart(a))initial.clear();}
         else if(t!=kInvalidObjectId){auto r=session->doc.texts().get(t);anchor=r->position;size=r->size>0?r->size:size;format=r->format;family=format.fontName.empty()?session->doc.defaultFont():format.fontName;initial=session->doc.runs(t);}
         if(t!=kInvalidObjectId){const auto& bag=static_cast<const Document&>(session->doc).extensions(ObjectRef(ObjectKind::Text,t));if(auto width=bag.findValue("studio.text.width"))widthLimit=std::max(0.,std::atof(width->c_str()));}
         if(t!=kInvalidObjectId||a!=kInvalidObjectId){auto& bag=static_cast<const Document&>(session->doc).extensions(editingObject());if(auto colors=bag.findValue("studio.text.colors")){std::istringstream in(*colors);uint32_t c;while(in>>c)initialColors.push_back(c);}if(auto color=bag.findValue("studio.color"))format.colorRGBA=uint32_t(std::strtoull(color->c_str(),0,10));}
@@ -242,15 +245,27 @@ struct InlineTextEditor {
     // per pump cycle, however many input messages produced the change. The
     // heavy work — preview sync, re-wrap, scroll reset — runs in WM_APP+51.
     void noteContentChange(){if(active&&!loading&&!refreshPending){refreshPending=true;PostMessageW(hwnd,WM_APP+51,0,0);}}
-    std::vector<TextRun> runs(){
+    std::vector<uint8_t> automaticItalics(const std::wstring& value){
+        if(!chemcompletion::formulaLayout())return {};
+        auto mask=chemitalic::maskUtf16(value);
+        for(size_t at=0;at<value.size();){
+            if(iswspace(value[at])||value[at]==L';'||value[at]==L','){++at;continue;}
+            size_t end=at;while(end<value.size()&&!iswspace(value[end])&&value[end]!=L';'&&value[end]!=L',')++end;
+            if(chemcompletion::knownSpelling(U(value.substr(at,end-at))).empty())
+                for(size_t i=at;i<end&&i<mask.size();++i)mask[i]=0;
+            at=end;
+        }
+        return mask;
+    }
+    std::vector<TextRun> runs(bool automatic=true){
         // TOM ranges inspect formatting without moving the live selection.
         // Per-character EM_EXSETSEL raised thousands of accessibility events
         // and repeatedly reformatted long captions, making commit appear hung.
         IUnknown* ole=nullptr;ITextDocument* document=nullptr;
         const IID iid={0x8CC497C0,0xA1DF,0x11CE,{0x80,0x98,0x00,0xAA,0x00,0x47,0xBE,0x5D}};
         if(studio_i18n::sendMessage(hwnd,EM_GETOLEINTERFACE,0,(LPARAM)&ole)&&ole){ole->QueryInterface(iid,(void**)&document);ole->Release();}
-        if(!document)return runsBySelection();
-        auto w=value();auto italic=chemitalic::maskUtf16(w);std::vector<TextRun> out;runColors.clear();bool failed=false;
+        if(!document)return runsBySelection(automatic);
+        auto w=value();auto italic=automatic?automaticItalics(w):std::vector<uint8_t>();std::vector<TextRun> out;runColors.clear();bool failed=false;
         for(LONG at=0;at<LONG(w.size());){
             ITextRange* range=nullptr;ITextFont* font=nullptr;LONG delta=0,end=at+1;
             if(FAILED(document->Range(at,at+1,&range))||!range){failed=true;break;}
@@ -266,55 +281,107 @@ struct InlineTextEditor {
             }
             at=end;
         }
-        document->Release();return failed?runsBySelection():out;
+        document->Release();return failed?runsBySelection(automatic):out;
     }
-    std::vector<TextRun> runsBySelection(){QuietEdit quiet(*this);POINT savedScroll={};studio_i18n::sendMessage(hwnd,EM_GETSCROLLPOS,0,(LPARAM)&savedScroll);auto w=value();auto autoItalic=chemitalic::maskUtf16(w);std::vector<TextRun> out;runColors.clear();CHARRANGE saved;studio_i18n::sendMessage(hwnd,EM_EXGETSEL,0,(LPARAM)&saved);studio_i18n::sendMessage(hwnd,WM_SETREDRAW,FALSE,0);for(size_t i=0;i<w.size();){size_t n=(w[i]>=0xD800&&w[i]<=0xDBFF&&i+1<w.size())?2:1;select(LONG(i),LONG(i+n));CHARFORMAT2W c={};c.cbSize=sizeof(c);studio_i18n::sendMessage(hwnd,EM_GETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);TextRun r;r.utf8=w[i]==L'\r'?"\n":U(w.substr(i,n));r.fontName=U(c.szFaceName);r.size=c.yHeight/20.0;if(std::abs(r.size-size)<.06)r.size=0;r.flags=(c.dwEffects&CFE_BOLD?kBold:0)|(c.dwEffects&CFE_ITALIC?kItalic:0)|(c.dwEffects&CFE_UNDERLINE?kUnderline:0)|(c.dwEffects&CFE_SUBSCRIPT?kSubscript:0)|(c.dwEffects&CFE_SUPERSCRIPT?kSuperscript:0);if(i<autoItalic.size()&&autoItalic[i])r.flags|=kItalic;uint32_t color=(uint32_t(GetRValue(c.crTextColor))<<24)|(uint32_t(GetGValue(c.crTextColor))<<16)|(uint32_t(GetBValue(c.crTextColor))<<8)|255;if(!out.empty()&&runColors.back()==color&&out.back().flags==r.flags&&out.back().fontName==r.fontName&&out.back().size==r.size)out.back().utf8+=r.utf8;else{out.push_back(r);runColors.push_back(color);}i+=n;}studio_i18n::sendMessage(hwnd,EM_EXSETSEL,0,(LPARAM)&saved);studio_i18n::sendMessage(hwnd,EM_SETSCROLLPOS,0,(LPARAM)&savedScroll);studio_i18n::sendMessage(hwnd,WM_SETREDRAW,TRUE,0);return out;}
+    std::vector<TextRun> runsBySelection(bool automatic=true){QuietEdit quiet(*this);POINT savedScroll={};studio_i18n::sendMessage(hwnd,EM_GETSCROLLPOS,0,(LPARAM)&savedScroll);auto w=value();auto autoItalic=automatic?automaticItalics(w):std::vector<uint8_t>();std::vector<TextRun> out;runColors.clear();CHARRANGE saved;studio_i18n::sendMessage(hwnd,EM_EXGETSEL,0,(LPARAM)&saved);studio_i18n::sendMessage(hwnd,WM_SETREDRAW,FALSE,0);for(size_t i=0;i<w.size();){size_t n=(w[i]>=0xD800&&w[i]<=0xDBFF&&i+1<w.size())?2:1;select(LONG(i),LONG(i+n));CHARFORMAT2W c={};c.cbSize=sizeof(c);studio_i18n::sendMessage(hwnd,EM_GETCHARFORMAT,SCF_SELECTION,(LPARAM)&c);TextRun r;r.utf8=w[i]==L'\r'?"\n":U(w.substr(i,n));r.fontName=U(c.szFaceName);r.size=c.yHeight/20.0;if(std::abs(r.size-size)<.06)r.size=0;r.flags=(c.dwEffects&CFE_BOLD?kBold:0)|(c.dwEffects&CFE_ITALIC?kItalic:0)|(c.dwEffects&CFE_UNDERLINE?kUnderline:0)|(c.dwEffects&CFE_SUBSCRIPT?kSubscript:0)|(c.dwEffects&CFE_SUPERSCRIPT?kSuperscript:0);if(i<autoItalic.size()&&autoItalic[i])r.flags|=kItalic;uint32_t color=(uint32_t(GetRValue(c.crTextColor))<<24)|(uint32_t(GetGValue(c.crTextColor))<<16)|(uint32_t(GetBValue(c.crTextColor))<<8)|255;if(!out.empty()&&runColors.back()==color&&out.back().flags==r.flags&&out.back().fontName==r.fontName&&out.back().size==r.size)out.back().utf8+=r.utf8;else{out.push_back(r);runColors.push_back(color);}i+=n;}studio_i18n::sendMessage(hwnd,EM_EXSETSEL,0,(LPARAM)&saved);studio_i18n::sendMessage(hwnd,EM_SETSCROLLPOS,0,(LPARAM)&savedScroll);studio_i18n::sendMessage(hwnd,WM_SETREDRAW,TRUE,0);return out;}
     Error finish(bool accept){if(!active||closing)return Error();closing=true;if(resizing)finishResize();if(host)host->textEditFinishing();
-        if(accept){
-            // Completion runs once, on accept: the typed spelling becomes the
-            // dictionary spelling (tbu -> tBu) and the glyphs get formula
-            // typography (SO42- -> SO4^2-, Fe3+ -> Fe^3+, Ph+* -> Ph^+ with a
-            // radical dot). A caption is completed only when the WHOLE caption
-            // is one chemical token, so sentences are never re-cased.
-            auto typed=U(value());
-            std::string canonical;
-            if(atom!=kInvalidObjectId)canonical=chemcompletion::normalize(typed);
-            else if(!typed.empty())canonical=chemcompletion::chemicalToken(typed);
-            if(!canonical.empty()){
-                auto pieces=chemcompletion::formulaLayout()?chemcompletion::segments(canonical):std::vector<chemcompletion::Segment>();
-                if(canonical!=typed||!pieces.empty()){
-                    QuietEdit quiet(*this);
-                    CHARRANGE saved;studio_i18n::sendMessage(hwnd,EM_EXGETSEL,0,(LPARAM)&saved);
-                    studio_i18n::sendMessage(hwnd,WM_SETREDRAW,FALSE,0);
-                    // Only a spelling change rewrites the characters (a whole-text
-                    // replace inherits one character format, so it must not run when
-                    // the typography pass is the only reason to touch the control).
-                    if(canonical!=typed){select(0,-1);auto normalized=W(canonical);studio_i18n::sendMessage(hwnd,EM_REPLACESEL,TRUE,(LPARAM)normalized.c_str());}
-                    auto customFormat=chemcompletion::savedFormat(canonical);
-                    LONG at=0;
-                    for(const auto& piece:pieces){
-                        LONG length=LONG(W(piece.text).size());if(length<=0)continue;
+        const bool autoLayout=chemcompletion::formulaLayout();
+        const bool diagramCaption=text!=kInvalidObjectId&&session->doc.extensions(ObjectRef(ObjectKind::Text,text)).findValue("pst.attr.InterpretChemically")&&*session->doc.extensions(ObjectRef(ObjectKind::Text,text)).findValue("pst.attr.InterpretChemically")=="no";
+        const std::string previousPlain=atom!=kInvalidObjectId?session->doc.atomLabel(atom):text!=kInvalidObjectId?session->doc.plainText(text):std::string();
+        std::vector<TextRun> originalRuns;std::string originalPlain,originalColors;
+        if(accept&&autoLayout){originalRuns=runs(false);for(const auto& run:originalRuns)originalPlain+=run.utf8;std::ostringstream colors;for(auto color:runColors)colors<<color<<' ';originalColors=colors.str();}
+        if(accept&&autoLayout){
+            // Process whole caption lines individually, keeping ordinary prose
+            // and its formatting. Work backwards to keep earlier offsets valid.
+            QuietEdit quiet(*this);
+            CHARRANGE saved;studio_i18n::sendMessage(hwnd,EM_EXGETSEL,0,(LPARAM)&saved);
+            studio_i18n::sendMessage(hwnd,WM_SETREDRAW,FALSE,0);
+            const auto input=value();
+            const bool atomLabel=atom!=kInvalidObjectId;
+            for(size_t end=input.size();;){
+                size_t start=0;
+                if(!atomLabel&&end>0){
+                    auto separator=input.find_last_of(L"\r\n",end-1);
+                    if(separator!=std::wstring::npos)start=separator+1;
+                }
+                auto typed=U(input.substr(start,end-start));
+                // Only catalogue entries receive automatic chemistry typography.
+                // An unknown atom label remains exactly as the author typed it.
+                auto canonical=atomLabel&&chemcompletion::knownSpelling(typed).empty()?std::string():chemcompletion::hyphenatedGroup(atomLabel?chemcompletion::normalize(typed):chemcompletion::chemicalToken(typed));
+                if(!canonical.empty()){
+                    if(canonical!=typed){
+                        select(LONG(start),LONG(end));
+                        auto replacement=W(canonical);
+                        studio_i18n::sendMessage(hwnd,EM_REPLACESEL,TRUE,(LPARAM)replacement.c_str());
+                    }
+                    const auto customFormat=chemcompletion::savedFormat(canonical);
+                    LONG at=LONG(start);
+                    for(const auto& piece:chemcompletion::segments(canonical)){
+                        const LONG length=LONG(W(piece.text).size());
+                        if(length<=0)continue;
                         select(at,at+length);
-                        CHARFORMAT2W effect={};effect.cbSize=sizeof(effect);effect.dwMask=CFM_SUBSCRIPT|CFM_SUPERSCRIPT;
+                        CHARFORMAT2W effect={};effect.cbSize=sizeof(effect);
+                        effect.dwMask=CFM_SUBSCRIPT|CFM_SUPERSCRIPT;
                         effect.dwEffects=piece.script<0?CFE_SUBSCRIPT:piece.script>0?CFE_SUPERSCRIPT:0;
-                        if(customFormat.size()==canonical.size()&&size_t(at)<customFormat.size()){effect.dwMask|=CFM_ITALIC;if((customFormat[at]-'0')&4)effect.dwEffects|=CFE_ITALIC;}
+                        const auto offset=size_t(at)-start;
+                        if(customFormat.size()==canonical.size()&&offset<customFormat.size()){
+                            effect.dwMask|=CFM_ITALIC;
+                            if((customFormat[offset]-'0')&4)effect.dwEffects|=CFE_ITALIC;
+                        }
                         studio_i18n::sendMessage(hwnd,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&effect);
                         at+=length;
                     }
-                    studio_i18n::sendMessage(hwnd,EM_EXSETSEL,0,(LPARAM)&saved);
-                    studio_i18n::sendMessage(hwnd,WM_SETREDRAW,TRUE,0);
-                    applyCanvasLineSpacing();resize();
                 }
+                if(start==0)break;
+                end=start-1;
             }
+            studio_i18n::sendMessage(hwnd,EM_EXSETSEL,0,(LPARAM)&saved);
+            studio_i18n::sendMessage(hwnd,WM_SETREDRAW,TRUE,0);
+            applyCanvasLineSpacing();resize();
         }
-        auto r=runs();if(atom!=kInvalidObjectId)for(auto& part:r)if(!(part.flags&(kSubscript|kSuperscript)))part.flags|=kFormula;std::ostringstream colorsOut;for(auto color:runColors)colorsOut<<color<<' ';auto colors=colorsOut.str();std::string plain;for(auto& part:r)plain+=part.utf8;auto t=text,a=atom;auto p=anchor;auto f=format;double sz=size,wrap=widthLimit;Error e;
-        if(accept){if(a!=kInvalidObjectId){e=session->submit(Command("原位原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateGeometry,[a,plain,r,colors](CommandContext& c){auto outcome=nicknames::labelCommand(a,plain).execute(c);auto e=outcome.error;if(e.ok()){c.document.setAtomLabel(a,plain);studioatom::set(c.document,a,r);auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,a));bag.erase("studio.color.override");bag.set("studio.text.colors",colors);bag.set("studio.text.colors.edited","1");}return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"原位原子标签");}
+        auto r=runs();std::ostringstream colorsOut;for(auto color:runColors)colorsOut<<color<<' ';auto colors=colorsOut.str();std::string plain;for(auto& part:r)plain+=part.utf8;const bool automaticChanged=autoLayout&&!chemcompletion::knownSpelling(plain).empty()&&(plain!=originalPlain||!textbackup::sameRuns(originalRuns,r));auto t=text,a=atom;auto p=anchor;auto f=format;double sz=size,wrap=widthLimit;Error e;
+        if(accept){if(a!=kInvalidObjectId){e=session->submit(Command("原位原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateGeometry,[a,plain,r,colors,autoLayout,automaticChanged,originalPlain,originalRuns,originalColors,previousPlain](CommandContext& c){if(studio::diazo::requested(plain)&&studio::diazo::eligible(c.document,a)){auto e=studio::diazo::append(c.document,a,studio::diazo::axis(c.document,a),studio::diazo::externalValence(c.document,a));return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}const bool keepCompact=studioions::compact(c.document,a)&&c.document.atomLabel(a)==plain&&c.document.atoms().alive(a)->semantics.nodeType==uint8_t(NodeType::Nickname);auto outcome=keepCompact?CommandResult::success():nicknames::labelCommand(a,plain).execute(c);auto e=outcome.error;if(e.ok()){c.document.setAtomLabel(a,plain);studioatom::set(c.document,a,r);auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,a));if(autoLayout&&!chemcompletion::knownSpelling(plain).empty())bag.erase("pst.attr.MoleculeStudioLiteralLabel");else bag.set("pst.attr.MoleculeStudioLiteralLabel","1");if(automaticChanged)textbackup::save(c.document,ObjectRef(ObjectKind::Atom,a),originalPlain,originalRuns,originalColors,true);else if(previousPlain!=plain)bag.erase(textbackup::key());bag.erase("studio.color.override");bag.set("studio.text.colors",colors);bag.set("studio.text.colors.edited","1");if(autoLayout){int q=0;bool explicitQ=false;if(const auto* ion=studioions::find(plain,&q,&explicitQ)){e=studioions::apply(c.document,a,*ion,explicitQ?q:c.document.atoms().alive(a)->semantics.charge);if(e.ok()){auto count=c.document.atomLabel(a).size();std::vector<TextRun> kept;for(auto part:r){if(!count)break;part.utf8=part.utf8.substr(0,count);count-=part.utf8.size();kept.push_back(part);}studioatom::set(c.document,a,kept);}}else if(!keepCompact){bag.erase("studio.mechanism.ion.base");bag.erase("studio.mechanism.compact.valence");}}
+                if(e.ok()&&autoLayout&&studio::compact_radicals::find(plain))e=studio::compact_radicals::apply(c.document,a,plain,r);
+                if(keepCompact)bag.erase("pst.attr.MoleculeStudioLiteralLabel");
+                if(e.ok()&&autoLayout&&c.document.incidentBonds(a).empty())if(auto ion=compounddata::ion(plain))e=nicknames::applyWholeIon(c.document,a,*ion);
+                bool repaired=false;
+                if(e.ok())e=studio::bond_hydrogens::repairCondensedHydroxyl(c.document,a,repaired);
+            }
+            return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"原位原子标签");}
+            else if(!diagramCaption&&autoLayout&&compounddata::ion(plain)){
+                auto id=std::make_shared<ObjectId>(kInvalidObjectId);const auto* ion=compounddata::ion(plain);
+                e=session->submit(Command("输入多原子离子",kInvalidateStructure|kInvalidateSemantics|kInvalidateAppearance|kInvalidateGeometry,[id,p,sz,ion,t](CommandContext& c){
+                    auto e=c.document.addAtom(p+Vec2(sz*.35,-sz*.35),6,id.get());
+                    if(e.ok())e=nicknames::applyWholeIon(c.document,*id,*ion);
+                    if(e.ok()&&t!=kInvalidObjectId)e=c.document.removeObject(ObjectRef(ObjectKind::Text,t));
+                    return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
+                }),"输入多原子离子");a=*id;t=kInvalidObjectId;
+            }
+            else if(!diagramCaption&&autoLayout&&(compounddata::hydride(plain)||studio::compact_radicals::find(plain))){
+                auto id=std::make_shared<ObjectId>(kInvalidObjectId);
+                e=session->submit(Command("输入可拉出氢的试剂",kInvalidateStructure|kInvalidateSemantics|kInvalidateAppearance|kInvalidateGeometry,[id,p,sz,plain,r,t,automaticChanged,originalPlain,originalRuns,originalColors](CommandContext& c){
+                    auto e=c.document.addAtom(p+Vec2(sz*.35,-sz*.35),6,id.get());
+                    if(e.ok())e=nicknames::apply(c.document,*id,plain);
+                    if(e.ok()){if(studio::compact_radicals::find(plain))e=studio::compact_radicals::apply(c.document,*id,plain,r);else studioatom::set(c.document,*id,r);if(automaticChanged)textbackup::save(c.document,ObjectRef(ObjectKind::Atom,*id),originalPlain,originalRuns,originalColors,true);}
+                    if(e.ok()&&t!=kInvalidObjectId)e=c.document.removeObject(ObjectRef(ObjectKind::Text,t));
+                    return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
+                }),"输入可拉出氢的试剂");a=*id;t=kInvalidObjectId;
+            }
+            else if(!diagramCaption&&autoLayout&&studioions::find(plain)&&!plain.empty()&&(studioions::ascii(plain).back()=='-'||studioions::ascii(plain).back()=='+')){
+                auto id=std::make_shared<ObjectId>(kInvalidObjectId);int charge=0;const auto* ion=studioions::find(plain,&charge);
+                e=session->submit(Command("输入可编辑离子",kInvalidateStructure|kInvalidateSemantics|kInvalidateAppearance|kInvalidateGeometry,[id,p,sz,ion,charge,t](CommandContext& c){
+                    auto e=c.document.addAtom(p+Vec2(sz*.35,-sz*.35),ion->element,id.get());
+                    if(e.ok())e=studioions::apply(c.document,*id,*ion,charge);
+                    if(e.ok()&&t!=kInvalidObjectId)e=c.document.removeObject(ObjectRef(ObjectKind::Text,t));
+                    return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
+                }),"输入可编辑离子");a=*id;t=kInvalidObjectId;
+            }
             else if(t!=kInvalidObjectId||!plain.empty()){
-                auto id=std::make_shared<ObjectId>(t);e=session->submit(Command("原位文字",kInvalidateAppearance|kInvalidateGeometry|kInvalidateStructure,[id,p,f,sz,wrap,r,plain,colors](CommandContext& c){Error e;if(*id==kInvalidObjectId)e=c.document.addText(p,sz,"",id.get());if(!e.ok())return CommandResult::fail(e.code,e.message);if(plain.empty())e=c.document.removeObject(ObjectRef(ObjectKind::Text,*id));else{e=c.document.setTextRuns(*id,r);if(e.ok()){auto& bag=c.document.extensions(ObjectRef(ObjectKind::Text,*id));bag.erase("studio.color.override");bag.set("studio.text.colors",colors);bag.set("studio.text.colors.edited","1");}if(e.ok())e=c.document.setTextFormat(*id,f);if(e.ok())e=c.document.setTextSize(*id,sz);if(e.ok())e=c.document.setTextPosition(*id,p);if(wrap>0)c.document.extensions(ObjectRef(ObjectKind::Text,*id)).set("studio.text.width",std::to_string(wrap));else c.document.extensions(ObjectRef(ObjectKind::Text,*id)).erase("studio.text.width");}return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"原位文字");t=*id;
+                auto id=std::make_shared<ObjectId>(t);e=session->submit(Command("原位文字",kInvalidateAppearance|kInvalidateGeometry|kInvalidateStructure,[id,p,f,sz,wrap,r,plain,colors,automaticChanged,originalPlain,originalRuns,originalColors,previousPlain](CommandContext& c){Error e;if(*id==kInvalidObjectId)e=c.document.addText(p,sz,"",id.get());if(!e.ok())return CommandResult::fail(e.code,e.message);if(plain.empty())e=c.document.removeObject(ObjectRef(ObjectKind::Text,*id));else{e=c.document.setTextRuns(*id,r);if(e.ok()&&automaticChanged)textbackup::save(c.document,ObjectRef(ObjectKind::Text,*id),originalPlain,originalRuns,originalColors,true);else if(e.ok()&&previousPlain!=plain)c.document.extensions(ObjectRef(ObjectKind::Text,*id)).erase(textbackup::key());if(e.ok()){auto& bag=c.document.extensions(ObjectRef(ObjectKind::Text,*id));bag.erase("studio.color.override");bag.set("studio.text.colors",colors);bag.set("studio.text.colors.edited","1");}if(e.ok())e=c.document.setTextFormat(*id,f);if(e.ok())e=c.document.setTextSize(*id,sz);if(e.ok())e=c.document.setTextPosition(*id,p);if(wrap>0)c.document.extensions(ObjectRef(ObjectKind::Text,*id)).set("studio.text.width",std::to_string(wrap));else c.document.extensions(ObjectRef(ObjectKind::Text,*id)).erase("studio.text.width");}return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"原位文字");t=*id;
             }
         }
         if(!e.ok()){closing=false;studio_i18n::setWindowText(help,W("未保存："+e.message).c_str());if(completed)completed(e,accept);SetFocus(hwnd);PostMessageW(owner,WM_APP+31,0,0);return e;}
-        active=false;ImmAssociateContext(canvas,nullptr);ShowWindow(hwnd,SW_HIDE);for(auto control:{help,acceptButton,cancelButton})ShowWindow(control,SW_HIDE);session->input.setFocus(interaction::InputFocus::Canvas);bool textTool=session->entries[session->activeIndex].owner=="T09";if(textTool)session->activateCommand("chooseSelectionTool_Marquee");session->selected.clear();if(t!=kInvalidObjectId&&session->doc.texts().alive(t))session->selected.push_back(ObjectRef(ObjectKind::Text,t));SetFocus(canvas);InvalidateRect(canvas,0,FALSE);PostMessageW(owner,WM_APP+31,0,0);closing=false;if(completed)completed(e,accept);return e;
+        active=false;ImmAssociateContext(canvas,nullptr);ShowWindow(hwnd,SW_HIDE);for(auto control:{help,acceptButton,cancelButton})ShowWindow(control,SW_HIDE);session->input.setFocus(interaction::InputFocus::Canvas);bool textTool=session->entries[session->activeIndex].owner=="T09";if(textTool)session->activateCommand("chooseSelectionTool_Marquee");session->selected.clear();if(a!=kInvalidObjectId&&session->doc.atoms().alive(a))session->selected.push_back(ObjectRef(ObjectKind::Atom,a));if(t!=kInvalidObjectId&&session->doc.texts().alive(t))session->selected.push_back(ObjectRef(ObjectKind::Text,t));SetFocus(canvas);InvalidateRect(canvas,0,FALSE);PostMessageW(owner,WM_APP+31,0,0);closing=false;if(completed)completed(e,accept);return e;
     }
     // Selecting a face/size for the text being edited must not change the default
     // for future captions: ChemDraw keeps the document's caption style as the

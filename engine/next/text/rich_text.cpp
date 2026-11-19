@@ -316,18 +316,15 @@ bool isChargeCp(uint32_t cp) {
     return cp == 0x2Bu || cp == 0x2Du || cp == 0xB1u || cp == 0x2212u;
 }
 
-// Automatic (Formula-style) script classification.
-//   superscript if a charge character follows the digit run
-//   superscript if an element symbol follows and a letter or the string start
-//     precedes (the isotope-prefix form)
-//   subscript otherwise
 int classifyDigits(const std::vector<uint32_t>& cps, size_t begin, size_t end) {
-    if (end < cps.size() && isChargeCp(cps[end])) return 1;
-    if (end < cps.size() && isAsciiLetter(cps[end])) {
-        if (begin == 0) return 1;
-        if (!isAsciiLetter(cps[begin - 1]) && !isAsciiDigit(cps[begin - 1])) return 1;
-    }
-    return -1;
+    if (end+1==cps.size() && isChargeCp(cps[end])) return 1;
+    if (begin>0)
+        return isAsciiLetter(cps[begin-1])||cps[begin-1]==')'||cps[begin-1]==']'?-1:0;
+    if (end==cps.size()||cps[end]<'A'||cps[end]>'Z') return 0;
+    std::string digits(cps.begin(),cps.begin()+end);
+    std::string element(1,char(cps[end]));
+    if(end+1<cps.size()&&cps[end+1]>='a'&&cps[end+1]<='z')element+=char(cps[end+1]);
+    return automaticIsotopePrefix(digits,element)?1:0;
 }
 
 void addFamily(std::vector<std::string>* list, const std::string& f) {
@@ -420,9 +417,10 @@ core::Error layoutRichText(const std::vector<core::TextRun>& runs,
             if (flags & core::kSuperscript) script = 1;
             else if (flags & core::kSubscript) script = -1;
             if (formula && isAsciiDigit(cp)) {
-                size_t e = c;
-                while (e < cps.size() && isAsciiDigit(cps[e])) ++e;
-                script = classifyDigits(cps, c, e);
+                size_t b=c,e=c;
+                while(b>0&&isAsciiDigit(cps[b-1]))--b;
+                while(e<cps.size()&&isAsciiDigit(cps[e]))++e;
+                script = classifyDigits(cps,b,e);
             }
 
             Unit u;

@@ -231,12 +231,8 @@ double regularRingRadius(int size, double bondLength);
 core::Error buildRingGeometry(RingPresetId preset, double bondLength,
                               RingGeometry* out);
 
-// The chair conformers. Chair1 and Chair2 are the two orientations the source
-// exposes (chooseRingTool_Chair_Cyclohexane1 / 2). They are the SAME ring in two
-// rotational states, produced by rotating the base conformer by the angle
-// returned here - they are NOT two different molecules.
-// PROJECT: the base conformer's own shape. GUIDE: the existence and count of the
-// two orientations (two separate toolbar commands exist).
+// Two reflected chair drawing projections. Their default axial frame is
+// vertical; explicit user rotations rotate both the ring and that frame.
 double chairOrientationDegrees(RingPresetId preset);
 
 // ---------------------------------------------------------------------------
@@ -425,7 +421,8 @@ struct SproutEnvironment {
     core::Vec2             position;
     std::vector<double>    neighbourDirectionsDeg;
     double                 minGapDegrees;
-    SproutEnvironment() : minGapDegrees(25.0) {}
+    double                 chainAngleDegrees;
+    SproutEnvironment() : minGapDegrees(25.0),chainAngleDegrees(120.0) {}
 };
 
 struct SproutDirection {

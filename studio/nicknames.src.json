@@ -124,6 +124,11 @@
     "note": "allyl",
     "smiles": "C=CC[*]"
   },
+  "An": {
+    "confidence": "high",
+    "note": "4-methoxyphenyl (p-anisyl); supplied Zhihu abbreviation table",
+    "smiles": "[*]c1ccc(OC)cc1"
+  },
   "Arg": {
     "confidence": "high",
     "note": "L-arginine residue",
@@ -143,6 +148,16 @@
     "confidence": "high",
     "note": "L-azetidine-2-carboxylic acid",
     "smiles": "O=C([*])[C@@H]1CCN1"
+  },
+  "B(OH)2": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*B(O)O"
+  },
+  "BOB": {
+    "confidence": "high",
+    "note": "4-benzyloxybutyryl; supplied Zhihu abbreviation table",
+    "smiles": "[*]C(=O)CCCOCc1ccccc1"
   },
   "BOM": {
     "confidence": "high",
@@ -165,6 +180,11 @@
     "note": "benzyl",
     "smiles": "[*]Cc1ccccc1"
   },
+  "Bip": {
+    "confidence": "high",
+    "note": "biphenyl-4-sulfonyl; supplied Zhihu abbreviation table",
+    "smiles": "[*]S(=O)(=O)c1ccc(-c2ccccc2)cc1"
+  },
   "Bn": {
     "confidence": "high",
     "note": "benzyl",
@@ -175,10 +195,20 @@
     "note": "tert-butoxycarbonyl",
     "smiles": "CC(C)(C)OC(=O)[*]"
   },
+  "Bpin": {
+    "confidence": "high",
+    "note": "pinacolboranyl (4,4,5,5-tetramethyl-1,3,2-dioxaborolan-2-yl, B-bound)",
+    "smiles": "[*]B1OC(C)(C)C(C)(C)O1"
+  },
   "Bpoc": {
     "confidence": "high",
     "note": "2-(biphenyl-4-yl)propan-2-yloxycarbonyl",
     "smiles": "[*]C(=O)OC(C)(C)c1ccc(-c2ccccc2)cc1"
+  },
+  "Bs": {
+    "confidence": "high",
+    "note": "4-bromobenzenesulfonyl (brosyl)",
+    "smiles": "[*]S(=O)(=O)c1ccc(Br)cc1"
   },
   "Bt": {
     "confidence": "high",
@@ -300,6 +330,11 @@
     "note": "n-alkyl (C5H11)",
     "smiles": "CCCCC[*]"
   },
+  "C6F5": {
+    "confidence": "high",
+    "note": "pentafluorophenyl",
+    "smiles": "[*]c1c(F)c(F)c(F)c(F)c1F"
+  },
   "C6H13": {
     "confidence": "high",
     "note": "n-alkyl (C6H13)",
@@ -325,6 +360,26 @@
     "note": "n-nonyl, linear isomer assumed",
     "smiles": "CCCCCCCCC[*]"
   },
+  "CCl3": {
+    "confidence": "high",
+    "note": "trichloromethyl",
+    "smiles": "[*]C(Cl)(Cl)Cl"
+  },
+  "CF3": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*C(F)(F)F"
+  },
+  "CH2Cl": {
+    "confidence": "high",
+    "note": "chloromethyl",
+    "smiles": "[*]CCl"
+  },
+  "CH2F": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*CF"
+  },
   "CH2NH2": {
     "confidence": "high",
     "note": "aminomethyl",
@@ -334,6 +389,11 @@
     "confidence": "high",
     "note": "hydroxymethyl",
     "smiles": "OC[*]"
+  },
+  "CHF2": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*C(F)F"
   },
   "CHO": {
     "confidence": "high",
@@ -364,6 +424,16 @@
     "confidence": "high",
     "note": "bromoformyl (acyl bromide)",
     "smiles": "BrC(=O)[*]"
+  },
+  "COCF3": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*C(=O)C(F)(F)F"
+  },
+  "COCH3": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*C(=O)C"
   },
   "COCl": {
     "confidence": "high",
@@ -410,6 +480,11 @@
     "note": "methoxycarbonyl",
     "smiles": "COC(=O)[*]"
   },
+  "COOtBu": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*C(=O)OC(C)(C)C"
+  },
   "Cap": {
     "confidence": "medium",
     "note": "caproyl (n-hexanoyl)",
@@ -425,10 +500,20 @@
     "note": "L-cyclohexylalanine",
     "smiles": "N[C@@H](CC1CCCCC1)C(=O)[*]"
   },
+  "Chx": {
+    "confidence": "high",
+    "note": "cyclohexyl; alias of Cy; supplied Zhihu abbreviation table",
+    "smiles": "[*]C1CCCCC1"
+  },
   "Cit": {
     "confidence": "high",
     "note": "L-citrulline residue",
     "smiles": "N[C@@H](CCCNC(N)=O)C(=O)[*]"
+  },
+  "Cp": {
+    "confidence": "medium",
+    "note": "cyclopentadienyl (eta-1 C-bound; coordination to metals is shown separately)",
+    "smiles": "[*]C1C=CC=C1"
   },
   "Cpm": {
     "confidence": "medium",
@@ -454,6 +539,11 @@
     "confidence": "high",
     "note": "diethylisopropylsilyl",
     "smiles": "CC[Si](CC)(C(C)C)[*]"
+  },
+  "DIBAL": {
+    "confidence": "medium",
+    "note": "diisobutylaluminium (DIBAL-H without its hydride; Al-bound reagent shorthand)",
+    "smiles": "[*][Al](CC(C)C)CC(C)C"
   },
   "DMB": {
     "confidence": "high",
@@ -510,6 +600,11 @@
     "note": "L-2,3-diaminopropionic acid residue",
     "smiles": "N[C@@H](CN)C(=O)[*]"
   },
+  "Dcpm": {
+    "confidence": "high",
+    "note": "dicyclopropylmethyl; supplied Zhihu abbreviation table",
+    "smiles": "[*]C(C1CC1)C1CC1"
+  },
   "Ddz": {
     "confidence": "high",
     "note": "2-(3,5-dimethoxyphenyl)propan-2-yloxycarbonyl",
@@ -534,6 +629,11 @@
     "confidence": "high",
     "note": "L-2,3-diaminopropionic acid",
     "smiles": "N[C@@H](CN)C(=O)[*]"
+  },
+  "EOM": {
+    "confidence": "high",
+    "note": "ethoxymethyl; supplied Zhihu abbreviation table",
+    "smiles": "[*]COCC"
   },
   "Edc": {
     "confidence": "medium",
@@ -611,6 +711,11 @@
     "note": "2-hydroxyisovaleryl",
     "smiles": "CC(C)C(O)C(=O)[*]"
   },
+  "Hmb": {
+    "confidence": "high",
+    "note": "2-hydroxy-4-methoxybenzyl; supplied Zhihu abbreviation table",
+    "smiles": "[*]Cc1c(O)cc(OC)cc1"
+  },
   "Hph": {
     "confidence": "medium",
     "note": "L-homophenylalanine",
@@ -655,6 +760,11 @@
     "confidence": "high",
     "note": "L-leucine residue",
     "smiles": "N[C@@H](CC(C)C)C(=O)[*]"
+  },
+  "Li": {
+    "confidence": "high",
+    "note": "lithium (organolithium, Li-bound)",
+    "smiles": "[*][Li]"
   },
   "Lys": {
     "confidence": "high",
@@ -706,6 +816,21 @@
     "note": "L-methionine",
     "smiles": "CSCC[C@H](N)C(=O)[*]"
   },
+  "MgBr": {
+    "confidence": "high",
+    "note": "magnesium bromide (Grignard, Mg-bound)",
+    "smiles": "[*][Mg]Br"
+  },
+  "MgCl": {
+    "confidence": "high",
+    "note": "magnesium chloride (Grignard, Mg-bound)",
+    "smiles": "[*][Mg]Cl"
+  },
+  "MgI": {
+    "confidence": "high",
+    "note": "magnesium iodide (Grignard, Mg-bound)",
+    "smiles": "[*][Mg]I"
+  },
   "Mmt": {
     "confidence": "high",
     "note": "4-methoxytrityl (monomethoxytrityl)",
@@ -731,6 +856,11 @@
     "note": "2-(methylsulfonyl)ethyloxycarbonyl",
     "smiles": "CS(=O)(=O)CCOC(=O)[*]"
   },
+  "Mts": {
+    "confidence": "high",
+    "note": "mesitylenesulfonyl (2,4,6-trimethylbenzenesulfonyl)",
+    "smiles": "[*]S(=O)(=O)c1c(C)cc(C)cc1C"
+  },
   "Mtt": {
     "confidence": "medium",
     "note": "4-methyltrityl",
@@ -751,6 +881,11 @@
     "note": "diethylamino",
     "smiles": "CCN(CC)[*]"
   },
+  "NH2": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*N"
+  },
   "NHAc": {
     "confidence": "high",
     "note": "acetamido",
@@ -766,20 +901,45 @@
     "note": "benzyloxycarbonylamino",
     "smiles": "[*]NC(=O)OCc1ccccc1"
   },
+  "NHEt": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*NCC"
+  },
   "NHFmoc": {
     "confidence": "high",
     "note": "Fmoc-amino (NHFmoc)",
     "smiles": "O=C(N[*])OCC1c2ccccc2c2ccccc21"
+  },
+  "NHMe": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*NC"
   },
   "NHNH2": {
     "confidence": "high",
     "note": "hydrazino",
     "smiles": "NN[*]"
   },
+  "NHTs": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*NS(=O)(=O)c1ccc(C)cc1"
+  },
   "NMe2": {
     "confidence": "high",
     "note": "dimethylamino",
     "smiles": "CN(C)[*]"
+  },
+  "NO": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*N=O"
+  },
+  "NO2": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*[N+](=O)[O-]"
   },
   "Nal": {
     "confidence": "high",
@@ -791,6 +951,11 @@
     "note": "L-norleucine residue",
     "smiles": "N[C@@H](CCCC)C(=O)[*]"
   },
+  "Nos": {
+    "confidence": "high",
+    "note": "4-nitrobenzenesulfonyl; distinct from ortho-Ns; supplied Zhihu abbreviation table",
+    "smiles": "[*]S(=O)(=O)c1ccc([N+](=O)[O-])cc1"
+  },
   "Np": {
     "confidence": "medium",
     "note": "1-naphthyl",
@@ -800,6 +965,11 @@
     "confidence": "medium",
     "note": "2-nitrophenylsulfenyl",
     "smiles": "[O-][N+](=O)c1ccccc1S[*]"
+  },
+  "Ns": {
+    "confidence": "high",
+    "note": "2-nitrobenzenesulfonyl (nosyl)",
+    "smiles": "[*]S(=O)(=O)c1ccccc1[N+](=O)[O-]"
   },
   "Nva": {
     "confidence": "high",
@@ -821,10 +991,25 @@
     "note": "benzoyloxy",
     "smiles": "O=C(O[*])c1ccccc1"
   },
+  "OCF3": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*OC(F)(F)F"
+  },
+  "OCOMe": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*OC(=O)C"
+  },
   "OEt": {
     "confidence": "high",
     "note": "ethoxy",
     "smiles": "CCO[*]"
+  },
+  "OH": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*O"
   },
   "OMe": {
     "confidence": "high",
@@ -835,6 +1020,51 @@
     "confidence": "high",
     "note": "mesyloxy",
     "smiles": "CS(=O)(=O)O[*]"
+  },
+  "ONs": {
+    "confidence": "high",
+    "note": "2-nitrobenzenesulfonate (nosylate, O-linked)",
+    "smiles": "[*]OS(=O)(=O)c1ccccc1[N+](=O)[O-]"
+  },
+  "OPh": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*Oc1ccccc1"
+  },
+  "OPiv": {
+    "confidence": "high",
+    "note": "pivalate (O-linked pivaloyl)",
+    "smiles": "[*]OC(=O)C(C)(C)C"
+  },
+  "OTBDMS": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*O[Si](C)(C)C(C)(C)C"
+  },
+  "OTBDPS": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*O[Si](c1ccccc1)(c1ccccc1)C(C)(C)C"
+  },
+  "OTBS": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*O[Si](C)(C)C(C)(C)C"
+  },
+  "OTES": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*O[Si](CC)(CC)CC"
+  },
+  "OTIPS": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*O[Si](C(C)C)(C(C)C)C(C)C"
+  },
+  "OTMS": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*O[Si](C)(C)C"
   },
   "OTf": {
     "confidence": "high",
@@ -851,6 +1081,11 @@
     "note": "n-octyl",
     "smiles": "CCCCCCCC[*]"
   },
+  "OiPr": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*OC(C)C"
+  },
   "Oic": {
     "confidence": "medium",
     "note": "L-octahydroindole-2-carboxyl residue; ring-fusion stereocentres unspecified",
@@ -866,6 +1101,11 @@
     "note": "L-ornithine residue",
     "smiles": "N[C@@H](CCCN)C(=O)[*]"
   },
+  "OtBu": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*OC(C)(C)C"
+  },
   "PMB": {
     "confidence": "high",
     "note": "4-methoxybenzyl",
@@ -876,10 +1116,20 @@
     "note": "4-nitrobenzyl",
     "smiles": "[O-][N+](=O)c1ccc(C[*])cc1"
   },
+  "PNZ": {
+    "confidence": "high",
+    "note": "4-nitrobenzyloxycarbonyl; supplied Zhihu abbreviation table",
+    "smiles": "[*]C(=O)OCc1ccc([N+](=O)[O-])cc1"
+  },
   "PO3H2": {
     "confidence": "high",
     "note": "phosphono",
     "smiles": "[*]P(=O)(O)O"
+  },
+  "PPh2": {
+    "confidence": "high",
+    "note": "diphenylphosphino",
+    "smiles": "[*]P(c1ccccc1)c1ccccc1"
   },
   "Pbf": {
     "confidence": "medium",
@@ -956,6 +1206,11 @@
     "note": "pivaloyl",
     "smiles": "CC(C)(C)C(=O)[*]"
   },
+  "SCF3": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*SC(F)(F)F"
+  },
   "SEM": {
     "confidence": "high",
     "note": "2-(trimethylsilyl)ethoxymethyl",
@@ -971,10 +1226,20 @@
     "note": "ethylthio",
     "smiles": "CCS[*]"
   },
+  "SH": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*S"
+  },
   "SMe": {
     "confidence": "high",
     "note": "methylthio",
     "smiles": "CS[*]"
+  },
+  "SO2CF3": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*S(=O)(=O)C(F)(F)F"
   },
   "SO2Me": {
     "confidence": "high",
@@ -986,10 +1251,30 @@
     "note": "sulfamoyl",
     "smiles": "NS(=O)(=O)[*]"
   },
+  "SO2Ph": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*S(=O)(=O)c1ccccc1"
+  },
   "SO3H": {
     "confidence": "high",
     "note": "sulfo",
     "smiles": "[*]S(=O)(=O)O"
+  },
+  "SOCH3": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*S(=O)C"
+  },
+  "SOPh": {
+    "confidence": "authored",
+    "note": "Common functional group; attachment at *",
+    "smiles": "*S(=O)c1ccccc1"
+  },
+  "SPh": {
+    "confidence": "high",
+    "note": "phenylthio",
+    "smiles": "[*]Sc1ccccc1"
   },
   "SPy": {
     "confidence": "medium",
@@ -1001,6 +1286,11 @@
     "note": "sarcosine (N-methylglycine)",
     "smiles": "CNCC(=O)[*]"
   },
+  "SePh": {
+    "confidence": "high",
+    "note": "phenylselenyl",
+    "smiles": "[*][Se]c1ccccc1"
+  },
   "Sec": {
     "confidence": "medium",
     "note": "L-selenocysteine residue",
@@ -1010,6 +1300,16 @@
     "confidence": "high",
     "note": "L-serine",
     "smiles": "N[C@@H](CO)C(=O)[*]"
+  },
+  "Sia": {
+    "confidence": "high",
+    "note": "1,2-dimethylpropyl (secondary isoamyl); visually checked against supplied PDF",
+    "smiles": "[*]C(C)C(C)C"
+  },
+  "SnBu3": {
+    "confidence": "high",
+    "note": "tributylstannyl",
+    "smiles": "[*][Sn](CCCC)(CCCC)CCCC"
   },
   "Sta": {
     "confidence": "medium",
@@ -1102,6 +1402,11 @@
     "note": "2,2,2-trifluoroethyl",
     "smiles": "FC(F)(F)C[*]"
   },
+  "Th": {
+    "confidence": "high",
+    "note": "thiophen-2-yl; supplied Zhihu abbreviation table",
+    "smiles": "[*]c1cccs1"
+  },
   "Thexyl": {
     "confidence": "high",
     "note": "thexyl (2,3-dimethylbutan-2-yl)",
@@ -1131,6 +1436,11 @@
     "confidence": "high",
     "note": "p-toluenesulfonyl (tosyl)",
     "smiles": "Cc1ccc(S(=O)(=O)[*])cc1"
+  },
+  "Tr": {
+    "confidence": "high",
+    "note": "trityl (triphenylmethyl)",
+    "smiles": "[*]C(c1ccccc1)(c1ccccc1)c1ccccc1"
   },
   "Trit": {
     "confidence": "high",
@@ -1494,6 +1804,11 @@
     "note": "O-phospho-L-tyrosine residue",
     "smiles": "N[C@@H](Cc1ccc(OP(=O)(O)O)cc1)C(=O)[*]"
   },
+  "pin": {
+    "confidence": "medium",
+    "note": "pinacol O-ether (pinacolato O-linked); for the boronate use Bpin",
+    "smiles": "[*]OC(C)(C)C(C)(C)O"
+  },
   "rA": {
     "confidence": "medium",
     "note": "adenosine, free nucleoside",
@@ -1587,269 +1902,14 @@
     "note": "tert-butyl",
     "smiles": "C(C)(C)C[*]"
   },
+  "thexyl": {
+    "confidence": "high",
+    "note": "1,1,2-trimethylpropyl; visually checked against supplied PDF",
+    "smiles": "[*]C(C)(C)C(C)C"
+  },
   "trans-Cinnamyl": {
     "confidence": "high",
     "note": "(E)-cinnamyl",
     "smiles": "[*]C/C=C/c1ccccc1"
-  },
-  "NO2": {
-    "smiles": "*[N+](=O)[O-]",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "NO": {
-    "smiles": "*N=O",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "NH2": {
-    "smiles": "*N",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "NHMe": {
-    "smiles": "*NC",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "NHEt": {
-    "smiles": "*NCC",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OH": {
-    "smiles": "*O",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "SH": {
-    "smiles": "*S",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OiPr": {
-    "smiles": "*OC(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OtBu": {
-    "smiles": "*OC(C)(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OPh": {
-    "smiles": "*Oc1ccccc1",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OTES": {
-    "smiles": "*O[Si](CC)(CC)CC",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OTMS": {
-    "smiles": "*O[Si](C)(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OTBS": {
-    "smiles": "*O[Si](C)(C)C(C)(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OTBDMS": {
-    "smiles": "*O[Si](C)(C)C(C)(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OTIPS": {
-    "smiles": "*O[Si](C(C)C)(C(C)C)C(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OTBDPS": {
-    "smiles": "*O[Si](c1ccccc1)(c1ccccc1)C(C)(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OCF3": {
-    "smiles": "*OC(F)(F)F",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "SCF3": {
-    "smiles": "*SC(F)(F)F",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "CF3": {
-    "smiles": "*C(F)(F)F",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "CHF2": {
-    "smiles": "*C(F)F",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "CH2F": {
-    "smiles": "*CF",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "SO2CF3": {
-    "smiles": "*S(=O)(=O)C(F)(F)F",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "SO2Ph": {
-    "smiles": "*S(=O)(=O)c1ccccc1",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "SOPh": {
-    "smiles": "*S(=O)c1ccccc1",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "SOCH3": {
-    "smiles": "*S(=O)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "B(OH)2": {
-    "smiles": "*B(O)O",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "COCF3": {
-    "smiles": "*C(=O)C(F)(F)F",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "COCH3": {
-    "smiles": "*C(=O)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "COOtBu": {
-    "smiles": "*C(=O)OC(C)(C)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "NHTs": {
-    "smiles": "*NS(=O)(=O)c1ccc(C)cc1",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "OCOMe": {
-    "smiles": "*OC(=O)C",
-    "confidence": "authored",
-    "note": "Common functional group; attachment at *"
-  },
-  "Bpin": {
-    "confidence": "high",
-    "note": "pinacolboranyl (4,4,5,5-tetramethyl-1,3,2-dioxaborolan-2-yl, B-bound)",
-    "smiles": "[*]B1OC(C)(C)C(C)(C)O1"
-  },
-  "pin": {
-    "confidence": "medium",
-    "note": "pinacol O-ether (pinacolato O-linked); for the boronate use Bpin",
-    "smiles": "[*]OC(C)(C)C(C)(C)O"
-  },
-  "Ns": {
-    "confidence": "high",
-    "note": "2-nitrobenzenesulfonyl (nosyl)",
-    "smiles": "[*]S(=O)(=O)c1ccccc1[N+](=O)[O-]"
-  },
-  "ONs": {
-    "confidence": "high",
-    "note": "2-nitrobenzenesulfonate (nosylate, O-linked)",
-    "smiles": "[*]OS(=O)(=O)c1ccccc1[N+](=O)[O-]"
-  },
-  "Bs": {
-    "confidence": "high",
-    "note": "4-bromobenzenesulfonyl (brosyl)",
-    "smiles": "[*]S(=O)(=O)c1ccc(Br)cc1"
-  },
-  "DIBAL": {
-    "confidence": "medium",
-    "note": "diisobutylaluminium (DIBAL-H without its hydride; Al-bound reagent shorthand)",
-    "smiles": "[*][Al](CC(C)C)CC(C)C"
-  },
-  "Li": {
-    "confidence": "high",
-    "note": "lithium (organolithium, Li-bound)",
-    "smiles": "[*][Li]"
-  },
-  "MgBr": {
-    "confidence": "high",
-    "note": "magnesium bromide (Grignard, Mg-bound)",
-    "smiles": "[*][Mg]Br"
-  },
-  "MgCl": {
-    "confidence": "high",
-    "note": "magnesium chloride (Grignard, Mg-bound)",
-    "smiles": "[*][Mg]Cl"
-  },
-  "MgI": {
-    "confidence": "high",
-    "note": "magnesium iodide (Grignard, Mg-bound)",
-    "smiles": "[*][Mg]I"
-  },
-  "Cp": {
-    "confidence": "medium",
-    "note": "cyclopentadienyl (eta-1 C-bound; coordination to metals is shown separately)",
-    "smiles": "[*]C1C=CC=C1"
-  },
-  "Tr": {
-    "confidence": "high",
-    "note": "trityl (triphenylmethyl)",
-    "smiles": "[*]C(c1ccccc1)(c1ccccc1)c1ccccc1"
-  },
-  "OPiv": {
-    "confidence": "high",
-    "note": "pivalate (O-linked pivaloyl)",
-    "smiles": "[*]OC(=O)C(C)(C)C"
-  },
-  "CCl3": {
-    "confidence": "high",
-    "note": "trichloromethyl",
-    "smiles": "[*]C(Cl)(Cl)Cl"
-  },
-  "CH2Cl": {
-    "confidence": "high",
-    "note": "chloromethyl",
-    "smiles": "[*]CCl"
-  },
-  "SPh": {
-    "confidence": "high",
-    "note": "phenylthio",
-    "smiles": "[*]Sc1ccccc1"
-  },
-  "SePh": {
-    "confidence": "high",
-    "note": "phenylselenyl",
-    "smiles": "[*][Se]c1ccccc1"
-  },
-  "PPh2": {
-    "confidence": "high",
-    "note": "diphenylphosphino",
-    "smiles": "[*]P(c1ccccc1)c1ccccc1"
-  },
-  "SnBu3": {
-    "confidence": "high",
-    "note": "tributylstannyl",
-    "smiles": "[*][Sn](CCCC)(CCCC)CCCC"
-  },
-  "C6F5": {
-    "confidence": "high",
-    "note": "pentafluorophenyl",
-    "smiles": "[*]c1c(F)c(F)c(F)c(F)c1F"
-  },
-  "Mts": {
-    "confidence": "high",
-    "note": "mesitylenesulfonyl (2,4,6-trimethylbenzenesulfonyl)",
-    "smiles": "[*]S(=O)(=O)c1c(C)cc(C)cc1C"
   }
 }

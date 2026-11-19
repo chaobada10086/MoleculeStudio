@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" ChainAngle="120.000000" BondSpacing="18.000000" BoldWidth="2.000000" MarginWidth="1.600000" HashSpacing="2.500000" CreationProgram="Molecule Studio" BoundingBox="312.6378 440.9449 577.6378 565.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+        <color r="0" g="0.27450980392156865" b="0.86274509803921573"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="19" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="20">
+            <n id="3" p="312.6378 440.9449" Element="8" color="10"/>
+            <b id="21" B="3" E="4" Order="1" color="10"/>
+            <n id="4" p="352.6378 440.9449" Element="7" color="10"/>
+            <b id="23" B="5" E="6" Order="2" color="10"/>
+            <n id="5" p="387.6378 440.9449" Element="8" color="10"/>
+            <b id="24" B="7" E="8" Order="3" color="10"/>
+            <n id="6" p="427.6378 440.9449" Element="7" color="10"/>
+            <b id="25" B="9" E="10" Order="1" Display="Dash" color="10"/>
+            <n id="7" p="462.6378 440.9449" Element="8" color="10"/>
+            <b id="26" B="11" E="12" Order="1" Display="Bold" color="10"/>
+            <n id="8" p="502.6378 440.9449" Element="7" color="10"/>
+            <b id="27" B="13" E="14" Order="1" Display="WedgeBegin" color="10"/>
+            <n id="9" p="537.6378 440.9449" Element="8" color="10"/>
+            <b id="28" B="15" E="16" Order="1" Display="WedgedHashBegin" color="10"/>
+            <n id="10" p="577.6378 440.9449" Element="7" color="10"/>
+            <b id="29" B="17" E="18" Order="1"/>
+            <n id="11" p="312.6378 495.9449" Element="8" color="10"/>
+            <n id="12" p="352.6378 495.9449" Element="7" color="10"/>
+            <n id="13" p="387.6378 495.9449" Element="8" color="10"/>
+            <n id="14" p="427.6378 495.9449" Element="7" color="10"/>
+            <n id="15" p="462.6378 495.9449" Element="8" color="10"/>
+            <n id="16" p="502.6378 495.9449" Element="7" color="10"/>
+            <n id="17" p="537.6378 560.9449"/>
+            <n id="18" p="577.6378 560.9449"/>
+        </fragment>
+        <t id="22" p="312.6378 565.9449" color="10">
+            <s font="3" size="12" color="10">Structure color</s>
+        </t>
+    </page>
+</CDXML>

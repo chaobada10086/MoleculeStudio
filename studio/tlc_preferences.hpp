@@ -6,8 +6,21 @@
 #include <map>
 #include <cstdio>
 namespace studio_tlc {
+struct TailSlice {std::vector<r62::core::Vec2> points;double opacity;};
+inline std::vector<TailSlice> tailSlices(const r62::experimental::Spot& spot){
+    std::vector<TailSlice> result;
+    double length=std::min(spot.tailLengthV,std::max(0.,.98-spot.v));
+    if(length<=1e-5||spot.tailOpacity<=1e-5)return result;
+    const int count=64;
+    for(int i=0;i<count;++i){double a=double(i)/count,b=double(i+1)/count;
+        double wa=spot.radiusU*.92*std::sqrt(1-a),wb=spot.radiusU*.92*std::sqrt(1-b);
+        TailSlice slice;slice.opacity=spot.opacity*spot.tailOpacity*(1-.85*(a+b)*.5);
+        slice.points={{spot.u-wa,spot.v+a*length},{spot.u+wa,spot.v+a*length},{spot.u+wb,spot.v+b*length},{spot.u-wb,spot.v+b*length}};
+        result.push_back(slice);
+    }return result;
+}
 struct Preferences {
-    int lanes=4,spots=1;
+    int lanes=3,spots=1;
     double diameter=4;
     bool guides=false,origin=true,front=true,showRf=false,customTemplate=false;
     r62::experimental::PlateFigure plateTemplate;

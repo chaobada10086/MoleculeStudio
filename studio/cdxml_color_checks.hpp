@@ -158,6 +158,11 @@ void App::cdxmlColorCheck(const std::string& dir){
      // Entry 0 was black ink in the source; after the rebuild every label must still
      // be dark. White is the failure that made the reported file look empty.
      size_t labels=0;bool inkDark=true;for(const auto& text:repaired.doc.texts().records())if(text.isAlive()){++labels;const uint32_t c=text.format.colorRGBA;if(((c>>24)&255)>200&&((c>>16)&255)>200&&((c>>8)&255)>200)inkDark=false;}
+     for(const auto& atom:repaired.doc.atoms().records())if(atom.isAlive()&&!repaired.doc.atomLabel(atom.id).empty()){
+         ++labels;if(auto colors=repaired.doc.extensions(ObjectRef(ObjectKind::Atom,atom.id)).findValue("studio.text.colors")){
+             std::istringstream input(*colors);uint32_t c;while(input>>c)if(((c>>24)&255)>200&&((c>>16)&255)>200&&((c>>8)&255)>200)inkDark=false;
+         }
+     }
      require(labels>0&&inkDark,"the ink that was entry-0 black is still dark after the table is rebuilt");}
 
     s.selected=s.all();s.refresh();s.fit();switchTab(1);layout();screenshot(dir+"/cdxml-colors.png");

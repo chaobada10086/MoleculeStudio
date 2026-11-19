@@ -1,0 +1,52 @@
+movable=7 attempted=1 changed=1 shape=0.695736 crowd=0.000000 
+movable=4 attempted=0 changed=0 shape=0.000003 crowd=0.000000
+movable=4 attempted=0 changed=0 shape=0.000003 crowd=0.000000
+movable=4 attempted=0 changed=0 shape=0.000003 crowd=0.000000
+movable=4 attempted=1 changed=1 shape=7.310176 crowd=0.000000 
+movable=4 attempted=0 changed=0 shape=0.000003 crowd=0.000000
+movable=4 attempted=0 changed=0 shape=0.000003 crowd=0.000000
+movable=8 attempted=1 changed=0 shape=0.296113 crowd=0.000000 bond length limit
+movable=8 attempted=1 changed=1 shape=5.381140 crowd=0.000000 
+movable=0 attempted=0 changed=1 
+movable=3 attempted=1 changed=0 shape=3.012340 crowd=0.000000 motion limit
+movable=0 attempted=0 changed=1 
+movable=5 attempted=0 changed=0 shape=0.104800 crowd=0.000000
+movable=4 attempted=0 changed=0 shape=0.044050 crowd=0.000000
+movable=2 attempted=0 changed=0 shape=0.010409 crowd=0.000000
+movable=3 attempted=1 changed=1 shape=0.552270 crowd=0.000000 
+movable=3 attempted=1 changed=1 shape=0.552270 crowd=0.000000 
+movable=3 attempted=0 changed=0 shape=0.020762 crowd=0.000000
+movable=3 attempted=0 changed=0 shape=0.013737 crowd=0.000000
+movable=0 attempted=0 changed=1 
+movable=0 attempted=0 changed=0 
+movable=0 attempted=0 changed=0 
+movable=0 attempted=0 changed=0 
+movable=0 attempted=0 changed=0 
+movable=0 attempted=0 changed=0 
+movable=0 attempted=0 changed=0 
+movable=0 attempted=0 changed=0 
+movable=0 attempted=0 changed=0 
+movable=3 attempted=0 changed=0 shape=0.000000 crowd=0.000000
+movable=4 attempted=1 changed=0 shape=1.762301 crowd=0.000000 motion limit
+movable=4 attempted=1 changed=1 shape=1.598210 crowd=0.000000 motion limit
+movable=2 attempted=1 changed=1 shape=0.882898 crowd=0.000000 
+movable=0 attempted=0 changed=1 
+movable=0 attempted=0 changed=1 
+movable=0 attempted=0 changed=0 
+movable=2 attempted=0 changed=0 shape=0.000044 crowd=0.000000
+movable=0 attempted=0 changed=0 
+movable=2 attempted=0 changed=0 shape=0.165134 crowd=0.000000
+movable=2 attempted=0 changed=0 shape=0.165134 crowd=0.000000
+movable=0 attempted=0 changed=1 
+movable=2 attempted=0 changed=0 shape=0.191109 crowd=0.000000
+movable=2 attempted=1 changed=1 shape=0.557792 crowd=0.000000 
+movable=4 attempted=1 changed=1 shape=5.545016 crowd=0.000000 motion limit
+movable=3 attempted=0 changed=1 shape=0.017072 crowd=0.000000
+movable=2 attempted=1 changed=0 shape=1.219376 crowd=0.000000 bond length limit
+movable=2 attempted=1 changed=0 shape=0.798452 crowd=0.000000 bond length limit
+movable=6 attempted=1 changed=0 shape=2.115510 crowd=0.000000 motion limit
+movable=6 attempted=1 changed=0 shape=2.115510 crowd=0.000000 motion limit
+movable=8 attempted=1 changed=1 shape=1.997201 crowd=0.000000 motion limit
+movable=9 attempted=1 changed=1 shape=4.055136 crowd=0.000000 motion limit
+movable=6 attempted=0 changed=0 shape=0.000801 crowd=0.000000
+movable=0 attempted=0 changed=0 

@@ -56,6 +56,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 
 namespace r62 {
 namespace rings_chains {
@@ -168,7 +169,8 @@ core::Error resolveChainPlanImpl(const core::Document& document,
             } else {
                 dir = baseDeg;
             }
-            if (fixedAngles) dir = quantiseAngle(dir, request.options.angleStepDegrees);
+            // Preserve the independently configured interior angle after snapping the start.
+            if (fixedAngles && !request.options.snaking) dir = quantiseAngle(dir, request.options.angleStepDegrees);
         }
         const core::Vec2 step = core::direction(dir) * stepLength;
         const core::Vec2 pos = cursor + step;
@@ -222,6 +224,7 @@ ChainRequest chainRequestFor(const core::Document& document,
         const core::AtomRecord* a = document.atoms().alive(policy.anchorAtom);
         if (a) r.origin = a->position;
     }
+    if(auto v=document.documentExtensions().findValue("studio.style.ChainAngle")){double angle=std::atof(v->c_str());if(std::isfinite(angle)&&angle>=30&&angle<=180)r.options.chainAngleDegrees=angle;}
     r.options.atomCount = policy.chainAtomCount < 1 ? 1 : policy.chainAtomCount;
     r.options.bondLength = policy.bondLength;
     r.options.fixedLength = policy.fixedLength;

@@ -1,0 +1,4 @@
+movable=2 attempted=0 changed=1 shape=0.000000 crowd=0.000000
+movable=2 attempted=0 changed=1 shape=0.000000 crowd=0.000000
+movable=0 attempted=0 changed=1 
+movable=0 attempted=0 changed=1 

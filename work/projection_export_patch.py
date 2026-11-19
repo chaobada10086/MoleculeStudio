@@ -1,0 +1,3 @@
+from pathlib import Path
+p=Path('studio/engine/cdxml_writer.cpp');s=p.read_text(encoding='utf-8');s='#include "engine/projection_export.hpp"\n'+s;s=s.replace('const std::string text = normalizePartialChargeCaptions(', 'const std::string text = studio_projection_export::write(normalizePartialChargeCaptions(');needle='normalizeColorTable(writer.out.str())))))));';assert needle in s;s=s.replace(needle,'normalizeColorTable(writer.out.str()))))))));');p.write_text(s,encoding='utf-8')
+p=Path('studio/engine/cdxml_reader.cpp');s=p.read_text(encoding='utf-8');s='#include "engine/projection_export.hpp"\n'+s;s=s.replace('studio_projection_io::normalize(bytes)','studio_projection_io::normalize(studio_projection_export::strip(bytes))');p.write_text(s,encoding='utf-8')

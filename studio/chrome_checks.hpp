@@ -124,9 +124,25 @@ void App::chromeCheck(const std::string& dir){
     HBITMAP surface=CreateCompatibleBitmap(screen,1040,((rows+2)/3+2)*36);HGDIOBJ old=SelectObject(memory,surface);
     RECT all={0,0,1040,((rows+2)/3+2)*36};FillRect(memory,&all,(HBRUSH)GetStockObject(WHITE_BRUSH));
     for(int i=0;i<4;++i){DRAWITEMSTRUCT item={};item.CtlType=ODT_MENU;item.hDC=memory;item.itemData=900+i;item.rcItem={i*260,0,(i+1)*260,34};require(drawArrowMenuItem(&item),"category preview");}
+    // Use the actual popup to distinguish selectable presets from older file IDs.
+    HMENU menu=createArrowMenu();std::set<UINT> choices;
+    std::function<void(HMENU)> collect=[&](HMENU parent){
+        for(int pos=0;pos<GetMenuItemCount(parent);++pos){
+            if(auto child=GetSubMenu(parent,pos)){collect(child);continue;}
+            UINT command=GetMenuItemID(parent,pos);
+            if(command>=1000&&command<2000)choices.insert(command-1000);
+        }
+    };
+    collect(menu);DestroyMenu(menu);
+    require(choices==std::set<UINT>{8,9,10,11,12,13,14,15,32,38,39,40,49,57,58},"all arrow menu choices present");
     for(int i=0;i<rows;++i){auto& preset=arrows::arrowPresets()[i];DRAWITEMSTRUCT item={};item.CtlType=ODT_MENU;item.hDC=memory;item.itemData=1000+preset.presetId;int x=i%3*340,y=(i/3+1)*36;item.rcItem={x,y,x+330,y+34};require(drawArrowMenuItem(&item),"arrow preview row");
-        if(preset.implemented){chooseArrowPreset(preset.presetId);invalidate(false);require(s.entries[s.activeIndex].command==preset.sourceCommand,"menu chooses real tool");
-            bool matched=false;for(const auto& group:groups)for(const auto& b:group.items)if(b.id=="chooseArrowTool_Large_Solid")matched=b.cmd==preset.sourceCommand;require(matched&&arrowPreset==preset.presetId,"toolbar follows selected arrow");}}
+        if(preset.implemented){
+            const bool legacyArc=!choices.count(preset.presetId)&&preset.family==arrows::ArrowFamily::Arc;
+            const auto& expected=legacyArc?*arrows::presetById(58):preset;
+            chooseArrowPreset(preset.presetId);invalidate(false);
+            if(s.entries[s.activeIndex].command!=expected.sourceCommand)
+                throw std::runtime_error("arrow preset "+std::to_string(preset.presetId)+" selected "+s.entries[s.activeIndex].command+"; expected "+expected.sourceCommand);
+            bool matched=false;for(const auto& group:groups)for(const auto& b:group.items)if(b.id=="chooseArrowTool_Large_Solid")matched=b.cmd==expected.sourceCommand;require(matched&&arrowPreset==expected.presetId,"toolbar follows selected arrow");}}
     {Bitmap preview(surface,nullptr);UINT count=0,bytes=0;GetImageEncodersSize(&count,&bytes);std::vector<uint8_t> storage(bytes);auto encoders=(ImageCodecInfo*)storage.data();GetImageEncoders(count,bytes,encoders);for(UINT i=0;i<count;++i)if(wcscmp(encoders[i].MimeType,L"image/png")==0)preview.Save(W(dir+"/arrow-previews.png").c_str(),&encoders[i].Clsid,0);}
     SelectObject(memory,old);DeleteObject(surface);DeleteDC(memory);ReleaseDC(h,screen);
     for(int w:{800,1100,1500}){
@@ -161,7 +177,7 @@ void App::chromeCheck(const std::string& dir){
     int arrowCards=0,flatArrows=0,formatButtons=0;for(const auto& group:graphicsGroups)for(const auto& b:group.items){if(b.id=="graphics.arrowStyle"){++arrowCards;require(group.r.Width>=120&&group.r.Height>=96,"current-arrow preview has a full-size ribbon card");}if(b.id=="graphics.width"||b.id=="graphics.color")++formatButtons;if(arrows::presetByCommand(b.cmd))++flatArrows;}
     require(formatButtons==2,"independent width and color controls");
     require(arrowCards==1&&flatArrows==0,"graphics tab uses one arrow picker instead of flat style buttons");
-    for(const char* command:{"chooseArrowTool_Large_Equilibrium","chooseArrowTool_270_CW"}){auto preset=arrows::presetByCommand(command);require(preset!=nullptr,"preview fixture preset");chooseArrowPreset(preset->presetId);invalidate(false);require(arrowPreset==preset->presetId,"large preview tracks chosen style");screenshot(dir+"/arrow-card-"+std::to_string(preset->presetId)+".png");}
+    for(const char* command:{"chooseArrowTool_Medium_Equilibrium","chooseArrowTool_FreeArc"}){auto preset=arrows::presetByCommand(command);require(preset!=nullptr,"preview fixture preset");chooseArrowPreset(preset->presetId);invalidate(false);require(arrowPreset==preset->presetId,"large preview tracks chosen style");screenshot(dir+"/arrow-card-"+std::to_string(preset->presetId)+".png");}
     std::ofstream(dir+"/arrow-card-checks.json")<<"{\"single_picker\":true,\"no_flat_style_buttons\":true,\"large_preview\":true,\"style_sync\":true}";
     auto clickCommand=[&](const std::string& command,int arg=0){for(const auto& group:visibleGroups())for(const auto& b:group.items)if(b.cmd==command&&b.arg==arg){auto r=b.r;SendMessageW(h,WM_LBUTTONUP,0,MAKELPARAM(int((r.X+r.Width*.5f)*scale),int((r.Y+r.Height*.5f)*scale)));return;}require(false,"expanded command exists");};
     clickCommand("chooseDrawingTool_Rectangle_Hollow");require(s.entries[s.activeIndex].command=="chooseDrawingTool_Rectangle_Hollow","graphics tab dispatches drawing tool");

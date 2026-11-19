@@ -1,0 +1,18 @@
+#pragma once
+static void arcWorkflowUiCheck(App& app,const std::string& dir){
+    auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(std::string("arc UI: ")+why);};
+    {auto menu=app.createArrowMenu();require(GetMenuItemCount(menu)==6,"unified arrow menu has six rows");MENUITEMINFOW first={},last={};first.cbSize=last.cbSize=sizeof(first);first.fMask=last.fMask=MIIM_DATA;GetMenuItemInfoW(menu,0,TRUE,&first);GetMenuItemInfoW(menu,4,TRUE,&last);require(first.dwItemData==901&&GetMenuItemID(menu,1)==1058&&last.dwItemData==900,"reaction first, arc second, mechanism last");for(int i=0;i<GetMenuItemCount(menu);++i){MENUITEMINFOW info={};info.cbSize=sizeof(info);info.fMask=MIIM_FTYPE;GetMenuItemInfoW(menu,i,TRUE,&info);require(!(info.fType&MFT_SEPARATOR),"arrow menu has no separating bars");}auto mechanism=GetSubMenu(menu,4);require(GetMenuItemCount(mechanism)==2&&GetMenuItemID(mechanism,0)==1049&&GetMenuItemID(mechanism,1)==1057,"mechanism submenu includes fishhook");DestroyMenu(menu);}
+    auto& s=app.s;s.cancel();s.doc=Document();s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());s.arcBendLocked=false;s.refresh();
+    app.chooseArrowPreset(58);auto view=s.view();view.center=Vec2();view.scale=3;view.dpiScale=1;s.setView(view);app.invalidate();UpdateWindow(app.canvas);
+    auto event=[&](UINT message,Vec2 point,WPARAM flags=0){auto pixel=s.view().toDevice(point);SendMessageW(app.canvas,message,flags,MAKELPARAM(int(std::lround(pixel.x)),int(std::lround(pixel.y))));UpdateWindow(app.canvas);};
+    auto count=[&](){int n=0;for(const auto& a:s.doc.arrows().records())if(a.isAlive())++n;return n;};
+    event(WM_LBUTTONDOWN,Vec2(-60,-40),MK_LBUTTON);event(WM_MOUSEMOVE,Vec2(60,-40),MK_LBUTTON);event(WM_LBUTTONUP,Vec2(60,-40));require(count()==0,"endpoint release remains a preview");
+    event(WM_MOUSEMOVE,Vec2(0,0));auto tool=dynamic_cast<arrows::ArrowTool*>(s.entries[s.activeIndex].tool.get());require(tool&&tool->state().arcStage==2&&std::abs(tool->previewParams().arcSagitta-40)<.5,"unpressed mouse movement adjusts bend");
+    event(WM_LBUTTONDOWN,Vec2(0,0),MK_LBUTTON);event(WM_LBUTTONUP,Vec2(0,0));require(count()==1,"second-stage click commits one arrow");
+    require(s.undo().ok()&&count()==0&&s.undo(true).ok()&&count()==1,"native staged drawing is a single undo step");
+    event(WM_LBUTTONDOWN,Vec2(-40,60),MK_LBUTTON);event(WM_LBUTTONUP,Vec2(-40,60));require(tool->state().arcStage==1,"click start waits for endpoint");event(WM_MOUSEMOVE,Vec2(40,60));event(WM_LBUTTONDOWN,Vec2(40,60),MK_LBUTTON);event(WM_LBUTTONUP,Vec2(40,60));require(tool->state().arcStage==2,"click end waits for bend");
+    SendMessageW(app.canvas,WM_KEYDOWN,VK_ESCAPE,0);require(count()==1&&!tool->state().active,"Escape cancels only the preview");
+    auto file=W(dir+"/arc-lock.ini");WritePrivateProfileStringW(L"Arc",L"Locked",L"1",file.c_str());WritePrivateProfileStringW(L"Arc",L"Bend",L"-0.5",file.c_str());app.loadRibbon(file);require(s.arcBendLocked&&s.arcBendRatio==-.5,"lock state reloads from preferences");s.arcBendLocked=false;
+    HMENU menu=CreatePopupMenu();appendSelectionContextMenu(menu,false,true);require(GetMenuState(menu,4,MF_BYCOMMAND)==UINT(-1)&&GetMenuState(menu,5,MF_BYCOMMAND)==UINT(-1)&&GetMenuState(menu,6,MF_BYCOMMAND)==UINT(-1),"unavailable chemistry context items are omitted");DestroyMenu(menu);
+    app.screenshot(dir+"/staged-arc-ui.png");std::ofstream(dir+"/arc-workflow-ui-checks.json")<<"{\"native_mouse_stages\":true,\"hover_bend\":true,\"click_endpoints\":true,\"single_undo\":true,\"escape_cancel\":true,\"lock_restart\":true,\"disabled_context_hidden\":true}";
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="16.399999999999999" LineWidth="1.1899999999999999" CaptionSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BoundingBox="0 0 240 160" LabelSize="10">
+    <colortable>
+        <color r="0" g="0" b="0"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="20" BoundingBox="0 0 240 160" WidthPages="1" HeightPages="1">
+        <fragment id="21">
+            <n id="3" p="60 60" color="2"/>
+            <n id="4" p="100 60" Element="8" NumHydrogens="0" color="2"><t color="2"><s font="3" size="10" face="96" color="2">O</s></t></n>
+            <b id="5" B="3" E="4" color="2"/>
+        </fragment>
+    </page>
+</CDXML>

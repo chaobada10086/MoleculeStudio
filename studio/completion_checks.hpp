@@ -1,6 +1,8 @@
 #pragma once
 // Group completion: spelling dictionary, per-entry switches, and the formula
 // typography that the inline label editor writes into the committed runs.
+#include "compound_library_checks.hpp"
+#include "local_cleanup_checks.hpp"
 void App::completionCheck(const std::string& dir){
     App& app=*this;
     auto require=[](bool ok,const std::string& why){if(!ok)throw std::runtime_error(why);};
@@ -8,6 +10,8 @@ void App::completionCheck(const std::string& dir){
     const bool originalEnabled=chemcompletion::enabled();
     const bool originalFormula=chemcompletion::formulaLayout();
     chemcompletion::enabled()=true;chemcompletion::formulaLayout()=true;
+    checkCompoundLibrary(*this,dir);
+    checkLocalCleanup(*this,dir);
     // The test runs next to the program's own interface.ini: remember the user's
     // custom entries and put them back when the run is over.
     struct Saved{std::string alias,canonical;};std::vector<Saved> saved;
@@ -24,12 +28,28 @@ void App::completionCheck(const std::string& dir){
         SendMessageW(app.edit,EM_REPLACESEL,TRUE,(LPARAM)value.c_str());pump();
         require(app.finishText(true),std::string("commit ")+why);
         auto stored=app.s.doc.atomLabel(atom);
-        require(stored==std::string(expectText),std::string(why)+": stored label "+stored+" expected "+expectText);
+        int ionCharge=0;bool charged=false;const auto* ion=studioions::find(expectText,&ionCharge,&charged);
+        const bool semanticIon=charged&&chemcompletion::formulaLayout()&&ion;
+        const std::string expected=semanticIon?ion->label:expectText;
+        require(stored==expected,std::string(why)+": stored label "+stored+" expected "+expected);
+        if(semanticIon)require(app.s.doc.atoms().alive(atom)->semantics.charge==ionCharge,"typed charge is stored as atom semantics");
         std::string scripts;for(const auto& run:studioatom::runs(app.s.doc,atom)){
             int script=(run.flags&kSubscript)?-1:(run.flags&kSuperscript)?1:0;
             for(size_t i=0;i<run.utf8.size();++i)if((run.utf8[i]&0xC0)!=0x80)scripts+=char(script<0?'-':script>0?'+':'0');
         }
-        require(scripts==std::string(expectScripts),std::string(why)+": scripts "+scripts+" expected "+expectScripts);
+        std::string expectedScripts=expectScripts;if(semanticIon)expectedScripts.pop_back();
+        require(scripts==expectedScripts,std::string(why)+": scripts "+scripts+" expected "+expectedScripts);
+        integration::RingGeometry rings(s.doc);
+        const auto labels=integration::molecular::labels(s.doc,s.glyphs,rings);
+        if(stored=="t-Bu"||stored=="i-Pr"){
+            const auto& glyphs=labels.at(atom).layout.glyphs;
+            require(glyphs.size()==4&&glyphs[0].font.italic&&glyphs[1].codepoint=='-'&&!glyphs[1].font.italic&&
+                    !glyphs[2].font.italic&&!glyphs[3].font.italic,"the canvas italicizes only the descriptor");
+        }
+        if(stored=="1H"||stored=="56H"){
+            const auto& glyphs=labels.at(atom).layout.glyphs;
+            for(const auto& glyph:glyphs)require(std::abs(glyph.y-glyphs.back().y)<1e-8,"unlisted isotope digits stay on the H baseline");
+        }
         ++checks;
     };
     // Spelling (dictionary) and typography (counts, charges, isotopes, radicals).
@@ -39,8 +59,17 @@ void App::completionCheck(const std::string& dir){
     commit("no2","NO2","00-","nitro completion");
     commit("1-naph","1-Naph","000000","locant stays on the baseline");
     commit("b(oh)2","B(OH)2","00000-","boronic acid");
-    commit("cuSO4*5H2O","cuSO4*5H2O","0000-000-0","hydrate coefficient stays on the baseline");
+    commit("cuSO4*5H2O","CuSO4*5H2O","0000-000-0","known hydrate has canonical case; coefficient stays on baseline");
     commit("Ph+*","Ph+*","00++","radical cation");
+    commit("Ph3P","Ph3P","00-0","phenyl groups stay mixed case in phosphine");
+    commit("ph3p","Ph3P","00-0","lower-case triphenylphosphine in phenyl-first order");
+    commit("pph3","PPh3","000-","lower-case triphenylphosphine in phosphorus-first order");
+    commit("Ph3","Ph3","000","unlisted phenyl count stays as authored");
+    commit("PH3","PH3","00-","phosphorus hydride is distinct from phenyl");
+    commit("ph3","PH3","00-","common hydride is recognized from lowercase");
+    commit("Co2","Co2","000","unlisted cobalt count stays as authored");
+    commit("PhB(OH)2","PhB(OH)2","0000000-","phenylboronic acid keeps phenyl spelling");
+    commit("pcl3","PCl3","000-","lower-case phosphorus trichloride");
     commit("co2","CO2","00-","carbon dioxide typed in lower case");
     commit("so4","SO4","00-","sulfate typed in lower case");
     commit("cuso4","CuSO4","0000-","copper sulfate");
@@ -50,9 +79,61 @@ void App::completionCheck(const std::string& dir){
     // reaches the dictionary instead of being read as an element symbol.
     commit("cn","CN","00","cyano auto case");
     commit("bpin","Bpin","0000","pinacol boronate auto case");
-    commit("tbu","tBu","000","tert-butyl auto case");
+    commit("tbu","t-Bu","0000","tert-butyl auto hyphen");
+    require(chemitalic::patternUtf8("t-Bu")=="^...","only the tert-butyl prefix is italic");
+    commit("ipr","i-Pr","0000","isopropyl shares the hyphen and italics rule");
+    commit("1H","1H","00","1H from screenshot");
+    commit("56H","56H","000","56H from screenshot");
+    commit("25A","25A","000","ordinary leading digits stay on the baseline");
+    commit("13CH4","13CH4","++00-","carbon-13 isotope");
+    chemcompletion::formulaLayout()=false;
+    commit("tbu","tbu","000","automatic typography disabled");
+    for(bool autoLayout:{false,true}){
+        chemcompletion::formulaLayout()=autoLayout;
+        app.s.cancel();app.s.doc=Document();app.s.history.clear();app.s.selected.clear();app.s.input.bindDocument(app.s.doc.id());
+        ObjectId left,oxygen,right,bond;
+        app.s.doc.addAtom(Vec2(-30,0),6,&left);
+        app.s.doc.addAtom(Vec2(),6,&oxygen);
+        app.s.doc.addAtom(Vec2(30,0),6,&right);
+        app.s.doc.addBond(left,oxygen,&bond);
+        app.s.doc.addBond(oxygen,right,&bond);
+        app.s.refresh();
+        const auto before=app.s.doc.digest();
+        app.openText(kInvalidObjectId,oxygen);
+        app.textEditor.select(0,-1);
+        SendMessageW(app.edit,EM_REPLACESEL,TRUE,(LPARAM)(autoLayout?L"OH":L"HO"));
+        pump();
+        require(app.finishText(true),"commit hydroxyl label on a two-bond atom");
+        const auto* atom=app.s.doc.atoms().alive(oxygen);
+        require(atom->element==8&&atom->semantics.implicitHydrogens==0&&app.s.doc.atomLabel(oxygen)=="O",
+                "a two-bond oxygen has no condensed H with either typography setting");
+        require(app.s.undo().ok()&&app.s.doc.digest()==before,"one undo restores the original two-bond atom");
+        ++checks;
+    }
+    chemcompletion::formulaLayout()=true;
     commit("boc","Boc","000","Boc auto case");
     commit("mgbr","MgBr","0000","Grignard auto case");
+    {
+        Document doc;ObjectId parent,group,bond;
+        doc.addAtom(Vec2(),6,&parent);doc.addAtom(Vec2(30,0),6,&group);doc.addBond(parent,group,&bond);
+        doc.setAtomLabel(group,"Me");
+        TextRun old;old.utf8="Me";old.flags=kBold;studioatom::set(doc,group,{old});
+        const auto label=chemcompletion::hyphenatedGroup(chemcompletion::normalize("tbu"));
+        require(nicknames::apply(doc,group,label).ok(),"insert tert-butyl over a styled label");
+        const auto expansion=functional_groups::prepareExpansion(doc,group);
+        require(expansion.graph->incidentBonds(expansion.anchor).size()==4,"tert-butyl connects through the tertiary carbon");
+        Document reopened;
+        require(persistence::readCdxml(persistence::writeCdxmlToString(doc),reopened).ok(),"reopen tert-butyl CDXML");
+        bool checked=false;
+        for(const auto& a:reopened.atoms().records())if(a.isAlive()&&reopened.atomLabel(a.id)=="t-Bu"){
+            const auto runs=studioatom::runs(reopened,a.id);
+            require(runs.size()==2&&runs[0].utf8=="t"&&(runs[0].flags&kItalic)&&runs[1].utf8=="-Bu"&&!(runs[1].flags&kItalic),
+                    "CDXML preserves the hyphen and only the italic descriptor");
+            checked=true;
+        }
+        require(checked,"reopened CDXML contains t-Bu");
+        ++checks;
+    }
     // The committed cyano label really is the functional group, not a bare
     // element label: the definition is stored and the group expands to C#N.
     {
@@ -114,9 +195,24 @@ void App::completionCheck(const std::string& dir){
             require(scripts==std::string(expectScripts),std::string("caption scripts ")+why+": "+scripts);
             ++checks;
         };
+        caption("Ph3P","Ph3P","00-0","phenyl case in caption");
+        caption("mesh","MeSH","0000","reviewed methylthiol abbreviation is recognized as a whole library token");
+        caption("qxword","qxword","000000","an unlisted word is not split into chemical abbreviations");
+        caption("fac-Ir(ppy)3","fac-Ir(ppy)3","00000000000-","installed iridium photocatalyst uses a subscript ligand count");
+        caption("fac-Rh(ppz)3","fac-Rh(ppz)3","000000000000","unlisted coordination label keeps authored typography until manual tidy");
+        caption("tBuLi","t-BuLi","000000","composite alkyl prefix receives the hyphen");
         caption("co2","CO2","00-","lower-case formula");
         caption("so4","SO4","00-","lower-case sulfate");
         caption("Table 2","Table 2","0000000","plain text is never re-cased");
+        caption("tbu","t-Bu","0000","tert-butyl caption");
+        caption("1H\r56H\r13C","1H\n56H\n13C","0000000++0","independent caption lines");
+        auto runs=app.s.doc.runs(0);require(!runs.empty(),"multiline caption runs");
+        std::vector<TextRun> old(4);
+        old[0].utf8="1";old[0].flags=kSuperscript;old[1].utf8="H\n";
+        old[2].utf8="56";old[2].flags=kSuperscript;old[3].utf8="H";
+        auto tidied=texttidy::tidy("1H\n56H",true,old,{},false);
+        require(tidied.changed&&tidied.plain=="1H\n56H","tidy recognizes both old isotope-like captions");
+        for(const auto& run:tidied.runs)require(!(run.flags&kSuperscript),"tidy removes the legacy superscripts");
     }
     // Per-entry switches.
     require(chemcompletion::normalize("no2")=="NO2","nitro is completed by default");

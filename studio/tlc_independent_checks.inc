@@ -5,6 +5,14 @@ UINT_PTR timer=SetTimer(h,9183,80,[](HWND owner,UINT,UINT_PTR timer,DWORD){
     HWND popup=GetWindow(owner,GW_ENABLEDPOPUP);if(popup==owner||!GetDlgItem(popup,220))return;KillTimer(owner,timer);
     auto d=reinterpret_cast<TlcDialog*>(GetWindowLongPtrW(popup,DWLP_USER));bool passed=d&&d->figure.lanes.size()==4;
     if(!passed){SetPropW(owner,L"tlc.test.result",(HANDLE)2);PostMessageW(popup,WM_COMMAND,IDCANCEL,0);return;}
+    SendMessageW(GetDlgItem(popup,231),BM_CLICK,0,0);passed&=d->diameterSelectedOnly&&IsDlgButtonChecked(popup,231)==BST_CHECKED&&IsDlgButtonChecked(popup,230)==BST_UNCHECKED;
+    SendMessageW(GetDlgItem(popup,231),BM_CLICK,0,0);passed&=!d->diameterSelectedOnly&&IsDlgButtonChecked(popup,231)==BST_UNCHECKED&&IsDlgButtonChecked(popup,230)==BST_CHECKED;
+    SendMessageW(GetDlgItem(popup,230),BM_CLICK,0,0);passed&=d->diameterSelectedOnly;
+    SendMessageW(GetDlgItem(popup,230),BM_CLICK,0,0);passed&=!d->diameterSelectedOnly;
+    {auto original=d->figure;double diameter=d->value.diameter;SendMessageW(GetDlgItem(popup,231),BM_CLICK,0,0);SetDlgItemTextW(popup,203,L"8");passed&=d->commit(false);
+     for(const auto& spot:d->figure.spots){auto before=r62::experimental::findSpot(original,spot.id);passed&=before&&(spot.id==d->spotId?std::abs(spot.radiusU*d->frame.halfWidth()*2-8)<1e-7:std::abs(spot.radiusU-before->radiusU)<1e-10);}
+     SendMessageW(GetDlgItem(popup,231),BM_CLICK,0,0);SetDlgItemTextW(popup,203,L"6");passed&=d->commit(false);for(const auto& spot:d->figure.spots)passed&=std::abs(spot.radiusU*d->frame.halfWidth()*2-6)<1e-7;
+     d->figure=original;d->value.diameter=diameter;d->refresh();}
     auto choose=[&](int index){SendDlgItemMessageW(popup,201,CB_SETCURSEL,index,0);SendMessageW(popup,WM_COMMAND,MAKEWPARAM(201,CBN_SELCHANGE),(LPARAM)GetDlgItem(popup,201));};
     auto point=[&](int index){SendDlgItemMessageW(popup,220,LB_SETCURSEL,index,0);SendMessageW(popup,WM_COMMAND,MAKEWPARAM(220,LBN_SELCHANGE),(LPARAM)GetDlgItem(popup,220));};
     choose(0);SetDlgItemInt(popup,202,1,FALSE);SetDlgItemTextW(popup,223,L"0.20");auto stable=d->figure.spots.front();
@@ -20,6 +28,14 @@ UINT_PTR timer=SetTimer(h,9183,80,[](HWND owner,UINT,UINT_PTR timer,DWORD){
     SendMessageW(d->preview,WM_LBUTTONDOWN,MK_LBUTTON,MAKELPARAM(int(start.X),int(start.Y)));SendMessageW(d->preview,WM_MOUSEMOVE,MK_LBUTTON,MAKELPARAM(int(end.X),int(end.Y)));SendMessageW(d->preview,WM_LBUTTONUP,0,MAKELPARAM(int(end.X),int(end.Y)));
     spot=r62::experimental::findSpot(d->figure,d->spotId);passed&=std::abs(studio_tlc::rf(d->figure,*spot)-.77)<.005;
     passed&=d->figure.spots.front().v==stable.v;
+    // Exercise off-column preview dragging at both vertical boundaries.
+    {auto draft=d->figure;auto selected=d->spotId;auto lane=d->laneId;
+     auto between=d->point(board,d->figure.lanes[2].u+.04,.99);d->dragPoint(int(between.X),int(between.Y));
+     auto moved=r62::experimental::findSpot(d->figure,selected);passed&=moved&&moved->laneId==d->figure.lanes[2].id&&std::abs(moved->u-d->figure.lanes[2].u)<1e-8&&std::abs(studio_tlc::rf(d->figure,*moved))<1e-8;
+     auto above=d->point(board,d->figure.lanes[2].u,-.99);d->dragPoint(int(above.X),int(above.Y));moved=r62::experimental::findSpot(d->figure,selected);passed&=std::abs(studio_tlc::rf(d->figure,*moved)-1)<1e-8;
+     d->figure=draft;d->spotId=selected;d->laneId=lane;d->refresh();}
+    CheckDlgButton(popup,234,BST_CHECKED);SetDlgItemTextW(popup,232,L"30");SetDlgItemTextW(popup,233,L"70");
+    spot=r62::experimental::findSpot(d->figure,d->spotId);passed&=spot&&std::abs(spot->tailLengthV-.6)<1e-8&&std::abs(spot->tailOpacity-.7)<1e-8;
     CheckDlgButton(popup,207,BST_CHECKED);SendMessageW(popup,WM_COMMAND,MAKEWPARAM(207,BN_CLICKED),(LPARAM)GetDlgItem(popup,207));SetDlgItemTextW(popup,203,L"6");
     auto output=static_cast<const std::string*>(GetPropW(owner,L"tlc.test.output"));UpdateWindow(popup);UpdateWindow(d->preview);
     {RECT r;GetClientRect(popup,&r);HDC screen=GetDC(popup),memory=CreateCompatibleDC(screen);HBITMAP bitmap=CreateCompatibleBitmap(screen,r.right,r.bottom);auto old=SelectObject(memory,bitmap);PrintWindow(popup,memory,PW_CLIENTONLY);Bitmap picture(bitmap,0);UINT count=0,bytes=0;GetImageEncodersSize(&count,&bytes);std::vector<uint8_t> storage(bytes);auto encoders=(ImageCodecInfo*)storage.data();GetImageEncoders(count,bytes,encoders);for(UINT i=0;i<count;++i)if(wcscmp(encoders[i].MimeType,L"image/png")==0){picture.Save(W(*output+"/tlc-independent-editor.png").c_str(),&encoders[i].Clsid,0);break;}SelectObject(memory,old);DeleteObject(bitmap);DeleteDC(memory);ReleaseDC(popup,screen);}

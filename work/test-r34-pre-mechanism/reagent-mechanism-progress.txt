@@ -1,0 +1,1015 @@
+editable reagent 高锰酸钾: pass
+valid inorganic template: KMnO4: pass
+inserted without valence warnings: KMnO4: pass
+editable reagent 重铬酸钾: pass
+valid inorganic template: K2Cr2O7: pass
+inserted without valence warnings: K2Cr2O7: pass
+editable reagent 高碘酸钠: pass
+valid inorganic template: NaIO4: pass
+inserted without valence warnings: NaIO4: pass
+editable reagent 高碘酸: pass
+valid inorganic template: HIO4: pass
+inserted without valence warnings: HIO4: pass
+editable reagent 四氧化锇: pass
+valid inorganic template: OsO4: pass
+inserted without valence warnings: OsO4: pass
+editable reagent 二氧化硒: pass
+valid inorganic template: SeO2: pass
+inserted without valence warnings: SeO2: pass
+editable reagent 三氧化铬: pass
+valid inorganic template: CrO3: pass
+inserted without valence warnings: CrO3: pass
+editable reagent 二氧化锰: pass
+valid inorganic template: MnO2: pass
+inserted without valence warnings: MnO2: pass
+editable reagent 四氧化钌: pass
+valid inorganic template: RuO4: pass
+inserted without valence warnings: RuO4: pass
+editable reagent 过氧化氢: pass
+valid inorganic template: H2O2: pass
+inserted without valence warnings: H2O2: pass
+editable reagent 臭氧: pass
+valid inorganic template: O3: pass
+inserted without valence warnings: O3: pass
+editable reagent 过硫酸钾: pass
+valid inorganic template: K2S2O8: pass
+inserted without valence warnings: K2S2O8: pass
+editable reagent 次氯酸钠: pass
+valid inorganic template: NaClO: pass
+inserted without valence warnings: NaClO: pass
+editable reagent 氯酸钠: pass
+valid inorganic template: NaClO3: pass
+inserted without valence warnings: NaClO3: pass
+editable reagent 高氯酸钾: pass
+valid inorganic template: KClO4: pass
+inserted without valence warnings: KClO4: pass
+editable reagent 溴酸钾: pass
+valid inorganic template: KBrO3: pass
+inserted without valence warnings: KBrO3: pass
+editable reagent 氯化亚锡: pass
+valid inorganic template: SnCl2: pass
+inserted without valence warnings: SnCl2: pass
+editable reagent 硼氢化钠: pass
+valid inorganic template: NaBH4: pass
+inserted without valence warnings: NaBH4: pass
+editable reagent 硼氢化锂: pass
+valid inorganic template: LiBH4: pass
+inserted without valence warnings: LiBH4: pass
+editable reagent 氢化铝锂: pass
+valid inorganic template: LiAlH4 LAH: pass
+inserted without valence warnings: LiAlH4 LAH: pass
+editable reagent 氰基硼氢化钠: pass
+valid inorganic template: NaBH3CN: pass
+inserted without valence warnings: NaBH3CN: pass
+editable reagent 连二亚硫酸钠: pass
+valid inorganic template: Na2S2O4: pass
+inserted without valence warnings: Na2S2O4: pass
+editable reagent 碘化钐: pass
+valid inorganic template: SmI2: pass
+inserted without valence warnings: SmI2: pass
+editable reagent 氯化亚铬: pass
+valid inorganic template: CrCl2: pass
+inserted without valence warnings: CrCl2: pass
+editable reagent 锌: pass
+valid inorganic template: Zn: pass
+inserted without valence warnings: Zn: pass
+editable reagent 铁: pass
+valid inorganic template: Fe: pass
+inserted without valence warnings: Fe: pass
+editable reagent 镁: pass
+valid inorganic template: Mg: pass
+inserted without valence warnings: Mg: pass
+editable reagent 氢气: pass
+valid inorganic template: H2: pass
+inserted without valence warnings: H2: pass
+editable reagent 氢化钠: pass
+valid inorganic template: NaH: pass
+inserted without valence warnings: NaH: pass
+editable reagent 氢化钾: pass
+valid inorganic template: KH: pass
+inserted without valence warnings: KH: pass
+editable reagent 氢氧化钠: pass
+valid inorganic template: NaOH: pass
+inserted without valence warnings: NaOH: pass
+editable reagent 氢氧化钾: pass
+valid inorganic template: KOH: pass
+inserted without valence warnings: KOH: pass
+editable reagent 碳酸钾: pass
+valid inorganic template: K2CO3: pass
+inserted without valence warnings: K2CO3: pass
+editable reagent 碳酸铯: pass
+valid inorganic template: Cs2CO3: pass
+inserted without valence warnings: Cs2CO3: pass
+editable reagent 碳酸钠: pass
+valid inorganic template: Na2CO3: pass
+inserted without valence warnings: Na2CO3: pass
+editable reagent 碳酸氢钠: pass
+valid inorganic template: NaHCO3: pass
+inserted without valence warnings: NaHCO3: pass
+editable reagent 氨基钠: pass
+valid inorganic template: NaNH2: pass
+inserted without valence warnings: NaNH2: pass
+editable reagent 盐酸: pass
+valid inorganic template: HCl: pass
+inserted without valence warnings: HCl: pass
+editable reagent 氢溴酸: pass
+valid inorganic template: HBr: pass
+inserted without valence warnings: HBr: pass
+editable reagent 氢碘酸: pass
+valid inorganic template: HI: pass
+inserted without valence warnings: HI: pass
+editable reagent 硫酸: pass
+valid inorganic template: H2SO4: pass
+inserted without valence warnings: H2SO4: pass
+editable reagent 硝酸: pass
+valid inorganic template: HNO3: pass
+inserted without valence warnings: HNO3: pass
+editable reagent 磷酸: pass
+valid inorganic template: H3PO4: pass
+inserted without valence warnings: H3PO4: pass
+editable reagent 三氟化硼: pass
+valid inorganic template: BF3: pass
+inserted without valence warnings: BF3: pass
+editable reagent 三氯化铝: pass
+valid inorganic template: AlCl3: pass
+inserted without valence warnings: AlCl3: pass
+editable reagent 四氯化钛: pass
+valid inorganic template: TiCl4: pass
+inserted without valence warnings: TiCl4: pass
+editable reagent 四氯化锡: pass
+valid inorganic template: SnCl4: pass
+inserted without valence warnings: SnCl4: pass
+editable reagent 氯化锌: pass
+valid inorganic template: ZnCl2: pass
+inserted without valence warnings: ZnCl2: pass
+editable reagent 三氯化铁: pass
+valid inorganic template: FeCl3: pass
+inserted without valence warnings: FeCl3: pass
+editable reagent 氯化亚铜: pass
+valid inorganic template: CuCl: pass
+inserted without valence warnings: CuCl: pass
+editable reagent 碘化亚铜: pass
+valid inorganic template: CuI: pass
+inserted without valence warnings: CuI: pass
+editable reagent 氯化钯: pass
+valid inorganic template: PdCl2: pass
+inserted without valence warnings: PdCl2: pass
+editable reagent 锇酸钾: pass
+valid inorganic template: K2OsO4: pass
+inserted without valence warnings: K2OsO4: pass
+editable reagent 氯化铈: pass
+valid inorganic template: CeCl3: pass
+inserted without valence warnings: CeCl3: pass
+editable reagent 硝酸银: pass
+valid inorganic template: AgNO3: pass
+inserted without valence warnings: AgNO3: pass
+editable reagent 叠氮化钠: pass
+valid inorganic template: NaN3: pass
+inserted without valence warnings: NaN3: pass
+editable reagent 氰化钠: pass
+valid inorganic template: NaCN: pass
+inserted without valence warnings: NaCN: pass
+editable reagent 碘化钠: pass
+valid inorganic template: NaI: pass
+inserted without valence warnings: NaI: pass
+editable reagent 氟化钾: pass
+valid inorganic template: KF: pass
+inserted without valence warnings: KF: pass
+editable reagent 氯化锂: pass
+valid inorganic template: LiCl: pass
+inserted without valence warnings: LiCl: pass
+editable reagent 氯气: pass
+valid inorganic template: Cl2: pass
+inserted without valence warnings: Cl2: pass
+editable reagent 溴: pass
+valid inorganic template: Br2: pass
+inserted without valence warnings: Br2: pass
+editable reagent 碘: pass
+valid inorganic template: I2: pass
+inserted without valence warnings: I2: pass
+editable reagent 亚硫酰氯: pass
+valid inorganic template: SOCl2: pass
+inserted without valence warnings: SOCl2: pass
+editable reagent 三氯氧磷: pass
+valid inorganic template: POCl3: pass
+inserted without valence warnings: POCl3: pass
+editable reagent 三溴化磷: pass
+valid inorganic template: PBr3: pass
+inserted without valence warnings: PBr3: pass
+editable reagent 五氯化磷: pass
+valid inorganic template: PCl5: pass
+inserted without valence warnings: PCl5: pass
+editable reagent 三苯基膦: pass
+editable reagent 偶氮二甲酸二乙酯: pass
+editable reagent 偶氮二甲酸二异丙酯: pass
+editable reagent 二环己基碳二亚胺: pass
+editable reagent 二异丙基碳二亚胺: pass
+editable reagent 碳二亚胺盐酸盐: pass
+editable reagent 羰基二咪唑: pass
+editable reagent 羟基苯并三唑: pass
+editable reagent 三乙胺: pass
+editable reagent 二异丙基乙胺: pass
+editable reagent 吡啶: pass
+editable reagent 二甲氨基吡啶: pass
+editable reagent 二氮杂双环十一碳烯: pass
+editable reagent 二氮杂双环壬烯: pass
+editable reagent 二氮杂双环辛烷: pass
+editable reagent 二异丙基氨基锂: pass
+editable reagent 双三甲硅基氨基锂: pass
+editable reagent 双三甲硅基氨基钠: pass
+editable reagent 叔丁醇钾: pass
+editable reagent 甲醇钠: pass
+editable reagent 乙醇钠: pass
+editable reagent 正丁基锂: pass
+editable reagent 叔丁基锂: pass
+editable reagent 甲基溴化镁: pass
+editable reagent 苯基溴化镁: pass
+editable reagent 二甲基铜锂: pass
+editable reagent 二异丁基氢化铝: pass
+editable reagent 三乙基硅烷: pass
+editable reagent 三丁基氢化锡: pass
+editable reagent 硼烷四氢呋喃: pass
+editable reagent 三乙酰氧基硼氢化钠: pass
+editable reagent 间氯过氧苯甲酸: pass
+editable reagent 过乙酸: pass
+editable reagent 叔丁基过氧化氢: pass
+editable reagent 二甲基二环氧乙烷: pass
+editable reagent 四甲基哌啶氧自由基: pass
+editable reagent N甲基吗啉氧化物: pass
+editable reagent 二氯二氰基苯醌: pass
+editable reagent 苯碘二乙酸酯: pass
+editable reagent 苯碘双三氟乙酸酯: pass
+editable reagent 氯铬酸吡啶盐: pass
+editable reagent 重铬酸吡啶盐: pass
+editable reagent N溴代丁二酰亚胺: pass
+editable reagent N氯代丁二酰亚胺: pass
+editable reagent N碘代丁二酰亚胺: pass
+editable reagent 二乙氨基三氟化硫: pass
+editable reagent 对甲苯磺酰氯: pass
+editable reagent 甲磺酰氯: pass
+editable reagent 三氟甲磺酸酐: pass
+editable reagent 三甲基氯硅烷: pass
+editable reagent 叔丁基二甲基氯硅烷: pass
+editable reagent 二碳酸二叔丁酯: pass
+editable reagent 四丁基氟化铵: pass
+editable reagent 三氟乙酸: pass
+editable reagent 对甲苯磺酸: pass
+editable reagent 乙酸: pass
+editable reagent 偶氮二异丁腈: pass
+editable reagent 过氧化苯甲酰: pass
+editable reagent 重氮甲烷: pass
+editable reagent 重氮乙酸乙酯: pass
+editable reagent 三甲基硅基重氮甲烷: pass
+editable reagent 四溴化碳: pass
+editable reagent 三溴甲烷: pass
+editable reagent 三氯甲烷: pass
+editable reagent 劳森试剂: pass
+editable reagent HATU 缩合试剂: pass
+editable reagent HBTU 缩合试剂: pass
+editable reagent TBTU 缩合试剂: pass
+editable reagent HCTU 缩合试剂: pass
+editable reagent COMU 缩合试剂: pass
+editable reagent PyBOP 缩合试剂: pass
+editable reagent BOP 缩合试剂: pass
+editable reagent PyAOP 缩合试剂: pass
+editable reagent PyBrOP 缩合试剂: pass
+editable reagent TFFH 氟化甲脒盐: pass
+editable reagent TCFH 氯化甲脒盐: pass
+editable reagent TSTU 缩合试剂: pass
+editable reagent HSTU 缩合试剂: pass
+editable reagent DMTMM 氯化三嗪盐: pass
+editable reagent 氰基羟基亚胺乙酸乙酯: pass
+editable reagent 羟基氮杂苯并三唑: pass
+editable reagent N羟基丁二酰亚胺: pass
+editable reagent N羟基邻苯二甲酰亚胺: pass
+editable reagent N,N二琥珀酰亚胺碳酸酯: pass
+editable reagent 2氯1甲基吡啶碘盐: pass
+editable reagent 二苯基磷酰叠氮: pass
+editable reagent 伯吉斯试剂: pass
+editable reagent 马丁硫烷: pass
+editable reagent 伍林斯试剂: pass
+editable reagent 三氟甲磺酸三甲基硅酯: pass
+editable reagent 碘代三甲基硅烷: pass
+editable reagent 溴代三甲基硅烷: pass
+editable reagent 三乙基氯硅烷: pass
+editable reagent 三异丙基氯硅烷: pass
+editable reagent 叔丁基二苯基氯硅烷: pass
+editable reagent 叔丁基二甲基硅基三氟甲磺酸酯: pass
+editable reagent 三异丙基硅基三氟甲磺酸酯: pass
+editable reagent 三乙基硅基三氟甲磺酸酯: pass
+editable reagent 六甲基二硅氮烷: pass
+editable reagent N,O双三甲基硅基乙酰胺: pass
+editable reagent N,O双三甲基硅基三氟乙酰胺: pass
+editable reagent N甲基N三甲基硅基三氟乙酰胺: pass
+editable reagent 三甲基硅基咪唑: pass
+editable reagent 甲氧基甲基氯: pass
+editable reagent 2甲氧基乙氧基甲基氯: pass
+editable reagent 2三甲基硅基乙氧基甲基氯: pass
+editable reagent 对甲氧基苄氯: pass
+editable reagent 苄氧羰基氯: pass
+editable reagent 芴甲氧羰基氯: pass
+editable reagent 芴甲氧羰基琥珀酰亚胺酯: pass
+editable reagent 烯丙氧羰基氯: pass
+editable reagent 二氢吡喃: pass
+editable reagent 2,2二甲氧基丙烷: pass
+editable reagent 三氟乙酸酐: pass
+editable reagent 邻硝基苯磺酰氯: pass
+editable reagent 对硝基苯磺酰氯: pass
+editable reagent 丹磺酰氯: pass
+editable reagent 戴斯马丁氧化剂: pass
+editable reagent 邻碘酰基苯甲酸: pass
+editable reagent 四丙基高钌酸铵: pass
+editable reagent 过氧化二叔丁基: pass
+editable reagent 叔丁基过氧苯甲酸酯: pass
+editable reagent 过氧化二枯基: pass
+editable reagent N氟代双苯磺酰亚胺: pass
+editable reagent 选择性氟化试剂: pass
+editable reagent 德奥索氟试剂: pass
+editable reagent 石井氟化试剂: pass
+editable reagent 三氟甲基三甲基硅烷: pass
+editable reagent 氯磺酰异氰酸酯: pass
+editable reagent 三溴化吡啶盐: pass
+editable reagent N溴代乙酰胺: pass
+editable reagent 1,3二溴5,5二甲基海因: pass
+editable reagent 1,3二氯5,5二甲基海因: pass
+editable reagent 1,3二碘5,5二甲基海因: pass
+editable reagent 溴代二甲基硫鎓溴盐: pass
+editable reagent 四丁基三溴化铵: pass
+editable reagent 三氯异氰尿酸: pass
+editable reagent 二氯异氰尿酸钠: pass
+editable reagent 三乙基硼氢化锂: pass
+editable reagent 三仲丁基硼氢化锂: pass
+editable reagent 三仲丁基硼氢化钾: pass
+editable reagent 三仲丁基硼氢化钠: pass
+editable reagent 双2甲氧基乙氧基氢化铝钠: pass
+editable reagent 硼烷二甲硫醚: pass
+editable reagent 9硼杂双环壬烷: pass
+editable reagent 二叔戊基硼烷: pass
+editable reagent 儿茶酚硼烷: pass
+editable reagent 频哪醇硼烷: pass
+editable reagent 苯基硅烷: pass
+editable reagent 三三甲基硅基硅烷: pass
+editable reagent 汉斯酯: pass
+editable reagent 双频哪醇硼酸酯: pass
+editable reagent 双新戊二醇硼酸酯: pass
+editable reagent 四羟基二硼: pass
+editable reagent 三甲氧基硼烷: pass
+editable reagent 硼酸三异丙酯: pass
+editable reagent 苯硼酸: pass
+editable reagent 苯基三氟硼酸钾: pass
+editable reagent 双三甲硅基氨基钾: pass
+editable reagent 四甲基哌啶锂: pass
+editable reagent 四甲基哌啶: pass
+editable reagent 1,5,7三氮杂双环癸烯: pass
+editable reagent 7甲基三氮杂双环癸烯: pass
+editable reagent 四甲基胍: pass
+editable reagent 质子海绵: pass
+editable reagent 2,6二甲基吡啶: pass
+editable reagent 2,4,6三甲基吡啶: pass
+editable reagent 2,6二叔丁基吡啶: pass
+editable reagent 1甲基咪唑: pass
+editable reagent N甲基吗啉: pass
+editable reagent 叔丁醇钠: pass
+editable reagent 叔丁醇锂: pass
+editable reagent 环己基异丙基氨基锂: pass
+editable reagent 樟脑磺酸: pass
+editable reagent 对甲苯磺酸吡啶盐: pass
+editable reagent 三氟甲磺酸: pass
+editable reagent 三氟甲磺酰亚胺: pass
+editable reagent 三氯乙酸: pass
+editable reagent 乙酰氯: pass
+editable reagent 乙酸酐: pass
+editable reagent 苯甲酰氯: pass
+editable reagent 特戊酰氯: pass
+editable reagent 山口试剂: pass
+editable reagent 三光气: pass
+editable reagent 双光气: pass
+editable reagent 异硫氰酸苯酯: pass
+editable reagent 甲基乙烯基酮: pass
+editable reagent 丁炔二酸二甲酯: pass
+editable reagent 丁炔二酸二乙酯: pass
+editable reagent 四氰基乙烯: pass
+editable reagent 四氰基对苯醌二甲烷: pass
+editable reagent 对甲苯磺酰甲基异腈: pass
+editable reagent 贝斯特曼奥希拉试剂: pass
+editable reagent 吉尔伯特塞弗斯试剂: pass
+editable reagent 曼德试剂: pass
+editable reagent 三甲基磷酰乙酸酯: pass
+editable reagent 三乙基磷酰乙酸酯: pass
+editable reagent 乙氧羰基亚甲基三苯基膦: pass
+editable reagent 甲氧羰基亚甲基三苯基膦: pass
+editable reagent 甲基三苯基溴化膦: pass
+editable reagent 乙基三苯基溴化膦: pass
+editable reagent 三甲基碘化锍: pass
+editable reagent 三甲基碘化亚砜锍: pass
+editable reagent 三甲基氧鎓四氟硼酸盐: pass
+editable reagent 三乙基氧鎓四氟硼酸盐: pass
+editable reagent N,O二甲基羟胺盐酸盐: pass
+editable reagent 三苯基氧化膦: pass
+editable reagent 三丁基膦: pass
+editable reagent 三环己基膦: pass
+editable reagent 三叔丁基膦: pass
+editable reagent 三邻甲苯基膦: pass
+editable reagent 双二苯基膦甲烷: pass
+editable reagent 1,2双二苯基膦乙烷: pass
+editable reagent 1,3双二苯基膦丙烷: pass
+editable reagent 1,4双二苯基膦丁烷: pass
+editable reagent 1,1双二苯基膦二茂铁: pass
+editable reagent 2,2双二苯基膦联萘: pass
+editable reagent 9,9二甲基双二苯基膦氧杂蒽: pass
+editable reagent 4,5双二苯基膦二苯醚: pass
+editable reagent 布赫瓦尔德配体: pass
+editable reagent 甲氧基联苯二环己基膦: pass
+editable reagent 二叔丁基膦联苯: pass
+editable reagent 二甲氨基联苯二环己基膦: pass
+editable reagent 二异丙氧基联苯二环己基膦: pass
+editable reagent 布雷特膦: pass
+editable reagent 叔丁基布雷特膦: pass
+editable reagent 1,10菲咯啉: pass
+editable reagent 2,2联吡啶: pass
+editable reagent 2,2,6,2三联吡啶: pass
+editable reagent 四甲基乙二胺: pass
+editable reagent 五甲基二乙烯三胺: pass
+editable reagent 环辛二烯: pass
+editable reagent 二亚苄基丙酮: pass
+editable reagent 乙二胺四乙酸: pass
+editable reagent 乙酰丙酮: pass
+editable reagent 12冠4: pass
+editable reagent 15冠5: pass
+editable reagent 18冠6: pass
+editable reagent 二苯并18冠6: pass
+editable reagent 乙酸钯: pass
+editable reagent 四三苯基膦钯: pass
+editable reagent 双三苯基膦二氯化钯: pass
+editable reagent 双二亚苄基丙酮钯: pass
+editable reagent 三二亚苄基丙酮二钯: pass
+editable reagent 威尔金森催化剂: pass
+editable reagent 格拉布斯一代催化剂: pass
+editable reagent 格拉布斯二代催化剂: pass
+editable reagent 霍维达格拉布斯二代催化剂: pass
+editable reagent 施瓦茨试剂: pass
+editable reagent 特贝试剂: pass
+editable reagent 彼塔西试剂: pass
+editable reagent 乙酰丙酮铁: pass
+editable reagent 乙酰丙酮铜: pass
+editable reagent 三氟甲磺酸铜: pass
+editable reagent 三氟甲磺酸钪: pass
+editable reagent 三氟甲磺酸镱: pass
+editable reagent 三氟甲磺酸银: pass
+editable reagent 四乙腈六氟磷酸铜: pass
+editable reagent 四丁基溴化铵: pass
+editable reagent 四丁基碘化铵: pass
+editable reagent 四丁基氯化铵: pass
+editable reagent 四丁基氢氧化铵: pass
+editable reagent 四乙基溴化铵: pass
+editable reagent 苄基三乙基氯化铵: pass
+editable reagent 十六烷基三甲基溴化铵: pass
+editable reagent 四苯基溴化膦: pass
+editable reagent 2,6二叔丁基4甲基苯酚: pass
+editable reagent 2,2偶氮双2,4二甲基戊腈: pass
+editable reagent 1,1偶氮双环己烷甲腈: pass
+editable reagent N苯基三唑啉二酮: pass
+editable reagent 4甲基三唑啉二酮: pass
+editable reagent N甲基N亚硝基对甲苯磺酰胺: pass
+editable reagent 三氟甲磺酰叠氮: pass
+editable reagent 对甲苯磺酰叠氮: pass
+editable reagent 对乙酰氨基苯磺酰叠氮: pass
+editable reagent 咪唑磺酰叠氮盐酸盐: pass
+editable reagent 二叔丁基偶氮二甲酸酯: pass
+editable reagent 1,1偶氮二甲酰二哌啶: pass
+editable reagent 三苯基甲烷醇: pass
+editable reagent 苄基三氯乙酰亚胺酸酯: pass
+editable reagent 四氢呋喃: pass
+editable reagent 2甲基四氢呋喃: pass
+editable reagent 二氯甲烷: pass
+editable reagent 1,2二氯乙烷: pass
+editable reagent N,N二甲基甲酰胺: pass
+editable reagent N,N二甲基乙酰胺: pass
+editable reagent 二甲基亚砜: pass
+editable reagent N甲基吡咯烷酮: pass
+editable reagent 二甲基丙烯脲: pass
+editable reagent 六甲基磷酰三胺: pass
+editable reagent 1,2二甲氧基乙烷: pass
+editable reagent 二甘醇二甲醚: pass
+editable reagent 甲基叔丁基醚: pass
+editable reagent 环戊基甲醚: pass
+editable reagent 六氟异丙醇: pass
+editable reagent 三氟乙醇: pass
+editable reagent 乙腈: pass
+editable reagent 乙酸乙酯: pass
+editable reagent 乙酸异丙酯: pass
+editable reagent 异丙醇: pass
+editable reagent 叔丁醇: pass
+editable reagent 甲醇: pass
+editable reagent 乙醇: pass
+editable reagent 二乙醚: pass
+editable reagent 1,4二氧六环: pass
+editable reagent 二甲基碳酸酯: pass
+editable reagent 碳酸丙烯酯: pass
+editable reagent 二氧化硫脲: pass
+editable reagent 异丙醇铝: pass
+editable reagent 四异丙氧基钛: pass
+editable reagent 硝酸铈铵: pass
+valid inorganic template: CAN: pass
+inserted without valence warnings: CAN: pass
+editable reagent 过一硫酸氢钾复合盐: pass
+valid inorganic template: Oxone: pass
+inserted without valence warnings: Oxone: pass
+editable reagent 四乙酸铅: pass
+valid inorganic template: Pb(OAc)4 LTA: pass
+inserted without valence warnings: Pb(OAc)4 LTA: pass
+editable reagent 三氟化硼乙醚: pass
+valid inorganic template: BF3-Et2O BF3.OEt2: pass
+inserted without valence warnings: BF3-Et2O BF3.OEt2: pass
+editable reagent 双三氟甲磺酰亚胺锂: pass
+valid inorganic template: LiNTf2 LiTFSI: pass
+inserted without valence warnings: LiNTf2 LiTFSI: pass
+editable reagent 六氟磷酸银: pass
+valid inorganic template: AgPF6: pass
+inserted without valence warnings: AgPF6: pass
+editable reagent 六氟锑酸银: pass
+valid inorganic template: AgSbF6: pass
+inserted without valence warnings: AgSbF6: pass
+editable reagent 四氟硼酸银: pass
+valid inorganic template: AgBF4: pass
+inserted without valence warnings: AgBF4: pass
+editable reagent 六氟磷酸铵: pass
+valid inorganic template: NH4PF6: pass
+inserted without valence warnings: NH4PF6: pass
+editable reagent 三氟甲磺酸锂: pass
+valid inorganic template: LiOTf: pass
+inserted without valence warnings: LiOTf: pass
+editable reagent 甲烷: pass
+editable reagent 乙烷: pass
+editable reagent 乙烯: pass
+editable reagent 乙炔: pass
+editable reagent 氧气: pass
+valid inorganic template: O2: pass
+inserted without valence warnings: O2: pass
+editable reagent 氮气: pass
+valid inorganic template: N2: pass
+inserted without valence warnings: N2: pass
+editable reagent 丙烯: pass
+editable reagent 丙二烯: pass
+editable reagent 1,3丁二烯: pass
+editable reagent 二氧化碳: pass
+valid inorganic template: CO2: pass
+inserted without valence warnings: CO2: pass
+editable reagent 硫酸铜五水合物: pass
+valid inorganic template: CuSO4.5H2O CuSO4*5H2O: pass
+inserted without valence warnings: CuSO4.5H2O CuSO4*5H2O: pass
+editable reagent 二硫化碳: pass
+valid inorganic template: CS2: pass
+inserted without valence warnings: CS2: pass
+editable reagent 一氧化碳: pass
+valid inorganic template: CO: pass
+inserted without valence warnings: CO: pass
+editable reagent 水: pass
+valid inorganic template: H2O: pass
+inserted without valence warnings: H2O: pass
+editable reagent 重水: pass
+valid inorganic template: D2O: pass
+inserted without valence warnings: D2O: pass
+editable reagent 氨: pass
+valid inorganic template: NH3: pass
+inserted without valence warnings: NH3: pass
+editable reagent 肼: pass
+valid inorganic template: NH2NH2 N2H4: pass
+inserted without valence warnings: NH2NH2 N2H4: pass
+editable reagent 羟胺: pass
+valid inorganic template: NH2OH: pass
+inserted without valence warnings: NH2OH: pass
+editable reagent 磷化氢: pass
+valid inorganic template: PH3: pass
+inserted without valence warnings: PH3: pass
+editable reagent 硫化氢: pass
+valid inorganic template: H2S: pass
+inserted without valence warnings: H2S: pass
+editable reagent 二氧化硫: pass
+valid inorganic template: SO2: pass
+inserted without valence warnings: SO2: pass
+editable reagent 三氧化硫: pass
+valid inorganic template: SO3: pass
+inserted without valence warnings: SO3: pass
+editable reagent 一氧化二氮: pass
+valid inorganic template: N2O: pass
+inserted without valence warnings: N2O: pass
+editable reagent 一氧化氮: pass
+valid inorganic template: NO: pass
+inserted without valence warnings: NO: pass
+editable reagent 二氧化氮: pass
+valid inorganic template: NO2: pass
+inserted without valence warnings: NO2: pass
+editable reagent 氰化氢: pass
+valid inorganic template: HCN: pass
+inserted without valence warnings: HCN: pass
+editable reagent 硫氰酸: pass
+valid inorganic template: HSCN: pass
+inserted without valence warnings: HSCN: pass
+editable reagent 异氰酸: pass
+valid inorganic template: HNCO: pass
+inserted without valence warnings: HNCO: pass
+editable reagent 羰基硫: pass
+valid inorganic template: COS OCS: pass
+inserted without valence warnings: COS OCS: pass
+editable reagent 二甲胺: pass
+editable reagent 甲胺: pass
+editable reagent 乙胺: pass
+editable reagent 二乙胺: pass
+editable reagent 正丙胺: pass
+editable reagent 异丙胺: pass
+editable reagent 正丁胺: pass
+editable reagent 叔丁胺: pass
+editable reagent 三甲胺: pass
+editable reagent 三正丁胺: pass
+editable reagent 苯胺: pass
+editable reagent 苄胺: pass
+editable reagent 二苄胺: pass
+editable reagent 三甲基膦: pass
+editable reagent 三乙基膦: pass
+editable reagent 亚磷酸三甲酯: pass
+editable reagent 亚磷酸三乙酯: pass
+editable reagent 甲醛: pass
+editable reagent 乙醛: pass
+editable reagent 丙醛: pass
+editable reagent 苯甲醛: pass
+editable reagent 丙酮: pass
+editable reagent 丁酮: pass
+editable reagent 二苯甲酮: pass
+editable reagent 苯乙酮: pass
+editable reagent 乙二醛: pass
+editable reagent 三氟乙酸酐: pass
+editable reagent 甲酸: pass
+editable reagent 乙酸: pass
+editable reagent 丙酸: pass
+editable reagent 苯甲酸: pass
+editable reagent 草酸: pass
+editable reagent 甲磺酸: pass
+editable reagent 三氟甲磺酸: pass
+editable reagent 甲硫醇: pass
+editable reagent 乙硫醇: pass
+editable reagent 苯硫酚: pass
+editable reagent 二甲硫醚: pass
+editable reagent 二乙硫醚: pass
+editable reagent 二甲基二硫醚: pass
+editable reagent 二苯基二硫醚: pass
+editable reagent 二甲基砜: pass
+editable reagent 硫脲: pass
+editable reagent 尿素: pass
+editable reagent 丙腈: pass
+editable reagent 苯甲腈: pass
+editable reagent 丙二腈: pass
+editable reagent 硝基甲烷: pass
+editable reagent 硝基乙烷: pass
+editable reagent 乙酸甲酯: pass
+editable reagent 乙酸乙酯: pass
+editable reagent 乙酸叔丁酯: pass
+editable reagent 四氯化碳: pass
+editable reagent 二氯乙烷: pass
+editable reagent 氯苯: pass
+editable reagent 溴苯: pass
+editable reagent 碘苯: pass
+editable reagent 氟苯: pass
+editable reagent 苯: pass
+editable reagent 甲苯: pass
+editable reagent 均三甲苯: pass
+editable reagent 环己烷: pass
+editable reagent 正己烷: pass
+editable reagent 正戊烷: pass
+editable reagent 正庚烷: pass
+editable reagent 正丙醇: pass
+editable reagent 正丁醇: pass
+editable reagent 仲丁醇: pass
+editable reagent 异丁醇: pass
+editable reagent 苄醇: pass
+editable reagent 苯酚: pass
+editable reagent 乙二醇: pass
+editable reagent 甘油: pass
+editable reagent 三氟乙醇: pass
+editable reagent 叔丁基甲醚: pass
+editable reagent 二异丙醚: pass
+editable reagent 三甘醇二甲醚: pass
+editable reagent 四甘醇二甲醚: pass
+editable reagent 二甲基甲酰胺: pass
+editable reagent 二甲基乙酰胺: pass
+editable reagent 1,3二甲基咪唑烷酮: pass
+editable reagent 环丁砜: pass
+editable reagent 碳酸乙烯酯: pass
+editable reagent 乙酰氯: pass
+editable reagent 苯甲酰氯: pass
+editable reagent 草酰氯: pass
+editable reagent 氯甲酸甲酯: pass
+editable reagent 氯甲酸乙酯: pass
+editable reagent 碳酸二甲酯: pass
+editable reagent 碳酸二乙酯: pass
+editable reagent 甲磺酸酐: pass
+editable reagent 甲基碘: pass
+editable reagent 甲基溴: pass
+editable reagent 乙基碘: pass
+editable reagent 乙基溴: pass
+editable reagent 正丁基溴: pass
+editable reagent 叔丁基溴: pass
+editable reagent 苄溴: pass
+editable reagent 苄氯: pass
+editable reagent 烯丙基溴: pass
+editable reagent 溴代乙酸乙酯: pass
+editable reagent 丙二酸二乙酯: pass
+editable reagent 乙酰乙酸乙酯: pass
+editable reagent 氰乙酸乙酯: pass
+editable reagent 三甲基硅烷: pass
+editable reagent 甲基硼酸: pass
+editable reagent 苯硼酸频哪醇酯: pass
+editable reagent 苯乙烯: pass
+editable reagent 苯乙炔: pass
+editable reagent 三异丙基硅烷: pass
+editable reagent 三苯基硅烷: pass
+editable reagent 六甲基二硅烷: pass
+editable reagent 六甲基二硅氧烷: pass
+editable reagent 三甲基氢化锡: pass
+editable reagent 三苯基氢化锡: pass
+editable reagent 三正丁基氯化锡: pass
+editable reagent 六正丁基二锡: pass
+editable reagent 三甲基氯化锡: pass
+editable reagent 苄基三苯基氯化膦: pass
+editable reagent 甲氧羰基亚甲基三苯基膦: pass
+editable reagent 乙氧羰基亚甲基三苯基膦: pass
+editable reagent 氯化铵: pass
+valid inorganic template: NH4Cl: pass
+inserted without valence warnings: NH4Cl: pass
+editable reagent 氯化钠: pass
+valid inorganic template: NaCl: pass
+inserted without valence warnings: NaCl: pass
+editable reagent 溴化钠: pass
+valid inorganic template: NaBr: pass
+inserted without valence warnings: NaBr: pass
+editable reagent 氯化钾: pass
+valid inorganic template: KCl: pass
+inserted without valence warnings: KCl: pass
+editable reagent 溴化锂: pass
+valid inorganic template: LiBr: pass
+inserted without valence warnings: LiBr: pass
+editable reagent 硫酸钠: pass
+valid inorganic template: Na2SO4: pass
+inserted without valence warnings: Na2SO4: pass
+editable reagent 硫酸镁: pass
+valid inorganic template: MgSO4: pass
+inserted without valence warnings: MgSO4: pass
+editable reagent 硫酸铜: pass
+valid inorganic template: CuSO4: pass
+inserted without valence warnings: CuSO4: pass
+editable reagent 硫代硫酸钠: pass
+valid inorganic template: Na2S2O3: pass
+inserted without valence warnings: Na2S2O3: pass
+editable reagent 碳酸钙: pass
+valid inorganic template: CaCO3: pass
+inserted without valence warnings: CaCO3: pass
+editable reagent 硫酸氢钠: pass
+valid inorganic template: NaHSO4: pass
+inserted without valence warnings: NaHSO4: pass
+editable reagent 亚硫酸氢钠: pass
+valid inorganic template: NaHSO3: pass
+inserted without valence warnings: NaHSO3: pass
+editable reagent 氟化铯: pass
+valid inorganic template: CsF: pass
+inserted without valence warnings: CsF: pass
+editable reagent 氟化钠: pass
+valid inorganic template: NaF: pass
+inserted without valence warnings: NaF: pass
+editable reagent 乙酸钠: pass
+valid inorganic template: NaOAc AcONa: pass
+inserted without valence warnings: NaOAc AcONa: pass
+editable reagent 乙酸钾: pass
+valid inorganic template: KOAc AcOK: pass
+inserted without valence warnings: KOAc AcOK: pass
+editable reagent 氰酸钾: pass
+valid inorganic template: KOCN: pass
+inserted without valence warnings: KOCN: pass
+editable reagent 硫氰酸钾: pass
+valid inorganic template: KSCN: pass
+inserted without valence warnings: KSCN: pass
+editable reagent 三丁基锡自由基: pass
+editable reagent 三甲基锡自由基: pass
+editable reagent 三苯基锡自由基: pass
+editable reagent 三乙基硅自由基: pass
+editable reagent 三甲基硅自由基: pass
+editable reagent 三苯基硅自由基: pass
+editable reagent 二甲基吡咯啉氮氧化物: pass
+editable reagent 苯基叔丁基硝酮: pass
+editable reagent 吡啶氧化物叔丁基硝酮: pass
+editable reagent 二乙氧基磷酰基甲基吡咯啉氮氧化物: pass
+editable reagent 叔丁氧羰基甲基吡咯啉氮氧化物: pass
+editable reagent 4-羟基TEMPO自由基: pass
+editable reagent 4-氧代TEMPO自由基: pass
+editable reagent 4-羧基TEMPO自由基: pass
+editable reagent N,N′-二环己基脲: pass
+editable reagent 氧化三甲胺: pass
+editable reagent 四甲基脲: pass
+editable reagent 三羟甲基氨基甲烷: pass
+editable reagent 羟乙基哌嗪乙磺酸: pass
+editable reagent 吗啉乙磺酸: pass
+editable reagent 吗啉丙磺酸: pass
+editable reagent 哌嗪二乙磺酸: pass
+editable reagent 双羟乙基甘氨酸: pass
+editable reagent 三羟甲基甲基甘氨酸: pass
+editable reagent 三羟甲基甲氨基丙磺酸: pass
+editable reagent 环己氨基丙磺酸: pass
+editable reagent 环己氨基乙磺酸: pass
+editable reagent 双羟乙基氨基三羟甲基甲烷: pass
+editable reagent (2R,3R)-二硫苏糖醇: pass
+editable reagent 三羧乙基膦盐酸盐: pass
+editable reagent 2-巯基乙醇: pass
+editable reagent 十二烷基硫酸钠: pass
+editable reagent CHAPS两性去污剂: pass
+editable reagent 正辛基β-D-吡喃葡萄糖苷: pass
+editable reagent 异丙基β-D-硫代半乳糖苷: pass
+editable reagent 邻硝基苯基β-D-半乳糖苷: pass
+editable reagent 对硝基苯磷酸二钠: pass
+editable reagent 碘乙酰胺: pass
+editable reagent N-乙基马来酰亚胺: pass
+editable reagent 双琥珀酰亚胺基辛二酸酯: pass
+editable reagent 双琥珀酰亚胺基二硫代丙酸酯: pass
+editable reagent L-抗坏血酸: pass
+editable reagent 烟酰胺: pass
+editable reagent 烟酸: pass
+editable reagent D-泛酸: pass
+editable reagent 吡哆醇: pass
+editable reagent 吡哆醛: pass
+editable reagent 叶酸: pass
+editable reagent R-硫辛酸: pass
+editable reagent 辅酶Q10: pass
+editable reagent 肌酸: pass
+editable reagent 肌酐: pass
+editable reagent L-肉碱: pass
+editable reagent 乙酰L-肉碱: pass
+editable reagent 牛磺酸: pass
+editable reagent 甜菜碱: pass
+editable reagent 胆碱阳离子: pass
+editable reagent 乙醇胺: pass
+editable reagent 亚精胺: pass
+editable reagent 精胺: pass
+editable reagent 腐胺: pass
+editable reagent L-鸟氨酸: pass
+editable reagent L-瓜氨酸: pass
+editable reagent L-胱氨酸: pass
+editable reagent 肌氨酸: pass
+editable reagent 马尿酸: pass
+editable reagent 尿酸: pass
+editable reagent 黄嘌呤: pass
+editable reagent 次黄嘌呤: pass
+editable reagent 尿苷二磷酸: pass
+editable reagent 胞苷二磷酸: pass
+editable reagent 肌苷单磷酸: pass
+editable reagent 脱氧腺苷三磷酸: pass
+editable reagent 脱氧胞苷三磷酸: pass
+editable reagent 脱氧鸟苷三磷酸: pass
+editable reagent 脱氧胸苷三磷酸: pass
+editable reagent UDP-α-D-葡萄糖: pass
+editable reagent S-腺苷L-同型半胱氨酸: pass
+editable reagent 咖啡因: pass
+editable reagent 茶碱: pass
+editable reagent 可可碱: pass
+editable reagent 姜黄素: pass
+editable reagent 反式白藜芦醇: pass
+editable reagent 槲皮素: pass
+editable reagent 胆酸: pass
+editable reagent 脱氧胆酸: pass
+editable reagent 麦角甾醇: pass
+editable reagent 睾酮: pass
+editable reagent 17β-雌二醇: pass
+editable reagent 孕酮: pass
+editable reagent 氢化可的松: pass
+editable reagent 4-二甲氨基吡啶氮氧化物: pass
+editable reagent 4-吡咯烷基吡啶: pass
+editable reagent 乙二醇二甲基丙烯酸酯: pass
+editable reagent 甲基丙烯酸2-羟乙酯: pass
+editable reagent 甲基丙烯酸缩水甘油酯: pass
+editable reagent 2-溴异丁酰溴: pass
+editable reagent 4-氰基-4-戊酸二硫代苯甲酸酯: pass
+editable reagent 香豆素: pass
+editable reagent 荧光素: pass
+editable reagent 曙红Y二钠盐: pass
+editable reagent 4CzIPN有机光催化剂: pass
+editable reagent 4DPAIPN有机光催化剂: pass
+editable reagent 3DPAFIPN有机光催化剂: pass
+editable reagent 4CzTPN有机光催化剂: pass
+editable reagent 2CzPN有机光催化剂: pass
+editable reagent 5CzBN有机光催化剂: pass
+editable reagent 9-均三甲苯基-10-甲基吖啶鎓四氟硼酸盐: pass
+editable reagent 2,4,6-三苯基吡喃鎓四氟硼酸盐: pass
+editable reagent 10-苯基吩噻嗪: pass
+editable reagent 10-苯基吩噁嗪: pass
+editable reagent 吩噻嗪: pass
+editable reagent 10-甲基吩噻嗪: pass
+editable reagent 9,10-二氰基蒽: pass
+editable reagent 9-氰基蒽: pass
+editable reagent 蒽: pass
+editable reagent 芘: pass
+editable reagent 苝: pass
+editable reagent 9,10-双(苯乙炔基)蒽: pass
+editable reagent 硫杂蒽酮: pass
+editable reagent 2-异丙基硫杂蒽酮: pass
+editable reagent 2,4-二乙基硫杂蒽酮: pass
+editable reagent 氧杂蒽酮: pass
+editable reagent 9,10-蒽醌: pass
+editable reagent 2-乙基蒽醌: pass
+editable reagent 2-叔丁基蒽醌: pass
+editable reagent 联苯甲酰: pass
+editable reagent 4,4′-双二甲氨基二苯甲酮: pass
+editable reagent 玫瑰红二钠盐: pass
+editable reagent 亚甲基蓝氯化物: pass
+editable reagent 罗丹明B氯化物: pass
+editable reagent 罗丹明6G氯化物: pass
+editable reagent 曙红Y游离酸: pass
+editable reagent 荧光素二钠盐: pass
+editable reagent 曙红B二钠盐: pass
+editable reagent 9-芴酮: pass
+editable reagent 9,10-二苯基蒽: pass
+editable reagent 9-均三甲苯基-10-甲基吖啶鎓高氯酸盐: pass
+editable reagent 二氧化碳自由基阴离子: pass
+valid inorganic template: CO2RA CO2-radical-anion CO2.- CO2*- CO2•- CO2·- CO2•− CO2·− CO2-• CO2-· CO2-* CO₂•⁻ CO₂·⁻: pass
+inserted without valence warnings: CO2RA CO2-radical-anion CO2.- CO2*- CO2•- CO2·- CO2•− CO2·− CO2-• CO2-· CO2-* CO₂•⁻ CO₂·⁻: pass
+editable reagent 面式三(2-苯基吡啶)铱(III): pass
+editable reagent 甲醇铝: pass
+editable reagent 乙醇铝: pass
+editable reagent 叔丁醇铝: pass
+editable reagent 四乙氧基钛: pass
+editable reagent 四叔丁氧基钛: pass
+editable reagent 四异丙氧基锆: pass
+editable reagent 四叔丁氧基锆: pass
+both reagent catalogs are installed: pass
+allene has an automatic central dot with no radical semantics: pass
+allene insertion creates two editable double bonds: pass
+save editable allene: pass
+allene dot survives roundtrip: pass
+carbene button inserts divalent CH2: pass
+isolated carbene has a visible CH2 label: pass
+save editable inserted-carbene: pass
+alpha elimination produces a carbene: : pass
+alpha elimination conserves charge and produces a singlet carbon: pass
+singlet carbene exposes its nonbonding electron pair: pass
+save editable alpha-elimination: pass
+carbene addition to an alkene: : pass
+carbene cyclopropanation forms all three ring edges and consumes the pair: pass
+save editable carbene-cyclopropanation: pass
+carbene addition to an alkene: : pass
+carbene cyclopropanation forms all three ring edges and consumes the pair: pass
+A044 alcohol attacks hypervalent iodine: : pass
+periodate addition has the correct charges: pass
+periodate addition has no false valence warning: pass
+periodate addition preserves adjacent carbon stereochemistry: pass
+save editable periodate-addition: pass
+water leaving group graph: pass
+finish dehydration: pass
+newly detached water is omitted from the next structure: pass
+dehydration is written on the reaction arrow: pass
+A044 cyclic periodate ester fragmentation: : pass
+periodate cleavage produces both carbonyls and breaks the carbon-carbon bond: pass
+save editable periodate-cleavage: pass
+A066 elimination to a ketene: : pass
+ketene gets the same automatic cumulene center dot: pass
+finish HCl elimination: pass
+HCl is omitted and placed above the arrow: pass
+save editable ketene-HCl-elimination: pass
+small molecule graph recognition H2O: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition HF: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition HCl: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition HBr: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition HI: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition NH3: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition MeOH: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition EtOH: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition tBuOH: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition CO2: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition CO: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition SO2: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition N2: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition HCO2H: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition AcOH: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition Me2CO: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition C2H4: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition C4H8: pass
+isotopically labelled molecules remain visible: pass
+small molecule graph recognition Me2S: pass
+isotopically labelled molecules remain visible: pass
+automatic proton option updates the donor: pass
+proton transfer updates the accepting nitrogen: pass
+automatic proton operation is one undo: pass
+automatic proton option updates the donor: pass
+automatic proton operation is one undo: pass

@@ -18,7 +18,17 @@ namespace cdxbinary {
 inline UINT format(){static UINT f=RegisterClipboardFormatW(L"ChemDraw Interchange Format");return f;}
 inline std::string number(double x){std::ostringstream o;o.precision(12);o<<x;return o.str();}
 inline const Property* property(unsigned tag){for(const auto& p:properties)if(p.tag==tag)return &p;return nullptr;}
-inline const Property* property(const std::string& name){for(const auto& p:properties)if(name==p.name)return &p;return nullptr;}
+inline const Property* property(const std::string& name){
+    // The archived SDK used older XML spellings. Current ChemDraw writes these
+    // names; accept both so clipboard CDX does not silently lose arrowheads.
+    std::string canonical=name;
+    if(name=="ArrowHeadType")canonical="ArrowheadType";
+    if(name=="HeadCenterSize")canonical="ArrowheadCenterSize";
+    if(name=="HeadWidth")canonical="ArrowheadWidth";
+    if(name=="ArrowHeadHead")canonical="ArrowheadHead";
+    if(name=="ArrowHeadTail")canonical="ArrowheadTail";
+    for(const auto& p:properties)if(canonical==p.name)return &p;return nullptr;
+}
 inline const char* objectName(unsigned tag){for(const auto& p:objects)if(p.tag==tag)return p.name;return nullptr;}
 inline unsigned objectTag(const std::string& name){for(const auto& p:objects)if(name==p.name && (p.tag&0x8000))return p.tag;return 0;}
 inline std::string decodeText(const std::string& b,unsigned cp){if(b.empty())return {};if(!IsValidCodePage(cp))cp=1252;int n=MultiByteToWideChar(cp,0,b.data(),int(b.size()),nullptr,0);if(n<=0)throw std::runtime_error("CDX text encoding");std::wstring w(n,0);MultiByteToWideChar(cp,0,b.data(),int(b.size()),&w[0],n);n=WideCharToMultiByte(CP_UTF8,0,w.data(),int(w.size()),nullptr,0,nullptr,nullptr);std::string s(n,0);if(n)WideCharToMultiByte(CP_UTF8,0,w.data(),int(w.size()),&s[0],n,nullptr,nullptr);return s;}
@@ -32,8 +42,9 @@ struct Reader {
 };
 inline void put(std::string& b,uint64_t v,unsigned n){for(unsigned i=0;i<n;++i)b+=char((v>>(i*8))&255);}
 inline void field(std::string& out,unsigned tag,const std::string& b){put(out,tag,2);if(b.size()<65535)put(out,b.size(),2);else{put(out,65535,2);put(out,b.size(),4);}out+=b;}
-inline std::string enumName(unsigned tag,long value){for(const auto& e:enums)if(e.tag==tag&&e.value==value)return e.name;std::string s;long rest=value;for(const auto& e:enums)if(e.tag==tag&&e.bits&&e.value>0&&(rest&e.value)==e.value){if(!s.empty())s+=' ';s+=e.name;rest&=~e.value;}return !s.empty()&&!rest?s:number(value);}
+inline std::string enumName(unsigned tag,long value){if(tag==0xa08)return number(value);for(const auto& e:enums)if(e.tag==tag&&e.value==value)return e.name;std::string s;long rest=value;for(const auto& e:enums)if(e.tag==tag&&e.bits&&e.value>0&&(rest&e.value)==e.value){if(!s.empty())s+=' ';s+=e.name;rest&=~e.value;}return !s.empty()&&!rest?s:number(value);}
 inline bool enumValue(unsigned tag,const std::string& text,long& value){for(const auto& e:enums)if(e.tag==tag&&text==e.name){value=e.value;return true;}std::istringstream in(text);std::string word;long bits=0;bool found=false;while(in>>word){bool ok=false;for(const auto& e:enums)if(e.tag==tag&&e.bits&&word==e.name){bits|=e.value;ok=true;break;}if(!ok)return false;found=true;}if(found)value=bits;return found;}
+inline long objectTagType(const tinyxml2::XMLElement* e){const char* type=e->Attribute("TagType");long value=0;if(type&&!enumValue(0xd00,type,value)){int numeric=0;if(e->QueryIntAttribute("TagType",&numeric)==tinyxml2::XML_SUCCESS)value=numeric;}return value;}
 struct Decoder {
     tinyxml2::XMLDocument xml;std::map<unsigned,unsigned> charsets;size_t count=0;
     unsigned codepage(unsigned font){auto i=charsets.find(font);return i==charsets.end()?1252:i->second;}
@@ -54,22 +65,35 @@ struct Decoder {
     }
     void prop(tinyxml2::XMLElement* e,unsigned tag,const std::string& data){
         Reader r(data);
+        // Unlike document/node Name, an ObjectTag's Name is an unstyled byte
+        // string in native ChemDraw CDX, without a CDXString style-count header.
+        if(tag==8&&std::string(e->Name())=="objecttag"){
+            const bool styled=data.size()>=2&&data[0]==0&&data[1]==0;
+            e->SetAttribute("Name",decodeText(styled?data.substr(2):data,1252).c_str());return;
+        }
         if(tag==0x80a||tag==0x80b){style(e,r,tag==0x80a?"Label":"Caption");return;}
         if(tag==0x700){text(e,tag,data,"Text");return;}
         if(tag==0x100){r.u(2);unsigned n=r.u(2);auto* table=xml.NewElement("fonttable");for(unsigned i=0;i<n;++i){unsigned id=r.u(2),cp=r.u(2),len=r.u(2);auto name=decodeText(r.take(len),cp);charsets[id]=cp;auto* f=xml.NewElement("font");f->SetAttribute("id",id);f->SetAttribute("charset",cp==65001?"utf-8":cp==936?"gb2312":cp==950?"big5":cp==932?"shift-jis":cp==1252?"iso-8859-1":number(cp).c_str());f->SetAttribute("name",name.c_str());table->InsertEndChild(f);}e->InsertEndChild(table);return;}
         if(tag==0x300){unsigned n=r.u(2);auto* table=xml.NewElement("colortable");for(unsigned i=0;i<n;++i){auto* c=xml.NewElement("color");for(auto key:{"r","g","b"})c->SetAttribute(key,number(r.u(2)/65535.0).c_str());table->InsertEndChild(c);}e->InsertEndChild(table);return;}
+        if(tag==0x000e){if(data.size()%6)throw std::runtime_error("Invalid CDX represented property");while(r.remaining()){auto owner=r.u(4),attribute=r.u(2);auto prop=property(attribute);if(!prop)continue;auto rep=xml.NewElement("represent");rep->SetAttribute("object",owner);rep->SetAttribute("attribute",prop->name);e->InsertEndChild(rep);}return;}
         const auto* p=property(tag);if(!p)return;std::string type=p->type,value;
         if(type=="CDXString"){text(e,tag,data,p->name);return;}
-        if(type=="CDXCoordinate")value=number(r.signedValue(4)/65536.0);
+        // ChemDraw's TLC-only CDXML dimensions are already 16.16 integers.
+        if(std::string(e->Name())=="tlcspot"&&(tag==0x812||tag==0x813||tag==0xab1)){e->SetAttribute(p->name,number(double(r.signedValue(4))).c_str());return;}
+        if(p->name==std::string("ChainAngle"))value=number(r.signedValue(4)/65536.0);
+        else if(type=="CDXCoordinate")value=number(r.signedValue(4)/65536.0);
         else if(type=="CDXPoint2D"||type=="CDXPoint3D"||type=="CDXRectangle"){
             int n=type=="CDXPoint2D"?2:type=="CDXPoint3D"?3:4;std::vector<double> v;for(int i=0;i<n;++i)v.push_back(r.signedValue(4)/65536.0);
-            if(n==2)std::swap(v[0],v[1]);else if(n==3)std::swap(v[0],v[2]);else{std::swap(v[0],v[1]);std::swap(v[2],v[3]);}
+            if(n==2)std::swap(v[0],v[1]);else if(n==4){std::swap(v[0],v[1]);std::swap(v[2],v[3]);}
             for(auto x:v){if(!value.empty())value+=' ';value+=number(x);}
         }else if(type=="CDXBoolean"||type=="CDXBooleanImplied")value=(data.empty()||r.u(1))?"yes":"no";
         else if(type=="CDXObjectIDArray"||type=="CDXObjectIDArrayWithCounts"||type=="INT16ListWithCounts"||type=="CDXElementList"){
             unsigned width=type=="INT16ListWithCounts"||type=="CDXElementList"?2:4;int n=type=="CDXObjectIDArray"?int(r.remaining()/4):r.signedValue(2);if(n<0){value="NOT";n=-n;}for(int i=0;i<n;++i){if(!value.empty())value+=' ';value+=number(r.u(width));}
         }else if(type=="CDXCurvePoints"||type=="CDXCurvePoints3D"){
-            unsigned n=r.u(2),dim=type=="CDXCurvePoints"?2:3;for(unsigned i=0;i<n;++i){std::vector<double> v;for(unsigned j=0;j<dim;++j)v.push_back(r.signedValue(4)/65536.0);std::reverse(v.begin(),v.end());for(auto x:v){if(!value.empty())value+=' ';value+=number(x);}}
+            unsigned n=r.u(2),dim=type=="CDXCurvePoints"?2:3;for(unsigned i=0;i<n;++i){std::vector<double> v;for(unsigned j=0;j<dim;++j)v.push_back(r.signedValue(4)/65536.0);if(dim==2)std::swap(v[0],v[1]);for(auto x:v){if(!value.empty())value+=' ';value+=number(x);}}
+        }else if(type=="Unformatted"){
+            const char* hex="0123456789ABCDEF";value.reserve(data.size()*2);
+            for(unsigned char b:data){value+=hex[b>>4];value+=hex[b&15];}
         }else if(type=="FLOAT64"){if(data.size()!=8)throw std::runtime_error("Invalid CDX float");double x;memcpy(&x,data.data(),8);if(!std::isfinite(x))throw std::runtime_error("Invalid CDX number");value=number(x);}
         else if(type=="INT8"||type=="UINT8"||type=="INT16"||type=="UINT16"||type=="INT32"||type=="UINT32"||type=="CDXObjectID"){
             unsigned n=type.find("8")!=std::string::npos?1:type.find("16")!=std::string::npos?2:4;
@@ -78,11 +102,22 @@ struct Decoder {
         }else return;
         e->SetAttribute(p->name,value.c_str());
     }
+    void objectValue(tinyxml2::XMLElement* e,const std::string& data){
+        // ObjectTag_Value uses TagType, not a CDXString style header. Defer
+        // decoding until all properties are read so their order is irrelevant.
+        Reader r(data);std::string value;auto type=objectTagType(e);
+        if(type==3)value=decodeText(data,1252);
+        else if(type==2){if(data.size()!=4)throw std::runtime_error("Invalid CDX ObjectTag integer");value=number(r.signedValue(4));}
+        else if(type==1){if(data.size()!=8)throw std::runtime_error("Invalid CDX ObjectTag float");double x;memcpy(&x,data.data(),8);if(!std::isfinite(x))throw std::runtime_error("Invalid CDX ObjectTag number");value=number(x);}
+        else return;
+        e->SetAttribute("Value",value.c_str());
+    }
     void contents(Reader& r,tinyxml2::XMLElement* parent,unsigned depth){
         if(depth>128)throw std::runtime_error("CDX nesting too deep");
-        for(;;){unsigned tag=r.u(2);if(!tag)return;if(++count>2000000)throw std::runtime_error("CDX object limit");
-            if(tag&0x8000){unsigned id=r.u(4);const char* name=objectName(tag);auto* child=xml.NewElement(name?name:"unsupportedCDXObject");child->SetAttribute("id",id);parent->InsertEndChild(child);contents(r,child,depth+1);}
-            else{size_t n=r.u(2);if(n==65535)n=r.u(4);prop(parent,tag,r.take(n));}
+        std::string tagValue;bool hasTagValue=false;
+        for(;;){unsigned tag=r.u(2);if(!tag){if(hasTagValue)objectValue(parent,tagValue);return;}if(++count>2000000)throw std::runtime_error("CDX object limit");
+            if(tag&0x8000){unsigned id=r.u(4);const char* name=objectName(tag);auto* child=xml.NewElement(name?name:"unsupportedCDXObject");child->SetAttribute("id",id);if(tag==0x801d){for(auto flag:{"ShowOrigin","ShowSolventFront","ShowBorders","ShowSideTicks"})child->SetAttribute(flag,"no");}parent->InsertEndChild(child);contents(r,child,depth+1);if(tag==0x8011){auto label=child->Attribute("Name");std::string metadata=label?label:"";auto equal=metadata.find('=');if(equal!=std::string::npos&&metadata.compare(0,24,"MoleculeStudioProjection")==0){parent->SetAttribute(metadata.substr(0,equal).c_str(),metadata.substr(equal+1).c_str());parent->DeleteChild(child);}}}
+            else{size_t n=r.u(2);if(n==65535)n=r.u(4);auto data=r.take(n);if(tag==0xd05&&std::string(parent->Name())=="objecttag"){tagValue=std::move(data);hasTagValue=true;}else prop(parent,tag,data);}
         }
     }
     std::string read(const std::string& data){
@@ -111,16 +146,23 @@ struct Encoder {
         std::string t=p.type;std::istringstream in(v);std::vector<double> nums;double x;while(in>>x)nums.push_back(x);
         auto coordinate=[&](double a){double scaled=std::round(a*65536.0);if(!std::isfinite(scaled)||scaled<-2147483648.0||scaled>2147483647.0)throw std::runtime_error("CDX coordinate out of range");put(out,(uint32_t)(int32_t)scaled,4);};
         if(t=="CDXString"){put(out,0,2);out+=stringBytes(v,1252);}
+        else if(std::string(p.name)=="ChainAngle"){if(nums.size()!=1)return false;coordinate(nums[0]);}
         else if(t=="CDXCoordinate"){if(nums.size()!=1)return false;coordinate(nums[0]);}
         else if(t=="CDXPoint2D"||t=="CDXPoint3D"||t=="CDXRectangle"){
             size_t n=t=="CDXPoint2D"?2:t=="CDXPoint3D"?3:4;if(nums.size()!=n)return false;
-            if(n==2)std::swap(nums[0],nums[1]);else if(n==3)std::swap(nums[0],nums[2]);else{std::swap(nums[0],nums[1]);std::swap(nums[2],nums[3]);}for(auto a:nums)coordinate(a);
-        }else if(t=="CDXBoolean"||t=="CDXBooleanImplied"){bool yes=v=="yes"||v=="true"||v=="1";if(t=="CDXBooleanImplied"){if(!yes)return false;}else put(out,yes,1);}
+            if(n==2)std::swap(nums[0],nums[1]);else if(n==4){std::swap(nums[0],nums[1]);std::swap(nums[2],nums[3]);}for(auto a:nums)coordinate(a);
+        }else if(t=="CDXBoolean"||t=="CDXBooleanImplied"){bool yes=v=="yes"||v=="true"||v=="1";if(t=="CDXBooleanImplied"){if(!yes)put(out,0,1);}else put(out,yes,1);}
         else if(t=="CDXObjectIDArray"||t=="CDXObjectIDArrayWithCounts"||t=="INT16ListWithCounts"||t=="CDXElementList"){
             bool notList=v.compare(0,3,"NOT")==0;if(notList){std::istringstream list(v.substr(3));nums.clear();while(list>>x)nums.push_back(x);}
             if(t!="CDXObjectIDArray")put(out,notList?-int(nums.size()):int(nums.size()),2);for(auto a:nums)put(out,(uint32_t)a,t=="INT16ListWithCounts"||t=="CDXElementList"?2:4);
         }else if(t=="CDXCurvePoints"||t=="CDXCurvePoints3D"){
-            unsigned dim=t=="CDXCurvePoints"?2:3;if(nums.size()%dim)return false;put(out,nums.size()/dim,2);for(size_t i=0;i<nums.size();i+=dim)for(unsigned j=0;j<dim;++j)coordinate(nums[i+dim-j-1]);
+            unsigned dim=t=="CDXCurvePoints"?2:3;if(nums.size()%dim)return false;put(out,nums.size()/dim,2);for(size_t i=0;i<nums.size();i+=dim)for(unsigned j=0;j<dim;++j)coordinate(nums[i+(dim==2?dim-j-1:j)]);
+        }else if(t=="Unformatted"){
+            int high=-1;for(unsigned char ch:v){if(std::isspace(ch))continue;
+                int digit=ch>='0'&&ch<='9'?ch-'0':ch>='a'&&ch<='f'?ch-'a'+10:ch>='A'&&ch<='F'?ch-'A'+10:-1;
+                if(digit<0)throw std::runtime_error("Invalid CDX hexadecimal payload");
+                if(high<0)high=digit;else{out+=char(high*16+digit);high=-1;}}
+            if(high>=0)throw std::runtime_error("Truncated CDX hexadecimal payload");
         }else if(t=="FLOAT64"){if(nums.size()!=1||!std::isfinite(nums[0]))return false;out.assign(reinterpret_cast<const char*>(&nums[0]),8);}
         else if(t=="INT8"||t=="UINT8"||t=="INT16"||t=="UINT16"||t=="INT32"||t=="UINT32"||t=="CDXObjectID"){
             long val;if(!enumValue(p.tag,v,val)){if(nums.size()!=1)return false;val=(long)std::lround(nums[0]*(p.tag==0x804?10:1));}put(out,val,t.find("8")!=std::string::npos?1:t.find("16")!=std::string::npos?2:4);
@@ -130,12 +172,32 @@ struct Encoder {
     void object(tinyxml2::XMLElement* e,std::string& out,unsigned depth=0){
         if(depth>128)throw std::runtime_error("XML nesting too deep");unsigned tag=objectTag(e->Name());if(!tag)return;
         put(out,tag,2);put(out,tag==0x8000?0:e->UnsignedAttribute("id",nextId++),4);
-        for(auto* a=e->FirstAttribute();a;a=a->Next()){auto* p=property(a->Name());if(!p)continue;std::string b;if(value(*p,a->Value(),b))field(out,p->tag,b);}
+        for(auto* a=e->FirstAttribute();a;a=a->Next()){auto* p=property(a->Name());if(!p)continue;
+            if(tag==0x8011&&p->tag==8){field(out,8,stringBytes(a->Value(),1252));continue;}
+            if(tag==0x8011&&p->tag==0xd05){
+                std::string b;auto type=objectTagType(e);
+                if(type==3)b=stringBytes(a->Value(),1252);
+                else if(type==1){double x;if(e->QueryDoubleAttribute("Value",&x)!=tinyxml2::XML_SUCCESS||!std::isfinite(x))throw std::runtime_error("Invalid CDX ObjectTag number");b.assign(reinterpret_cast<const char*>(&x),8);}
+                else if(type==2){int x;if(e->QueryIntAttribute("Value",&x)!=tinyxml2::XML_SUCCESS)throw std::runtime_error("Invalid CDX ObjectTag integer");put(b,uint32_t(x),4);}
+                else continue;
+                field(out,p->tag,b);continue;
+            }
+            // Native TLC flags are presence-only booleans (zero-byte payload).
+            if((tag==0x801d&&(p->tag>=0xaa2&&p->tag<=0xaa5))||(tag==0x801f&&p->tag==0xab2)){
+                std::string flag=a->Value();if(flag=="yes"||flag=="true"||flag=="1")field(out,p->tag,"");continue;
+            }
+            std::string b;
+            if(std::string(e->Name())=="tlcspot"&&(p->tag==0x812||p->tag==0x813||p->tag==0xab1)){
+                double raw=std::strtod(a->Value(),nullptr);if(!std::isfinite(raw)||raw<-2147483648.||raw>2147483647.)throw std::runtime_error("TLC coordinate out of range");put(b,uint32_t(int32_t(std::round(raw))),4);field(out,p->tag,b);continue;
+            }
+            if(value(*p,a->Value(),b))field(out,p->tag,b);}
+        std::string represented;for(auto* rep=e->FirstChildElement("represent");rep;rep=rep->NextSiblingElement("represent")){auto attribute=rep->Attribute("attribute");auto prop=attribute?property(attribute):nullptr;if(prop){put(represented,rep->UnsignedAttribute("object"),4);put(represented,prop->tag,2);}}if(!represented.empty())field(out,0x000e,represented);
         // Tables must precede text so the reader can decode style-run encodings.
         if(auto* table=e->FirstChildElement("fonttable")){std::string b;unsigned n=0;for(auto* f=table->FirstChildElement("font");f;f=f->NextSiblingElement("font"))++n;put(b,1,2);put(b,n,2);for(auto* f=table->FirstChildElement("font");f;f=f->NextSiblingElement("font")){unsigned id=f->UnsignedAttribute("id");charsets[id]=65001;std::string name=f->Attribute("name")?f->Attribute("name"):"Arial";put(b,id,2);put(b,65001,2);put(b,name.size(),2);b+=name;}field(out,0x100,b);}
         if(auto* table=e->FirstChildElement("colortable")){std::string b;unsigned n=0;for(auto* c=table->FirstChildElement("color");c;c=c->NextSiblingElement("color"))++n;put(b,n,2);for(auto* c=table->FirstChildElement("color");c;c=c->NextSiblingElement("color"))for(auto key:{"r","g","b"})put(b,(unsigned)std::lround(std::max(0.0,std::min(1.0,c->DoubleAttribute(key)))*65535),2);field(out,0x300,b);}
         if(tag==0x8006)field(out,0x700,text(e));
-        for(auto* c=e->FirstChildElement();c;c=c->NextSiblingElement())if(objectTag(c->Name()))object(c,out,depth+1);
+        for(auto* a=e->FirstAttribute();a;a=a->Next())if(std::string(a->Name()).compare(0,24,"MoleculeStudioProjection")==0){put(out,0x8011,2);put(out,nextId++,4);field(out,8,std::string(a->Name())+"="+a->Value());put(out,0,2);}
+        for(auto* c=e->FirstChildElement();c;c=c->NextSiblingElement())if(objectTag(c->Name())){std::string label=c->Attribute("Name")?c->Attribute("Name"):"";auto equal=label.find('=');if(std::string(c->Name())=="objecttag"&&label.compare(0,24,"MoleculeStudioProjection")==0&&equal!=std::string::npos&&e->Attribute(label.substr(0,equal).c_str()))continue;object(c,out,depth+1);}
         put(out,0,2);
     }
     std::string write(const std::string& input){if(xml.Parse(input.data(),input.size())!=tinyxml2::XML_SUCCESS||!xml.FirstChildElement("CDXML"))throw std::runtime_error("Invalid CDXML");auto* root=xml.RootElement();scan(root);std::string b="VjCD0100";put(b,0x01020304,4);b.append(10,0);object(root,b);return b;}

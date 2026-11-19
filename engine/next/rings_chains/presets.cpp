@@ -335,56 +335,14 @@ std::vector<RingBondSpec> buildBondPattern(RingPresetId preset, int size) {
     return bonds;
 }
 
-// Build the six ring carbons of an idealised cyclohexane CHAIR and project them
-// to 2D in the conventional skeletal way. This is a real conformer with a real
-// pucker, not a flat hexagon wearing a chair label.
-//
-// THE 3D CONFORMER (exact, and the reason the numbers below are what they are)
-//   C_k = ( r cos(60 k),  r sin(60 k),  (-1)^k * h ),   k = 0..5
-//
-//   Ring bond k -> k+1: the two vertices are 60 degrees apart in the plane, so
-//   the in-plane separation is 2 r sin(30) = r, and the z separation is 2h.
-//   Therefore EVERY ring bond has
-//        d^2 = r^2 + 4 h^2
-//   and setting that equal to the requested bond length L gives the family
-//        r^2 + 4 h^2 = L^2 .
-//   That family is the "twist" family: every member has equal 3D bond lengths.
-//   The CHAIR is the member with the classic puckering ratio h/r = 1/2, so
-//        h = r/2,   r = L / sqrt(1 + 4*(1/2)^2) = L / sqrt(2) .
-//   (Other ratios are the intermediate twist conformers, not the chair.)
-//
-// THE PROJECTION, and why this is not a flat hexagon
-//   Dropping z outright WOULD give a regular hexagon (all six vertices lie on
-//   the circle of radius r), which is the trap this function avoids. The chair
-//   is drawn with an OBLIQUE skeletal projection, the long-standing convention
-//   for showing the two out-of-plane bonds:
-//        X = x + kx * s_k ,   Y = -y + ky * s_k ,   s_k = (-1)^k
-//   with kx = 0.60 * h and ky = 0.35 * h. The sign flip makes the projection
-//   NON-LINEAR in the vertex parity, so the six projected vertices are NOT
-//   concyclic and the six drawn bonds have different lengths. A test asserts
-//   both of those independently, which is precisely the check a flat hexagon
-//   fails.
+// Independently authored diagram projection. Two long, shallow parallel edges
+// and shorter end folds leave room to read axial and equatorial substituents.
+// These are drawing coordinates, not a claim of optimized 3D coordinates.
 void buildChairVertices(double bondLength, std::vector<RingVertex>* out) {
     out->clear();
-    // Standard skeletal chair projection. The six points below are the classic
-    // 2D chair outline: two long parallel top/bottom bonds (alternating up and
-    // down zig-zag) joined by the two side bonds, giving the familiar "two
-    // parallel trapezoids" reading. The previous oblique projection collapsed
-    // the conformer into a squashed four-lobe blob; this skeleton keeps the
-    // receding/advancing bonds long and the front/back bonds short, which is
-    // what makes a chair read as a chair rather than a flat hexagon.
-    //
-    // The shape is only defined up to scale here; it is normalised so that the
-    // LONGEST ring edge equals the requested bond length. The other edges are
-    // shorter, which is exactly the foreshortening a chair shows in 2D (and is
-    // what the test's "vertices are not all on one circle" check relies on).
     static const double kChairSkeleton[6][2] = {
-        {-1.2137, -0.4326},
-        {-0.2527, -0.1582},
-        { 0.7137, -0.4326},
-        { 1.2137,  0.4329},
-        { 0.2527,  0.1582},
-        {-0.7137,  0.4329},
+        {-1.35, -.50}, {-.60, -.20}, {.90, -.50},
+        { 1.35,  .50}, { .60,  .20}, {-.90, .50}
     };
 
     double maxEdge = 0.0;
@@ -431,6 +389,7 @@ core::Error buildRingGeometry(RingPresetId preset, double bondLength,
 
     if (spec->topology == RingTopologyClass::Chair) {
         buildChairVertices(bondLength, &g.vertices);
+        if(preset==RingPresetId::Chair2)for(auto& vertex:g.vertices)vertex.local.y=-vertex.local.y;
         g.circumRadius = 0.0;   // a chair has no single circumradius
         g.note = "3D chair conformer projected to 2D; the silhouette is NOT a "
                  "regular hexagon";
@@ -479,7 +438,7 @@ core::Error buildRingGeometry(RingPresetId preset, double bondLength,
 
 double chairOrientationDegrees(RingPresetId preset) {
     if (preset == RingPresetId::Chair1) return 0.0;
-    if (preset == RingPresetId::Chair2) return 30.0;
+    if (preset == RingPresetId::Chair2) return 0.0;
     return 0.0;
 }
 

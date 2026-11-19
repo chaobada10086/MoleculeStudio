@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="9" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="309.6378 448.9449 547.9878 1257.12823333">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+    </fonttable>
+    <page id="3" BoundingBox="0 0 595.2756 1400" Width="595.2756" Height="1400" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="1400">
+        <fragment id="4"/>
+        <t id="5" p="309.6378 448.9449">
+            <s font="3" size="8">1</s>
+        </t>
+        <arrow id="6" BoundingBox="377.2878 453.3449 547.9878 458.5449" Tail3D="377.6378 455.9449 0" Head3D="547.6378 455.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" MoleculeStudioArrow="v=1;preset=0;family=0;size=2;line=0;shafts=1;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=80;by=35;ex=250;ey=35;sag=0;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <t id="7" p="309.6378 528.9449">
+            <s font="3" size="8">2</s>
+        </t>
+        <arrow id="8" BoundingBox="377.2878 533.3449 547.9878 538.5449" Tail3D="377.6378 535.9449 0" Head3D="547.6378 535.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" LineType="Dashed" MoleculeStudioArrow="v=1;preset=2;family=0;size=2;line=2;shafts=1;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=80;by=115;ex=250;ey=115;sag=0;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <t id="9" p="309.6378 608.9449">
+            <s font="3" size="8">3</s>
+        </t>
+        <curve id="10" CurvePoints="377.6378 614.2574 377.6378 614.2574 432.354466667 614.2574 487.071133333 614.2574 541.7878 614.2574 541.7878 614.2574" CurveType="0" BoundingBox="377.2878 610.9824 547.9878 620.9074" Tail3D="377.6378 615.9449 0" Head3D="547.6378 615.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Angle" ArrowheadHead="None" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" ArrowShaftSpacing="563" ArrowEquilibriumRatio="100" MoleculeStudioArrow="v=1;preset=38;family=0;size=1;line=0;shafts=2;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=80;by=195;ex=250;ey=195;sag=0;sep=3.375;split=0.5;osplit=0.5;scale=1;"/>
+        <curve id="11" MoleculeStudioArrowPart="10" CurveType="0" Closed="no" FillType="None" LineWidth="0.59999999999999998" MoleculeStudioInk="255" CurvePoints="383.4878 617.6324 383.4878 617.6324 383.4878 617.6324 547.6378 617.6324 547.6378 617.6324 547.6378 617.6324"/>
+        <curve id="12" MoleculeStudioArrowPart="10" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="547.6378 614.2574 547.6378 614.2574 547.6378 614.2574 538.6378 611.3324 538.6378 611.3324 538.6378 611.3324 541.1578 614.2574 541.1578 614.2574 541.1578 614.2574 541.7878 614.5574 541.7878 614.5574 541.7878 614.5574"/>
+        <curve id="13" MoleculeStudioArrowPart="10" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="377.6378 617.6324 377.6378 617.6324 377.6378 617.6324 386.6378 620.5574 386.6378 620.5574 386.6378 620.5574 384.1178 617.6324 384.1178 617.6324 384.1178 617.6324 383.4878 617.3324 383.4878 617.3324 383.4878 617.3324"/>
+        <t id="14" p="309.6378 688.9449">
+            <s font="3" size="8">4</s>
+        </t>
+        <curve id="15" CurvePoints="481.526688889 694.2574 481.526688889 694.2574 501.613725926 694.2574 521.700762963 694.2574 541.7878 694.2574 541.7878 694.2574" CurveType="0" BoundingBox="377.2878 690.9824 547.9878 700.9074" Tail3D="377.6378 695.9449 0" Head3D="547.6378 695.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Angle" ArrowheadHead="None" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" ArrowShaftSpacing="563" ArrowEquilibriumRatio="257" MoleculeStudioArrow="v=1;preset=39;family=0;size=1;line=0;shafts=2;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=80;by=275;ex=250;ey=275;sag=0;sep=3.375;split=0.28000000000000003;osplit=0.71999999999999997;scale=1;"/>
+        <curve id="16" MoleculeStudioArrowPart="15" CurveType="0" Closed="no" FillType="None" LineWidth="0.59999999999999998" MoleculeStudioInk="255" CurvePoints="383.4878 697.6324 383.4878 697.6324 383.4878 697.6324 547.6378 697.6324 547.6378 697.6324 547.6378 697.6324"/>
+        <curve id="17" MoleculeStudioArrowPart="15" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="547.6378 694.2574 547.6378 694.2574 547.6378 694.2574 538.6378 691.3324 538.6378 691.3324 538.6378 691.3324 541.1578 694.2574 541.1578 694.2574 541.1578 694.2574 541.7878 694.5574 541.7878 694.5574 541.7878 694.5574"/>
+        <curve id="18" MoleculeStudioArrowPart="15" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="377.6378 697.6324 377.6378 697.6324 377.6378 697.6324 386.6378 700.5574 386.6378 700.5574 386.6378 700.5574 384.1178 697.6324 384.1178 697.6324 384.1178 697.6324 383.4878 697.3324 383.4878 697.3324 383.4878 697.3324"/>
+        <t id="19" p="309.6378 768.9449">
+            <s font="3" size="8">5</s>
+        </t>
+        <curve id="20" CurvePoints="377.6378 774.2574 377.6378 774.2574 432.354466667 774.2574 487.071133333 774.2574 541.7878 774.2574 541.7878 774.2574" CurveType="0" BoundingBox="377.2878 770.9824 547.9878 780.9074" Tail3D="377.6378 775.9449 0" Head3D="547.6378 775.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Angle" ArrowheadHead="None" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" ArrowShaftSpacing="563" ArrowEquilibriumRatio="39" MoleculeStudioArrow="v=1;preset=39;family=0;size=1;line=0;shafts=2;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=80;by=355;ex=250;ey=355;sag=0;sep=3.375;split=0.71999999999999997;osplit=0.71999999999999997;scale=1;"/>
+        <curve id="21" MoleculeStudioArrowPart="20" CurveType="0" Closed="no" FillType="None" LineWidth="0.59999999999999998" MoleculeStudioInk="255" CurvePoints="383.4878 777.6324 383.4878 777.6324 383.4878 777.6324 443.748911111 777.6324 443.748911111 777.6324 443.748911111 777.6324"/>
+        <curve id="22" MoleculeStudioArrowPart="20" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="547.6378 774.2574 547.6378 774.2574 547.6378 774.2574 538.6378 771.3324 538.6378 771.3324 538.6378 771.3324 541.1578 774.2574 541.1578 774.2574 541.1578 774.2574 541.7878 774.5574 541.7878 774.5574 541.7878 774.5574"/>
+        <curve id="23" MoleculeStudioArrowPart="20" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="377.6378 777.6324 377.6378 777.6324 377.6378 777.6324 386.6378 780.5574 386.6378 780.5574 386.6378 780.5574 384.1178 777.6324 384.1178 777.6324 384.1178 777.6324 383.4878 777.3324 383.4878 777.3324 383.4878 777.3324"/>
+        <t id="24" p="309.6378 848.9449">
+            <s font="3" size="8">6</s>
+        </t>
+        <curve id="25" CurvePoints="377.6378 855.9449 377.6378 855.9449 389.834687093 865.607846225 403.402780409 873.294844404 418.117259948 878.417228656 448.271690111 888.91454715 481.749275666 888.339366639 511.525304838 876.812379139 523.546116395 872.158845796 534.843915736 865.778148564 545.08062427 857.950571494 545.08062427 857.950571494" CurveType="0" BoundingBox="377.2878 614.761566667 547.9878 886.2949" Tail3D="377.6378 855.9449 0" Head3D="547.6378 855.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="833" ArrowheadCenterSize="729" ArrowheadWidth="292" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=5;hwidth=3.5;hend=1;hbegin=0;bx=80;by=435;ex=250;ey=435;sag=30;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <curve id="26" MoleculeStudioArrowPart="25" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="547.6378 855.9449 547.6378 855.9449 547.6378 855.9449 542.726234847 857.777153461 542.726234847 857.777153461 542.726234847 857.777153461 544.246693931 858.588836389 544.246693931 858.588836389 544.246693931 858.588836389 544.663071969 860.261335814 544.663071969 860.261335814 544.663071969 860.261335814"/>
+        <t id="27" p="309.6378 928.9449">
+            <s font="3" size="8">7</s>
+        </t>
+        <curve id="28" CurvePoints="377.6378 935.9449 377.6378 935.9449 389.834687093 945.607846225 403.402780409 953.294844404 418.117259948 958.417228656 448.271690111 968.91454715 481.749275666 968.339366639 511.525304838 956.812379139 523.546116395 952.158845796 534.843915736 945.778148564 545.08062427 937.950571494 545.08062427 937.950571494" CurveType="0" BoundingBox="377.2878 694.761566667 547.9878 966.2949" Tail3D="377.6378 935.9449 0" Head3D="547.6378 935.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="833" ArrowheadCenterSize="729" ArrowheadWidth="292" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=57;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=3;hlen=5;hwidth=3.5;hend=1;hbegin=0;bx=80;by=515;ex=250;ey=515;sag=30;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <curve id="29" MoleculeStudioArrowPart="28" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="547.6378 935.9449 547.6378 935.9449 547.6378 935.9449 544.624261538 940.173207692 544.624261538 940.173207692 544.624261538 940.173207692 544.097940241 938.324458943 544.097940241 938.324458943 544.097940241 938.324458943"/>
+        <t id="30" p="309.6378 1008.9449">
+            <s font="3" size="8">8</s>
+        </t>
+        <curve id="31" CurvePoints="377.6378 1015.9449 377.6378 1015.9449 389.834687093 1006.28195377 403.402780409 998.594955596 418.117259948 993.472571344 448.271690111 982.97525285 481.749275666 983.550433361 511.525304838 995.077420861 523.546116395 999.730954204 534.843915736 1006.11165144 545.08062427 1013.93922851 545.08062427 1013.93922851" CurveType="0" BoundingBox="377.2878 985.5949 547.9878 1257.12823333" Tail3D="377.6378 1015.9449 0" Head3D="547.6378 1015.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="833" ArrowheadCenterSize="729" ArrowheadWidth="292" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=57;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=3;hlen=5;hwidth=3.5;hend=1;hbegin=0;bx=80;by=595;ex=250;ey=595;sag=-30;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <curve id="32" MoleculeStudioArrowPart="31" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" MoleculeStudioInk="255" CurvePoints="547.6378 1015.9449 547.6378 1015.9449 547.6378 1015.9449 542.866723077 1013.89628462 542.866723077 1013.89628462 542.866723077 1013.89628462 544.474555626 1013.09826413 544.474555626 1013.09826413 544.474555626 1013.09826413"/>
+    </page>
+</CDXML>

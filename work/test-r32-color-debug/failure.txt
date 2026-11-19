@@ -1,0 +1,1 @@
+mechanism colour: glyph retains source colour, object 10 actual 4278190080

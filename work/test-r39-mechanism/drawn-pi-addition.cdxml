@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="297.6378 388.153774503 556.0378 462.899754363">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="9" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="10">
+            <n id="3" p="297.6378 460.9449" Charge="-1" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown" IgnoreWarnings="yes" GenericNickname="Nu" MoleculeStudioRole="nucleophile">
+                <objecttag id="11" Name="MoleculeStudio.GenericRole.nucleophile" Persistent="yes"/>
+                <t>
+                    <s font="3" size="10" face="96">Nu</s>
+                    <s font="3" size="10" face="64">-</s>
+                </t>
+            </n>
+            <b id="12" B="4" E="5" Order="2"/>
+            <n id="4" p="342.6378 435.9449" NumHydrogens="2"/>
+            <b id="15" B="7" E="8" Order="1"/>
+            <n id="5" p="364.6378 435.9449" NumHydrogens="2"/>
+            <b id="17" B="6" E="7" Order="1"/>
+            <n id="6" p="522.4378 448.415665814" NumHydrogens="0" NodeType="GenericNickname" LabelDisplay="Shown" IgnoreWarnings="yes" GenericNickname="Nu" MoleculeStudioRole="nucleophile">
+                <objecttag id="18" Name="MoleculeStudio.GenericRole.nucleophile" Persistent="yes"/>
+                <t>
+                    <s font="3" size="10" face="96">Nu</s>
+                </t>
+            </n>
+            <n id="7" p="529.6378 435.9449" NumHydrogens="2"/>
+            <n id="8" p="544.0378 435.9449" Charge="-1" NumHydrogens="2"/>
+        </fragment>
+        <graphic id="19" GraphicType="Symbol" SymbolType="Minus" BoundingBox="548.8378 431.1449 556.0378 431.1449" LineWidth="0.59999999999999998">
+            <represent object="8" attribute="Charge"/>
+        </graphic>
+        <curve id="13" CurvePoints="305.6378 456.9449 305.6378 456.9449 321.621632405 462.899754363 339.568686596 457.624353614 349.503596198 443.661679039 349.503596198 443.661679039" CurveType="0" BoundingBox="303.938557595 388.153774503 353.9878 457.2949" Tail3D="305.6378 456.9449 0" Head3D="353.6378 435.9449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="None" ArrowheadTail="None" HeadSize="2250" ArrowheadCenterSize="1969" ArrowheadWidth="563" MoleculeStudioElectronSource="atom:3" MoleculeStudioElectronTarget="bond:12" MoleculeStudioArrow="v=1;mechanism=1;es=-;et=-;sv=0;tv=0;mside=0;mdx=0;mdy=0;max=0;may=0;preset=49;family=1;size=2;line=0;shafts=1;sweep=1;dir=1;hshape=1;hside=1;hlen=13.5;hwidth=6.75;hend=1;hbegin=0;bx=8;by=36;ex=56;ey=15;sag=10.850893310825937;sep=5.0625;split=0.5;osplit=0.5;scale=1;"/>
+        <curve id="14" MoleculeStudioArrowPart="13" CurveType="129" Closed="yes" FillType="Solid" LineWidth="0" CurvePoints="353.6378 435.9449 353.6378 435.9449 353.6378 435.9449 344.209619464 446.073365729 344.209619464 446.073365729 344.209619464 446.073365729 347.785686123 445.97210615 347.785686123 445.97210615 347.785686123 445.97210615 349.45641338 449.13551834 349.45641338 449.13551834 349.45641338 449.13551834" color="0"/>
+        <arrow id="16" BoundingBox="382.2878 445.8449 464.9878 451.0449" Tail3D="382.6378 448.4449 0" Head3D="464.6378 448.4449 0" LineWidth="0.59999999999999998" FillType="None" ArrowheadType="Solid" ArrowheadHead="Full" ArrowheadTail="None" HeadSize="1500" ArrowheadCenterSize="1313" ArrowheadWidth="375" MoleculeStudioArrow="v=1;preset=8;family=0;size=1;line=0;shafts=1;sweep=0;dir=0;hshape=1;hside=1;hlen=9;hwidth=4.5;hend=1;hbegin=0;bx=85;by=27.5;ex=167;ey=27.5;sag=0;sep=3.375;split=0.5;osplit=0.5;scale=1;"/>
+    </page>
+</CDXML>

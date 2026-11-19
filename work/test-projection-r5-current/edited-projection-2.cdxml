@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="20" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="364.77472934 488.5449 407.036769045 533.3449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Arial"/>
+        <font id="4" charset="iso-8859-1" name="Calibri"/>
+    </fonttable>
+    <page id="3" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="4"/>
+        <group id="14" Name="Newman projection">
+            <graphic id="6" GraphicType="Oval" BoundingBox="378.8378 502.1449 396.4378 519.7449" LineWidth="0.59999999999999998" OvalType="Circle" Center3D="387.6378 510.9449 0" MajorAxisEnd3D="396.4378 510.9449 0" MinorAxisEnd3D="387.6378 519.7449 0"/>
+            <graphic id="7" GraphicType="Line" BoundingBox="395.258823553 506.5449 407.036769045 499.7449" LineWidth="0.59999999999999998"/>
+            <graphic id="8" GraphicType="Line" BoundingBox="387.6378 519.7449 387.6378 533.3449" LineWidth="0.59999999999999998"/>
+            <graphic id="9" GraphicType="Line" BoundingBox="380.016776447 506.5449 368.238830955 499.7449" LineWidth="0.59999999999999998"/>
+            <graphic id="10" GraphicType="Line" BoundingBox="387.6378 510.9449 387.6378 488.5449" LineWidth="0.59999999999999998"/>
+            <graphic id="11" GraphicType="Line" BoundingBox="387.6378 510.9449 407.036769045 522.1449" LineWidth="0.59999999999999998"/>
+            <graphic id="12" GraphicType="Line" BoundingBox="387.6378 510.9449 368.238830955 522.1449" LineWidth="0.59999999999999998"/>
+            <graphic id="13" GraphicType="Oval" BoundingBox="387.0378 510.3449 388.2378 511.5449" LineWidth="0.59999999999999998" OvalType="Circle Filled" FillType="Solid" Center3D="387.6378 510.9449 0" MajorAxisEnd3D="388.2378 510.9449 0" MinorAxisEnd3D="387.6378 511.5449 0"/>
+            <t id="5" p="364.77472934 527.3449" Justification="Right" InterpretChemically="no">
+                <s font="4" size="10" color="0">OH</s>
+            </t>
+        </group>
+    </page>
+</CDXML>

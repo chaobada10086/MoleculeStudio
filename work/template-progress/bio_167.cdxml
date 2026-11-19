@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="265.928449225 402.272597801 322.014675124 437.061856567">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="12" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="13">
+            <n id="3" p="313.673599444 402.272597801" NumHydrogens="3" color="0"/>
+            <b id="14" B="3" E="4" Order="1" color="0"/>
+            <n id="4" p="303.82258081 412.775808351" Element="7" NumHydrogens="0" color="0"/>
+            <b id="15" B="4" E="5" Order="1" color="0"/>
+            <n id="5" p="289.801024334 409.496181235" NumHydrogens="2" color="0"/>
+            <b id="16" B="5" E="6" Order="1" color="0"/>
+            <n id="6" p="279.950005699 419.999391785" NumHydrogens="0" color="0"/>
+            <b id="17" B="6" E="7" Order="2" color="0"/>
+            <n id="7" p="265.928449225 416.719764669" Element="8" NumHydrogens="0" color="0"/>
+            <b id="18" B="6" E="8" Order="1" color="0"/>
+            <n id="8" p="284.12054354 433.782229451" Element="8" NumHydrogens="1" color="0"/>
+            <b id="19" B="4" E="9" Order="1" color="0"/>
+            <n id="9" p="307.993118649 426.558646017" NumHydrogens="0" color="0"/>
+            <b id="20" B="9" E="10" Order="2" color="0"/>
+            <n id="10" p="298.142100014 437.061856567" Element="7" NumHydrogens="1" color="0"/>
+            <b id="21" B="9" E="11" Order="1" color="0"/>
+            <n id="11" p="322.014675124 429.838273133" Element="7" NumHydrogens="2" color="0"/>
+        </fragment>
+    </page>
+</CDXML>

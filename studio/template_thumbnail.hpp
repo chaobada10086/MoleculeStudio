@@ -5,7 +5,7 @@
 struct TemplateThumbnail {
     std::shared_ptr<Session> source;
     render::Scene scene;render::View view;render::Batch batch;
-    int width=0,height=0;double originalWidth=.6;std::map<ObjectRef,double> originalBondWidths;
+    int width=0,height=0;double originalWidth=.6,maxBondPixels=23.;std::map<ObjectRef,double> originalBondWidths;
     explicit TemplateThumbnail(std::shared_ptr<Session> value):source(value),originalWidth(value->doc.defaultLineWidth()){
         for(const auto& bond:source->doc.bonds().records())if(bond.isAlive()){auto ref=ObjectRef(ObjectKind::Bond,bond.id);if(auto width=source->doc.extensions(ref).findValue("studio.graphics.width"))originalBondWidths[ref]=std::atof(width->c_str());}
     }
@@ -18,7 +18,7 @@ struct TemplateThumbnail {
         Box bounds=source->scene.bounds();
         if(bounds.empty()){scene.clear();batch=render::Batch();return;}
         view.transform.center=(bounds.min+bounds.max)*.5;
-        view.transform.scale=std::min({(w-12)/std::max(1.,bounds.width()),(h-10)/std::max(1.,bounds.height()),23./source->doc.defaultBondLength()});
+        view.transform.scale=std::min({(w-12)/std::max(1.,bounds.width()),(h-10)/std::max(1.,bounds.height()),maxBondPixels/source->doc.defaultBondLength()});
         // Imported biomolecule templates use a longer source bond length. Keep
         // their thin strokes legible after fitting a thumbnail, with the same
         // native stroke geometry and clipping as the canvas.
@@ -39,7 +39,7 @@ struct TemplateThumbnail {
     }
 };
 struct TemplateLibraryParent {std::string title,english,aliases,category;int firstVariant=0,variantCount=0;TemplateLibraryParent(std::string t,std::string e,std::string a,std::string c,int f,int n):title(t),english(e),aliases(a),category(c),firstVariant(f),variantCount(n){}};
-struct TemplateLibraryVariant {int parent=0;std::string title,formula;TemplateLibraryVariant(int p,std::string t,std::string f):parent(p),title(t),formula(f){}};
+struct TemplateLibraryVariant {int parent=0;std::string title,formula;int sourceIndex=-1,sugarIndex=-1;bool sugarMirror=false;TemplateLibraryVariant(int p,std::string t,std::string f):parent(p),title(t),formula(f){}};
 struct TemplateLibraryModel {
     std::string title="其他环",noun="母体",cue="搜索中文名、英文名、BCP、DABCO…";
     const wchar_t* windowClass=L"MoleculeStudioRingLibrary";int cardHeight=137,thumbnailHeight=77;

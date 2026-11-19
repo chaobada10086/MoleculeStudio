@@ -62,10 +62,12 @@ def register(plugin):
         plugin._tool('draw_autoshape','绘制 PPT 风格可编辑图案，22 种形状，可填色、设置边框和居中文字。宽高会自动扩大容纳文字；未给坐标时避开已有内容。',props,['shape']),
         plugin._tool('draw_diagram','一次绘制可编辑流程图或步骤图。nodes 按输入顺序紧凑排列，edges 通过节点 id 连接，支持跨节点外侧折线路由。自动容纳文字、统一节点尺寸、避开原有画布。',
             {'nodes':{'type':'array','items':node,'minItems':1,'maxItems':24},'edges':{'type':'array','items':edge,'maxItems':48},
+             'title':{'type':'string','description':'用户指定的流程图标题，自动居中并避开流程和连线。','maxLength':120},
              'direction':{'type':'string','enum':['row','column']},'gap':num,'x':num,'y':num},['nodes'])])
     plugin.PLUGIN_NAMES.update(('draw_autoshape','draw_diagram'))
-    plugin.PLUGIN_SYSTEM += '\n画非化学图案用 draw_autoshape；流程图、步骤图优先 draw_diagram，一次给齐节点和边。不要用 SMILES 画图标。连接线是普通可编辑对象，移动节点后需重画连接；图形和文字独立可编辑。'
+    plugin.PLUGIN_SYSTEM += '\nPPT 式排版先确定内容层级。整页标题、分栏和表格用 draw_poster；平滑装饰线和自定义轮廓用 draw_curve，直边轮廓用 draw_path。画单个图案用 draw_autoshape；流程图、步骤图优先 draw_diagram，一次给齐节点和边。不要用 SMILES 画图标。连接线是普通可编辑对象，移动节点后需重画连接；图形和文字独立可编辑。'
     plugin._HANDLERS.update({'draw_autoshape':lambda e,a:draw(plugin,e,a),'draw_diagram':lambda e,a:diagram(plugin,e,a)})
+    plugin.PLUGIN_SYSTEM += '\n用户给了流程图标题时，将 title、nodes、edges 和 direction 一并交给 draw_diagram；工具会为标题和分支标签留出空间。'
 
 def dimensions(a):
     from ai_scene import text_extent
@@ -112,8 +114,28 @@ def diagram(p,e,a):
     if any(len(t)>100 for t in labels): raise ValueError('连线标签最长 100 字')
     if row: gap=max(gap,max((p._text_width(t,9)+16 for t in labels),default=0))
     else: gap=max(gap,32 if any(labels) else 16)
+    # Separate forward shortcuts from returns. Non-overlapping spans can
+    # reuse a lane, keeping the layout compact regardless of edge order.
+    lanes={}; occupied={True:[],False:[]}
+    spans=[]
+    for index,edge in enumerate(edges):
+        start=ids.index(edge['source']); end=ids.index(edge['target'])
+        if end-start!=1:
+            spans.append((abs(end-start),min(start,end),max(start,end),end>start,index))
+    for _,lo,hi,forward,index in sorted(spans):
+        side=occupied[forward]
+        for lane,intervals in enumerate(side):
+            if all(hi<a or lo>b for a,b in intervals): break
+        else:
+            lane=len(side); side.append([])
+        side[lane].append((lo,hi)); lanes[index]=24+lane*20
     x=float(a.get('x',0));y=float(a.get('y',0)); old=p._document_bounds(e)
-    if old: y=max(y,old[3]+32+(24+len(edges)*20 if row else 0))
+    if old: y=max(y,old[3]+32+(24+len(occupied[True])*20 if row and occupied[True] else 0))
+    title=a.get('title','').strip()
+    if title:
+        from ai_scene import text_extent
+        title_w,title_h=text_extent(title,16)
+        y+=title_h+18
     out={};refs=[]
     for i,n in enumerate(nodes):
         item=draw(p,e,{**{k:v for k,v in n.items() if k!='id'},'shape':n.get('shape','rounded_rectangle'),
@@ -128,9 +150,13 @@ def diagram(p,e,a):
             else: start=at(si,(0,1));end=at(ti,(0,-1))
             points=[start,end]
         elif row:
-            lane=y-24-index*20;start=at(si,(0,-1));end=at(ti,(0,-1));points=[start,[start[0],lane],[end[0],lane],end]
+            side=-1 if ti>si else 1
+            lane=(y if side<0 else y+h)+side*lanes[index]
+            start=at(si,(0,side));end=at(ti,(0,side));points=[start,[start[0],lane],[end[0],lane],end]
         else:
-            lane=x+w+24+index*20;start=at(si,(1,0));end=at(ti,(1,0));points=[start,[lane,start[1]],[lane,end[1]],end]
+            side=1 if ti>si else -1
+            lane=(x+w if side>0 else x)+side*lanes[index]
+            start=at(si,(side,0));end=at(ti,(side,0));points=[start,[lane,start[1]],[lane,end[1]],end]
         shaft=p._add_path(e,points,color='#50656D',width=1)['ref'];refs.append(shaft)
         dx=end[0]-points[-2][0];dy=end[1]-points[-2][1];length=math.hypot(dx,dy);ux=dx/length;uy=dy/length
         head=p._add_path(e,[end,[end[0]-6*ux+3*uy,end[1]-6*uy-3*ux],[end[0]-6*ux-3*uy,end[1]-6*uy+3*ux]],True,'#50656D','#50656D',.5)['ref'];refs.append(head)
@@ -140,7 +166,16 @@ def diagram(p,e,a):
         if text:
             mid1,mid2=(points[0],points[1]) if len(points)==2 else (points[1],points[2])
             tx=(mid1[0]+mid2[0])/2;ty=(mid1[1]+mid2[1])/2
-            label=p._add_text(e,text,tx-p._text_width(text,9)/2 if row else tx+6,ty-6 if row else ty,9,'#50656D')['ref'];refs.append(label)
+            width=p._text_width(text,9)
+            if row: tx-=width/2
+            elif len(points)>2 and ti<si: tx-=width+6
+            else: tx+=6
+            label=p._add_text(e,text,tx,ty-6 if row else ty,9,'#50656D')['ref'];refs.append(label)
         routes.append({**edge,'points':points,'refs':[shaft,head]+([label] if label else [])})
-    return {'staged':True,'nodes':out,'edges':routes,'refs':refs,'bounds':p._bounds_for_handles(e,refs),'gap':gap,
+    title_ref=None
+    if title:
+        left,top,right,_=p._bounds_for_handles(e,refs)
+        title_ref=p._add_text(e,title,(left+right-title_w)/2,top-18-title_h+16,16,'#24343B')['ref']
+        refs.append(title_ref)
+    return {'staged':True,'nodes':out,'edges':routes,'title_ref':title_ref,'refs':refs,'bounds':p._bounds_for_handles(e,refs),'gap':gap,
             'warning':'连接线为独立对象；移动节点后请重新连接。'}

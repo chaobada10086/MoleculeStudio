@@ -1,0 +1,4 @@
+from pathlib import Path
+p=Path('studio/cdx_schema.hpp');s=p.read_text(encoding='utf-8').replace('{0x8023,"tlcplate"},','// Native ChemDraw 26 TLC object tags, verified against an actual saved CDX.\n{0x801d,"tlcplate"},\n{0x801e,"tlclane"},\n{0x801f,"tlcspot"},\n// Read the earlier Studio/archived-table tags for backward compatibility.\n{0x8023,"tlcplate"},',1);p.write_text(s,encoding='utf-8')
+p=Path('studio/cdx_binary.hpp');s=p.read_text(encoding='utf-8').replace('if(tag==0x8025&&(p->tag==0x812','if(std::string(e->Name())=="tlcspot"&&(p->tag==0x812',1);p.write_text(s,encoding='utf-8')
+p=Path('studio/tlc_checks.inc');s=p.read_text(encoding='utf-8').replace('    // Lane guides must never', '    require(cdxbinary::objectTag("tlcplate")==0x801d&&cdxbinary::objectTag("tlclane")==0x801e&&cdxbinary::objectTag("tlcspot")==0x801f,"native ChemDraw TLC binary object tags");\n    // Lane guides must never',1);p.write_text(s,encoding='utf-8')

@@ -20,6 +20,9 @@ STUDIO = Path(__file__).resolve().parents[1]
 
 def fragment_xml(mol):
     rdDepictor.Compute2DCoords(mol)
+    sys.path.insert(0,str(STUDIO))
+    from branched_alkyl_layout import molecule as project_alkyl
+    project_alkyl(mol)
     Chem.Kekulize(mol, clearAromaticFlags=True)
     frag = ET.Element("fragment", {"id": "1"})
     for a in mol.GetAtoms():
@@ -69,14 +72,14 @@ def emit_cpp(entries, report):
              '#include <string>',
              'namespace nickdata {',
              'struct Entry {const char* name; const char* fragment; const char* formula;};',
-             'static const Entry nicknames[]={']
+             'static const Entry nicknames[]={', '#include "metal_alkoxide_groups.inc"']
     for name in sorted(entries):
         lines.append('{"%s",R"NICK(%s)NICK","%s"},' % (name, entries[name], report[name]["formula"]))
     lines += ['};',
               '// Number of compiled entries. docs/FUNCTIONAL_GROUPS.md is generated',
               '// from this catalogue and chem_completion.hpp asserts the two agree.',
-              'static const unsigned count=%d;' % len(entries),
-              'inline const Entry* find(const std::string& n){for(const auto& v:nicknames)if(n==v.name)return &v;return nullptr;}',
+              'static const unsigned count=sizeof(nicknames)/sizeof(nicknames[0]);',
+              'inline const Entry* find(const std::string& n){for(const auto& v:nicknames)if(n==v.name)return &v;if(n.find("(O")!=std::string::npos){auto key=[](std::string s){std::string out;for(auto c:s)if(c!=45)out+=c;return out;};auto k=key(n);for(const auto& v:nicknames)if(key(v.name)==k)return &v;}return nullptr;}',
               'inline const Entry* findAlias(const std::string& n){return find(n);}',
               '}']
     return "\n".join(lines) + "\n"
@@ -86,7 +89,10 @@ def main(argv):
     entries = json.loads(source.read_text(encoding="utf-8"))
     out, report, bad = build(entries)
     (STUDIO/"nickname_catalog.hpp").write_text(emit_cpp(out, report), encoding="utf-8")
-    (STUDIO/"nicknames.json").write_text(json.dumps(out, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf-8")
+    backend=dict(out)
+    supplements=STUDIO/"metal_alkoxide_groups.json"
+    if supplements.exists():backend.update({k:v["fragment"] for k,v in json.loads(supplements.read_text(encoding="utf-8")).items()})
+    (STUDIO/"nicknames.json").write_text(json.dumps(backend, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf-8")
     rep = {"source": str(source.name), "count": len(out), "rejected": bad, "entries": report}
     (STUDIO/"tools/generation_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
     print("generated", len(out), "entries; rejected", len(bad))

@@ -1,0 +1,1 @@
+projection: reopened substituent remains editable

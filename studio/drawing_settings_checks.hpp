@@ -1,5 +1,7 @@
 #pragma once
+#include "detailed_drawing_checks.hpp"
 static void drawingSettingsCheck(App& app,const std::string& dir){
+    checkDetailedDrawingSettings(app,dir);
     auto require=[](bool ok,const char* message){if(!ok)throw std::runtime_error(message);};
     DrawingSettings config;config.path=W(dir+"/test-drawing.ini");
     config.bondLength=14.4;config.lineWidth=1.19;

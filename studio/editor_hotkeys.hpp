@@ -15,12 +15,51 @@ inline double carbonylSproutAngle(const Document& doc,ObjectId carbon,double gro
     return angle;
 }
 void App::editorHotkey(int index){if(index<0||size_t(index)>=sizeof(keymap::hotkeys)/sizeof(keymap::hotkeys[0]))return;auto& key=keymap::hotkeys[index];std::string command=key.command,value=key.value;s.input.refreshHotspot(&s);auto spot=s.input.hotspot();ObjectId id=spot.object.id;bool atom=spot.kind==interaction::HotspotKind::Atom,bond=spot.kind==interaction::HotspotKind::Bond;
+    if(command!="SPROUT"||value!="1"||!atom)rapidSprout.clear();
+    if(command=="CHARGE"){
+        std::vector<ObjectId> ids;for(auto ref:s.selected)if(ref.kind==ObjectKind::Atom&&s.doc.atoms().alive(ref.id))ids.push_back(ref.id);
+        if(ids.empty()&&atom)ids.push_back(id);
+        if(!ids.empty()){
+            std::sort(ids.begin(),ids.end());ids.erase(std::unique(ids.begin(),ids.end()),ids.end());int delta=value=="+"?1:-1;
+            // B-minus is a reagent state, not an unbounded charge counter.
+            ids.erase(std::remove_if(ids.begin(),ids.end(),[&](ObjectId id){auto a=s.doc.atoms().alive(id);return delta<0&&mechanism::genericRole(s.doc,id)=="base"&&a&&a->semantics.charge==-1;}),ids.end());
+            if(ids.empty())return;
+            auto e=s.submit(Command("原子电荷",kInvalidateStructure|kInvalidateAppearance|kInvalidateSemantics,[ids,delta](CommandContext& c){
+                for(auto id:ids){auto a=c.document.atoms().alive(id);if(!a)continue;auto result=chemistry::setChargeCommand({id},int(a->semantics.charge)+delta).execute(c);if(!result.error.ok())return result;}
+                return CommandResult::success();
+            }),"原子电荷");error(e);if(e.ok())status="已更新原子电荷和隐含氢数";
+        }
+        return;
+    }
     if(command=="DIALOG"){execute(Button("","","",value=="CHOOSENICKNAME"?"@nickname":"@properties"));return;}
     if(command=="TOOLMODE"){const std::map<std::string,std::string> tools={{"BENZENE","chooseRingTool_Benzene"},{"CYCLOPENTADIENE","chooseRingTool_Cyclopentadiene"},{"SOLIDBOND","chooseBondTool_Solid"},{"ACYCLICCHAIN","chooseAlkaneTool_Acyclic_Chain"},{"ARROW",arrowCommand()},{"CHEMICALSYMBOLS","chooseSymbolTool_CirclePlus"},{"TEXT","chooseEdittingTool_Text"},{"BRACKET","chooseBracketTool_SquareBrackets"},{"TLCPLATE","chooseTLCPlateTool"},{"ORBITAL","chooseOrbitalTool_p_Shaded"},{"MARQUEE","chooseSelectionTool_Marquee"}};auto found=tools.find(value);if(found!=tools.end())execute(Button("",shortcutChinese(key),"",found->second));return;}
     if(command=="SELECT"){s.selected={spot.object};return;}
-    if(atom){if(command=="LABELTEXT"){if(value=="O"||value=="N"){preferAtomHydride(id,value=="O"?8:7);return;}error(s.submit(nicknames::labelCommand(id,value),"原子快捷键"));return;}if(command=="CHARGE"){auto a=s.doc.atoms().get(id);error(s.submit(chemistry::setChargeCommand({id},a->semantics.charge+(value=="+"?1:-1)),"原子电荷"));return;}
+    if(atom){if(command=="LABELTEXT"){
+        if(value=="O"||value=="N"){preferAtomHydride(id,value=="O"?8:7);return;}
+        auto base=nicknames::labelCommand(id,value);auto element=chemistry::elementInfoBySymbol(value.c_str(),int(value.size()));
+        if(element&&element->number){
+            const auto before=s.doc.atoms().alive(id);const bool replace=before->element!=element->number||before->semantics.nodeType!=uint8_t(NodeType::Element);
+            error(s.submit(Command("原子快捷键",kInvalidateStructure|kInvalidateAppearance|kInvalidateSemantics,[id,base,replace](CommandContext& c)mutable{
+                auto result=base.execute(c);if(!result.ok())return result;
+                // The chosen element replaces the displayed group too. Hydrogen
+                // counts of the previous element must not carry over (OH -> Br).
+                auto sem=c.document.atoms().alive(id)->semantics;if(replace)sem.implicitHydrogens=-1;
+                auto e=c.document.setAtomSemantics(id,sem);if(e.ok()&&!c.document.atomLabel(id).empty())e=c.document.setAtomLabel(id,"");
+                auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,id));bag.erase("studio.atom.runs");bag.erase("studio.label.text");
+                return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
+            }),"原子快捷键"));
+        }else error(s.submit(base,"原子快捷键"));return;
+    }if(command=="CHARGE"){auto a=s.doc.atoms().get(id);error(s.submit(chemistry::setChargeCommand({id},a->semantics.charge+(value=="+"?1:-1)),"原子电荷"));return;}
         if(command=="ATOMNUMBER"){error(s.submit(Command("原子编号",kInvalidateAppearance,[id](CommandContext& c){auto ref=ObjectRef(ObjectKind::Atom,id);auto& ext=c.document.extensions(ref);auto prev=ext.findValue("studio.atom.number");if(prev)ext.erase("studio.atom.number");else ext.set("studio.atom.number",std::to_string(id+1));return CommandResult::success();}),"原子编号"));return;}
         if(command=="ATTACHMENTPOINT"){error(s.submit(Command("连接点",kInvalidateStructure|kInvalidateAppearance,[id](CommandContext& c){auto sem=c.document.atoms().get(id)->semantics;sem.nodeType=uint8_t(NodeType::ExternalConnection);sem.showLabel=true;auto e=c.document.setAtomSemantics(id,sem);if(e.ok())e=c.document.setAtomLabel(id,"*");return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"连接点"));return;}
+        if(command=="SPROUT"&&value=="1"){
+            const uint64_t now=GetTickCount64();std::vector<ObjectId> recent;
+            if(rapidSprout.continues(s.doc,id,now,s.serial,s.history.cursor()))recent=rapidSprout.tips;
+            auto added=std::make_shared<studio::rapid_sprout::Addition>();
+            auto e=s.submit(studio::rapid_sprout::command(id,recent,added),"添加结构片段");error(e);
+            if(e.ok()){recent.push_back(added->atom);rapidSprout.record(s.doc,id,now,s.serial,s.history.cursor(),recent);if(added->arranged)status="已按连续添键整理支链角度";}
+            else rapidSprout.clear();return;
+        }
         if(command=="SPROUT"){int recipe=atoi(value.c_str());error(s.submit(Command("添加结构片段",kInvalidateStructure|kInvalidateGeometry,[id,recipe](CommandContext& c){auto& d=c.document;auto a=d.atoms().alive(id);if(!a)return CommandResult::fail(ErrorCode::NotFound,"原子不存在");auto env=rings_chains::buildSproutEnvironment(d,id,25);auto dir=sprout_layout::resolve(d,id,-30);if(!dir.ok)return CommandResult::fail(ErrorCode::InvalidArgument,dir.rejectReason);double angle=dir.directionDeg,L=d.defaultBondLength();Error e;auto add=[&](ObjectId from,int element,double deg,BondOrder order=BondOrder::Single,BondDisplay display=BondDisplay::Normal){ObjectId to=kInvalidObjectId,b;e=d.addAtom(d.atoms().get(from)->position+core::direction(deg)*L,element,&to);if(e.ok())e=d.addBond(from,to,&b);if(e.ok())e=d.setBondOrder(b,order);if(e.ok())e=d.setBondDisplay(b,display);return to;};
             auto ring=[&](ObjectId anchor,rings_chains::RingPresetId preset){rings_chains::RingRequest r;r.preset=preset;r.mode=dir.neighbourCount>=2&&anchor==id?rings_chains::RingAttachMode::Spiro:rings_chains::RingAttachMode::GrowFromAtom;r.anchorAtom=anchor;r.pointer=d.atoms().get(anchor)->position+core::direction(angle)*L;r.bondLength=L;rings_chains::RingPlacement p;e=rings_chains::resolveRingPlacement(d,r,&p);if(e.ok()){auto result=rings_chains::commands::createRingCommand(p,0,0).execute(c);e=result.error;}};
             if(recipe==0||recipe==1||recipe==4||recipe==5)add(id,6,angle,BondOrder::Single,recipe==4?BondDisplay::Wedge:recipe==5?BondDisplay::WedgeHash:BondDisplay::Normal);
@@ -47,7 +86,19 @@ void App::editorHotkey(int index){if(index<0||size_t(index)>=sizeof(keymap::hotk
             return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
         }),"添加结构片段"));return;}
     }
-    if(bond){if(command=="BONDORDER"){int order=atoi(value.c_str());error(s.submit(chemistry::setBondOrderWithRefreshCommand(id,order==1?BondOrder::Single:order==2?BondOrder::Double:BondOrder::Triple),"化学键级"));return;}
+    if(bond){if(command=="BONDORDER"){
+        const int order=atoi(value.c_str());
+        const auto serial=s.serial;
+        auto result=s.submit(chemistry::setBondOrderWithRefreshCommand(id,order==1?BondOrder::Single:order==2?BondOrder::Double:BondOrder::Triple),"化学键级");
+        error(result);
+        if(result.ok()&&s.serial!=serial&&pointerOverCanvas&&!down){
+            if(auto tool=dynamic_cast<arrows::ArrowTool*>(s.entries[s.activeIndex].tool.get())){
+                insertionPreviewPending=false;
+                tool->hoverPreview(s,s.view().toDocument(pointerPixel),mods());
+            }
+        }
+        return;
+    }
         if(command=="BONDDOUBLEPOSITION"){error(s.submit(bonds::setBondSideCommand({id},value=="LEFT"?bonds::DoubleSide::Left:value=="RIGHT"?bonds::DoubleSide::Right:bonds::DoubleSide::Centered),"双键位置"));return;}
         if(command=="BONDPOSITION"){s.selected={spot.object};execute(Button("","置于顶层","","@front"));return;}
         if(command=="BONDDISPLAY"){error(s.submit(Command("键显示",kInvalidateAppearance|kInvalidateStructure,[id,value](CommandContext& c){auto display=value=="DASHED"||value=="TAUTOMERIC"?BondDisplay::Dashed:value=="HASHED"?BondDisplay::Hash:value=="HASHEDWEDGED"?BondDisplay::WedgeHash:value=="BOLD"||value=="DOUBLEBOLD"?BondDisplay::Bold:value=="WEDGED"?BondDisplay::Wedge:BondDisplay::Wavy;auto e=c.document.setBondDisplay(id,display);if(e.ok()&&(value=="TAUTOMERIC"||value=="DOUBLEBOLD"))e=c.document.setBondOrder(id,BondOrder::Double);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"键显示"));return;}

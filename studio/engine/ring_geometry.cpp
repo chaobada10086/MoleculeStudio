@@ -24,6 +24,14 @@ bonds::BondRenderData RingGeometry::build(const BondRecord& b,const std::set<Obj
     if(auto value=ext.findValue("pst.attr.HashSpacing"))opts.hashSpacing=std::atof(value->c_str());
     if(auto value=doc.documentExtensions().findValue("studio.style.BondSpacing"))opts.spacingPercent=std::atof(value->c_str());
     if(auto value=ext.findValue("pst.attr.DoubleBondSpacing"))opts.spacingPercent=std::atof(value->c_str());
+    const auto* first=doc.atoms().alive(b.beginAtom);const auto* last=doc.atoms().alive(b.endAtom);
+    auto hasDepth=[&](ObjectId id){const auto& bag=doc.extensions(ObjectRef(ObjectKind::Atom,id));return bag.findValue("studio.atom.z")||bag.findValue("pst.attr.MoleculeStudioPerspectiveZ");};
+    if((hasDepth(b.beginAtom)||hasDepth(b.endAtom))&&length(z-a)>1e-8)opts.spacingPercent*=doc.defaultBondLength()/length(z-a);
+
+    if(first->element==7&&last->element==7&&length(z-a)>1e-8&&
+       ((b.order==BondOrder::Double&&first->semantics.charge*last->semantics.charge==-1)||
+        (b.order==BondOrder::Triple&&(first->semantics.charge==1||last->semantics.charge==1))))
+        opts.spacingPercent*=doc.defaultBondLength()/length(z-a);
     auto explicitSide=ext.findValue("pst.attr.DoublePosition");
     if(!ext.findValue(bonds::kSideExtensionKey)&&explicitSide){
         if(*explicitSide=="Center"||*explicitSide=="0"||*explicitSide=="256")axes.side=bonds::DoubleSide::Symmetric;

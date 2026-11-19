@@ -119,11 +119,13 @@ struct Spot {
     double           radiusV;   // relative half-extent along v
     uint32_t         fillRGBA;  // display colour
     double           opacity;   // display alpha multiplier, 0..1
+    double           tailLengthV; // downward TLC streak, in board coordinates
+    double           tailOpacity; // streak alpha relative to the central spot
     std::string      shape;     // "ellipse" (default); reserved vocabulary
     std::string      label;     // optional annotation for this spot
     MeasurementValue rfMeasured;// OPTIONAL measured Rf (not derived)
     Spot() : id(0), laneId(0), u(0.0), v(0.0), radiusU(0.03), radiusV(0.03),
-             fillRGBA(0x303030FFu), opacity(1.0), shape("ellipse") {}
+             fillRGBA(0x303030FFu), opacity(1.0), tailLengthV(0.0), tailOpacity(0.3), shape("ellipse") {}
 };
 
 struct Band {

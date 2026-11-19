@@ -125,6 +125,9 @@ core::Error appendArrowPrimitives(const ArrowGeometry& geometry,
             p.points = h.outline;
             p.style = style;
             p.style.fill = render::Paint(0x000000FFu, h.filled && !geometry.hollow);
+            // A solid triangle has one geometric tip. Stroking its outline adds
+            // a bevel/round join and makes that tip blunt at large zoom.
+            if(p.style.fill.enabled)p.style.stroke.enabled=false;
             p.version = version;
             p.bounds = render::geom::computeBounds(p, defaultWidth);
             out->push_back(p);

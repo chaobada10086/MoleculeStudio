@@ -50,6 +50,7 @@ def parse_entry(line):
 
 def read_catalog():
     text = (STUDIO / 'nickname_catalog.hpp').read_text(encoding='utf-8')
+    text = text.replace('#include "metal_alkoxide_groups.inc"', (STUDIO/'metal_alkoxide_groups.inc').read_text(encoding='utf-8'))
     entries = []
     for line in text.splitlines():
         parsed = parse_entry(line)
@@ -68,6 +69,8 @@ def code(value):
 def main():
     entries = read_catalog()
     source = json.loads((STUDIO / 'nicknames.src.json').read_text(encoding='utf-8'))
+    supplement=STUDIO/'metal_alkoxide_groups.json'
+    if supplement.exists():source.update(json.loads(supplement.read_text(encoding='utf-8')))
     compiled = {e['name'] for e in entries}
     excluded = [name for name in source if name not in compiled]
     lines = []

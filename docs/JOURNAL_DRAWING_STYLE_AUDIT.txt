@@ -1,0 +1,100 @@
+MoleculeStudio 投稿绘图参数核对记录
+核对日期：2026-11-15
+
+范围与结论
+核对全部14个现有预设。ACS 1996 与用户提供的截图一致；补齐其全部详细参数。
+Nature 按官方化学结构指南换算；RSC 的现行普通线宽为0.5pt，双键间距20%；
+SYNTHESIS / SYNLETT 使用当前官方指南中明确列出的最终绘图尺寸。
+另已按当前官方指南更新ASC、JCCS、JHC、HCA。其余模板核对本机 ChemDraw 25.1 官方内置样式文件中的参数事实，保留历史样式。
+历史样式并不表示目标期刊目前仍强制采用这些数值。软件界面显示来源状态。
+本机样式文件只用于研究数值，不包含在更新包中；软件实现为独立编写。
+
+全部数值（长度单位pt，键间距为键长百分比；所有链角均为120°）
+预设 | 键长 | 线宽 | 粗键宽 | 标签留白 | 虚楔线间距 | 键间距% | 原子字体/字号 | 普通文字字体/字号
+ACS Document 1996 |14.4|0.6|2|1.6|2.5|18|Arial/10|Arial/10
+Nature Research |10.8|0.595276|1.559055|1.190551|1.700787|18|Arial/6|Arial/6
+RSC (1 Column) |12.2|0.5|1.6|1.25|1.8|20|Arial/7|Arial/7
+RSC (2 Column) |12.2|0.5|1.6|1.25|1.8|20|Arial/7|Arial/7
+Wiley |17.007874|0.737000|2.607864|2.012589|2.607864|18|Arial/12|Arial/12
+Adv. Synth. Catal. |17|0.75|2.6|2|2.6|18|Arial/12|Arial/12
+SYNTHESIS / SYNLETT |10.119685|0.566929|1.388976|0.907087|1.757480|18|Arial/6|Arial/6
+Science of Synthesis |17.007874|0.793686|2.012589|2.239365|2.494476|18|Arial/10|Arial/10
+J. Chin. Chem. Soc. |14.4|0.6|2|1.6|2.5|18|Times New Roman/10|Times New Roman/10
+J. Het. Chem. |17|0.75|2.6|2|2.6|18|Arial/12|Arial/12
+J. Mol. Mod. (1 Column) |14.399994|0.599991|2.012589|1.587387|2.494476|18|Times New Roman/10|Times New Roman/10
+J. Mol. Mod. (2 Column) |14.399994|0.599991|2.012589|1.587387|2.494476|18|Times New Roman/10|Times New Roman/10
+Verlag Helv. Chim. Acta |11.9|0.42|1.4|1.4|1.4|15|Arial/7|Arial/8.4
+Phytomedicine |20.012589|0.992111|1.333328|1.247238|3|8|Arial/12|Arial/12
+
+来源与适用范围
+1. ACS 官方作者指南（Journal of Agricultural and Food Chemistry），以及 ChemDraw 18 官方用户手册的 ACS Document 1996 说明：
+https://researcher-resources.acs.org/publish/author_guidelines?coden=jafcau
+https://chem.beloit.edu/classes/programs/ChemDraw_18_manual.pdf
+字体允许Arial或Helvetica，采用Arial10。用户截图中的14.4/.6/2/1.6/2.5、120°、18%均匹配。
+
+2. Nature 官方 Style guide for chemical structures，第4页：
+https://www.nature.com/documents/nr-chemical-structures-guide.pdf
+键长0.381cm、线宽0.021cm、粗键0.055cm、留白0.042cm、虚楔间距0.06cm、键间距18%、链角120°。
+使用72pt/in、2.54cm/in换算。原子Arial/Helvetica6pt；普通文字允许6或6.5，预设选6。
+具体刊物与图版的尺寸要求仍需单独考虑。
+
+3. RSC 官方 Chemical Science 作者指南的图形参数：
+https://www.rsc.org/publishing/publish-with-us/publish-a-journal-article/chemical-science
+https://www.rsc.org/publishing/publish-with-us/publish-a-journal-article/article-templates
+键长12.2、线宽0.5、粗键1.6、虚楔间距1.8、双键间距20%、Arial/Helvetica7、链角120°。
+官方页面没有独立规定Margin Width，留白1.25取自本机RSC模板，不能称为已由网页核实的强制值。
+单栏/双栏共用上述结构格式；本预设不设置版面宽度或自动缩放已有结构。
+
+4. Thieme 官方 SYNLETT 2026 / SYNTHESIS 2024 作者指南，第1页绘图参数截图：
+https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_synlett/Instr_ST_26.pdf
+https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_synthesis/CFZ-Synthesis-Authors-Instructions-2024.pdf
+键长0.357cm、线宽0.020cm、粗键0.049cm、留白0.032cm、虚楔0.062cm，字体6，键间距18%，链角120°。
+这些是官方截图中直接指定的参数。指南另允许使用预装SYNTHESIS/SYNLETT模板后将图缩小至69%。
+本程序预设采用直接指定的参数，不自动执行69%图像缩放。
+
+5. Science of Synthesis 官方说明推荐使用同名ChemDraw样式：
+https://www.thieme.de/statics/dokumente/thieme/final/en/dokumente/tw_chemistry/sos-essential-reading-drawings.pdf
+https://sos-chemistry.thieme.com/authors/
+参数数值对照本机官方模板，不能把本机模板版本等同于所有现行页面要求。
+
+6. Advanced Synthesis & Catalysis 官方当前作者指南：
+https://advanced.onlinelibrary.wiley.com/hub/journal/16154169/author-guidelines
+120°、18%、键长17、线宽0.75、粗键2.6、留白2、虚楔2.6、Arial12。
+
+7. Journal of the Chinese Chemical Society 官方当前作者指南，第8.1/8.2项：
+https://onlinelibrary.wiley.com/page/journal/21926549/homepage/2600_guidelines.html
+120°、18%、键长14.4、线宽0.6、粗键2、留白1.6、虚楔2.5、Times New Roman10。
+
+8. Journal of Heterocyclic Chemistry 官方作者指南：
+https://onlinelibrary.wiley.com/page/journal/19435193/homepage/guide.htm
+120°、18%、键长17、线宽0.75、粗键2.6、留白2、虚楔2.6、Arial12。
+页面另有bond width 2pt，与bold width分列；本界面粗键宽映射CDXML BoldWidth，采用2.6。
+
+9. Helvetica Chimica Acta 官方 Notice to Authors：
+https://onlinelibrary.wiley.com/page/journal/15222675/homepage/notice-to-authors
+键间距15%、键长11.9、粗键1.4、线宽0.42、留白1.4、虚楔1.4、原子Arial7/普通文字Arial8.4。
+该页面未另列链角，沿用模板120°。
+
+10. Wiley、J. Mol. Mod.两种、Phytomedicine：
+完整数值对照本机官方发行的ChemDraw25.1模板文件，保留历史样式与名称。
+Wiley是出版社名称，不能据此推断旗下所有期刊均采用相同参数。
+Journal of Molecular Modeling现行指南不含ChemDraw专门参数表：
+https://link.springer.com/journal/894/submission-guidelines
+Phytomedicine当前官网入口本次返回403，未能核实完整当前要求：
+https://www.sciencedirect.com/journal/phytomedicine/publish/guide-for-authors
+这4项均标明“内置历史样式”，未以第三方软件或博客数值代替官方要求。
+
+本机数值来源目录：
+C:\ProgramData\RevvitySignalsSoftware\ChemDrawApplications\ChemDraw\ChemDraw Items\
+对应文件为14个同名.cds样式，CreationProgram=ChemDraw 25.1.0.0。
+二进制坐标有1/65536pt量化误差，因此本机模板可能有0.599990845而非0.6。
+本机模板中ChainAngle二进制值7864320为120×65536；已按公开CDX规范修正编码/解码。
+公开格式说明：https://iupac.github.io/IUPAC-FAIRSpec/cdx_sdk/TableOfProperties.htm
+
+自定义模板使用
+设置 → 结构绘图 → 选择任意预设 → 独立修改所需项目 → 另存为模板 → 输入名称。
+自定义模板加入同一下拉框，重启后可复用；同名保存可替换，自定义模板可删除，内置模板受保护。
+“保存设置”保存当前默认值；“同时应用到当前文档的默认格式”决定是否同时影响当前文档的默认样式。
+键长与链角用于后续绘制，不自动改变已有结构坐标；对象独立设置的格式继续保留。
+默认设置保存在程序目录drawing.ini；自定义模板保存在drawing.ini.templates.ini。
+更新包不覆盖用户已有的这两个文件。

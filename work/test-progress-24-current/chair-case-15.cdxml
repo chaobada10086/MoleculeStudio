@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="24" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="365.659112173 491.437888179 409.616487827 510.451911821">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="9" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="10">
+            <n id="3" p="409.616487827 495.739986211"/>
+            <b id="11" B="3" E="4" Order="1"/>
+            <n id="4" p="397.363615844 498.977657098"/>
+            <b id="12" B="4" E="5" Order="1"/>
+            <n id="5" p="374.57871109 491.437888179"/>
+            <b id="13" B="5" E="6" Order="1"/>
+            <n id="6" p="365.659112173 506.149813789"/>
+            <b id="14" B="6" E="7" Order="1"/>
+            <n id="7" p="377.911984156 502.912142902"/>
+            <b id="15" B="7" E="8" Order="1"/>
+            <n id="8" p="400.69688891 510.451911821"/>
+            <b id="16" B="8" E="3" Order="1"/>
+        </fragment>
+    </page>
+</CDXML>

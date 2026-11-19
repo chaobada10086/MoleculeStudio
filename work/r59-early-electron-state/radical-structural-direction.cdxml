@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="354.33653 495.9449 440.93907 545.9449">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="13" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="14">
+            <n id="3" p="397.6378 508.4449" NumHydrogens="0" Radical="Doublet" MoleculeStudioRadicalPosition="auto"/>
+            <b id="15" B="3" E="4" Order="1"/>
+            <n id="4" p="397.6378 533.4449" NumHydrogens="0" Radical="Doublet" MoleculeStudioRadicalPosition="auto"/>
+            <b id="16" B="3" E="5" Order="1"/>
+            <n id="5" p="375.987165 495.9449"/>
+            <b id="17" B="5" E="6" Order="1"/>
+            <n id="6" p="354.33653 508.4449"/>
+            <b id="18" B="6" E="7" Order="1"/>
+            <n id="7" p="354.33653 533.4449"/>
+            <b id="19" B="7" E="8" Order="1"/>
+            <n id="8" p="375.987165 545.9449"/>
+            <b id="20" B="8" E="4" Order="1"/>
+            <n id="9" p="419.288435 495.9449"/>
+            <b id="21" B="3" E="9" Order="1"/>
+            <n id="10" p="440.93907 508.4449"/>
+            <b id="22" B="9" E="10" Order="1"/>
+            <n id="11" p="440.93907 533.4449"/>
+            <b id="23" B="10" E="11" Order="1"/>
+            <n id="12" p="419.288435 545.9449"/>
+            <b id="24" B="11" E="12" Order="1"/>
+            <b id="25" B="12" E="4" Order="1"/>
+        </fragment>
+        <graphic id="26" GraphicType="Symbol" SymbolType="Electron" BoundingBox="397.6378 502.9449 405.7378 502.9449" LineWidth="0.59999999999999998">
+            <represent object="3" attribute="Radical"/>
+        </graphic>
+        <graphic id="27" GraphicType="Symbol" SymbolType="Electron" BoundingBox="397.6378 538.9449 405.7378 538.9449" LineWidth="0.59999999999999998">
+            <represent object="4" attribute="Radical"/>
+        </graphic>
+    </page>
+</CDXML>

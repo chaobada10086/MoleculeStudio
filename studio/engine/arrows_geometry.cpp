@@ -89,17 +89,11 @@ ArcParam makeArcParam(const core::Vec2& begin, const core::Vec2& end, double sag
     a.radius = std::sqrt(a.halfL * a.halfL + a.cy * a.cy);
     if (!(a.radius > 1e-9)) return a;
 
-    const double theta = 2.0 * std::asin(
-        std::max(-1.0, std::min(1.0, a.halfL / a.radius)));
-    const bool majorArc = (a.cy * a.s) > 0.0;
-    const double included = majorArc ? (2.0 * kPi - theta) : theta;
-    a.a0 = std::atan2(-a.cy, 0.0 - a.halfL);
-    a.a1 = std::atan2(-a.cy, a.chord - a.halfL);
-    double forward = a.a1 - a.a0;
-    while (forward <= 0.0) forward += 2.0 * kPi;
-    const double errF = std::fabs(forward - included);
-    const double errB = std::fabs((forward - 2.0 * kPi) + included);
-    a.sweep = (errF <= errB) ? forward : (forward - 2.0 * kPi);
+    a.a0 = std::atan2(-a.cy, -a.halfL);
+    // Signed sweep is determined by sagitta, including the exact semicircle.
+    // Comparing unsigned sweep magnitudes loses the sign at +/-180 degrees.
+    a.sweep = -4.0 * std::atan2(2.0 * a.s, a.chord);
+    a.a1 = a.a0 + a.sweep;
     a.valid = true;
     return a;
 }
@@ -112,7 +106,7 @@ core::Vec2 chordDir(const core::Vec2& begin, const core::Vec2& end) {
 
 double effectiveTolerance(const Tessellation& t, double span) {
     double tol = t.tolerance;
-    if (!(tol > 0.0)) tol = span > 1.0 ? span / 400.0 : 0.02;
+    if (!(tol > 0.0)) tol = std::min(0.02, std::max(0.002, span / 1600.0));
     if (!(tol > 1e-6)) tol = 1e-6;
     return tol;
 }
@@ -127,6 +121,38 @@ void addBound(core::Box* box, const core::Vec2& p, bool* any) {
 // ---------------------------------------------------------------------------
 // ArrowGeometry
 // ---------------------------------------------------------------------------
+std::vector<core::Vec2> routedPoints(const ArrowParams& p) {
+    std::vector<core::Vec2> points;core::Vec2 d=sub(p.end,p.begin),n=clockwiseNormal(d);
+    for(const auto& q:p.route)points.push_back(add(p.begin,add(mul(d,q.x),mul(n,q.y))));
+    if(points.size()>1){points.front()=p.begin;points.back()=p.end;}
+    // Earlier label clipping stored sparse samples of a circular arc. Recover
+    // that circle only when every sample agrees, so existing short arrows also
+    // render smoothly without rounding deliberate detour corners.
+    if(p.mechanism && p.route.size()>=5 && len(d)>1e-8){
+        const auto mid=p.route[p.route.size()/2];
+        if(std::fabs(mid.y)>1e-5){
+            const double cy=(mid.x*mid.x+mid.y*mid.y-mid.x)/(2*mid.y);
+            const double radius=std::sqrt(.25+cy*cy);
+            bool circular=true;
+            for(const auto& q:p.route){double dx=q.x-.5,dy=q.y-cy;
+                if(std::fabs(std::sqrt(dx*dx+dy*dy)-radius)*len(d)>.035){circular=false;break;}}
+            if(circular){
+                const double sagitta=(cy+std::copysign(radius,mid.y))*len(d);
+                Tessellation tess;tess.tolerance=.005;
+                std::vector<core::Vec2> smooth;
+                flattenArc(p.begin,p.end,sagitta,tess,&smooth);
+                bool samePath=true;
+                for(const auto& q:points){double nearest=1e30;
+                    for(size_t i=1;i<smooth.size();++i){auto delta=sub(smooth[i],smooth[i-1]);double dd=dotp(delta,delta);
+                        double t=dd>1e-12?std::max(0.,std::min(1.,dotp(sub(q,smooth[i-1]),delta)/dd)):0.;
+                        nearest=std::min(nearest,len(sub(q,add(smooth[i-1],mul(delta,t)))));}
+                    if(nearest>.06){samePath=false;break;}}
+                if(samePath)points.swap(smooth);
+            }
+        }
+    }
+    return points;
+}
 size_t ArrowGeometry::segmentCount() const {
     size_t n = 0;
     for (size_t i = 0; i < shafts.size(); ++i)
@@ -278,31 +304,22 @@ HeadGeometry buildHead(const core::Vec2& tail, const core::Vec2& tip,
     case ArrowHeadShape::Solid:
     case ArrowHeadShape::Barb:
     case ArrowHeadShape::Hollow: {
-        // A filled triangle (Solid/Barb) or an open triangle outline (Hollow).
+        // Filled heads share the mechanism arrow's swept wings and shallow
+        // recess. Hollow is an explicitly selected outline style.
         if (params.sides == HeadSides::Both) {
             h.outline.push_back(tip);
             h.outline.push_back(barbL);
-            // Native ACS solid head: the center is inset by 1969/2250.
-            if(params.shape==ArrowHeadShape::Solid)h.outline.push_back(sub(tip,mul(dir,L*.875)));
+            if(params.shape!=ArrowHeadShape::Hollow)
+                h.outline.push_back(sub(tip,mul(dir,L*.86)));
             h.outline.push_back(barbR);
         } else if (wantL) {
             h.outline.push_back(tip);
             h.outline.push_back(barbL);
-            h.outline.push_back(add(mul(tip, 0.5), mul(back, 0.5)));
+            h.outline.push_back(back);
         } else {
             h.outline.push_back(tip);
             h.outline.push_back(barbR);
-            h.outline.push_back(add(mul(tip, 0.5), mul(back, 0.5)));
-        }
-        if (params.shape == ArrowHeadShape::Barb) {
-            // Concave (stealth) variant: pull the two barb corners slightly
-            // toward the tail so the back edge is notched.
-            for (size_t i = 0; i < h.outline.size(); ++i) {
-                const core::Vec2 v = sub(h.outline[i], tip);
-                if (len(v) > L * 0.5) {
-                    h.outline[i] = add(tip, mul(normalize(v), L * 0.86));
-                }
-            }
+            h.outline.push_back(back);
         }
         h.filled = (params.shape != ArrowHeadShape::Hollow);
         h.valid = h.outline.size() >= 3;
@@ -387,19 +404,23 @@ core::Error buildArrowGeometry(const ArrowParams& params,
     out->shafts.resize(shaftCount);
 
     for (size_t s = 0; s < shaftCount; ++s) {
-        const double side = (s == 0) ? -1.0 : 1.0;
+        const double side = params.family==ArrowFamily::Arc&&params.shafts==ShaftCount::Double ? (s==0?1.:-1.)*(params.arcSagitta>=0?1.:-1.) : (s == 0 ? -1.0 : 1.0);
         const core::Vec2 off = mul(ln, halfGap * side);
         const core::Vec2 b = add(params.begin, off);
         const core::Vec2 e = add(params.end, off);
 
-        if (params.family == ArrowFamily::Arc) {
+        if(params.route.size()>1 && params.shafts==ShaftCount::One) {
+            out->shafts[s]=routedPoints(params);
+        } else if (params.family == ArrowFamily::Arc) {
             std::vector<core::Vec2> poly;
             // The Double family offsets the second arc the other way AND flips
             // its sagitta, which is what makes the two arcs embrace rather than
             // overlap.
             const double sag = (s == 1 && params.shafts == ShaftCount::Double)
                                    ? -params.arcSagitta : params.arcSagitta;
-            flattenArc(b, e, sag, tess, &poly);
+            Tessellation curveTess=tess;
+            if(params.mechanism && (curveTess.tolerance<=0 || curveTess.tolerance>.005))curveTess.tolerance=.005;
+            flattenArc(b, e, sag, curveTess, &poly);
             out->shafts[s].swap(poly);
         } else {
             out->shafts[s].push_back(b);
@@ -408,7 +429,16 @@ core::Error buildArrowGeometry(const ArrowParams& params,
     }
 
     if(params.head.shape==ArrowHeadShape::HalfArrow&&params.family==ArrowFamily::Straight){for(auto& shaft:out->shafts){if(params.head.atEnd)shaft.back()=sub(shaft.back(),mul(dir,params.head.length));if(params.head.atBegin)shaft.front()=add(shaft.front(),mul(dir,params.head.length));}}
-    if(params.shafts==ShaftCount::Two&&std::fabs(params.splitRatio-.5)>1e-6){auto& shaft=out->shafts[1];double ratio=std::min(params.splitRatio,1-params.splitRatio)/std::max(params.splitRatio,1-params.splitRatio);const core::Vec2 mid=mul(add(shaft.front(),shaft.back()),.5);shaft.front()=add(mid,mul(sub(shaft.front(),mid),ratio));shaft.back()=add(mid,mul(sub(shaft.back(),mid),ratio));}
+    if(params.shafts==ShaftCount::Two&&std::fabs(params.splitRatio-.5)>1e-6){
+        // A ratio below one half favours the reverse (lower) arrow. Align the
+        // short arrow at the tail of the long arrow, rather than centring it.
+        const bool upperShort=params.splitRatio<.5;
+        auto& shaft=out->shafts[upperShort?0:1];
+        const double ratio=std::min(params.splitRatio,1-params.splitRatio)/std::max(params.splitRatio,1-params.splitRatio);
+        if(upperShort)shaft.front()=add(shaft.back(),mul(sub(shaft.front(),shaft.back()),ratio));
+        else shaft.back()=add(shaft.front(),mul(sub(shaft.back(),shaft.front()),ratio));
+    }
+    bool centeredArcHead=false;
     // ---- heads ------------------------------------------------------------
     // The tangent at each end of the (possibly curved) shaft is what the head
     // must align with, so the direction is read from the flattened polyline
@@ -430,27 +460,159 @@ core::Error buildArrowGeometry(const ArrowParams& params,
                 tanEnd   = arc.tangentAt(1.0);
             }
         }
+        if(params.route.size()>1){auto pts=routedPoints(params);tanBegin=normalize(sub(pts[1],pts[0]));tanEnd=normalize(sub(pts.back(),pts[pts.size()-2]));}
         const core::Vec2 headTip = params.end;
         const core::Vec2 tailTip = params.begin;
         HeadParams endHead=params.head;if(endHead.shape==ArrowHeadShape::Cross||endHead.shape==ArrowHeadShape::Hash)endHead.shape=ArrowHeadShape::Solid;
+        if(params.family==ArrowFamily::Arc&&!isMechanismArrow(params)&&params.shafts==ShaftCount::One&&params.route.empty()&&(params.head.atEnd||params.head.atBegin)){
+            auto arc=makeArcParam(params.begin,params.end,params.arcSagitta);
+            if(arc.valid&&arc.radius>1e-8&&std::abs(arc.sweep)>1e-8){
+                double fraction=2*std::asin(std::min(.999999,params.head.length/(2*arc.radius)))/std::abs(arc.sweep);
+                fraction=std::min(params.head.atEnd&&params.head.atBegin?.45:.9,fraction);
+                double first=params.head.atBegin?fraction:0,last=params.head.atEnd?1-fraction:1;
+                auto neckBegin=arc.pointAt(first),neckEnd=arc.pointAt(last);if(params.head.atBegin)tanBegin=normalize(sub(neckBegin,tailTip));if(params.head.atEnd)tanEnd=normalize(sub(headTip,neckEnd));
+                endHead.length=params.head.atEnd?len(sub(headTip,neckEnd)):len(sub(tailTip,neckBegin));
+                auto& shaft=out->shafts.front();size_t segments=std::max(size_t(8),shaft.size());shaft.clear();for(size_t i=0;i<=segments;++i)shaft.push_back(arc.pointAt(first+(last-first)*double(i)/segments));centeredArcHead=true;
+            }
+        }
         if(params.shafts==ShaftCount::Two){
             HeadParams head=params.head;head.shape=ArrowHeadShape::Angled;head.sides=HeadSides::Left;
             auto& upper=out->shafts[0];auto& lower=out->shafts[1];
             out->heads.push_back(buildHead(upper[upper.size()-2],upper.back(),head));
             out->heads.push_back(buildHead(lower[1],lower.front(),head));
         }
+        else if(params.family==ArrowFamily::Arc&&params.shafts==ShaftCount::Double){
+            // The two return paths bend away from each other, and each has its
+            // own end tangent. A shared centre-line head crosses both paths.
+            if(params.head.atEnd||params.head.atBegin)for(size_t i=0;i<2;++i){
+                const double sign=(i==0?1.:-1.)*(params.arcSagitta>=0?1.:-1.);auto offset=mul(ln,halfGap*sign);auto arc=makeArcParam(add(params.begin,offset),add(params.end,offset),i==0?params.arcSagitta:-params.arcSagitta);
+                bool atEnd=i==0?params.head.atEnd:!params.head.atEnd;auto& shaft=out->shafts[i];
+                if(arc.valid&&arc.radius>1e-9&&std::abs(arc.sweep)>1e-9){double fraction=std::min(.9,2*std::asin(std::min(.999999,params.head.length/(2*arc.radius)))/std::abs(arc.sweep));double first=atEnd?0:fraction,last=atEnd?1-fraction:1;auto tip=arc.pointAt(atEnd?1:0),neck=arc.pointAt(atEnd?last:first);auto head=params.head;head.length=len(sub(tip,neck));out->heads.push_back(buildHead(neck,tip,head));size_t count=std::max(size_t(8),shaft.size());shaft.clear();for(size_t j=0;j<=count;++j)shaft.push_back(arc.pointAt(first+(last-first)*double(j)/count));}
+            }
+        }
         else if (params.head.atEnd) {
-            const core::Vec2 back = sub(headTip, mul(tanEnd, params.head.length));
+            const core::Vec2 back = sub(headTip, mul(tanEnd, endHead.length));
             HeadGeometry hg = buildHead(back, headTip, endHead);
             if (hg.valid) out->heads.push_back(hg);
         }
-        if (params.head.atBegin&&params.shafts!=ShaftCount::Two) {
-            const core::Vec2 back = add(tailTip, mul(tanBegin, params.head.length));
+        if (params.head.atBegin&&params.shafts!=ShaftCount::Two&&!(params.family==ArrowFamily::Arc&&params.shafts==ShaftCount::Double)) {
+            const core::Vec2 back = add(tailTip, mul(tanBegin, endHead.length));
             HeadGeometry hg = buildHead(back, tailTip, endHead);
             if (hg.valid) out->heads.push_back(hg);
         }
     }
 
+    // Join an ordinary curved shaft to the recess, rather than its old base.
+    if(centeredArcHead||(params.family==ArrowFamily::Arc&&params.shafts==ShaftCount::Double)){
+        for(size_t h=0;h<out->heads.size();++h){const auto& head=out->heads[h];if(!(head.filled&&head.outline.size()==4&&!out->hollow))continue;
+            size_t which=0;double nearest=1e100;bool begin=false;
+            const bool doubleArc=params.family==ArrowFamily::Arc&&params.shafts==ShaftCount::Double;
+            for(size_t i=0;i<out->shafts.size();++i){if(doubleArc&&i!=h)continue;auto& line=out->shafts[i];if(line.empty())continue;
+                for(bool first:{false,true}){double gap=len(sub(first?line.front():line.back(),head.tip));if(gap<nearest){nearest=gap;which=i;begin=first;}}}
+            auto& line=out->shafts[which];if(!line.empty()){if(begin)line.front()=head.outline[2];else line.back()=head.outline[2];}
+        }
+    }
+    // Fit a short mechanism head to the finite piece of incoming curve. The
+    // common head builder supplies the same recessed silhouette to all arrows.
+    if(params.mechanism&&params.head.sides==HeadSides::Both&&params.head.shape==ArrowHeadShape::Solid){
+        for(auto& head:out->heads)if(head.filled&&head.outline.size()==4){
+            // Align the finite head with the piece of curve it covers, rather
+            // than the infinitesimal tangent hidden underneath its tip.
+            auto points=out->shafts.front();
+            if(len(sub(head.tip,params.begin))<1e-8)std::reverse(points.begin(),points.end());
+            double remaining=params.head.length*.85;auto neck=points.front();
+            for(size_t i=points.size()-1;i>0;--i){double segment=len(sub(points[i],points[i-1]));
+                if(segment>=remaining){neck=add(points[i],mul(sub(points[i-1],points[i]),remaining/segment));break;}remaining-=segment;}
+            head=buildHead(neck,head.tip,params.head);
+            auto base=mul(add(head.outline[1],head.outline[3]),.5);
+            head.outline[1]=add(base,mul(sub(head.outline[1],base),.90));
+            head.outline[3]=add(base,mul(sub(head.outline[3],base),.90));
+        }
+    }
+    // Hide the shaft cap inside a full solid head, rather than letting the
+    // finite-width shaft reach (and visibly protrude past) the triangle tip.
+    if(!centeredArcHead && params.shafts==ShaftCount::One &&
+       !(params.mechanism&&(params.head.sides==HeadSides::Left||params.head.sides==HeadSides::Right)) &&
+       !out->hollow && (params.head.shape==ArrowHeadShape::Solid||params.head.shape==ArrowHeadShape::Barb||params.head.shape==ArrowHeadShape::Cross||params.head.shape==ArrowHeadShape::Hash)) {
+        auto trim=[](std::vector<core::Vec2>& line,double distance){
+            while(line.size()>1&&distance>0){auto d=sub(line.back(),line[line.size()-2]);double segment=len(d);
+                if(segment>distance){line.back()=sub(line.back(),mul(d,distance/segment));return;}
+                distance-=segment;line.pop_back();
+            }
+        };
+        auto& shaft=out->shafts[0];
+        double total=0;for(size_t i=1;i<shaft.size();++i)total+=len(sub(shaft[i],shaft[i-1]));
+        double inset=std::min(params.head.length*.65,total*.3);
+        auto finish=[&](bool atBegin){
+            if(atBegin)std::reverse(shaft.begin(),shaft.end());
+            // Keep the routed curve all the way into the tangent-aligned head.
+            // A second fitted neck can introduce an inflection at the apex of
+            // short arches even when the router supplied a smooth curve.
+            trim(shaft,inset);
+            if(atBegin)std::reverse(shaft.begin(),shaft.end());
+        };
+        if(params.head.atEnd)finish(false);
+        if(params.head.atBegin)finish(true);
+    }
+    // A hollow outline is transparent: terminate the shaft at its base plane
+    // rather than painting the interior white or drawing a bar through the hole.
+    if(!centeredArcHead&&params.shafts==ShaftCount::One&&(out->hollow||params.head.shape==ArrowHeadShape::Hollow)){
+        for(const auto& head:out->heads)if(head.outline.size()>=3){
+            auto axis=normalize(sub(head.tip,mul(add(head.outline[1],head.outline[2]),.5)));
+            // For a one-sided outline its base midpoint is off the shaft axis;
+            // use the head's actual travel direction to retain the same plane.
+            axis=core::direction(head.angleDeg);
+            const double depth=dotp(sub(head.tip,head.outline[1]),axis);
+            auto& line=out->shafts.front();bool begin=len(sub(head.tip,params.begin))<1e-8;if(begin)std::reverse(line.begin(),line.end());
+            while(line.size()>1){auto outside=line[line.size()-2],inside=line.back();double a=dotp(sub(head.tip,outside),axis)-depth,b=dotp(sub(head.tip,inside),axis)-depth;
+                if(b>=-1e-9)break;
+                if(a>=0&&a-b>1e-12){line.back()=add(outside,mul(sub(inside,outside),a/(a-b)));break;}
+                line.pop_back();
+            }
+            if(line.size()==1)line.clear();if(begin)std::reverse(line.begin(),line.end());
+        }
+    }
+    // A stroked barb has a flat cap at its apex. Resolve fishhooks and equilibrium
+    // harpoons as a tapered, filled outline with a single mathematical tip.
+    if((params.mechanism && params.shafts==ShaftCount::One &&
+       (params.head.sides==HeadSides::Left || params.head.sides==HeadSides::Right)) || params.shafts==ShaftCount::Two) {
+        for(size_t index=0;index<out->heads.size();++index){auto& head=out->heads[index];
+            auto direction=core::direction(head.angleDeg);
+            const double side=params.shafts==ShaftCount::Two||params.head.sides==HeadSides::Left?1.:-1.;
+            // Keep a barb shorter than the tight local radius. An oversized
+            // straight leg can cut across an otherwise smooth circular return.
+            double barbLength=params.head.length;
+            auto& shaft=out->shafts[params.shafts==ShaftCount::Two?index:0];
+            const bool atBegin=len(sub(head.tip,shaft.front()))<len(sub(head.tip,shaft.back()));
+            auto points=shaft;if(atBegin)std::reverse(points.begin(),points.end());
+            double along=0;
+            for(size_t i=points.size();i>2&&along<params.head.length*1.5;--i){auto a=sub(points[i-2],points[i-3]),b=sub(points[i-1],points[i-2]);double x=len(a),y=len(b);along+=y;if(x<1e-8||y<1e-8)continue;
+                double turn=std::acos(std::max(-1.,std::min(1.,dotp(a,b)/(x*y))));if(turn>1e-5)barbLength=std::min(barbLength,std::max(out->strokeWidth*2.,(x+y)*.5/turn*.70));}
+            const auto base=sub(head.tip,mul(direction,barbLength));
+            const bool fishhook=params.shafts==ShaftCount::One;
+            const auto wing=add(base,mul(screenLeft(direction),side*std::max(params.head.width*(fishhook?.40:.65),out->strokeWidth*(fishhook?1.25:2.))));
+            // The rear wing is a point too, rather than the squared-off end of
+            // a thick stroke. The shallow notch joins the incoming shaft.
+            const auto notch=sub(head.tip,mul(direction,barbLength*.72));
+            const auto neck=add(sub(head.tip,mul(direction,barbLength*.65)),mul(screenLeft(direction),-side*out->strokeWidth*.5));
+            head.outline={head.tip,wing,notch,neck};head.filled=true;head.strokes.clear();
+            if(fishhook){
+                // Reference fishhook: one long, slim filled wing, with its
+                // shoulder on the incoming curve. No second wing/rear spike.
+                double remaining=barbLength*.85;auto shoulder=points.front();
+                for(size_t i=points.size()-1;i>0;--i){double segment=len(sub(points[i],points[i-1]));
+                    if(segment>=remaining){shoulder=add(points[i],mul(sub(points[i-1],points[i]),remaining/segment));break;}remaining-=segment;}
+                head.outline={head.tip,wing,add(shoulder,mul(screenLeft(direction),-side*out->strokeWidth*.5))};
+            }
+            // Stop the shaft before its finite-width cap can blunt the apex.
+            if(atBegin)std::reverse(shaft.begin(),shaft.end());
+            double inset=std::min(barbLength*.65,barbLength-out->strokeWidth*.25);
+            while(shaft.size()>1&&inset>0){auto d=sub(shaft.back(),shaft[shaft.size()-2]);double span=len(d);
+                if(span>inset){shaft.back()=sub(shaft.back(),mul(d,inset/span));break;}
+                inset-=span;shaft.pop_back();}
+            if(atBegin)std::reverse(shaft.begin(),shaft.end());
+        }
+    }
     // ---- no-go markers ---------------------------------------------------
     // [GUIDE p109] crossed (no-go) arrows. The mark sits at the MIDDLE of the
     // shaft; that is where a reader looks for it, and it is why HeadSides::None
@@ -489,12 +651,12 @@ core::Error buildArrowGeometry(const ArrowParams& params,
             const core::Vec2 lln = clockwiseNormal(local);
             if (params.head.shape == ArrowHeadShape::Cross) {
                 std::vector<core::Vec2> a;
-                a.push_back(add(mid, mul(local,  L * 0.5)));
-                a.push_back(add(mid, mul(local, -L * 0.5)));
+                a.push_back(add(add(mid,mul(local,L*.35)),mul(lln,W*.9)));
+                a.push_back(sub(sub(mid,mul(local,L*.35)),mul(lln,W*.9)));
                 out->markers.push_back(a);
                 std::vector<core::Vec2> b;
-                b.push_back(add(mid, mul(lln,  W * 0.9)));
-                b.push_back(add(mid, mul(lln, -W * 0.9)));
+                b.push_back(sub(add(mid,mul(local,L*.35)),mul(lln,W*.9)));
+                b.push_back(add(sub(mid,mul(local,L*.35)),mul(lln,W*.9)));
                 out->markers.push_back(b);
             } else {
                 // Hash: two parallel slashes across the shaft.
@@ -592,7 +754,7 @@ std::vector<Handle> arrowHandles(const ArrowParams& params,
                                  const Tessellation& tess) {
     std::vector<Handle> handles;
     const core::Vec2 mid = (params.family == ArrowFamily::Arc)
-        ? arcMidpoint(params.begin, params.end, params.arcSagitta)
+        ? (params.route.size()>1?routedPoints(params)[routedPoints(params).size()/2]:arcMidpoint(params.begin, params.end, params.arcSagitta))
         : core::Vec2((params.begin.x + params.end.x) * 0.5,
                      (params.begin.y + params.end.y) * 0.5);
 
@@ -616,10 +778,10 @@ std::vector<Handle> arrowHandles(const ArrowParams& params,
         if (chord > 1e-9) {
             const core::Vec2 u = mul(d, 1.0 / chord);
             Handle a; a.kind = HandleKind::SplitA; a.shaft = 0;
-            a.point = add(params.begin, mul(u, chord * params.splitRatio));
+            a.point = params.shafts==ShaftCount::Two?add(params.begin,add(mul(u,chord*(1-std::min(1.,params.splitRatio/(1-params.splitRatio)))),mul(clockwiseNormal(u),-params.separation*.5))):add(params.begin, mul(u, chord * params.splitRatio));
             handles.push_back(a);
             Handle b; b.kind = HandleKind::SplitB; b.shaft = 1;
-            b.point = add(params.begin, mul(u, chord * (1.0 - params.splitRatio)));
+            b.point = params.shafts==ShaftCount::Two?add(params.begin,add(mul(u,chord*std::min(1.,(1-params.splitRatio)/params.splitRatio)),mul(clockwiseNormal(u),params.separation*.5))):add(params.begin, mul(u, chord * (1.0 - params.splitRatio)));
             handles.push_back(b);
         }
     }
@@ -627,7 +789,10 @@ std::vector<Handle> arrowHandles(const ArrowParams& params,
     // The head-size handle sits beside the head so a drag can change it without
     // moving the tip.
     if (params.head.atEnd || params.head.atBegin) {
-        const core::Vec2 dir = chordDir(params.begin, params.end);
+        const ArcParam arc = makeArcParam(params.begin, params.end, params.arcSagitta);
+        core::Vec2 dir = arc.valid && arc.radius>1e-9
+            ? arc.tangentAt(params.head.atEnd?1.0:0.0) : chordDir(params.begin, params.end);
+        if(params.route.size()>1){auto pts=routedPoints(params);dir=normalize(params.head.atEnd?sub(pts.back(),pts[pts.size()-2]):sub(pts[1],pts[0]));}
         const core::Vec2 ln = clockwiseNormal(dir);
         const core::Vec2 tip = params.head.atEnd ? params.end : params.begin;
         Handle h; h.kind = HandleKind::HeadSize;
@@ -667,10 +832,15 @@ bool canReverse(const ArrowParams& params) {
 
 ArrowParams reversedArrow(const ArrowParams& params) {
     ArrowParams out = params;
+    std::swap(out.electronSource,out.electronTarget);
+    std::swap(out.sourceVisualAnchor,out.targetVisualAnchor);
     core::Vec2 t = out.begin;
     out.begin = out.end;
     out.end = t;
+    std::reverse(out.route.begin(),out.route.end());for(auto& q:out.route){q.x=1-q.x;q.y=-q.y;}
     out.arcSagitta = -out.arcSagitta;   // flipping the chord flips the bulge side
+    out.mechanismSide = -out.mechanismSide;
+    std::swap(out.mechanismDeparture,out.mechanismArrival);
     // The head moves to the other end. [GUIDE p111] the words "left" and "right"
     // are relative to the direction the head points, so a one-sided head SWAPS
     // sides when the arrow is reversed - otherwise the visible barb would jump
@@ -679,6 +849,7 @@ ArrowParams reversedArrow(const ArrowParams& params) {
     const bool hadBegin = out.head.atBegin;
     out.head.atEnd   = hadBegin;
     out.head.atBegin = hadEnd;
+    if(out.mechanism&&!(hadEnd&&hadBegin)){out.head.atEnd=true;out.head.atBegin=false;}
     if (out.head.sides == HeadSides::Left) out.head.sides = HeadSides::Right;
     else if (out.head.sides == HeadSides::Right) out.head.sides = HeadSides::Left;
     // The split is mirrored so the SHORTER half stays the shorter half.
@@ -1083,12 +1254,18 @@ core::Error deleteControlPoint(std::vector<core::Vec2>* points,
     if (!points || !pointKind) return core::Error(core::ErrorCode::InvalidArgument, "no curve");
     if (index >= points->size())
         return core::Error(core::ErrorCode::OutOfRange, "control point index out of range");
+    if(points->size()<=2)
+        return core::Error(core::ErrorCode::InvalidGeometry, "a curve needs at least 2 points");
     points->erase(points->begin() + static_cast<std::ptrdiff_t>(index));
     if (index < pointKind->size())
         pointKind->erase(pointKind->begin() + static_cast<std::ptrdiff_t>(index));
+    if(pointKind->size()==points->size()){
+        pointKind->front()=0;
+        pointKind->back()=0;
+        if(index>0 && index<pointKind->size() && (*pointKind)[index-1] && (*pointKind)[index])
+            (*pointKind)[index]=0;
+    }
     if (points->size() < 3 && closed) *closed = false;
-    if (points->size() < 2)
-        return core::Error(core::ErrorCode::InvalidGeometry, "a curve needs at least 2 points");
     return core::Error::success();
 }
 
@@ -1268,7 +1445,7 @@ std::string svgFromArrow(const ArrowGeometry& geometry, const ArrowParams& param
         const HeadGeometry& h = geometry.heads[i];
         if (h.filled && h.outline.size() >= 3) {
             o << "  <polygon fill=\"" << (geometry.hollow ? "none" : "#000")
-              << "\" stroke=\"#000\" stroke-width=\"" << num(geometry.strokeWidth)
+              << "\" stroke=\"" << (geometry.hollow ? "#000" : "none") << "\" stroke-width=\"" << num(geometry.strokeWidth)
               << "\" points=\"";
             writePoints(o, h.outline);
             o << "\"/>\n";

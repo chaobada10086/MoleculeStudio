@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="220.655221192 382.744180732 378.189910058 458.503248018">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="31" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="32">
+            <n id="3" p="340.874226616 443.968152167" color="0"/>
+            <b id="33" B="3" E="4" Order="2" color="0"/>
+            <n id="4" p="354.422472352 439.089111537" Element="7" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">N</s>
+                </t>
+            </n>
+            <b id="34" B="4" E="5" Order="1" color="0"/>
+            <n id="5" p="353.968867144 424.696257671" color="0"/>
+            <b id="35" B="5" E="6" Order="2" color="0"/>
+            <n id="6" p="340.14027797 420.680025421" color="0"/>
+            <b id="36" B="6" E="7" Order="1" color="0"/>
+            <n id="7" p="332.047345058 432.590711245" Element="7" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">N</s>
+                </t>
+            </n>
+            <b id="37" B="8" E="7" Order="1" Display="WedgeBegin" color="0"/>
+            <n id="8" p="317.654491192 433.044316458" NumHydrogens="1" color="0"/>
+            <b id="38" B="8" E="9" Order="1" color="0"/>
+            <n id="9" p="309.561558275 444.955002282" NumHydrogens="1" color="0"/>
+            <b id="39" B="9" E="10" Order="1" color="0"/>
+            <n id="10" p="295.732969106 440.938770033" NumHydrogens="1" color="0"/>
+            <b id="40" B="10" E="11" Order="1" color="0"/>
+            <n id="11" p="295.279363893 426.545916167" NumHydrogens="1" color="0"/>
+            <b id="41" B="11" E="12" Order="1" color="0"/>
+            <n id="12" p="308.827609629 421.666875537" Element="8" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">O</s>
+                </t>
+            </n>
+            <b id="42" B="11" E="13" Order="1" Display="WedgeBegin" color="0"/>
+            <n id="13" p="283.368678069 418.452983255" color="0"/>
+            <b id="43" B="13" E="14" Order="1" color="0"/>
+            <n id="14" p="270.404649659 424.721473295" Element="8" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">O</s>
+                </t>
+            </n>
+            <b id="44" B="14" E="15" Order="1" color="0"/>
+            <n id="15" p="258.493963835 416.628540378" Element="15" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">P</s>
+                </t>
+            </n>
+            <b id="45" B="15" E="16" Order="2" color="0"/>
+            <n id="16" p="266.586896752 404.717854554" Element="8" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">O</s>
+                </t>
+            </n>
+            <b id="46" B="15" E="17" Order="1" color="0"/>
+            <n id="17" p="250.401030919 428.539226207" Element="8" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">OH</s>
+                </t>
+            </n>
+            <b id="47" B="15" E="18" Order="1" color="0"/>
+            <n id="18" p="246.583278011 408.535607466" Element="8" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">O</s>
+                </t>
+            </n>
+            <b id="48" B="18" E="19" Order="1" color="0"/>
+            <n id="19" p="233.619249602 414.804097506" Element="15" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">P</s>
+                </t>
+            </n>
+            <b id="49" B="19" E="20" Order="2" color="0"/>
+            <n id="20" p="239.887739647 427.768125916" Element="8" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">O</s>
+                </t>
+            </n>
+            <b id="50" B="19" E="21" Order="1" color="0"/>
+            <n id="21" p="227.350759557 401.840069101" Element="8" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">OH</s>
+                </t>
+            </n>
+            <b id="51" B="19" E="22" Order="1" color="0"/>
+            <n id="22" p="220.655221192 421.072587551" Element="8" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">OH</s>
+                </t>
+            </n>
+            <b id="52" B="10" E="23" Order="1" Display="WedgedHashBegin" color="0"/>
+            <n id="23" p="284.355528184 449.765651591" Element="8" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">OH</s>
+                </t>
+            </n>
+            <b id="53" B="9" E="24" Order="1" Display="WedgedHashBegin" color="0"/>
+            <n id="24" p="314.440598911 458.503248018" Element="8" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">OH</s>
+                </t>
+            </n>
+            <b id="54" B="6" E="25" Order="1" color="0"/>
+            <n id="25" p="336.704142539 406.695999777" Element="7" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">N</s>
+                </t>
+            </n>
+            <b id="55" B="25" E="26" Order="2" color="0"/>
+            <n id="26" p="347.096596283 396.728206377" color="0"/>
+            <b id="56" B="26" E="27" Order="1" color="0"/>
+            <n id="27" p="360.925185458 400.744438626" Element="7" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">NH</s>
+                </t>
+            </n>
+            <b id="57" B="27" E="28" Order="1" color="0"/>
+            <n id="28" p="364.361320888 414.728464276" color="0"/>
+            <b id="58" B="28" E="29" Order="2" color="0"/>
+            <n id="29" p="378.189910058 418.744696525" Element="8" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">O</s>
+                </t>
+            </n>
+            <b id="59" B="26" E="30" Order="1" color="0"/>
+            <n id="30" p="343.660460853 382.744180732" Element="7" NumHydrogens="2" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">NH2</s>
+                </t>
+            </n>
+            <b id="60" B="7" E="3" Order="1" color="0"/>
+            <b id="61" B="28" E="5" Order="1" color="0"/>
+            <b id="62" B="12" E="8" Order="1" color="0"/>
+        </fragment>
+    </page>
+</CDXML>

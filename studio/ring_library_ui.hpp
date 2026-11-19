@@ -17,14 +17,19 @@ struct RingLibraryPicker{
     HWND hwnd=0,owner=0,search=0,category=0,variant=0,place=0,prev=0,next=0;HFONT font=0;
     float dpi=1;int page=0,selected=10,result=-1,columns=4,rows=3;std::vector<int> filtered,recent;
     std::wstring query;std::vector<std::pair<int,RectF>> cards;
+    int localParents=-1;bool sharedExpanded=false;
+    std::function<void()> expandSharedSearch;
+    std::function<bool(int)> chooseSharedResult;
     static std::wstring lower(std::wstring text){for(auto& c:text)c=std::towlower(c);return text;}
     static bool matches(int parent,const std::wstring& text){return ringLibraryModel().matches(parent,text);}
 
     int selectedParent()const{return model.variants[selected].parent;}
     void selectParent(int p){auto& parent=model.parents[p];if(selectedParent()!=p){selected=parent.firstVariant;if(studio_i18n::sendMessage(category,LB_GETCURSEL,0,0)==1)for(int id:recent)if(model.variants[id].parent==p){selected=id;break;}}studio_i18n::sendMessage(variant,CB_RESETCONTENT,0,0);for(int i=0;i<parent.variantCount;++i)studio_i18n::sendMessage(variant,CB_ADDSTRING,0,(LPARAM)W(model.variants[parent.firstVariant+i].title).c_str());studio_i18n::sendMessage(variant,CB_SETCURSEL,selected-parent.firstVariant,0);EnableWindow(variant,parent.variantCount>1);InvalidateRect(hwnd,0,FALSE);}
     void filter(){filtered.clear();wchar_t value[512]={};studio_i18n::getWindowText(search,value,512);query=value;int group=int(studio_i18n::sendMessage(category,LB_GETCURSEL,0,0));
-        if(group==1){for(int id:recent){int p=model.variants[id].parent;if(model.matches(p,query)&&std::find(filtered.begin(),filtered.end(),p)==filtered.end())filtered.push_back(p);}}
-        else for(int i=0;i<int(model.parents.size());++i)if((group<2||std::string(model.parents[i].category)==model.categories[group-2])&&model.matches(i,query))filtered.push_back(i);
+        const bool allLibraries=!query.empty()&&bool(expandSharedSearch);
+        if(allLibraries&&!sharedExpanded){sharedExpanded=true;expandSharedSearch();}
+        if(group==1&&!allLibraries){for(int id:recent){int p=model.variants[id].parent;if(model.matches(p,query)&&std::find(filtered.begin(),filtered.end(),p)==filtered.end())filtered.push_back(p);}}
+        else for(int i=0;i<int(model.parents.size());++i)if((allLibraries||localParents<0||i<localParents)&&(allLibraries||group<2||std::string(model.parents[i].category)==model.categories[group-2])&&model.matches(i,query))filtered.push_back(i);
         page=0;if(!filtered.empty()){selectParent(std::find(filtered.begin(),filtered.end(),selectedParent())!=filtered.end()?selectedParent():filtered[0]);page=int(std::find(filtered.begin(),filtered.end(),selectedParent())-filtered.begin())/(rows*columns);}EnableWindow(place,!filtered.empty());EnableWindow(variant,!filtered.empty()&&model.parents[selectedParent()].variantCount>1);InvalidateRect(hwnd,0,FALSE);
     }
     void layout(){RECT rc;GetClientRect(hwnd,&rc);float w=rc.right/dpi,h=rc.bottom/dpi;rows=std::max(1,int((h-170)/model.cardHeight));
@@ -67,7 +72,7 @@ struct RingLibraryPicker{
         RECT windowRect={0,0,int(950*dpi),int(650*dpi)};AdjustWindowRectEx(&windowRect,WS_CAPTION|WS_SYSMENU,0,WS_EX_DLGMODALFRAME);int width=windowRect.right-windowRect.left,height=windowRect.bottom-windowRect.top;RECT host;GetWindowRect(owner,&host);int x=std::max(int(monitor.rcWork.left),std::min(int((host.left+host.right-width)/2),int(monitor.rcWork.right)-width)),y=std::max(int(monitor.rcWork.top),std::min(int((host.top+host.bottom-height)/2),int(monitor.rcWork.bottom)-height));
         studio_i18n::createWindowEx(WS_EX_DLGMODALFRAME,wc.lpszClassName,W(model.title+" · 结构库").c_str(),WS_POPUP|WS_CAPTION|WS_SYSMENU,x,y,width,height,owner,0,wc.hInstance,this);if(!hwnd){if(font)DeleteObject(font);return -1;}EnableWindow(owner,FALSE);ShowWindow(hwnd,SW_SHOW);SetFocus(search);MSG msg={};
         while(IsWindow(hwnd)&&GetMessageW(&msg,0,0,0)>0){if(!IsDialogMessageW(hwnd,&msg)){TranslateMessage(&msg);DispatchMessageW(&msg);}}
-        if(msg.message==WM_QUIT)PostQuitMessage(int(msg.wParam));EnableWindow(owner,TRUE);SetForegroundWindow(owner);if(font)DeleteObject(font);return result;
+        if(msg.message==WM_QUIT)PostQuitMessage(int(msg.wParam));EnableWindow(owner,TRUE);SetForegroundWindow(owner);if(font)DeleteObject(font);if(result>=0&&chooseSharedResult&&chooseSharedResult(result))return -1;return result;
     }
 };
 

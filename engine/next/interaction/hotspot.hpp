@@ -34,6 +34,8 @@
 #include "input_event.hpp"
 #include "keymap.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <vector>
@@ -80,6 +82,8 @@ struct SnapCandidate {
     CandidateKind   kind;
     bool            eligible;   // false == visible but not a legal join target
     bool            tolerant;   // label hotspot / handle: uses the smaller radius
+    bool            hasHitBox=false;
+    core::Box       hitBox;      // visible atom label; point is still the bond endpoint
 
     SnapCandidate()
         : kind(CandidateKind::Atom), eligible(true), tolerant(false) {}
@@ -87,6 +91,14 @@ struct SnapCandidate {
                   CandidateKind k = CandidateKind::Atom, bool ok = true,
                   bool tol = false)
         : ref(r), point(pt), kind(k), eligible(ok), tolerant(tol) {}
+
+    double hitDistance(const core::Vec2& pointer) const {
+        const double center=core::length(pointer-point);
+        if(!hasHitBox)return center;
+        const double x=std::max(0.,std::max(hitBox.min.x-pointer.x,pointer.x-hitBox.max.x));
+        const double y=std::max(0.,std::max(hitBox.min.y-pointer.y,pointer.y-hitBox.max.y));
+        return std::min(center,std::hypot(x,y));
+    }
 };
 
 // Statistics for one candidate acquisition. Recorded so the 50,000-atom claim

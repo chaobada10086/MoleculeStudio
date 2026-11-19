@@ -1,0 +1,1 @@
+projection: ChemDraw object tags restore projection without duplicate ink

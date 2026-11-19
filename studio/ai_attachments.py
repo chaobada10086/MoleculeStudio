@@ -106,7 +106,6 @@ class Attachments:
             raise ValueError('需要 pages 及 path 或 attachment')
         from ai_local_sources import resolve_source
         number,source,_,count=resolve_source(self,{k:v for k,v in args.items() if k!='pages'})
-        if 'attachment' in args and source['kind']!='pdf': raise ValueError('PDF附件编号不存在；本地图片预览请使用path与pages=[1]')
         path=source['path'];pages=args['pages']
         if (not isinstance(pages, list) or not 1 <= len(pages) <= 4 or
                 any(type(p) is not int or not 1 <= p <= count for p in pages)):

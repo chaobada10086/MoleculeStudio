@@ -1,0 +1,12 @@
+{
+  "four_styles_one_click": true,
+  "selected_color_updates": true,
+  "tooltip_hidden_after_click": true,
+  "cycle": [
+    1,
+    2,
+    3,
+    0
+  ],
+  "tooltip_text_seen_in_r18": true
+}

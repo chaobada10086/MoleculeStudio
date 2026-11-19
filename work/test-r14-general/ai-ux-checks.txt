@@ -1,0 +1,14 @@
+banner_visible_blank=true
+config_route=true
+half_config=true
+banner_hides=true
+send_prompts=true
+narrow_visible=true
+docked_visible=true
+centred_after_pan=true
+existing_untouched=true
+single_undo=true
+selection_not_carried=true
+docked_centre=true
+oversized_centred=true
+passed

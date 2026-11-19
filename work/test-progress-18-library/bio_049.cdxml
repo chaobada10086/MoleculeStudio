@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CDXML BondLength="14.4" LineWidth="0.59999999999999998" CaptionSize="10" LabelSize="10" CaptionFont="3" LabelFont="3" CreationProgram="Molecule Studio" BondSpacing="18" BoundingBox="254.402526714 402.468133033 345.990651411 443.339295717">
+    <colortable>
+        <color r="1" g="1" b="1"/>
+        <color r="0" g="0" b="0"/>
+        <color r="1" g="0" b="0"/>
+        <color r="1" g="1" b="0"/>
+        <color r="0" g="1" b="0"/>
+        <color r="0" g="1" b="1"/>
+        <color r="0" g="0" b="1"/>
+        <color r="1" g="0" b="1"/>
+    </colortable>
+    <fonttable>
+        <font id="3" charset="iso-8859-1" name="Times New Roman"/>
+    </fonttable>
+    <page id="18" BoundingBox="0 0 595.2756 841.8898" Width="595.2756" Height="841.8898" DrawingSpace="poster" WidthPages="1" HeightPages="1" PageOverlap="0" HeaderPosition="36" FooterPosition="36" MoleculeStudioPageWidth="595.2756" MoleculeStudioPageHeight="841.8898">
+        <fragment id="19">
+            <n id="3" p="278.787739544 406.897851357" Element="7" NumHydrogens="2" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">NH2</s>
+                </t>
+            </n>
+            <b id="20" B="4" E="3" Order="1" Display="WedgeBegin" color="0"/>
+            <n id="4" p="279.32658981 421.287765894" color="0"/>
+            <b id="21" B="4" E="5" Order="1" color="0"/>
+            <n id="5" p="267.133983392 428.949381179" color="0"/>
+            <b id="22" B="5" E="6" Order="2" color="0"/>
+            <n id="6" p="267.672833658 443.339295717" Element="8" NumHydrogens="0" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">O</s>
+                </t>
+            </n>
+            <b id="23" B="4" E="7" Order="1" color="0"/>
+            <n id="7" p="292.058046488 428.016065142" color="0"/>
+            <b id="24" B="7" E="8" Order="1" color="0"/>
+            <n id="8" p="304.250652906 420.354449857" color="0"/>
+            <b id="25" B="8" E="9" Order="2" color="0"/>
+            <n id="9" p="305.218910173 405.987039587" color="0"/>
+            <b id="26" B="8" E="10" Order="1" color="0"/>
+            <n id="10" p="317.615664114 425.715091182" color="0"/>
+            <b id="27" B="9" E="11" Order="1" color="0"/>
+            <n id="11" p="319.182337285 402.468133033" Element="7" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">NH</s>
+                </t>
+            </n>
+            <b id="28" B="10" E="12" Order="1" color="0"/>
+            <n id="12" p="326.84395257 414.660739451" color="0"/>
+            <b id="29" B="10" E="13" Order="2" color="0"/>
+            <n id="13" p="322.574869309 439.234199281" color="0"/>
+            <b id="30" B="11" E="12" Order="1" color="0"/>
+            <n id="14" p="341.031446216 417.125495819" color="0"/>
+            <b id="31" B="12" E="14" Order="2" color="0"/>
+            <n id="15" p="336.762362955 441.698955649" color="0"/>
+            <b id="32" B="13" E="15" Order="1" color="0"/>
+            <n id="16" p="345.990651411 430.644603918" color="0"/>
+            <b id="33" B="14" E="16" Order="1" color="0"/>
+            <n id="17" p="254.402526714 422.221081926" Element="8" NumHydrogens="1" color="0">
+                <t color="0">
+                    <s font="3" size="4.8000000000000007" face="96" color="0">OH</s>
+                </t>
+            </n>
+            <b id="34" B="15" E="16" Order="2" color="0"/>
+            <b id="35" B="5" E="17" Order="1" color="0"/>
+        </fragment>
+    </page>
+</CDXML>
