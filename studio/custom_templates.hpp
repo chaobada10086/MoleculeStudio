@@ -1,8 +1,10 @@
 #pragma once
+#include "app_paths.hpp"
 namespace custom_templates {
 static std::wstring directory(){
     if(auto path=std::getenv("MOLECULE_STUDIO_CUSTOM_TEMPLATE_DIR"))return W(path);
-    wchar_t exe[32768]={};GetModuleFileNameW(0,exe,32768);std::wstring path=exe;return path.substr(0,path.find_last_of(L"\\/"))+L"\\custom_templates";
+    // Portable: custom_templates next to the EXE. Packaged: %LOCALAPPDATA%\\MoleculeStudio\\custom_templates.
+    return apppaths::dataDir()+L"\\custom_templates";
 }
 static std::string trimmed(std::string value){auto a=value.find_first_not_of(" \t\r\n");return a==std::string::npos?"":value.substr(a,value.find_last_not_of(" \t\r\n")-a+1);}
 struct Entry {std::string name,group;std::wstring path;};

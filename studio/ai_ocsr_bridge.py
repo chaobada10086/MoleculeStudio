@@ -18,6 +18,18 @@ from contextlib import contextmanager
 from pathlib import Path
 
 
+def state_dir(base):
+    """Writable folder for OCSR caches and review records.
+
+    The native host writes its install folder for a portable copy, but a
+    Microsoft Store/MSIX install folder is read-only, so the C++ side exports
+    MOLECULE_STUDIO_DATA_DIR to every Python child and that folder wins. Without
+    the variable nothing changes (portable behaviour stays identical).
+    """
+    configured = os.environ.get('MOLECULE_STUDIO_DATA_DIR')
+    return Path(configured) if configured else Path(base)
+
+
 def _resolve_source(attachments, args):
     from ai_local_sources import resolve_source
     number, source, page, count = resolve_source(attachments,args)
@@ -78,7 +90,8 @@ def service_session(base):
     script = base / 'ocsr_service.py'
     if not python.is_file() or not script.is_file():
         raise ValueError('本地图片转结构组件不可用，请检查 ocsr_runtime')
-    cache, records = base / 'OCSRCache', base / 'recognition_records'
+    state = state_dir(base)
+    cache, records = state / 'OCSRCache', state / 'recognition_records'
     command = [str(python), '-X', 'utf8', '-u', str(script), '--serve', '--models', str(runtime / 'models'),
                '--cache', str(cache), '--records', str(records)]
     flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
@@ -238,7 +251,8 @@ def _recognize(request, source, page, crop, rendered):
 def recognize_and_draw(engine, attachments, args, base, number, style):
     source_id, source, page = _resolve_source(attachments, args)
     crop = _validate_crop(args.get('crop', [0, 0, 1, 1]))
-    cache, records = base / 'OCSRCache', base / 'recognition_records'
+    state = state_dir(base)
+    cache, records = state / 'OCSRCache', state / 'recognition_records'
     with service_session(base) as request:
         engine.progress('正在本地渲染附件…')
         rendered = request({'op': 'render', 'file': str(source['path']),

@@ -1,4 +1,5 @@
 #pragma once
+#include "app_paths.hpp"
 // Literature structure recognition (OCSR) dialog.
 //
 // The dialog is deliberately a thin client: the isolated Python worker does
@@ -509,14 +510,15 @@ private:
         scriptPath = appDir + L"\\ocsr_service.py";
         modelsDir = runtimeDir + L"\\models";
         // OpenCV (inside MolScribe) cannot read image files under non-ASCII paths on
-        // Windows, so model input must live in an ASCII temp directory. Keep records
-        // next to the application so the user can find review artifacts.
+        // Windows, so model input must live in an ASCII temp directory. Review
+        // artifacts (records) are user state, so they go to the writable data folder
+        // and stay findable even when the install directory is read-only (Store/MSIX).
         wchar_t temporary[32768]{};
         DWORD temporaryLength = GetTempPathW(32768, temporary);
         cacheDir = (temporaryLength && temporaryLength < 32768)
                        ? std::wstring(temporary, temporaryLength) + L"MoleculeStudio-OCSR-cache"
-                       : appDir + L"\\OCSRCache";
-        recordsDir = appDir + L"\\recognition_records";
+                       : apppaths::dataDir() + L"\\OCSRCache";
+        recordsDir = apppaths::dataDir() + L"\\recognition_records";
     }
 
     HWND createControl(const wchar_t* className, const wchar_t* text, DWORD style, int id) {

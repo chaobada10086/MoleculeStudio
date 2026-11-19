@@ -1,5 +1,6 @@
 #ifndef STUDIO_OLE_PREVIEW_HPP
 #define STUDIO_OLE_PREVIEW_HPP
+#include "app_paths.hpp"
 // Vector presentation for OLE objects: the editor scene is re-projected into an
 // EMF so Word/PowerPoint can display the structure while our server is closed.
 #include "interop.hpp"
@@ -226,8 +227,9 @@ inline HENHMETAFILE renderDocument(const Document& source,SIZE extent,size_t* tr
     wchar_t temp[MAX_PATH]={};
     if(GetTempPathW(MAX_PATH,temp))result=record(std::wstring(temp)+name);
     if(!result){
-        wchar_t exe[MAX_PATH]={};GetModuleFileNameW(nullptr,exe,MAX_PATH);std::wstring directory=exe;
-        size_t slash=directory.find_last_of(L"\\/");if(slash!=std::wstring::npos)directory.resize(slash+1);else directory.clear();
+        // Never fall back to the install directory: it is read-only for a Store/MSIX user.
+        std::wstring directory=apppaths::dataDir();
+        if(!directory.empty())directory+=L'\\';
         result=record(directory+name);
     }
     if(!result)result=record(L".\\"+name);
@@ -408,7 +410,7 @@ inline HENHMETAFILE renderSimple(const Document& doc,SIZE extent){
     };
     HENHMETAFILE result=nullptr;wchar_t temp[MAX_PATH]={};
     if(GetTempPathW(MAX_PATH,temp))result=record(std::wstring(temp)+name);
-    if(!result){wchar_t exe[MAX_PATH]={};GetModuleFileNameW(nullptr,exe,MAX_PATH);std::wstring dir=exe;size_t slash=dir.find_last_of(L"\\/");if(slash!=std::wstring::npos)dir.resize(slash+1);else dir.clear();result=record(dir+name);}
+    if(!result){std::wstring dir=apppaths::dataDir();if(!dir.empty())dir+=L'\\';result=record(dir+name);}
     if(!result)result=record(L".\\"+name);
     ReleaseDC(nullptr,reference);return result;
 }
@@ -462,7 +464,7 @@ inline HENHMETAFILE renderSceneImage(const r62::render::Scene& scene,const r62::
     };
     HENHMETAFILE result=nullptr;wchar_t temp[MAX_PATH]={};
     if(GetTempPathW(MAX_PATH,temp))result=record(std::wstring(temp)+name);
-    if(!result){wchar_t exe[MAX_PATH]={};GetModuleFileNameW(nullptr,exe,MAX_PATH);std::wstring dir=exe;size_t slash=dir.find_last_of(L"\\/");if(slash!=std::wstring::npos)dir.resize(slash+1);else dir.clear();result=record(dir+name);}
+    if(!result){std::wstring dir=apppaths::dataDir();if(!dir.empty())dir+=L'\\';result=record(dir+name);}
     if(!result)result=record(L".\\"+name);
     ReleaseDC(nullptr,reference);return result;
 }

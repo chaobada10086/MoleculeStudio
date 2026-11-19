@@ -1,4 +1,5 @@
 #pragma once
+#include "app_paths.hpp"
 #include "next/text/rich_text.hpp"
 #include <algorithm>
 #include <cstring>
@@ -25,7 +26,9 @@ static_assert(nickdata::count==functionalgroupsdoc::count,"docs/FUNCTIONAL_GROUP
 //      radical mark (*) rides with the charge: Fe3+ -> Fe3+, SO42- -> SO4^2-,
 //      Ph+* -> Ph^+ with a radical dot.
 namespace chemcompletion {
-inline std::wstring settingsPath(){wchar_t exe[32768]={};GetModuleFileNameW(nullptr,exe,32768);std::wstring p=exe;return p.substr(0,p.find_last_of(L"\\/"))+L"\\interface.ini";}
+// Same writable interface.ini the rest of the UI uses: portable next to the EXE,
+// %LOCALAPPDATA%\\MoleculeStudio when the install folder is read-only (Store/MSIX).
+inline std::wstring settingsPath(){return apppaths::dataFile(L"interface.ini");}
 inline bool& enabled(){static bool value=GetPrivateProfileIntW(L"Text",L"CompleteGroupLabels",1,settingsPath().c_str())!=0;return value;}
 inline bool saveEnabled(bool value){if(!WritePrivateProfileStringW(L"Text",L"CompleteGroupLabels",value?L"1":L"0",settingsPath().c_str()))return false;enabled()=value;return true;}
 inline bool& formulaLayout(){static bool value=GetPrivateProfileIntW(L"GroupCompletion",L"FormulaLayout",1,settingsPath().c_str())!=0;return value;}

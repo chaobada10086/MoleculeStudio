@@ -1,4 +1,5 @@
 #include "cdx_binary.hpp"
+#include "app_paths.hpp"
 #ifndef STUDIO_OLE_EMBED_HPP
 #define STUDIO_OLE_EMBED_HPP
 // Minimal out-of-place OLE document server core, modelled on the ChemDraw OLE
@@ -30,9 +31,8 @@ static const wchar_t kContentsStream[] = L"CONTENTS";
 static const wchar_t kPreviewStream[] = L"\1OlePres";
 
 static void logLine(const char* text){
-    wchar_t exe[32768]={};GetModuleFileNameW(nullptr,exe,32768);std::wstring file=exe;
-    size_t slash=file.find_last_of(L"\\/");if(slash!=std::wstring::npos)file.resize(slash+1);else file.clear();
-    file+=L"molecule_studio_ole.log";
+    // Diagnostics are user state: writable data folder, never the read-only install directory.
+    std::wstring file=apppaths::dataFile(L"molecule_studio_ole.log");
     HANDLE h=CreateFileW(file.c_str(),FILE_APPEND_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE,0,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
     if(h==INVALID_HANDLE_VALUE)return;
     char line[2200];SYSTEMTIME st;GetLocalTime(&st);

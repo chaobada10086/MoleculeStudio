@@ -1,11 +1,13 @@
 #ifndef STUDIO_PAGE_DEFAULTS_HPP
 #define STUDIO_PAGE_DEFAULTS_HPP
+#include "app_paths.hpp"
 #include <windows.h>
 #include <cmath>
 #include <string>
 // Paper size, orientation and page counts used by new documents. The choice is
-// made in 设置 · 页面与排版 and stored in interface.ini next to the executable so
-// it survives restarts and travels with the portable build. Geometry is kept in
+// made in 设置 · 页面与排版 and stored in interface.ini so it survives restarts:
+// portable next to the executable, in %LOCALAPPDATA%\MoleculeStudio when the
+// install folder is read-only (Store/MSIX). Geometry is kept in
 // points because that is what the document model and Page use.
 namespace pagedefaults {
 struct Values {
@@ -14,8 +16,7 @@ struct Values {
 inline std::wstring& pathOverride(){static std::wstring value;return value;}
 inline std::wstring path(){
     if(!pathOverride().empty())return pathOverride();
-    wchar_t exe[32768]={};GetModuleFileNameW(nullptr,exe,32768);
-    std::wstring file=exe;return file.substr(0,file.find_last_of(L"\\/"))+L"\\interface.ini";
+    return apppaths::dataFile(L"interface.ini");
 }
 inline bool valid(const Values& value){
     return std::isfinite(value.width)&&std::isfinite(value.height)&&value.width>=72&&value.width<=14400&&value.height>=72&&value.height<=14400&&value.across>=1&&value.across<=20&&value.down>=1&&value.down<=20;

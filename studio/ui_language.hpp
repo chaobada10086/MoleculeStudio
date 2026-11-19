@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include "app_paths.hpp"
 #include <string>
 #include <map>
 #include <vector>
@@ -29,7 +30,7 @@
 namespace studio_i18n {
 #include "ui_language_extra.hpp"
 inline std::wstring& pathOverride(){static std::wstring p;return p;}
-inline std::wstring path(){if(!pathOverride().empty())return pathOverride();wchar_t p[32768]={};GetModuleFileNameW(0,p,32768);std::wstring s=p;return s.substr(0,s.find_last_of(L"\\/"))+L"\\interface.ini";}
+inline std::wstring path(){if(!pathOverride().empty())return pathOverride();return apppaths::dataFile(L"interface.ini");}
 inline const wchar_t* code(int i){static const wchar_t* v[]={L"zh-CN",L"zh-TW",L"en",L"ja",L"ko",L"fr",L"de",L"es",L"ru",L"pt",L"it",L"ar",L"hi",L"id",L"vi"};return v[i>=0&&i<15?i:0];}
 inline const wchar_t* name(int i){static const wchar_t* v[]={L"简体中文",L"繁體中文",L"English",L"日本語",L"한국어",L"Français",L"Deutsch",L"Español",L"Русский",L"Português",L"Italiano",L"العربية",L"हिन्दी",L"Bahasa Indonesia",L"Tiếng Việt"};return v[i>=0&&i<15?i:0];}
 inline int load(){wchar_t v[32]={};GetPrivateProfileStringW(L"Interface",L"Language",L"zh-CN",v,32,path().c_str());for(int i=0;i<15;++i)if(wcscmp(v,code(i))==0)return i;return 0;}

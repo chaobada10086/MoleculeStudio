@@ -4,6 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include "app_paths.hpp"
 #include "ui_language.hpp"
 #include <windowsx.h>
 #include <commdlg.h>
@@ -278,7 +279,9 @@ static bool aiAssistantAvailable(){
 static std::wstring backendPythonPath(){
     std::wstring dir=executableDirectory();
     wchar_t buffer[32768]={};
-    std::wstring ini=dir+L"\\chemistry_backend.ini";
+    // Shipped next to the EXE; when the install folder is read-only (Store/MSIX) a
+    // user can drop an override into the writable data folder instead.
+    std::wstring ini=apppaths::settingsFile(L"chemistry_backend.ini");
     for(const wchar_t* key:{L"Python",L"ChemistryPython"}){
         DWORD length=GetPrivateProfileStringW(L"Backend",key,L"",buffer,32768,ini.c_str());
         if(!length)continue;
@@ -476,7 +479,8 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
         harpoon(cy+separation,b.arg==3?span*.53f:span,-1.f);
     }
     std::vector<std::pair<RectF,size_t>> compactMenus;bool ribbonIconsOnly=false,graphicsDense=false,graphicsAutoCompact=false,homeAutoCompact=false,otherAutoCompact=false,swallowHotkeyChar=false;
-    std::wstring interfacePath(){wchar_t exe[32768]={};GetModuleFileNameW(nullptr,exe,32768);std::wstring path=exe;return path.substr(0,path.find_last_of(L"\\/"))+L"\\interface.ini";}
+    // interface.ini carries user state (ribbon, TLC, skin, arrow preset, page defaults), so it lives in the writable data folder: the portable EXE folder when unpackaged, %LOCALAPPDATA%\\MoleculeStudio when packaged.
+    std::wstring interfacePath(){return apppaths::dataFile(L"interface.ini");}
     // A first install has no saved Ribbon keys: the expanded ribbon is the default
     // (ChemDraw opens with its toolbars visible). Only an explicitly saved
     // Compact=1 or Pinned=0 restores a collapsed/auto-hidden toolbar.
@@ -1766,7 +1770,7 @@ void App::createGraphics(){
         }
         std::string why;if(!gl->initialize(&why))throw std::runtime_error(why);
     }
-    wchar_t exePath[32768]={};GetModuleFileNameW(nullptr,exePath,32768);auto rendererLog=std::wstring(exePath);rendererLog=rendererLog.substr(0,rendererLog.find_last_of(L"\\/"))+L"\\renderer-status.txt";
+    auto rendererLog=apppaths::dataFile(L"renderer-status.txt");
     std::ofstream rendererStatus(U(rendererLog));rendererStatus<<"backend="<<gl->name()<<"\nvmware_adapter="<<compatible::vmwareAdapter()<<"\nopengl_context="<<(rc?1:0)<<"\n";
 #ifdef MOLECULE_STUDIO_DX11
     if(dx11Renderer)rendererStatus<<"dx11_samples="<<dx11Renderer->samples()<<"\n";
@@ -3164,7 +3168,7 @@ static int runTabbedStudio(HINSTANCE inst,const std::string& initialFile){
     host.reap();
     return code;
 }
-int WINAPI WinMain(HINSTANCE inst,HINSTANCE,LPSTR,int){int serviceArgc=0;LPWSTR* serviceArgv=CommandLineToArgvW(GetCommandLineW(),&serviceArgc);if(serviceArgc>1&&std::wstring(serviceArgv[1])==L"--chem-service"){int code=chemservice::worker(serviceArgc,serviceArgv);LocalFree(serviceArgv);return code;}LocalFree(serviceArgv);ULONG_PTR token;GdiplusStartupInput gi;GdiplusStartup(&token,&gi,0);int result=0;try{
+int WINAPI WinMain(HINSTANCE inst,HINSTANCE,LPSTR,int){apppaths::applyToChildEnvironment();int serviceArgc=0;LPWSTR* serviceArgv=CommandLineToArgvW(GetCommandLineW(),&serviceArgc);if(serviceArgc>1&&std::wstring(serviceArgv[1])==L"--chem-service"){int code=chemservice::worker(serviceArgc,serviceArgv);LocalFree(serviceArgv);return code;}LocalFree(serviceArgv);ULONG_PTR token;GdiplusStartupInput gi;GdiplusStartup(&token,&gi,0);int result=0;try{
     // Per-monitor scaling; all hit rectangles use the same logical coordinates.
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     HRESULT oleInit=OleInitialize(nullptr);

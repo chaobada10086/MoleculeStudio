@@ -1,7 +1,8 @@
 #pragma once
+#include "app_paths.hpp"
 namespace customgroups {
 struct Entry {std::string name,fragment;};
-inline std::wstring path(){if(auto p=std::getenv("MOLECULE_STUDIO_GROUP_LIBRARY")){int n=MultiByteToWideChar(CP_UTF8,0,p,-1,0,0);std::wstring w(n,0);MultiByteToWideChar(CP_UTF8,0,p,-1,&w[0],n);w.resize(n-1);return w;}wchar_t p[32768]={};GetModuleFileNameW(0,p,32768);std::wstring w=p;return w.substr(0,w.find_last_of(L"\\/"))+L"\\custom_groups.xml";}
+inline std::wstring path(){if(auto p=std::getenv("MOLECULE_STUDIO_GROUP_LIBRARY")){int n=MultiByteToWideChar(CP_UTF8,0,p,-1,0,0);std::wstring w(n,0);MultiByteToWideChar(CP_UTF8,0,p,-1,&w[0],n);w.resize(n-1);return w;}return apppaths::dataFile(L"custom_groups.xml");}
 inline std::string fold(std::string s){for(auto& c:s)if(c>='A'&&c<='Z')c+=32;return s;}
 inline std::vector<Entry>& entries(){static std::vector<Entry> v;return v;}
 inline bool& loaded(){static bool b=false;return b;}

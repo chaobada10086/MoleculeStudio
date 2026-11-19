@@ -1,4 +1,5 @@
 #pragma once
+#include "app_paths.hpp"
 // Task 9/10 support: the AI drawing skill ships with Core and can be saved to a folder the
 // user picks; the update downloader is only started from an explicit button click. Nothing in
 // this file is called from startup, from opening settings, or from a timer: every entry point
@@ -161,6 +162,9 @@ inline bool chooseFolder(HWND owner,std::wstring* out){
 // Starts the bundled update downloader. This function is reached only from the
 // settings button click handler; no startup, timer, poll or show() path calls it.
 inline bool launchUpdater(const std::wstring& exeDir,std::wstring* error){
+    // A Store/MSIX package must not install a second copy outside the Store, and its
+    // install folder is read-only, so the manual downloader is never started there.
+    if(apppaths::packaged()){if(error)*error=L"商店版本由 Microsoft Store 自动更新，无需手动下载安装包。";return false;}
     if(exeDir.empty()){if(error)*error=L"无法确定程序目录";return false;}
     std::wstring path=exeDir+L"\\MoleculeStudio-OnlineSetup.exe";
     if(GetFileAttributesW(path.c_str())==INVALID_FILE_ATTRIBUTES){

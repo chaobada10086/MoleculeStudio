@@ -1,5 +1,6 @@
 #ifndef STUDIO_DRAWING_SETTINGS_HPP
 #define STUDIO_DRAWING_SETTINGS_HPP
+#include "app_paths.hpp"
 // Numeric style facts are audited in docs/JOURNAL_DRAWING_STYLE_AUDIT.txt.
 struct JournalStyle {
  const wchar_t* name;double bondLength,lineWidth,boldWidth,marginWidth,hashSpacing,bondSpacing,chainAngle;
@@ -30,7 +31,8 @@ struct DrawingSettings {
  static bool safe(const std::wstring& s,size_t max){return !s.empty()&&s.size()<=max&&s.find_first_of(L"\r\n[]=\0")==std::wstring::npos;}
  void use(const JournalStyle& s){preset=s.name;bondLength=s.bondLength;lineWidth=s.lineWidth;boldWidth=s.boldWidth;marginWidth=s.marginWidth;hashSpacing=s.hashSpacing;bondSpacing=s.bondSpacing;chainAngle=s.chainAngle;fontName=s.font;fontSize=s.fontSize;captionFontName=s.captionFont;captionFontSize=s.captionSize;}
  void acsDefaults(){use(journalStyles().front());}
- DrawingSettings(){wchar_t exe[32768]={};GetModuleFileNameW(nullptr,exe,32768);path=exe;path=path.substr(0,path.find_last_of(L"\\/"))+L"\\drawing.ini";load();}
+ // User state: portable next to the EXE, %LOCALAPPDATA%\\MoleculeStudio when packaged (read-only install).
+ DrawingSettings(){path=apppaths::dataFile(L"drawing.ini");load();}
  bool valid()const{auto ok=[](double v,double lo,double hi){return std::isfinite(v)&&v>=lo&&v<=hi;};return ok(bondLength,2,200)&&ok(lineWidth,.1,12)&&ok(boldWidth,.1,24)&&ok(marginWidth,0,20)&&ok(hashSpacing,.1,20)&&ok(bondSpacing,1,100)&&ok(chainAngle,30,180)&&ok(fontSize,4,96)&&ok(captionFontSize,4,96)&&safe(fontName,120)&&safe(captionFontName,120)&&safe(preset,80);}
  void read(const std::wstring& file,const wchar_t* section){wchar_t text[256]={};
   auto number=[&](const wchar_t* key,double lo,double hi,double& v){GetPrivateProfileStringW(section,key,std::to_wstring(v).c_str(),text,256,file.c_str());parse(text,lo,hi,&v);};

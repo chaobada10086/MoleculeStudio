@@ -1,4 +1,5 @@
 #include "drawing_style_name.hpp"
+#include "app_paths.hpp"
 #pragma once
 #include "chem_completion.hpp"
 #include "completion_search.hpp"
@@ -260,6 +261,10 @@ struct StudioSettingsWindow {
     // Task 10: the downloader starts only here, on an explicit click. Automated runs record the
     // resolved path through MOLECULE_STUDIO_TEST_UPDATER instead of starting a second installer.
     bool launchUpdaterNow(){
+        // Store/MSIX builds update through the Store: the install folder is read-only and
+        // a Store app must not install its own copy outside the Store. The button stays
+        // visible, it only explains the situation instead of starting a downloader.
+        if(apppaths::packaged()){set(802,L"商店版本由 Microsoft Store 自动更新，无需手动下载安装包。");return false;}
         std::wstring error;
         bool ok=skillexport::launchUpdater(skillexport::executableDir(),&error);
         set(802,ok?L"已启动更新下载器（仅本次手动点击；不会自动更新）":error);
@@ -333,7 +338,11 @@ struct StudioSettingsWindow {
         if(category==0){label(L"预设模板 / 期刊样式",202,82,540);float half=(w-248)/2;label(L"原子标签字体 / 字号（pt）",202,168,int(half));label(L"普通文字字体 / 字号（pt）",int(202+half+16),168,int(half));float col=(w-264)/3;const wchar_t* labels[]={L"键长（pt）",L"线宽（pt）",L"粗键宽（pt）",L"链角（°）",L"键间距（键长 %）",L"标签留白（pt）",L"虚楔线间距（pt）"};for(int i=0;i<7;++i)label(labels[i],int(202+(i%3)*(col+16)),232+(i/3)*60,int(col));label(L"各项可独立修改；另存模板后可重复使用。已有结构坐标不缩放。",202,500,int(w-232));}
         if(category==1){label(L"API 基础地址 · 兼容 Chat Completions",202,104,540);label(L"API Key",202,172);label(L"模型",202,278);label(L"AI 绘图 Skill 随 Core 内置，可另存后用外部 AI 调用（无需安装 AI 模组）。",202,448,int(w-232));}
         if(category==kSkin){label(L"预设皮肤",202,104);label(L"强调色（HEX）",202,162);}
-        if(category==8){label(L"更新只在点击下方按钮时启动下载器；本程序启动、打开设置或空闲时都不会联网检查更新。",202,196,560);label(L"当前下载器路径：程序目录\\MoleculeStudio-OnlineSetup.exe（随 Core 提供）。",202,398,560);}
+        if(category==8){
+            // Store/MSIX builds have no writable install folder and are updated by the Store.
+            if(apppaths::packaged())label(L"商店版本由 Microsoft Store 自动更新，无需手动下载安装包。",202,196,560);
+            else{label(L"更新只在点击下方按钮时启动下载器；本程序启动、打开设置或空闲时都不会联网检查更新。",202,196,560);label(L"当前下载器路径：程序目录\\MoleculeStudio-OnlineSetup.exe（随 Core 提供）。",202,398,560);}
+        }
         if(category==5){label(L"添加自定义缩写：输入 别名=标准写法，选中文字设置格式",202,h-264,620);}
         if(category==2){label(L"纸张尺寸",202,114);label(L"方向",422,114);label(L"宽度（mm）",202,191);label(L"高度（mm）",406,191);label(L"横向张数",202,274);label(L"纵向张数",406,274);label(L"页面设置应用到当前文档，可按 Ctrl+Z 撤销。",202,390,540);studio_ui::label(g,L"勾选后，新建文档沿用这套纸张与张数；取消勾选则新建文档回到 A4。",RectF(202,414,620,24),12,studio_ui::muted());}
     }
@@ -506,7 +515,7 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
         edit(L"https://api.deepseek.com",920);edit(L"",921,ES_PASSWORD);studio_i18n::sendDlgItemMessage(hwnd,921,EM_SETLIMITTEXT,512,0);child(L"BUTTON",L"在这台电脑记住密钥（Windows 加密保存）",922,WS_TABSTOP|BS_AUTOCHECKBOX);
         child(L"COMBOBOX",L"",923,WS_TABSTOP|CBS_DROPDOWN|CBS_AUTOHSCROLL|WS_VSCROLL);studio_i18n::sendDlgItemMessage(hwnd,923,CB_LIMITTEXT,120,0);button(L"获取模型",924);button(L"测试连接",925);child(L"STATIC",L"尚未测试连接",926);
         button(L"另存 AI 绘图 Skill…",927);
-        button(L"打开更新下载器…",928);child(L"STATIC",L"更新仅在点击上方按钮时手动启动：本程序不会自动检查更新，也不会自动联网。",983);button(L"另存 AI 绘图 Skill…（无需安装 AI 模组）",984);
+        button(L"打开更新下载器…",928);child(L"STATIC",apppaths::packaged()?L"商店版本由 Microsoft Store 自动更新，无需手动下载安装包。":L"更新仅在点击上方按钮时手动启动：本程序不会自动检查更新，也不会自动联网。",983);button(L"另存 AI 绘图 Skill…（无需安装 AI 模组）",984);
         button(L"编辑快捷键…",930);edit(L"",931,ES_MULTILINE|ES_READONLY|WS_VSCROLL);child(L"STATIC",L"支持修改、清除与恢复 默认快捷键。",932);
         child(L"COMBOBOX",L"",940,WS_TABSTOP|CBS_DROPDOWNLIST|WS_VSCROLL);for(auto name:{L"A4",L"A3",L"A5",L"B5 (ISO)",L"US Letter",L"US Legal",L"自定义"})studio_i18n::sendDlgItemMessage(hwnd,940,CB_ADDSTRING,0,(LPARAM)name);
         child(L"COMBOBOX",L"",941,WS_TABSTOP|CBS_DROPDOWNLIST);for(auto name:{L"纵向",L"横向"})studio_i18n::sendDlgItemMessage(hwnd,941,CB_ADDSTRING,0,(LPARAM)name);

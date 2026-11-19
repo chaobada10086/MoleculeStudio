@@ -1,5 +1,6 @@
 #ifndef STUDIO_SHORTCUT_CONFIG_HPP
 #define STUDIO_SHORTCUT_CONFIG_HPP
+#include "app_paths.hpp"
 #include <functional>
 #include "shortcut_legacy.hpp"
 struct ShortcutRow {
@@ -25,7 +26,7 @@ struct ShortcutConfig {
         add("marquee","框选工具","chooseSelectionTool_Marquee",VK_SPACE,0,0,1);add("bond","单键工具","chooseBondTool_Solid",'X',0,0,1);add("chain","碳链工具","chooseAlkaneTool_Snaking_Chain",'X',S,0,1);add("text","文字工具","chooseEdittingTool_Text",'T',0,0,1);add("bracket","括号工具","chooseBracketTool_SquareBrackets",'T',S,0,1);add("arrow","箭头工具","@arrowTool",'E',0,0,1);add("symbol","符号工具","chooseSymbolTool_CirclePlus",'E',S,0,1);add("benzene","苯环工具","chooseRingTool_Benzene",'J',0,0,1);add("diene","二烯环工具","chooseRingTool_Cyclopentadiene",'J',S,0,1);add("tlc","薄层板工具","chooseTLCPlateTool",'G',0,0,1);add("orbital","轨道工具","chooseOrbitalTool_p_Shaded",'G',S,0,1);
         size_t n=0;for(auto b:interaction::Keymap::defaults().bindings())if(b.context!=interaction::HotspotContext::None){ShortcutRow r;r.id="hotspot"+std::to_string(n++);r.scope=b.context==interaction::HotspotContext::Atom?2:3;r.label=interaction::hotkeyActionName(b.action);if(!b.label.empty())r.label+=" · "+b.label;if(b.element)r.label+=" · "+std::string(core::elementSymbol(b.element));r.chemistry=b;r.key=b.virtualKey;r.modifiers=b.modifiers;if(b.character){SHORT v=VkKeyScanW(wchar_t(b.character));if(v!=-1){r.key=LOBYTE(v);r.modifiers|=(HIBYTE(v)&1)?S:0;}}r.defaults=r.key;r.defaultModifiers=r.modifiers;rows.push_back(r);}
         loadDefaultShortcuts(*this);
-        wchar_t dir[32768]={};GetModuleFileNameW(nullptr,dir,32768);path=dir;path=path.substr(0,path.find_last_of(L"\\/"))+L"\\shortcuts.ini";load();
+        path=apppaths::dataFile(L"shortcuts.ini");load();
     }
     void rebuild(){++generation;chemistry=interaction::Keymap();for(auto& r:rows)if(r.scope>=2&&r.key){auto b=r.chemistry;b.virtualKey=r.key;b.character=0;b.modifiers=r.modifiers;chemistry.add(b);}}
     void reset(){for(auto& r:rows){r.key=r.defaults;r.modifiers=r.defaultModifiers;}rebuild();}
