@@ -30,10 +30,10 @@ EXE/MSI 路线留作备选：如果 MSIX 在受限能力上卡住太久，可以
 - **Company**：需要 DUNS 编号或营业执照/注册证明 + 企业域名邮箱，并且有强制尽职调查，人工审核约 3–5 个工作日。
 - 政策 §10.14：如果发布属于"经营行为"，或消费者会把发布者名理解成公司，就必须用 Company 账号。个人开源项目用 Individual 即可。
 - **国家/地区在注册时选定后不可更改**，与税务、结算绑定。
-- **中国大陆能否注册 Individual：微软文档没有列举可注册地区**（只说"近 200 个市场"），这一点属于未验证项。实际确认只有两个办法：
-  1. 打开 <https://storedeveloper.microsoft.com> 看国家/地区下拉里有没有中国大陆；
-  2. 开一张 Partner Center 支持工单。
-  如果个人身份被拒，备选是 Company 账号（国内主体 + DUNS），或香港等地区主体（注意地区不可改）。不要先假设某条路可行再动手做包。
+- **中国大陆 Individual 可以注册（2026-11-20 实测通过）**：走 <https://storedeveloper.microsoft.com> 免费入口，选"个人开发人员"，国家选中国，邮箱 + 手机 + 地址填国内信息，证照 + 自拍完成验证，账号当天开通，发布者名同时确定（本项目为 ChaobaDa）。
+  - 注册页的电话号码校验会出现"电话号码无效"的**显示误报**：提示红字但可以提交成功，不必换号，也不要为了绕过它改国家。
+  - 免费应用（无内购）**不需要**填税务与收款信息，激活邮件里明确写了这一点，可以直接跳过。
+  - 如果个人身份被拒，备选是 Company 账号（国内主体 + DUNS）或香港等地区主体（注意地区不可改）。
 
 ---
 
@@ -123,6 +123,8 @@ Get-ChildItem "$env:LOCALAPPDATA\MoleculeStudio"   # 设置应落在这里，而
 
 OLE 的完整说明、测试矩阵（T1–T7）与受限能力理由写在 [CERTIFICATION-NOTES.md](../installer/store/CERTIFICATION-NOTES.md)。
 
+本地签名失败的完整排查记录（不影响提交，商店会重签）见 [MSIX_SIGNING.md](MSIX_SIGNING.md)。
+
 ---
 
 ## 6. 政策对照（提交前逐条自查）
@@ -183,7 +185,7 @@ OLE 的完整说明、测试矩阵（T1–T7）与受限能力理由写在 [CERT
 2. 拍 4–8 张截图（清单见 LISTING 文件）。
 3. 把 [privacy.html](privacy.html) 挂到 GitHub Pages，得到公开 HTTPS 地址。
 4. 处理 ai_dsh.py 的 DSH_HOME 与 ocsr_client.py 的写路径（可选组件，影响面小）。
-5. 确认中国大陆 Individual 注册是否可用。
+5. 已确认：中国大陆 Individual 注册可用（2026-11-20），发布者名 ChaobaDa；下一步预留产品名并取回产品标识三个值。
 
 ---
 
