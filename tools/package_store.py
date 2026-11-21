@@ -81,7 +81,10 @@ def sha256_bytes(data):
 
 def sha256_file(path):
     with open(path, 'rb') as f:
-        return hashlib.file_digest(f, 'sha256').hexdigest()
+        digest = hashlib.sha256()
+        for block in iter(lambda: f.read(1024 * 1024), b''):
+            digest.update(block)
+        return digest.hexdigest()
 
 
 def excluded(rel):

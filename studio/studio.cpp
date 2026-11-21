@@ -593,7 +593,7 @@ void cdxmlColorCheck(const std::string& dir);
         if(activeArrow){arrowPreset=activeArrow->family==arrows::ArrowFamily::Arc&&activeArrow->presetId!=49&&activeArrow->presetId!=57?58:activeArrow->presetId;syncArrowSurfaces();}
         for(auto& gr:templateGroups)for(auto& b:gr.items)if(b.cmd=="@addCustomTemplate")b.enabled=!s.selected.empty();
         updateInfo();syncTextControls();touched();
-        std::string title="Molecule Studio 0.9.7.0.0  ·  "+fileName+(s.dirty?" *":"");
+        std::string title="Molecule Studio 0.9.7.1.0  ·  "+fileName+(s.dirty?" *":"");
         if(title!=lastTitle){lastTitle=title;studio_i18n::setWindowText(h,W(title).c_str());if(host)notifyTitleChanged();}
         std::ostringstream key;key<<s.graphicsWidth<<'|'<<s.graphicsColor<<'|'<<ribbonTab<<'|'<<generationArrowStyle<<'|'<<title<<'|'<<s.activeIndex<<'|'<<info.valid<<'|'<<info.plain<<'|'<<info.mass<<'|'<<s.selected.empty()<<'|'<<shortcutContext()<<'|'<<shortcuts.generation<<'|'<<hover;
         if(key.str()!=lastChrome){lastChrome=key.str();RECT r={0,0,width,top};InvalidateRect(h,&r,FALSE);}
@@ -1901,15 +1901,15 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         // Coalesce high-rate pointer input; placement changes only the canvas.
         if(a->patternDragging){a->patternEnd=s.view().toDocument(pixel);a->patternPreviewPending=true;}
         SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32515)));
-        if(a->patternDragging||a->crosshairs)InvalidateRect(h,0,FALSE);return 0;}if(a->down&&a->fastMarquee()){a->pointerPixel=pixel;a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32512)));InvalidateRect(h,0,FALSE);return 0;}if(a->down&&s.objectDragActive()&&!a->cloneDragging&&!std::getenv("MOLECULE_STUDIO_MOVE_LEGACY")){a->pointerPixel=pixel;a->movePreviewPoint=s.view().toDocument(pixel);a->movePreviewModifiers=pointerModifiers;a->movePreviewPending=true;SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32646)));InvalidateRect(h,0,FALSE);/* Bound paint starvation under continuous mouse input. */if(a->now()-a->lastMovePaintMs>=8.0)UpdateWindow(h);return 0;}if(a->fastGraphicTool()&&!a->wrapDragging&&!a->transformDragging&&!a->tableDragPending&&!a->cloneDragging&&!a->textPlacing){
+        if(a->patternDragging||a->crosshairs)InvalidateRect(h,0,FALSE);return 0;}if(a->down&&a->fastMarquee()){a->pointerPixel=pixel;a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32512)));InvalidateRect(h,0,FALSE);return 0;}if(a->down&&s.objectDragActive()&&!a->cloneDragging&&!std::getenv("MOLECULE_STUDIO_MOVE_LEGACY")){a->pointerPixel=pixel;a->movePreviewPoint=s.view().toDocument(pixel);a->movePreviewModifiers=pointerModifiers;a->movePreviewPending=true;SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32646)));InvalidateRect(h,0,FALSE);/* Bound paint starvation under continuous mouse input. */if(a->now()-a->lastMovePaintMs>=16.0)UpdateWindow(h);return 0;}if(a->fastGraphicTool()&&!a->wrapDragging&&!a->transformDragging&&!a->tableDragPending&&!a->cloneDragging&&!a->textPlacing){
         if(!a->pointerOverCanvas){TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);}a->pointerPixel=pixel;a->pointerOverCanvas=true;a->hover.clear();a->insertionPreviewPixel=pixel;a->insertionPreviewPoint=s.view().toDocument(pixel);a->insertionPreviewModifiers=pointerModifiers;a->insertionPreviewTool=s.activeIndex;a->insertionPreviewPending=true;
         if(a->down&&dynamic_cast<arrows::ArrowTool*>(s.entries[s.activeIndex].tool.get())){
             a->insertionPreviewPending=false;a->error(s.gesture(PointerPhase::Move,a->insertionPreviewPoint,pointerModifiers));
             a->updateCanvasCursor();InvalidateRect(h,0,FALSE);
-            if(a->now()-a->lastMovePaintMs>=8.0)UpdateWindow(h);return 0;
+            if(a->now()-a->lastMovePaintMs>=16.0)UpdateWindow(h);return 0;
         }
         a->updateCanvasCursor();InvalidateRect(h,0,FALSE);return 0;
-        }if(a->wrapDragging){a->updateTextWrap(pixel);return 0;}if(a->transformDragging){a->updateSelectionTransform(pixel,pointerModifiers);return 0;}if(a->tableDragPending){a->updateTableDrag(pixel,pointerModifiers);return 0;}a->selectionCursorReset=false;a->pointerOverCanvas=true;{TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);}a->pointerPixel=pixel;if(a->crosshairs)a->invalidate();if(a->cloneDragging){a->cloneDelta=s.view().toDocument(pixel)-a->clonePress;if(pointerModifiers&kModShift){if(std::abs(a->cloneDelta.x)>=std::abs(a->cloneDelta.y))a->cloneDelta.y=0;else a->cloneDelta.x=0;}s.ghost.clear();a->invalidate();return 0;}if(a->textPlacing){s.ghost.clear();PreviewItem r;r.primitive=PreviewPrimitive::Rect;r.points={a->textPress,s.view().toDocument(pixel)};r.style.colorRGBA=0x999999FF;s.ghost.add(r);a->invalidate();return 0;}{auto old=s.input.hotspot();a->hover.clear();if(a->pan){auto v=s.view();v.center=v.center-(pixel-a->panAt)*v.docPerDevice();a->panAt=pixel;s.setView(v);}else{a->route(interaction::InputKind::PointerMove,lp);if(a->down)a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));if(a->cloneDragging){a->cloneDelta=s.view().toDocument(pixel)-a->clonePress;if(mods()&kModShift){if(std::abs(a->cloneDelta.x)>=std::abs(a->cloneDelta.y))a->cloneDelta.y=0;else a->cloneDelta.x=0;}}}
+        }if(a->wrapDragging){a->updateTextWrap(pixel);return 0;}if(a->transformDragging){a->updateSelectionTransform(pixel,pointerModifiers);return 0;}if(a->tableDragPending){a->updateTableDrag(pixel,pointerModifiers);return 0;}a->selectionCursorReset=false;a->pointerOverCanvas=true;{TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);}a->pointerPixel=pixel;if(a->crosshairs)a->invalidate();if(a->cloneDragging){a->cloneDelta=s.view().toDocument(pixel)-a->clonePress;if(pointerModifiers&kModShift){if(std::abs(a->cloneDelta.x)>=std::abs(a->cloneDelta.y))a->cloneDelta.y=0;else a->cloneDelta.x=0;}s.ghost.clear();InvalidateRect(h,nullptr,FALSE);return 0;}if(a->textPlacing){s.ghost.clear();PreviewItem r;r.primitive=PreviewPrimitive::Rect;r.points={a->textPress,s.view().toDocument(pixel)};r.style.colorRGBA=0x999999FF;s.ghost.add(r);a->invalidate();return 0;}{auto old=s.input.hotspot();a->hover.clear();if(a->pan){auto v=s.view();v.center=v.center-(pixel-a->panAt)*v.docPerDevice();a->panAt=pixel;s.setView(v);}else{a->route(interaction::InputKind::PointerMove,lp);if(a->down)a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));if(a->cloneDragging){a->cloneDelta=s.view().toDocument(pixel)-a->clonePress;if(mods()&kModShift){if(std::abs(a->cloneDelta.x)>=std::abs(a->cloneDelta.y))a->cloneDelta.y=0;else a->cloneDelta.x=0;}}}
         auto current=s.input.hotspot();bool changed=old.kind!=current.kind||!(old.object==current.object)||old.point.x!=current.point.x||old.point.y!=current.point.y;
         bool projectionHot=a->projectionCapture(pixel);changed=changed||projectionHot||a->projectionWasHot;a->projectionWasHot=projectionHot;bool bendHot=a->arrowBendAt(pixel)!=kInvalidObjectId;changed=changed||bendHot||a->arrowBendWasHot;a->arrowBendWasHot=bendHot;a->updateCanvasCursor();a->invalidate(a->pan||a->down||changed);return 0;}
     case WM_LBUTTONUP:if(a->virtualBondTool){a->virtualBondGesture(PointerPhase::Up,s.view().toDocument(pixel));return 0;}if(a->electronDragAtom!=kInvalidObjectId){a->updateElectronMarkerDrag(pixel,true);return 0;}if(a->down&&a->fastGraphicTool()){a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));}a->insertionPreviewPending=false;if(a->patternPlacing){if(a->patternDragging)a->finishPatternPlacement(s.view().toDocument(pixel));return 0;}if(a->wrapDragging){a->finishTextWrap(pixel);return 0;}if(a->transformDragging){a->finishSelectionTransform(pixel,pointerModifiers);return 0;}if(a->tableDragPending){a->finishTableDrag(pixel,pointerModifiers);return 0;}if(a->textPlacing){a->textPlacing=false;ReleaseCapture();s.ghost.clear();auto r=s.pick(a->textPress);double wrap=std::abs(s.view().toDocument(pixel).x-a->textPress.x);if(wrap<s.view().deviceRadiusToDocument(8))wrap=0;if(r.kind==ObjectKind::Text){a->openText(r.id);a->textEditor.pointCaret(pixel);}else{auto endpoint=a->textToolTarget(a->textPress,false);if(endpoint!=kInvalidObjectId)a->openText(kInvalidObjectId,endpoint);else{a->textEditor.begin(kInvalidObjectId,kInvalidObjectId,a->textPress,true,wrap);a->textBackdrop.clear();a->status="文字编辑 · Enter / Esc 保存，Shift+Enter 换行";a->invalidate();}}return 0;}
@@ -2036,7 +2036,7 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
             // View-only input: coalesce scrollbars/status to the next painted
             // frame. Tool/font/formula/cursor syncing waits for gesture end.
             // Keep every wheel delta (including fractional trackpad deltas).
-            a->viewportZoomPending=true;InvalidateRect(h,0,FALSE);return 0;
+            if(!a->viewportZoomPending)InvalidateRect(h,0,FALSE);a->viewportZoomPending=true;return 0;
         }
         ++a->zoomChromeSyncs;
         }break;
@@ -3095,7 +3095,7 @@ static App* createEditorTab(HINSTANCE inst,HWND parent,const std::string& path,b
     App& a=*ap;
     a.tabChild=true;
     a.quitOnDestroy=false;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 0.9.7.0.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 0.9.7.1.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
     if(!h){delete ap;return nullptr;}
     a.scale=GetDpiForWindow(h)/96.f;
     DragAcceptFiles(h,TRUE);
@@ -3273,7 +3273,7 @@ int WINAPI WinMain(HINSTANCE inst,HINSTANCE,LPSTR,int){apppaths::applyToChildEnv
         return code;
     }
     g_currentApp=&a;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 0.9.7.0.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 0.9.7.1.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
     a.scale=(a.testing||shotMode||perfMode)?1.f:GetDpiForWindow(h)/96.f;{UINT dpi=GetDpiForWindow(h);olepreview::previewDpi()=dpi?dpi:96;}
     SetWindowPos(h,0,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
     studio_i18n::createWindowEx(0,L"MoleculeStudioCanvas",L"",WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS,0,0,100,100,h,0,inst,&a);

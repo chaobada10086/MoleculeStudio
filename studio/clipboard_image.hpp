@@ -4,6 +4,13 @@
 #include <memory>
 
 namespace clipboard_image {
+inline bool openClipboard(HWND owner){
+    for(int attempt=0;attempt<4;++attempt){
+        if(OpenClipboard(owner))return true;
+        if(attempt<3)Sleep(4);
+    }
+    return false;
+}
 inline bool available(){return IsClipboardFormatAvailable(RegisterClipboardFormatW(L"PNG"))||IsClipboardFormatAvailable(CF_DIBV5)||IsClipboardFormatAvailable(CF_DIB)||IsClipboardFormatAvailable(CF_BITMAP);}
 struct Stream {
     IStream* value=nullptr;
@@ -22,7 +29,7 @@ inline std::vector<BYTE> data(UINT format){
 }
 // Read under one clipboard lock, then own the decoded pixels independently.
 inline std::unique_ptr<Gdiplus::Bitmap> decode(HWND owner){
-    if(!OpenClipboard(owner))return nullptr;
+    if(!clipboard_image::openClipboard(owner))return nullptr;
     struct Close {~Close(){CloseClipboard();}} close;
     for(UINT format:{RegisterClipboardFormatW(L"PNG"),UINT(CF_DIBV5),UINT(CF_DIB)}){
         auto bytes=data(format);if(bytes.empty())continue;

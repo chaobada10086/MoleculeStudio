@@ -76,3 +76,9 @@ Thumbs.db
 *.pickle
 *.err
 *.log.txt
+/studio/ai_plugins/scheme-regression-actions.xml
+/studio/ai_plugins/scheme-regression-result.json
+/studio/ai_plugins/selftest-actions.xml
+/studio/tools/photosensitizer_fetch_failures.json
+/studio/tools/reagent_fetch_failures.json
+/studio/tools/template_expansion_failures.json

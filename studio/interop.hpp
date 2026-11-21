@@ -162,7 +162,23 @@ inline Error exportXml(const Document& d,std::string* bytes){
 }
 // Copy selected objects through the model API so every insertion is recorded by
 // the caller's transaction. Source IDs are cleared to avoid cross-file collisions.
-inline std::set<ObjectRef> expanded(const Document& doc,const std::vector<ObjectRef>& refs){std::set<ObjectRef> out(refs.begin(),refs.end());bool changed=true;while(changed){auto size=out.size();auto scan=out;for(auto r:scan){if(r.kind==ObjectKind::Group){auto g=doc.groups().alive(r.id);if(g)out.insert(g->members.begin(),g->members.end());}if(r.kind==ObjectKind::Bond){auto b=doc.bonds().alive(r.id);if(b){out.insert(ObjectRef(ObjectKind::Atom,b->beginAtom));out.insert(ObjectRef(ObjectKind::Atom,b->endAtom));}}}for(auto& b:doc.bonds().records())if(b.isAlive()&&out.count(ObjectRef(ObjectKind::Atom,b.beginAtom))&&out.count(ObjectRef(ObjectKind::Atom,b.endAtom)))out.insert(ObjectRef(ObjectKind::Bond,b.id));changed=out.size()!=size;}return out;}
+inline std::set<ObjectRef> expanded(const Document& doc,const std::vector<ObjectRef>& refs,bool copyDependencies=false){
+    std::set<ObjectRef> chosen;
+    std::vector<ObjectRef> pending;
+    auto add=[&](ObjectRef r){if(chosen.insert(r).second)pending.push_back(r);};
+    for(auto r:refs)add(r);
+    bool atoms=false;
+    while(!pending.empty()){
+        auto r=pending.back();pending.pop_back();
+        if(r.kind==ObjectKind::Atom)atoms=true;
+        if(r.kind==ObjectKind::Group){auto g=doc.groups().alive(r.id);if(g)for(auto member:g->members)add(member);}
+        if(r.kind==ObjectKind::Bond){auto b=doc.bonds().alive(r.id);if(b){add({ObjectKind::Atom,b->beginAtom});add({ObjectKind::Atom,b->endAtom});}}
+        if(copyDependencies && r.kind==ObjectKind::Arrow){ObjectId a,b;if(virtual_bonds::endpoints(doc,r,a,b)){add({ObjectKind::Atom,a});add({ObjectKind::Atom,b});}}
+        if(copyDependencies && r.kind==ObjectKind::Table){auto t=doc.tables().alive(r.id);if(t)for(auto id:t->cells)if(id!=kInvalidObjectId)add({ObjectKind::Text,id});}
+    }
+    if(atoms)for(const auto& b:doc.bonds().records())if(b.isAlive() && chosen.count({ObjectKind::Atom,b.beginAtom}) && chosen.count({ObjectKind::Atom,b.endAtom}))chosen.insert({ObjectKind::Bond,b.id});
+    return chosen;
+}
 inline Box selectionBounds(integration::Session& s){
     // An empty selection has no bounds. Keep the last nonempty selection cached
     // instead of scanning the page and evicting it on every selection clear.
@@ -178,15 +194,7 @@ inline Box selectionBounds(integration::Session& s){
 }
 inline bool inside(const Box& b,Vec2 p,double pad=0){return !b.empty()&&p.x>=b.min.x-pad&&p.x<=b.max.x+pad&&p.y>=b.min.y-pad&&p.y<=b.max.y+pad;}
 inline Error append(const Document& src,Document& dst,const std::vector<ObjectRef>& refs,Vec2 delta,std::vector<ObjectRef>* inserted){
-    std::set<ObjectRef> chosen(refs.begin(),refs.end());
-    bool changed=true;while(changed){size_t n=chosen.size();auto scan=chosen;
-        for(auto r:scan){if(r.kind==ObjectKind::Group){auto g=src.groups().alive(r.id);if(g)chosen.insert(g->members.begin(),g->members.end());}
-            if(r.kind==ObjectKind::Bond){auto b=src.bonds().alive(r.id);if(b){chosen.insert(ObjectRef(ObjectKind::Atom,b->beginAtom));chosen.insert(ObjectRef(ObjectKind::Atom,b->endAtom));}}
-            if(r.kind==ObjectKind::Arrow){ObjectId a,b;if(virtual_bonds::endpoints(src,r,a,b)){chosen.insert(ObjectRef(ObjectKind::Atom,a));chosen.insert(ObjectRef(ObjectKind::Atom,b));}}
-            if(r.kind==ObjectKind::Table){auto t=src.tables().alive(r.id);if(t)for(auto id:t->cells)if(id!=kInvalidObjectId)chosen.insert(ObjectRef(ObjectKind::Text,id));}}
-        for(auto& b:src.bonds().records())if(b.isAlive()&&chosen.count(ObjectRef(ObjectKind::Atom,b.beginAtom))&&chosen.count(ObjectRef(ObjectKind::Atom,b.endAtom)))chosen.insert(ObjectRef(ObjectKind::Bond,b.id));
-        changed=n!=chosen.size();
-    }
+    auto chosen=expanded(src,refs,true);
     std::map<ObjectRef,ObjectRef> map;Error error;
     auto add=[&](ObjectRef old,ObjectId id,Error e){if(!e.ok()){error=e;return;}ObjectRef fresh(old.kind,id);map[old]=fresh;if(inserted)inserted->push_back(fresh);
         // Preserve non-source custom data; stale source snapshots must not be
@@ -399,7 +407,7 @@ inline Error copy(integration::Session& s,HWND owner,bool cut){
         if(cut){e=s.submit(commands::deleteObjects(s.selected),"剪切");if(e.ok())s.selected.clear();}
         s.status=cut?"已剪切":"已复制";return e;
     }
-    if(!OpenClipboard(owner))return Error(ErrorCode::Locked,"剪贴板被占用，请重试");
+    if(!clipboard_image::openClipboard(owner))return Error(ErrorCode::Locked,"剪贴板被占用，请重试");
     if(!EmptyClipboard()){CloseClipboard();return Error(ErrorCode::IoError,"无法清空剪贴板");}
     e=put(nativeFormat(),bytes.c_str(),bytes.size()+1);
     if(e.ok()&&!xml.empty()){put(RegisterClipboardFormatW(L"ChemDraw XML"),xml.c_str(),xml.size()+1);std::string cdx,why;if(cdxbinary::fromXml(xml,cdx,why))put(cdxbinary::format(),cdx.data(),cdx.size());int n=MultiByteToWideChar(CP_UTF8,0,xml.c_str(),-1,0,0);std::wstring wide(n,L'\0');MultiByteToWideChar(CP_UTF8,0,xml.c_str(),-1,&wide[0],n);put(CF_UNICODETEXT,wide.c_str(),wide.size()*sizeof(wchar_t));}
@@ -439,7 +447,7 @@ inline Error paste(integration::Session& s,HWND owner){
         if(!clipboard_image::read(owner,width,height,s.view().center-Vec2(12,12),bytes))return Error(ErrorCode::ParseError,"无法读取剪贴板图片，请重新复制后再试");
     }
     else if(!readOleClipboard(fmt,bytes)){
-        if(!OpenClipboard(owner))return Error(ErrorCode::Locked,"剪贴板被占用，请重试");
+        if(!clipboard_image::openClipboard(owner))return Error(ErrorCode::Locked,"剪贴板被占用，请重试");
         fmt=IsClipboardFormatAvailable(nativeFormat())?nativeFormat():IsClipboardFormatAvailable(RegisterClipboardFormatW(L"ChemDraw XML"))?RegisterClipboardFormatW(L"ChemDraw XML"):IsClipboardFormatAvailable(cdxbinary::format())?cdxbinary::format():CF_UNICODETEXT;
         HANDLE h=GetClipboardData(fmt);if(h){size_t n=GlobalSize(h);auto p=GlobalLock(h);if(p&&n<=128*1024*1024){if(fmt==CF_UNICODETEXT){auto w=static_cast<const wchar_t*>(p);size_t len=0;while(len<n/2&&w[len])++len;int z=WideCharToMultiByte(CP_UTF8,0,w,int(len),0,0,0,0);bytes.resize(z);WideCharToMultiByte(CP_UTF8,0,w,int(len),&bytes[0],z,0,0);}else{auto c=static_cast<const char*>(p);bytes.assign(c,c+n);if(fmt!=cdxbinary::format())while(!bytes.empty()&&bytes.back()==0)bytes.pop_back();}}if(p)GlobalUnlock(h);}
         CloseClipboard();

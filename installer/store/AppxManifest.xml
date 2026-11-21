@@ -62,6 +62,19 @@
   <Resources>
     <Resource Language="zh-CN" />
     <Resource Language="en-US" />
+    <Resource Language="zh-TW" />
+    <Resource Language="ja" />
+    <Resource Language="ko" />
+    <Resource Language="fr" />
+    <Resource Language="de" />
+    <Resource Language="es" />
+    <Resource Language="ru" />
+    <Resource Language="pt" />
+    <Resource Language="it" />
+    <Resource Language="ar" />
+    <Resource Language="hi" />
+    <Resource Language="id" />
+    <Resource Language="vi" />
   </Resources>
 
   <Applications>
