@@ -1,5 +1,6 @@
 #pragma once
 #include "ui_language.hpp"
+#include "skin_palette.hpp"
 #include <array>
 #include <cmath>
 #include <sstream>
@@ -10,11 +11,14 @@ inline Font* cachedFont(float size,bool bold){auto& f=fontCache()[{size,bold}];i
 
 struct SkinPreset {const wchar_t* name; COLORREF color;};
 inline const std::array<SkinPreset,5>& skinPresets(){
-    static const std::array<SkinPreset,5> presets={{
-        {L"柔和蓝",RGB(64,98,190)}, {L"GPT 绿",RGB(23,117,109)},
-        {L"岩板紫",RGB(113,86,161)}, {L"琥珀棕",RGB(158,91,37)},
-        {L"石墨灰",RGB(76,94,107)}
-    }};
+    static const auto presets=[] {
+        std::array<SkinPreset,5> result={};
+        for(size_t i=0;i<result.size();++i){
+            const auto& preset=studio_skin::presets()[i];
+            result[i]={preset.name,RGB(preset.color.red,preset.color.green,preset.color.blue)};
+        }
+        return result;
+    }();
     return presets;
 }
 struct SkinSettings {
@@ -41,26 +45,13 @@ inline SkinSettings& currentSkin(){
     return settings;
 }
 inline Color fromColorRef(COLORREF color){return Color(255,GetRValue(color),GetGValue(color),GetBValue(color));}
-inline Color mix(Color a,Color b,double t){
-    auto blend=[t](BYTE x,BYTE y){return BYTE(std::lround(x+(y-x)*t));};
-    return Color(255,blend(a.GetR(),b.GetR()),blend(a.GetG(),b.GetG()),blend(a.GetB(),b.GetB()));
-}
 struct SkinColors {
     Color accent,strong,selected,hover,soft,frame,tab,border;
     explicit SkinColors(COLORREF color){
-        Color base=fromColorRef(color), white(Color::White);
-        accent=base;
-        auto linear=[](double v){v/=255;return v<=.04045?v/12.92:std::pow((v+.055)/1.055,2.4);};
-        auto luminance=[&](Color c){return .2126*linear(c.GetR())+.7152*linear(c.GetG())+.0722*linear(c.GetB());};
-        // Keep white text readable even when the user picks a very light color.
-        while(luminance(accent)>.1833)accent=mix(accent,Color(Color::Black),.07);
-        strong=mix(accent,Color(Color::Black),.20);
-        selected=mix(white,base,.19);
-        hover=mix(white,base,.105);
-        soft=mix(white,base,.045);
-        frame=mix(Color(255,246,247,249),base,.036);
-        tab=mix(Color(255,243,244,246),base,.075);
-        border=mix(Color(255,221,225,231),base,.105);
+        const studio_skin::Palette palette({GetRValue(color),GetGValue(color),GetBValue(color)});
+        const auto native=[](studio_skin::Color c){return Color(255,BYTE(c.red),BYTE(c.green),BYTE(c.blue));};
+        accent=native(palette.accent);strong=native(palette.strong);selected=native(palette.selected);hover=native(palette.hover);
+        soft=native(palette.soft);frame=native(palette.frame);tab=native(palette.tab);border=native(palette.border);
     }
 };
 inline SkinColors& skinColors(){

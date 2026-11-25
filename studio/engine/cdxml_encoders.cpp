@@ -188,7 +188,7 @@ static void appendAtomSignature(const core::Document& document, const core::Atom
     out->push_back('\x1f');
     const auto& attributes=document.extensions(core::ObjectRef(core::ObjectKind::Atom,atom.id));
     for(const char* key:{"pst.attr.MoleculeStudioChargePosition","pst.attr.MoleculeStudioRadicalPosition","pst.attr.MoleculeStudioLiteralLabel",
-                        "pst.attr.MoleculeStudioLonePairPositions","pst.attr.MoleculeStudioChargeCircle"})
+                        "pst.attr.MoleculeStudioLonePairPositions","pst.attr.MoleculeStudioChargeCircle","studio.helm.original"})
         if(auto value=attributes.findValue(key)){out->append(key);out->append(*value);out->push_back('\x1f');}
     out->append(document.atomLabel(atom.id));
     out->push_back('\x1f');
@@ -297,6 +297,9 @@ std::string annotationSignature(const core::AnnotationRecord& annotation) {
 std::string textSignature(const core::Document& document, const core::TextRecord& text) {
     std::string out;
     appendTextSignature(document, text, &out);
+    const core::ObjectRef ref(core::ObjectKind::Text, text.id);
+    if (const auto* align = document.extensions(ref).findValue("studio.cell.valign"))
+        out += "|valign=" + *align;
     return out;
 }
 

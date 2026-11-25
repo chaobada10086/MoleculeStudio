@@ -1662,7 +1662,7 @@
   "i-Am": {
     "confidence": "high",
     "note": "isopentyl (3-methylbutan-1-yl)",
-    "smiles": "CCC(C)C[*]"
+    "smiles": "[*]CCC(C)C"
   },
   "i-Bu": {
     "confidence": "high",
@@ -1692,7 +1692,7 @@
   "i-Pr": {
     "confidence": "high",
     "note": "isopropyl",
-    "smiles": "C(C)C[*]"
+    "smiles": "CC(C)[*]"
   },
   "iAm": {
     "confidence": "high",
@@ -1830,7 +1830,7 @@
   "s-Am": {
     "confidence": "medium",
     "note": "sec-pentyl (pentan-2-yl)",
-    "smiles": "C(C)CCC[*]"
+    "smiles": "[*]C(C)CCC"
   },
   "s-Bu": {
     "confidence": "high",
@@ -1840,7 +1840,7 @@
   "s-Butyl": {
     "confidence": "high",
     "note": "sec-butyl",
-    "smiles": "C(C)CC[*]"
+    "smiles": "[*]C(C)CC"
   },
   "s-C4H9": {
     "confidence": "high",
@@ -1860,7 +1860,7 @@
   "sBu": {
     "confidence": "high",
     "note": "sec-butyl",
-    "smiles": "C(C)CC[*]"
+    "smiles": "[*]C(C)CC"
   },
   "t-Am": {
     "confidence": "high",
@@ -1880,7 +1880,7 @@
   "t-Butyl": {
     "confidence": "high",
     "note": "tert-butyl",
-    "smiles": "C(C)(C)C[*]"
+    "smiles": "CC(C)(C)[*]"
   },
   "t-C4H9": {
     "confidence": "high",
@@ -1900,7 +1900,7 @@
   "tBu": {
     "confidence": "high",
     "note": "tert-butyl",
-    "smiles": "C(C)(C)C[*]"
+    "smiles": "CC(C)(C)[*]"
   },
   "thexyl": {
     "confidence": "high",

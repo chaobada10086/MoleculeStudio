@@ -13,6 +13,7 @@
 #include "next/render/geometry.hpp"
 
 #include <cmath>
+#include <utility>
 
 namespace r62 {
 namespace bonds {
@@ -78,12 +79,12 @@ bool toPrimitives(const BondRenderData& data, const core::ObjectRef& source,
                 render::Subpath outer;
                 outer.points = s.outline;
                 outer.closed = true;
-                p.subpaths.push_back(outer);
+                p.subpaths.push_back(std::move(outer));
                 if (!s.fillHoles.empty()) {
                     render::Subpath hole;
                     hole.points = s.fillHoles;
                     hole.closed = true;
-                    p.subpaths.push_back(hole);
+                    p.subpaths.push_back(std::move(hole));
                 }
                 p.style.fill = render::Paint(options.color, s.fill);
                 p.style.stroke.enabled = false;
@@ -107,7 +108,7 @@ bool toPrimitives(const BondRenderData& data, const core::ObjectRef& source,
         if (p.points.size() < 2 && p.subpaths.empty()) continue;
         p.bounds = render::geom::computeBounds(p, options.viewDefaultWidth);
         p.version = 0;   // filled by signatureOf() at the caller's level
-        out->push_back(p);
+        out->push_back(std::move(p));
     }
     return !out->empty();
 }

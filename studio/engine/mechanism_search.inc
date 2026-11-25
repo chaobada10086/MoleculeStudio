@@ -2,8 +2,13 @@
 // Included in r62::arrows after MechanismObstacle and mechanismDistance.
 inline bool routeClear(const core::Vec2& a,const core::Vec2& b,const ArrowParams& p,const std::vector<MechanismObstacle>& obstacles,double extra=1.2) {
     int steps=std::max(1,int(std::ceil(core::length(b-a)/1.2)));
-    for(int i=0;i<=steps;++i){core::Vec2 q=a+(b-a)*(double(i)/steps);
-        for(const auto& o:obstacles){
+    const core::Vec2 low(std::min(a.x,b.x),std::min(a.y,b.y));
+    const core::Vec2 high(std::max(a.x,b.x),std::max(a.y,b.y));
+    for(const auto& o:obstacles){
+        const double reach=o.radius+extra;
+        if(std::min(o.a.x,o.b.x)>high.x+reach || std::max(o.a.x,o.b.x)<low.x-reach ||
+           std::min(o.a.y,o.b.y)>high.y+reach || std::max(o.a.y,o.b.y)<low.y-reach)continue;
+        for(int i=0;i<=steps;++i){core::Vec2 q=a+(b-a)*(double(i)/steps);
             if(o.glyphOwner.valid()){
                 if(mechanismGlyphContact(o,p,q))continue;
                 // Grid padding must leave room to dock beside a letter.
@@ -24,9 +29,10 @@ inline std::vector<core::Vec2> mechanismSpline(const std::vector<core::Vec2>& co
     std::vector<double> knots(n+degree+2);
     for(int i=0;i<int(knots.size());++i)knots[i]=i<=degree?0:i>=n+1?1:double(i-degree)/(n-degree+1);
     std::vector<core::Vec2> out;int samples=std::min(2048,std::max(64,n*32));
+    out.reserve(samples+1);
     for(int j=0;j<=samples;++j){double t=double(j)/samples;int k=degree;
         while(k<n&&t>=knots[k+1])++k;
-        std::vector<core::Vec2> d;for(int i=0;i<=degree;++i)d.push_back(control[k-degree+i]);
+        core::Vec2 d[4];for(int i=0;i<=degree;++i)d[i]=control[k-degree+i];
         for(int level=1;level<=degree;++level)for(int i=degree;i>=level;--i){int index=k-degree+i;double den=knots[index+degree-level+1]-knots[index];double a=den>1e-12?(t-knots[index])/den:0;d[i]=d[i-1]*(1-a)+d[i]*a;}
         out.push_back(d[degree]);
     }

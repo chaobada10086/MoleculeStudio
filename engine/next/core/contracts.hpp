@@ -392,7 +392,7 @@ enum TextFlags : uint16_t {
     kHighlight     = 1u << 6
 };
 
-enum class TextAlign : uint8_t { Left = 0, Center = 1, Right = 2 };
+enum class TextAlign : uint8_t { Left = 0, Center = 1, Right = 2, Justify = 3 };
 
 // A run is a maximal span sharing identical formatting. Plain text is one run.
 struct TextRun {
@@ -470,12 +470,16 @@ public:
         return entries_ ? *entries_ : emptyEntries;
     }
     const ExtensionEntry* find(const std::string& key, int32_t sourceId = 0) const {
-        const auto& values=entries();
-        for (size_t i = 0; i < values.size(); ++i)
-            if (values[i].key == key && values[i].sourceId == sourceId) return &values[i];
-        return 0;
+        return findBytes(key.data(), key.size(), sourceId);
+    }
+    const ExtensionEntry* find(const char* key, int32_t sourceId = 0) const {
+        return findBytes(key, std::char_traits<char>::length(key), sourceId);
     }
     const std::string* findValue(const std::string& key, int32_t sourceId = 0) const {
+        const ExtensionEntry* e = find(key, sourceId);
+        return e ? &e->value : 0;
+    }
+    const std::string* findValue(const char* key, int32_t sourceId = 0) const {
         const ExtensionEntry* e = find(key, sourceId);
         return e ? &e->value : 0;
     }
@@ -506,6 +510,15 @@ public:
     bool operator==(const ExtensionBag& o) const { return entries_==o.entries_ || entries()==o.entries(); }
     bool operator!=(const ExtensionBag& o) const { return !(*this == o); }
 private:
+    const ExtensionEntry* findBytes(const char* key, size_t length, int32_t sourceId) const {
+        if (!entries_) return nullptr;
+        for (const auto& entry : *entries_) {
+            if (entry.sourceId == sourceId && entry.key.size() == length &&
+                std::char_traits<char>::compare(entry.key.data(), key, length) == 0)
+                return &entry;
+        }
+        return nullptr;
+    }
     std::vector<ExtensionEntry>& writable() {
         if(!entries_)entries_=std::make_shared<std::vector<ExtensionEntry>>();
         else if(!entries_.unique())entries_=std::make_shared<std::vector<ExtensionEntry>>(*entries_);

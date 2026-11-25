@@ -1,5 +1,10 @@
 #pragma once
+#ifdef _WIN32
 #include "app_paths.hpp"
+#else
+#include "linux/config.hpp"
+#include <cwchar>
+#endif
 #include "next/text/rich_text.hpp"
 #include <algorithm>
 #include <cstring>
@@ -28,6 +33,7 @@ static_assert(nickdata::count==functionalgroupsdoc::count,"docs/FUNCTIONAL_GROUP
 namespace chemcompletion {
 // Same writable interface.ini the rest of the UI uses: portable next to the EXE,
 // %LOCALAPPDATA%\\MoleculeStudio when the install folder is read-only (Store/MSIX).
+#ifdef _WIN32
 inline std::wstring settingsPath(){return apppaths::dataFile(L"interface.ini");}
 inline bool& enabled(){static bool value=GetPrivateProfileIntW(L"Text",L"CompleteGroupLabels",1,settingsPath().c_str())!=0;return value;}
 inline bool saveEnabled(bool value){if(!WritePrivateProfileStringW(L"Text",L"CompleteGroupLabels",value?L"1":L"0",settingsPath().c_str()))return false;enabled()=value;return true;}
@@ -44,6 +50,20 @@ inline bool writeKey(const wchar_t* name,const std::string& value){
     std::wstring wide(size_t(size),0);MultiByteToWideChar(CP_UTF8,0,value.c_str(),-1,&wide[0],size);
     return WritePrivateProfileStringW(L"GroupCompletion",name,wide.c_str(),settingsPath().c_str())!=0;
 }
+#else
+inline bool& enabled(){static bool value=linux_config::Preferences().flag("Text","CompleteGroupLabels",true);return value;}
+inline bool saveEnabled(bool value){if(!linux_config::Preferences().flag("Text","CompleteGroupLabels",value,nullptr))return false;enabled()=value;return true;}
+inline bool& formulaLayout(){static bool value=linux_config::Preferences().flag("GroupCompletion","FormulaLayout",true);return value;}
+inline bool saveFormulaLayout(bool value){if(!linux_config::Preferences().flag("GroupCompletion","FormulaLayout",value,nullptr))return false;formulaLayout()=value;return true;}
+inline std::string readKey(const wchar_t* name){
+    const std::string key(name,name+std::wcslen(name));
+    return linux_config::Preferences().text("GroupCompletion",key.c_str());
+}
+inline bool writeKey(const wchar_t* name,const std::string& value){
+    const std::string key(name,name+std::wcslen(name));
+    return linux_config::Preferences().text("GroupCompletion",key.c_str(),value);
+}
+#endif
 // Declared here so the completion rules below can classify exactly typed
 // element symbols before the formula reader is defined.
 inline const char* const* elementSymbols(size_t* count);
@@ -314,8 +334,15 @@ inline std::string hyphenatedGroup(const std::string& label){
     };
     for(const auto& form:forms)if(label==form.first&&nickdata::find(form.second))return form.second;
     if(!knownSpelling(label).empty()){
-        for(const auto& form:forms)if(label.compare(0,std::strlen(form.first),form.first)==0)
-            return std::string(form.second)+label.substr(std::strlen(form.first));
+        std::string formatted=label;
+        for(const auto& form:forms){
+            for(size_t at=0;(at=formatted.find(form.first,at))!=std::string::npos;++at){
+                // An internal n in the element Sn is not an alkyl prefix.
+                if(at && std::string("OP(-").find(formatted[at-1])==std::string::npos)continue;
+                formatted.insert(at+1,"-");
+            }
+        }
+        if(formatted!=label)return formatted;
         for(const auto& form:std::vector<std::pair<std::string,std::string>>{{"mCPBA","m-CPBA"},{"pTsOH","p-TsOH"}})
             if(label==form.first)return form.second;
     }

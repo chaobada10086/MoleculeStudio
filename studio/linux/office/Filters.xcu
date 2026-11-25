@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data oor:name="Filter" oor:package="org.openoffice.TypeDetection" xmlns:oor="http://openoffice.org/2001/registry">
+ <node oor:name="Filters">
+  <node oor:name="writer_pdf_Export" oor:op="fuse"><prop oor:name="FilterService"><value>org.moleculestudio.office.WriterPdfFilter</value></prop></node>
+  <node oor:name="Impress MS PowerPoint 2007 XML" oor:op="fuse"><prop oor:name="FilterService"><value>org.moleculestudio.office.PresentationFilter</value></prop></node>
+  <node oor:name="Impress Office Open XML" oor:op="fuse"><prop oor:name="FilterService"><value>org.moleculestudio.office.PresentationFilter</value></prop></node>
+ </node>
+</oor:component-data>

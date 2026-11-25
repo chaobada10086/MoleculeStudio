@@ -22,7 +22,7 @@ inline bool append(const Document& d,ObjectRef ref,Vec2 current,std::vector<rend
  Vec2 offset=current-origin;
  if(std::string(e->Name())=="embeddedobject"){
   render::Primitive p;p.kind=render::PrimKind::Rect;p.source=ref;p.layer=render::LayerId(100);p.z=0;p.points={a,b,Vec2(b.x,a.y),Vec2(a.x,b.y)};p.style.fill.enabled=p.style.stroke.enabled=false;p.text="CDXML-EMF:"+*raw;
-  if(e->Attribute("MoleculeStudioRaster")){auto path=d.paths().alive(ref.id);if(path&&path->points.size()==4){p.points={path->points[0],path->points[2],path->points[1],path->points[3]};out->push_back(p);return true;}}
+  if(e->Attribute("MoleculeStudioRaster")||d.extensions(ref).findValue("studio.embedded.image")){auto path=d.paths().alive(ref.id);if(path&&path->points.size()==4){p.points={path->points[0],path->points[2],path->points[1],path->points[3]};out->push_back(p);return true;}}
   double angle=e->DoubleAttribute("RotationAngle")/65536.*3.141592653589793/180.;Vec2 center=(a+b)*.5;
   for(auto& v:p.points){auto q=v-center;v=center+Vec2(q.x*cos(angle)-q.y*sin(angle),q.x*sin(angle)+q.y*cos(angle))+offset;}out->push_back(p);return true;
  }

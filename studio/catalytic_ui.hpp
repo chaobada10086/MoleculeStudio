@@ -48,8 +48,8 @@ bool App::catalyticEllipse(ObjectRef ref,graphics::ShapeParams* out){
     if(ref.kind!=ObjectKind::Arrow)return false;graphics::ShapeParams p;bool valid=false;auto e=graphics::readShape(s.doc,ref.id,&p,&valid);if(!e.ok()||!valid||(p.form!=graphics::ShapeForm::Circle&&p.form!=graphics::ShapeForm::Oval))return false;if(out)*out=p;return true;
 }
 bool App::catalyticFold(bool expand){
-    auto refs=studioio::expanded(s.doc,s.selected);std::vector<ObjectId> ids;for(auto r:refs)if(r.kind==ObjectKind::Atom){auto& b=s.doc.extensions(r);if(b.findValue(CatalyticMetal::attr("Metal"))){bool compact=b.findValue("studio.compound.fragment")!=nullptr;if(compact==expand&&(!s.doc.incidentBonds(r.id).empty()||compact))ids.push_back(r.id);}}
-    if(ids.empty())return false;
-    auto e=s.submit(Command(expand?"展开金属配合物":"收起金属配合物",kInvalidateStructure|kInvalidateGeometry|kInvalidateAppearance,[ids,expand](CommandContext& c){try{for(auto id:ids)CatalyticMetal::fold(c.document,id,expand);return CommandResult::success();}catch(const std::exception& e){return CommandResult::fail(ErrorCode::InvalidArgument,e.what());}}),"配合物显示");
-    if(e.ok()){s.selected.clear();for(auto id:ids)s.selected.emplace_back(ObjectKind::Atom,id);}status=e.ok()?(expand?"已展开真实配体结构":"已收起配合物；原结构和颜色保留，可右键展开"):e.message;updateInfo();invalidate();return true;
+    Error result;
+    if(!studio_group_actions::foldCatalytic(s,expand,result))return false;
+    status=result.ok()?s.status:result.message;
+    updateInfo();invalidate();return true;
 }

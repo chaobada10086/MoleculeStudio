@@ -1,16 +1,17 @@
 #pragma once
 #include "bond_hydrogens.hpp"
 #include "next/chemistry/valence.hpp"
+#include <unordered_map>
 
 namespace studio { namespace electron_valence {
 using namespace r62::core;
-struct State { ObjectId id; int element,sum; AtomSemantics sem; };
+struct State { int element,sum; AtomSemantics sem; };
 // Apply inside the originating transaction, so charge, label and H undo together.
 struct Before {
-    std::vector<State> states;
+    std::unordered_map<ObjectId, State> states;
     explicit Before(const Document& d){
         for(const auto& a:d.atoms().records())if(a.isAlive()&&(a.element==7||a.element==8))
-            states.push_back({a.id,a.element,bond_hydrogens::valence(d,a.id),a.semantics});
+            states.emplace(a.id, State{a.element,bond_hydrogens::valence(d,a.id),a.semantics});
     }
     Error apply(Document& d,bool infer)const{
         for(const auto& a:d.atoms().records())if(a.isAlive()&&(a.element==7||a.element==8)){
@@ -22,8 +23,8 @@ struct Before {
             if(!ordinary||a.semantics.charge < -1||a.semantics.charge > 1)continue;
             auto& bag=d.extensions(ObjectRef(ObjectKind::Atom,a.id));
             if(bag.findValue("studio.nickname.fragment"))continue;
-            const State* old=nullptr;
-            for(const auto& state:states)if(state.id==a.id){old=&state;break;}
+            const auto prior = states.find(a.id);
+            const State* old = prior == states.end() ? nullptr : &prior->second;
             auto sem=a.semantics;
             const int sum=bond_hydrogens::valence(d,a.id),limit=a.element==7?4:3;
             const bool changed=!old||old->sum!=sum||old->element!=a.element;

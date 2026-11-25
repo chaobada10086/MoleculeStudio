@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<description xmlns="http://openoffice.org/extensions/description/2006">
+  <identifier value="org.moleculestudio.office"/>
+  <version value="0.2.0.251"/>
+  <display-name>
+    <name lang="en">MoleculeStudio Office</name>
+    <name lang="zh-CN">MoleculeStudio 办公文档集成</name>
+  </display-name>
+</description>

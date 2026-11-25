@@ -537,7 +537,9 @@ size_t Batcher::sync(const Scene& scene, const View& view, const geom::TextMeasu
         if (it != sceneCache.meshes.end() && it->second.valid) {
             if (it->second.version == p.version && p.kind != PrimKind::Curve) {
                 reuse = true;
-            } else {
+            } else if (!p.cacheKey || it->second.version == p.version) {
+                // Session primitives with a stable key carry a content version.
+                // A changed interior point can leave every sampled point intact.
                 // A document-wide serial bump changes every primitive's version
                 // even when its geometry is untouched. Compare actual content.
                 if (!signature) signature = primitiveSignature(p, meshViewScale);
@@ -558,7 +560,8 @@ size_t Batcher::sync(const Scene& scene, const View& view, const geom::TextMeasu
         }
         // A new or dirty primitive: build it and store the one node.
         CachedMesh mesh;
-        if (!signature) signature = primitiveSignature(p, meshViewScale);
+        if (!signature && (!p.cacheKey || p.kind == PrimKind::Curve))
+            signature = primitiveSignature(p, meshViewScale);
         if(directContours&&directContourPrimitive(p)){mesh.version=p.version;mesh.signature=signature;mesh.valid=true;mesh.worldBounds=p.bounds;}
         else buildPrimitiveMeshes(p, view, measurer, &mesh,
                              stats ? &stats->glyphSamples : 0,

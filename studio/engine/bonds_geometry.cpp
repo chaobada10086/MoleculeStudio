@@ -1,6 +1,6 @@
 // MoleculeStudio bond primitives, implemented from the project geometry contract.
 // Input/output types are project interfaces; no external drawing engine is used.
-#include "next/bonds/geometry.hpp"
+#include "bond_axis_point.hpp"
 #include <algorithm>
 #include <cmath>
 
@@ -32,7 +32,7 @@ class Builder {
 public:
     BondRenderData output;
     Builder(const BondAxis& a,const BondGeometryOptions& s):axis(a),style(s){output.axisBegin=a.begin;output.axisEnd=a.end;}
-    core::Vec2 point(double along,double across=0) const {return axis.begin+axis.dir*along+axis.normal*across;}
+    core::Vec2 point(double along,double across=0) const { return pointOnBondAxis(axis,along,across); }
     void stroke(double start,double finish,double left=0,double right=0) {
         BondShape shape;shape.kind=BondShapeKind::Stroke;shape.points={point(start,left),point(finish,right)};output.shapes.push_back(shape);
     }

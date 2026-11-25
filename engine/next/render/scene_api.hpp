@@ -58,6 +58,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace r62 {
@@ -332,6 +333,11 @@ public:
 
     Primitive& add(const Primitive& p) {
         prims_.push_back(p);
+        ++generation_;
+        return prims_.back();
+    }
+    Primitive& add(Primitive&& p) {
+        prims_.push_back(std::move(p));
         ++generation_;
         return prims_.back();
     }

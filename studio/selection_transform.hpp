@@ -285,16 +285,7 @@ const render::Scene& App::selectionTransformScene(){
     const size_t offset=s.gpuScene.size()-originals.size();
     for(size_t i:transformPreviewSlots){
         const auto& original=originals[i];auto& p=transformPreview.mutablePrimitives()[offset+i];p=s.gpuScene.primitives()[offset+i];
-        auto matrix=transformMatrix;
-        if(original.source.kind==ObjectKind::Atom){auto a=s.doc.atoms().alive(original.source.id);if(a)matrix=selection::Affine2::translation(transformMatrix.apply(a->position)-a->position);}
-        if(original.source.kind==ObjectKind::Text){auto t=s.doc.texts().alive(original.source.id);if(t){
-            const Vec2 anchor=transformMatrix.apply(t->position);double scale=std::hypot(transformMatrix.m00,transformMatrix.m10);
-            if(scale>1e-12&&transformMatrix.determinant()>0){matrix.m00/=scale;matrix.m01/=scale;matrix.m10/=scale;matrix.m11/=scale;matrix.m02=anchor.x-matrix.m00*t->position.x-matrix.m01*t->position.y;matrix.m12=anchor.y-matrix.m10*t->position.x-matrix.m11*t->position.y;}
-            else matrix=selection::Affine2::translation(anchor-t->position);
-        }}
-        for(auto& pt:p.points)pt=matrix.apply(pt);
-        for(auto& sub:p.subpaths)for(auto& pt:sub.points)pt=matrix.apply(pt);
-        p.bounds=render::geom::computeBounds(p,.6);
+        studio_transform_preview::apply(s.doc,original,transformMatrix,p);
         p.version=(p.version^(transformRevision*0x9E3779B97F4A7C15ull)^0xD761CE8D1A23B04Full)|1ull;
     }
     transformPreview.touch();return transformPreview;

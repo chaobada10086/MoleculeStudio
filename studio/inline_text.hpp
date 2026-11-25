@@ -247,6 +247,7 @@ struct InlineTextEditor {
     void noteContentChange(){if(active&&!loading&&!refreshPending){refreshPending=true;PostMessageW(hwnd,WM_APP+51,0,0);}}
     std::vector<uint8_t> automaticItalics(const std::wstring& value){
         if(!chemcompletion::formulaLayout())return {};
+        if(atom==kInvalidObjectId)return chemitalic::maskUtf16(value,true);
         auto mask=chemitalic::maskUtf16(value);
         for(size_t at=0;at<value.size();){
             if(iswspace(value[at])||value[at]==L';'||value[at]==L','){++at;continue;}

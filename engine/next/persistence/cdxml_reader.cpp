@@ -1,3 +1,4 @@
+#include "next/core/xml_encoding.hpp"
 #include "persistence.hpp"
 #include "persistence_internal.hpp"
 
@@ -1465,12 +1466,7 @@ Error readInto(const std::string& bytes, core::Document& document,
     for (const tinyxml2::XMLNode* n = xml.FirstChild(); n; n = n->NextSibling()) {
         if (n == root || n->ToComment()) continue;
         if (n->ToDeclaration()) {
-            std::string declaration = n->Value() ? n->Value() : "";
-            for (size_t i = 0; i < declaration.size(); ++i)
-                declaration[i] = static_cast<char>(
-                    std::tolower(static_cast<unsigned char>(declaration[i])));
-            if (declaration.find("encoding") != std::string::npos &&
-                declaration.find("utf-8") == std::string::npos)
+            if (!r62::core::declaresUtf8Xml(n->Value() ? n->Value() : ""))
                 return fail("only UTF-8 XML documents are supported",
                             ErrorCode::Unsupported);
             continue;

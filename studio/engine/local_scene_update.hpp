@@ -1,13 +1,14 @@
 #ifndef STUDIO_LOCAL_SCENE_UPDATE_HPP
 #define STUDIO_LOCAL_SCENE_UPDATE_HPP
 #include <cstdio>
+#include <unordered_set>
 #include <cstdlib>
 // A local chemical edit can only change the old/new connected components.
 // Preserve all other rendered objects, including their exact painter order.
 namespace r62 { namespace integration { namespace local_scene {
 struct Update {
     Session* owner=nullptr;
-    std::set<ObjectId> atoms,bonds;
+    std::unordered_set<ObjectId> atoms,bonds;
     std::set<ObjectRef> graphics;
     bool contains(ObjectRef ref) const {
         return ref.kind==ObjectKind::Atom?atoms.count(ref.id)!=0:
@@ -60,25 +61,30 @@ inline bool plan(Session& s,const ChangeSet& change,Update& update){
         else if(ext.ref.kind==ObjectKind::Bond){update.bonds.insert(ext.ref.id);if(auto b=s.doc.bonds().alive(ext.ref.id)){update.atoms.insert(b->beginAtom);update.atoms.insert(b->endAtom);}}
         else return false;
     }
-    std::vector<int> beforeDegree(count),afterDegree(count);
-    for(const auto& b:s.doc.bonds().records())if(b.isAlive()&&!update.bonds.count(b.id)){++beforeDegree[b.beginAtom];++beforeDegree[b.endAtom];}
-    afterDegree=beforeDegree;
-    // Unchanged bond records can be in update.bonds because an extension changed.
-    std::set<ObjectId> patchedBonds;
-    for(const auto& run:p.bondsAfter)for(const auto& b:run.records)patchedBonds.insert(b.id);
-    for(const auto& run:change.reverse.bondsAfter)for(const auto& b:run.records)patchedBonds.insert(b.id);
-    for(auto id:update.bonds)if(!patchedBonds.count(id))if(auto b=s.doc.bonds().alive(id)){
-        ++beforeDegree[b->beginAtom];++beforeDegree[b->endAtom];++afterDegree[b->beginAtom];++afterDegree[b->endAtom];
+    // Only records in the slab patches have separate old and new endpoints.
+    // Extension-only edits retain their live bond in both degree counts.
+    const size_t bondCount = std::max(size_t(change.forward.bondsSize),size_t(change.reverse.bondsSize));
+    std::vector<unsigned char> patchedBond(bondCount);
+    for(const auto* patch : {&change.forward,&change.reverse})
+        for(const auto& run:patch->bondsAfter)for(const auto& b:run.records){
+            if(b.id>=bondCount)return false;
+            patchedBond[b.id]=1;
+        }
+    std::vector<int> beforeDegree(count);
+    for(const auto& b:s.doc.bonds().records())if(b.isAlive() && (b.id>=bondCount || !patchedBond[b.id])){
+        ++beforeDegree[b.beginAtom];++beforeDegree[b.endAtom];
     }
+    auto afterDegree=beforeDegree;
     for(const auto& run:p.bondsAfter)for(const auto& b:run.records)if(b.isAlive()){++afterDegree[b.beginAtom];++afterDegree[b.endAtom];}
     for(const auto& run:change.reverse.bondsAfter)for(const auto& b:run.records)if(b.isAlive()){++beforeDegree[b.beginAtom];++beforeDegree[b.endAtom];}
-    std::map<ObjectId,bool> beforeAlive,afterAlive;
-    for(const auto& run:p.atomsAfter)for(const auto& a:run.records)afterAlive[a.id]=a.isAlive();
-    for(const auto& run:change.reverse.atomsAfter)for(const auto& a:run.records)beforeAlive[a.id]=a.isAlive();
+    std::vector<signed char> beforeAlive(count,-1),afterAlive(count,-1);
+    for(const auto& run:p.atomsAfter)for(const auto& a:run.records){if(a.id>=count)return false;afterAlive[a.id]=a.isAlive();}
+    for(const auto& run:change.reverse.atomsAfter)for(const auto& a:run.records){if(a.id>=count)return false;beforeAlive[a.id]=a.isAlive();}
     for(auto id:update.atoms){
-        if(id>=count){if(std::getenv("MOLECULE_STUDIO_PERF_TRACE"))std::fprintf(stderr,"[local] plan fail why=id>=count\n");return false;}
-        bool was=id<change.reverse.atomsSize&&(beforeAlive.count(id)?beforeAlive[id]:s.doc.atoms().alive(id)!=nullptr);
-        bool now=id<change.forward.atomsSize&&(afterAlive.count(id)?afterAlive[id]:s.doc.atoms().alive(id)!=nullptr);
+        if(id>=count)return false;
+        const bool live=s.doc.atoms().alive(id)!=nullptr;
+        bool was=id<change.reverse.atomsSize&&(beforeAlive[id]<0?live:beforeAlive[id]!=0);
+        bool now=id<change.forward.atomsSize&&(afterAlive[id]<0?live:afterAlive[id]!=0);
         if((was&&beforeDegree[id]==0)||(now&&afterDegree[id]==0)){if(std::getenv("MOLECULE_STUDIO_PERF_TRACE"))std::fprintf(stderr,"[local] plan fail why=isolated id=%u was=%d now=%d\n",unsigned(id),was?1:0,now?1:0);return false;}
     }
     // Text runs share an ID namespace with atoms and captions. Be conservative
@@ -100,14 +106,17 @@ inline bool plan(Session& s,const ChangeSet& change,Update& update){
     }
     update.owner=&s;return true;
 }
+inline void refresh(Session& s,const Update& update){
+    struct Scope {const Update* old;Scope(const Update* value):old(pending()){pending()=value;}~Scope(){pending()=old;}} scope(&update);
+    s.refresh();
+}
 inline void refresh(Session& s,const ChangeSet& change){
     Update update;
     if(!plan(s,change,update)){
         if(std::getenv("MOLECULE_STUDIO_PERF_TRACE"))std::fprintf(stderr,"[local] fallback to full scene\n");
         s.refresh();return;}
     if(std::getenv("MOLECULE_STUDIO_PERF_TRACE"))std::fprintf(stderr,"[local] partial atoms=%zu bonds=%zu\n",update.atoms.size(),update.bonds.size());
-    struct Scope {const Update* old;Scope(const Update* value):old(pending()){pending()=value;}~Scope(){pending()=old;}} scope(&update);
-    s.refresh();
+    refresh(s,update);
 }
 } } }
 #endif

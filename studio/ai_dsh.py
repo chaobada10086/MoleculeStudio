@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -27,6 +28,9 @@ def core_dir() -> Path:
 
 def runtime_paths(core: Path):
     """Support the compact layout and existing installations."""
+    if os.name != "nt":
+        node = shutil.which("node") or "/usr/bin/node"
+        return Path(node), core / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js"
     if (core / "node.exe").is_file():
         return core / "node.exe", core / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js"
     return core / "node" / "node.exe", core / "dsh" / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js"
@@ -69,7 +73,8 @@ def _clean(text: str) -> str:
     return re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", text or "")
 
 
-def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base_url: str = "", model: str = "") -> str:
+def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base_url: str = "", model: str = "",
+             workspace: Path | None = None) -> str:
     """Run one headless DSH task and return its final message.
 
     MOLECULE_STUDIO_DSH_STUB may point at a text file; it is used by the offline
@@ -81,13 +86,13 @@ def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base
     if not available():
         raise ValueError("高级绘图组件不完整，请修复或重新安装 AI 套件")
     core = core_dir()
-    workspace = workspace_dir()
+    workspace = workspace if workspace is not None else workspace_dir()
     workspace.mkdir(parents=True, exist_ok=True)
     node, binary = runtime_paths(core)
     overlay = core / "overlay.yml"
     env = os.environ.copy()
     env["DEEPSEEK_API_KEY"] = api_key
-    env["DSH_HOME"] = str(core / "home")
+    env["DSH_HOME"] = str(core / "home" if os.name == "nt" else workspace / ".dsh")
     env["DSH_PERMISSION_MODE"] = "workspace-write"
     env["DSH_TELEMETRY_DISABLED"] = "1"
     if base_url:
@@ -95,7 +100,10 @@ def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base
     if model:
         env["MOLECULE_STUDIO_DSH_MODEL"] = model
     python_dir = BASE / "python"
-    env["PATH"] = (str(python_dir) + ";" if python_dir.is_dir() else "") + str(node.parent) + ";" + env.get("PATH", "")
+    path = [str(node.parent), env.get("PATH", "")]
+    if python_dir.is_dir():
+        path.insert(0, str(python_dir))
+    env["PATH"] = os.pathsep.join(path)
     command = [str(node), str(binary), "headless", "--patch", str(overlay), "--", "-"]
     if progress:
         progress("高级绘图：正在规划…")

@@ -1,76 +1,22 @@
 #ifndef STUDIO_CHEMISTRY_ACTIONS_HPP
 #define STUDIO_CHEMISTRY_ACTIONS_HPP
 #include "text_tidy.hpp"
-#include "engine/name_link.hpp"
-#include "next/selection/grouping.hpp"
-// Re-anchor every connected component separately. A clean service may normalize
-// the document origin and arrange disconnected fragments; neither translation
-// should move an ordinary structure cleanup away from its original location.
-inline std::vector<Vec2> anchorCleanComponents(const Document& document,const std::vector<ObjectId>& ids,const std::vector<Vec2>& cleaned,double factor,const std::set<ObjectId>* movable=nullptr){
-    std::map<ObjectId,size_t> index;for(size_t i=0;i<ids.size();++i)index[ids[i]]=i;
-    std::vector<std::vector<size_t>> edges(ids.size());for(const auto& bond:document.bonds().records())if(bond.isAlive()){auto a=index.find(bond.beginAtom),b=index.find(bond.endAtom);if(a!=index.end()&&b!=index.end()){edges[a->second].push_back(b->second);edges[b->second].push_back(a->second);}}
-    std::vector<Vec2> positions(ids.size());std::vector<bool> seen(ids.size(),false);
-    for(size_t root=0;root<ids.size();++root)if(!seen[root]){std::vector<size_t> component(1,root);seen[root]=true;Vec2 old=document.atoms().get(ids[root])->position;Box before(old,old),after(cleaned[root],cleaned[root]);
-        for(size_t k=0;k<component.size();++k){size_t i=component[k];before.add(document.atoms().get(ids[i])->position);after.add(cleaned[i]);for(auto next:edges[i])if(!seen[next]){seen[next]=true;component.push_back(next);}}
-        bool constrained=false;size_t anchor=root;if(movable)for(auto i:component)if(!movable->count(ids[i])){constrained=true;anchor=i;break;}
-        Vec2 oldCenter=(before.min+before.max)*.5,newCenter=(after.min+after.max)*.5;
-        // CDXML export adds a page offset. Recover the document frame from an
-        // unchanged atom rather than recentering a partially selected molecule.
-        for(auto i:component)positions[i]=constrained?(!movable->count(ids[i])?document.atoms().get(ids[i])->position:document.atoms().get(ids[anchor])->position+(cleaned[i]-cleaned[anchor])*factor):oldCenter+(cleaned[i]-newCenter)*factor;
-    }return positions;
+#include "chemistry_clean.hpp"
+#include "stereo_annotation.hpp"
+std::vector<ObjectRef> App::chemicalScope(){
+    return studio_chemistry::scope(s.doc, s.selected);
 }
-// ---------------------------------------------------------------------------
-// Structure-to-name caption
-// ---------------------------------------------------------------------------
-// The caption is bound to the structure it names: the pair becomes one
-// GroupRecord, and the caption carries a digest of the linked structure so a
-// later edit can raise the red "structure changed" frame. One Command = one
-// Ctrl+Z, including the group and the link. Running it again REPLACES its own
-// previous caption instead of stacking a second one.
-namespace studioNaming {
-inline Error createCaption(r62::core::Document& document,const std::string& caption,const r62::core::Vec2& position,
-                           const std::vector<r62::core::ObjectRef>& linkedRefs,r62::core::ObjectId* textId){
-    using namespace r62::core;
-    // Captions this command owns (found by their structure link) and the naming
-    // groups they live in. A group the user made themselves is left alone.
-    const std::vector<ObjectId> previous=namelink::linkedTextsForStructure(document,linkedRefs);
-    std::vector<ObjectId> previousGroups;
-    for(size_t k=0;k<previous.size();++k){
-        const ObjectId owner=namelink::owningGroup(document,ObjectRef(ObjectKind::Text,previous[k]));
-        if(owner==kInvalidObjectId)continue;
-        const GroupRecord* group=document.groups().alive(owner);
-        if(!group||group->label!=namelink::groupLabel())continue;
-        if(std::find(previousGroups.begin(),previousGroups.end(),owner)==previousGroups.end())previousGroups.push_back(owner);
-    }
-    for(size_t k=0;k<previousGroups.size();++k){r62::selection::GroupReport report;r62::selection::ungroup(document,std::vector<ObjectId>(1,previousGroups[k]),false,&report);}
-    for(size_t k=0;k<previous.size();++k)if(document.texts().alive(previous[k]))document.removeObject(ObjectRef(ObjectKind::Text,previous[k]));
-    ObjectId fallbackId=kInvalidObjectId;
-    ObjectId* created=textId?textId:&fallbackId;
-    Error e=document.addText(position,12,caption,created);
-    if(!e.ok())return e;
-    auto format=document.texts().get(*created)->format;format.fontName="Arial";
-    e=document.setTextFormat(*created,format);
-    if(!e.ok())return e;
-    // Bubble existing user groups instead of stealing their members: this group
-    // nests the user group and puts the caption beside it.
-    std::vector<ObjectRef> groupRefs=namelink::topLevelMembers(document,linkedRefs);
-    groupRefs.push_back(ObjectRef(ObjectKind::Text,*created));
-    r62::selection::createGroup(document,groupRefs,namelink::groupLabel(),0);
-    namelink::setLink(document,*created,linkedRefs,namelink::structureDigestText(document,linkedRefs));
-    return Error();
-}
-}
-std::vector<ObjectRef> App::chemicalScope(){std::set<ObjectId> atoms;auto refs=studioio::expanded(s.doc,s.selected);for(auto r:refs)if(r.kind==ObjectKind::Atom)atoms.insert(r.id);else if(r.kind==ObjectKind::Bond){auto b=s.doc.bonds().alive(r.id);if(b){atoms.insert(b->beginAtom);atoms.insert(b->endAtom);}}if(s.selected.empty())for(auto& a:s.doc.atoms().records())if(a.isAlive())atoms.insert(a.id);bool changed=true;while(changed){changed=false;for(auto& b:s.doc.bonds().records())if(b.isAlive()&&(atoms.count(b.beginAtom)||atoms.count(b.endAtom))){changed|=atoms.insert(b.beginAtom).second;changed|=atoms.insert(b.endAtom).second;}}std::vector<ObjectRef> out;for(auto a:atoms)out.push_back(ObjectRef(ObjectKind::Atom,a));for(auto& b:s.doc.bonds().records())if(b.isAlive()&&atoms.count(b.beginAtom)&&atoms.count(b.endAtom))out.push_back(ObjectRef(ObjectKind::Bond,b.id));return out;}
-inline bool isProjectionGroupName(const std::string& s){return s=="Fischer projection"||s=="Sawhorse projection"||s=="Newman projection";}
+using studio_stereo::isProjectionGroupName;
 bool App::prepareStereoLabels(std::string* output){
-    auto refs=chemicalScope();std::set<ObjectRef> selected(s.selected.begin(),s.selected.end());
-    for(auto ref:s.selected){auto top=s.topLevelRef(ref);if(top.kind==ObjectKind::Group)selected.insert(top);}
-    for(const auto& g:s.doc.groups().records())if(g.isAlive()&&isProjectionGroupName(g.label)&&(s.selected.empty()||selected.count(ObjectRef(ObjectKind::Group,g.id))))refs.emplace_back(ObjectKind::Group,g.id);
-    if(refs.empty()){*output="请先选择包含完整取代基的投影或分子结构";return false;}
-    Session subset;auto e=studioio::append(s.doc,subset.doc,refs,Vec2(),nullptr);if(!e.ok()){*output=e.message;return false;}
-    std::ostringstream xml;e=persistence::writeCdxml(subset.doc,xml);if(!e.ok()){*output=e.message;return false;}
-    if(xml.str()!=stereoCacheInput){stereoCacheInput=xml.str();stereoCacheOk=chemservice::run(h,stereoCacheInput,"text/xml","text/x-moleculestudio-stereo","stereolabels",&stereoCacheOutput);}
-    *output=stereoCacheOutput;return stereoCacheOk;
+    std::string input;
+    auto result=studio_stereo::writeInput(s,input);
+    if(!result.ok()){*output=result.message;return false;}
+    if(input!=stereoCacheInput){
+        stereoCacheInput=input;
+        stereoCacheOk=chemservice::run(h,stereoCacheInput,"text/xml","text/x-moleculestudio-stereo","stereolabels",&stereoCacheOutput);
+    }
+    *output=stereoCacheOutput;
+    return stereoCacheOk;
 }
 bool App::canLabelConfiguration(){std::string result;if(!prepareStereoLabels(&result))return false;return result.find("\natom\t")!=std::string::npos||result.find("\nbond\t")!=std::string::npos||result.find("\nprojection\t")!=std::string::npos;}
 bool App::chemistryAction(const std::string& op,int){
@@ -134,92 +80,71 @@ bool App::chemistryAction(const std::string& op,int){
         invalidate();return true;
     }
     if(op=="stereoLabels"){
-        // Every label is an ordinary text object inserted by ONE command, so a
-        // single Ctrl+Z removes the whole annotation. Labels are tagged with a
-        // document extension key, so running again replaces the previous set
-        // instead of stacking a second copy on top of it.
         std::string output;
+        const auto document=s.doc.id();
+        const auto serial=s.serial;
         status="正在标注构型…（Esc 取消）";invalidate(false);UpdateWindow(h);
         if(!prepareStereoLabels(&output)){status=output;invalidate();return true;}
-        struct StereoLabel{bool bond;std::string text;Vec2 center;ObjectId group=kInvalidObjectId;};
-        std::vector<StereoLabel> labels;int skipped=0;
-        std::istringstream stream(output);std::string line;
-        while(std::getline(stream,line)){
-            if(line.empty())continue;
-            std::vector<std::string> parts;size_t from=0;
-            for(size_t i=0;i<=line.size();++i)if(i==line.size()||line[i]=='\t'){parts.push_back(line.substr(from,i-from));from=i+1;}
-            if(parts.size()==2&&parts[0]=="skipped"){skipped=std::atoi(parts[1].c_str());continue;}
-            if(parts.size()<5||(parts[0]!="atom"&&parts[0]!="bond"&&parts[0]!="projection"))continue;
-            // The ids come from the subset CDXML (append() clears source ids), so
-            // they only identify the centre inside the service; the label is
-            // placed by coordinates, which are the document's own.
-            StereoLabel label;label.bond=parts[0]=="bond";label.text=parts[2];
-            label.center=Vec2(std::atof(parts[3].c_str()),std::atof(parts[4].c_str()));
-            if(!label.center.finite())continue;
-            if(parts[0]=="projection"&&parts.size()>=7){Vec2 origin(std::atof(parts[5].c_str()),std::atof(parts[6].c_str()));double best=1e100;for(const auto& g:s.doc.groups().records())if(g.isAlive()&&isProjectionGroupName(g.label)){auto b=selection::objectBounds(s.doc,ObjectRef(ObjectKind::Group,g.id));if(!studioio::inside(b,origin,s.doc.defaultBondLength()))continue;double score=length((b.min+b.max)*.5-origin);if(score<best){best=score;label.group=g.id;}}}
-            labels.push_back(label);
+        if(s.doc.id()!=document||s.serial!=serial){
+            status="等待期间文档已更改，请重新标注。";invalidate();return true;
         }
-        if(labels.empty()){status=skipped?("选中结构中没有可标注的 R/S/E/Z 构型（"+std::to_string(skipped)+" 处构型未定）"):"选中结构中没有手性中心或可指认的 E/Z 双键";invalidate();return true;}
-        double size=s.doc.defaultTextSize()>0?s.doc.defaultTextSize():10;
-        error(s.submit(Command("构型标注",kInvalidateAppearance|kInvalidateGeometry,[labels,size](CommandContext& c){
-            std::vector<ObjectId> previous;
-            for(auto& t:c.document.texts().records())if(t.isAlive()){
-                if(c.document.extensions(ObjectRef(ObjectKind::Text,t.id)).findValue("studio.stereo.label")){bool matches=false;for(const auto& label:labels){Vec2 old=t.position+Vec2(size*.9,size*.525);if(length(old-label.center)<9)matches=true;if(label.group!=kInvalidObjectId){auto g=c.document.groups().alive(label.group);if(g&&std::find(g->members.begin(),g->members.end(),ObjectRef(ObjectKind::Text,t.id))!=g->members.end())matches=true;}}if(matches){previous.push_back(t.id);continue;}}
-                // A reopened document loses the extension marker, so a plain
-                // "(R)" caption standing exactly where this run wants to write
-                // is treated as this command's own label and recycled.
-                std::string plain=fullText(c.document,t.id);
-                if(plain!="(R)"&&plain!="(S)"&&plain!="(E)"&&plain!="(Z)")continue;
-                double w=size*.60*double(plain.size()),h=size*1.05;Vec2 at(t.position.x+w*.5,t.position.y+h*.5);
-                for(auto& label:labels)if(core::length(at-label.center)<9){previous.push_back(t.id);break;}
-            }
-            for(auto id:previous)c.document.removeObject(ObjectRef(ObjectKind::Text,id));
-            for(auto& label:labels){
-                // The service places the label centre; CDXML text is anchored at
-                // its top-left, so offset by the measured box.
-                // Conventional caption: upright parentheses around the CIP letter.
-                std::string caption="("+label.text+")";
-                double width=size*.60*double(caption.size()),height=size*1.05;
-                ObjectId id;auto e=c.document.addText(Vec2(label.center.x-width*.5,label.center.y-height*.5),size,caption,&id);
-                if(!e.ok())return CommandResult::fail(e.code,e.message);
-                TextFormat format;format.fontName=c.document.defaultFont();format.size=size;
-                e=c.document.setTextFormat(id,format);if(!e.ok())return CommandResult::fail(e.code,e.message);
-                auto ref=ObjectRef(ObjectKind::Text,id);c.document.extensions(ref).set("studio.stereo.label",label.bond?"bond":"atom");c.document.extensions(ref).set("pst.attr.InterpretChemically","no");
-                if(label.group!=kInvalidObjectId){auto g=c.document.groups().mutableGet(label.group);g->members.push_back(ref);c.document.noteTouchedGroup(label.group);}
-            }
-            return CommandResult::success();
-        }),"构型标注"));
-        int r=0,ss=0,ee=0,zz=0;
-        for(auto& label:labels)if(label.text=="R")++r;else if(label.text=="S")++ss;else if(label.text=="E")++ee;else if(label.text=="Z")++zz;
-        std::string summary="已标注 "+std::to_string(labels.size())+" 处构型";
-        if(r||ss||ee||zz){std::string detail;if(r)detail+=std::string(detail.empty()?"":"、")+"R "+std::to_string(r);if(ss)detail+=std::string(detail.empty()?"":"、")+"S "+std::to_string(ss);if(ee)detail+=std::string(detail.empty()?"":"、")+"E "+std::to_string(ee);if(zz)detail+=std::string(detail.empty()?"":"、")+"Z "+std::to_string(zz);summary+="（"+detail+"）";}
-        if(skipped)summary+="；"+std::to_string(skipped)+" 处构型未定已跳过";
-        status=summary+" · 可按 Ctrl+Z 撤销";invalidate();return true;
+        auto result=studio_stereo::apply(s,output);
+        if(result.ok())status=s.status;
+        else error(result);
+        invalidate();return true;
     }
     if(op=="clean3d"){conformer3D();return true;}
-    if(op=="nickname"){std::string label;if(!ChemistryDialog::show(h,true,&label))return true;label=chemcompletion::normalize(label);if(chemcompletion::formulaLayout())label=chemcompletion::hyphenatedGroup(label);s.input.refreshHotspot(&s);auto spot=s.input.hotspot();ObjectId id=spot.kind==interaction::HotspotKind::Atom?spot.object.id:kInvalidObjectId;if(id==kInvalidObjectId&&s.selected.size()==1&&s.selected[0].kind==ObjectKind::Atom)id=s.selected[0].id;if(id!=kInvalidObjectId)error(s.submit(nicknames::labelCommand(id,label),"插入缩写"));else{auto p=s.view().center;auto fresh=std::make_shared<ObjectId>();error(s.submit(Command("插入缩写",kInvalidateStructure|kInvalidateAppearance,[p,label,fresh](CommandContext& c){auto e=c.document.addAtom(p,6,fresh.get());if(e.ok())e=nicknames::apply(c.document,*fresh,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"插入缩写"));s.selected={ObjectRef(ObjectKind::Atom,*fresh)};}return true;}
+    if(op=="nickname"){std::string label;if(!ChemistryDialog::show(h,true,&label))return true;label=chemcompletion::normalize(label);if(chemcompletion::formulaLayout())label=chemcompletion::hyphenatedGroup(label);s.input.refreshHotspot(&s);auto spot=s.input.hotspot();ObjectId id=spot.kind==interaction::HotspotKind::Atom?spot.object.id:kInvalidObjectId;if(id==kInvalidObjectId&&s.selected.size()==1&&s.selected[0].kind==ObjectKind::Atom)id=s.selected[0].id;error(nicknames::insert(s,label,id));return true;}
     if(op=="properties"){s.input.refreshHotspot(&s);auto spot=s.input.hotspot();if(spot.kind==interaction::HotspotKind::Atom)openText(kInvalidObjectId,spot.object.id);else if(spot.kind==interaction::HotspotKind::Bond){double order=1;if(NumberDialog::show(h,L"化学键属性",L"键级（1、2 或 3）",1,&order,1,3))error(s.submit(chemistry::setBondOrderWithRefreshCommand(spot.object.id,order<1.5?BondOrder::Single:order<2.5?BondOrder::Double:BondOrder::Triple),"化学键属性"));}else if(s.selected.size()==1&&s.selected[0].kind==ObjectKind::Text)openText(s.selected[0].id);else execute(Button("","页面设置","","@page"));return true;}
     bool importing=op=="nameToStructure"||op=="pasteSMILES"||op=="pasteMol"||op=="pasteHELM";
     bool copying=op=="copySMILES"||op=="copyMol"||op=="copyMol3000"||op=="copyHELM";
-    bool cleaning=op=="clean"||op=="clean3d"||op=="cleanReaction";
-    if(!importing&&!copying&&!cleaning&&op!="structureToName"&&op!="expandNickname"&&op!="nmr1h"&&op!="nmr13c"&&op!="nmr")return false;
-    std::string input,output,inMime="text/xml",outMime="text/xml",action="convert";std::vector<ObjectRef> refs;std::vector<ObjectId> originals;std::vector<int> fileIds;Box oldBounds(Vec2(1e100,1e100),Vec2(-1e100,-1e100));std::shared_ptr<Session> subset(new Session());
-    const bool localClean=op=="clean";std::set<ObjectId> cleanMovable;
-    if(localClean)subset->doc.setDefaultBondLength(s.doc.defaultBondLength());
-    if(localClean)for(auto ref:studioio::expanded(s.doc,s.selected)){
-        if(ref.kind==ObjectKind::Atom&&s.doc.atoms().alive(ref.id))cleanMovable.insert(ref.id);
-        else if(ref.kind==ObjectKind::Bond)if(auto bond=s.doc.bonds().alive(ref.id)){cleanMovable.insert(bond->beginAtom);cleanMovable.insert(bond->endAtom);}
+    if (op == "clean" || op == "cleanReaction") {
+        studio_chemistry::CleanupRequest request;
+        auto result = studio_chemistry::prepareCleanup(s.doc, s.selected, op == "cleanReaction", request);
+        if (!result.ok()) { error(result); return true; }
+        status = "正在处理化学结构…（Esc 取消）";
+        invalidate(false);
+        UpdateWindow(h);
+        const auto serial = s.serial;
+        const auto document = s.doc.id();
+        std::string output;
+        if (!chemservice::run(h, request.xml, "text/xml", "text/xml", "clean", &output)) {
+            status = output;
+            invalidate(false);
+            return true;
+        }
+        if (s.serial != serial || s.doc.id() != document) {
+            error({ErrorCode::InvalidArgument, "等待期间文档已更改，请重新整理。"});
+            return true;
+        }
+        Command command;
+        result = studio_chemistry::prepareCleanupCommand(s.doc, request, output, command);
+        if (result.ok()) result = s.submit(command, "整理结构");
+        error(result);
+        if (result.ok()) status = studio_chemistry::cleanupStatus(request);
+        return true;
     }
+    if(!importing&&!copying&&op!="structureToName"&&op!="expandNickname"&&op!="nmr1h"&&op!="nmr13c"&&op!="nmr")return false;
+    std::string input,output,inMime="text/xml",outMime="text/xml",action="convert";
+    std::vector<ObjectRef> refs;
+    Box oldBounds(Vec2(1e100,1e100),Vec2(-1e100,-1e100));
     if(importing){if(op=="nameToStructure"){input=pendingName;pendingName.clear();if(input.empty())for(auto r:s.selected)if(r.kind==ObjectKind::Text){if(!input.empty())input+=char(32);input+=fullText(s.doc,r.id);}if(input.empty()&&!ChemistryDialog::show(h,false,&input))return true;inMime="chemical/x-name";}else{if(!OpenClipboard(canvas)){status="无法打开剪贴板";return true;}auto mem=GetClipboardData(CF_UNICODETEXT);if(mem){auto p=(wchar_t*)GlobalLock(mem);if(p){input=U(p);GlobalUnlock(mem);}}CloseClipboard();inMime=op=="pasteSMILES"?"chemical/x-daylight-smiles":op=="pasteHELM"?"chemical/x-helm":"chemical/x-mdl-molfile";}if(input.empty()){status="剪贴板中没有可转换的文本";return true;}}
-    else{refs=chemicalScope();if(refs.empty()){status="请先绘制或选中结构";return true;}std::vector<ObjectRef> subsetRefs;auto e=studioio::append(s.doc,subset->doc,refs,Vec2(),&subsetRefs);if(!e.ok()){error(e);return true;}for(auto r:refs)if(r.kind==ObjectKind::Atom){originals.push_back(r.id);oldBounds.add(s.doc.atoms().get(r.id)->position);}if(localClean){size_t index=0;for(auto ref:subsetRefs)if(ref.kind==ObjectKind::Atom)subset->doc.extensions(ref).set("pst.attr.MoleculeStudioCleanOriginal",std::to_string(originals.at(index++)));}if(cleaning)for(auto& a:subset->doc.atoms().records())if(a.isAlive()){auto& bag=subset->doc.extensions(ObjectRef(ObjectKind::Atom,a.id));bag.erase("studio.atom.z");bag.erase("pst.attr.xyz");}std::ostringstream xml;e=persistence::writeCdxml(subset->doc,xml);if(!e.ok()){error(e);return true;}input=xml.str();tinyxml2::XMLDocument doc;doc.Parse(input.c_str());auto page=doc.RootElement()->FirstChildElement("page");for(auto f=page->FirstChildElement("fragment");f;f=f->NextSiblingElement("fragment"))for(auto a=f->FirstChildElement("n");a;a=a->NextSiblingElement("n"))fileIds.push_back(a->IntAttribute("id"));
-        if(localClean){std::map<ObjectId,int> mapped;for(auto f=page->FirstChildElement("fragment");f;f=f->NextSiblingElement("fragment"))for(auto a=f->FirstChildElement("n");a;a=a->NextSiblingElement("n"))if(a->Attribute("MoleculeStudioCleanOriginal"))mapped[ObjectId(std::strtoul(a->Attribute("MoleculeStudioCleanOriginal"),nullptr,10))]=a->IntAttribute("id");fileIds.clear();for(auto id:originals){auto found=mapped.find(id);if(found==mapped.end()){status="整理结构无法建立完整原子对应，已保留原结构";return true;}fileIds.push_back(found->second);}}
-        if(op=="nmr1h"||op=="nmr13c"){outMime="text/x-moleculestudio-nmr";action=op;}else if(op=="structureToName")outMime="chemical/x-name";else if(copying)outMime=op=="copySMILES"?"chemical/x-daylight-smiles":op=="copyHELM"?"chemical/x-helm":op=="copyMol3000"?"chemical/x-mdl-molfile-v3000":"chemical/x-mdl-molfile";else if(cleaning)action=op=="clean3d"?"clean3d":"clean";else action="expand";
-    }
-    if(localClean){
-        if(s.selected.empty())cleanMovable.insert(originals.begin(),originals.end());
-        if(cleanMovable.empty()){status="请先选择要整理的原子或化学键";invalidate();return true;}
-        std::string fixed;for(size_t i=0;i<originals.size()&&i<fileIds.size();++i)if(!cleanMovable.count(originals[i])){if(!fixed.empty())fixed+=" ";fixed+=std::to_string(fileIds[i]);}
-        if(!fixed.empty()){tinyxml2::XMLDocument xml;xml.Parse(input.c_str());xml.RootElement()->SetAttribute("MoleculeStudioCleanFixedAtoms",fixed.c_str());tinyxml2::XMLPrinter printer;xml.Print(&printer);input=printer.CStr();}
+    else {
+        refs = chemicalScope();
+        if (refs.empty()) { status = "请先绘制或选中结构"; return true; }
+        Document subset;
+        auto result = studioio::append(s.doc, subset, refs, Vec2(), nullptr);
+        if (!result.ok()) { error(result); return true; }
+        for (auto ref : refs)
+            if (ref.kind == ObjectKind::Atom) oldBounds.add(s.doc.atoms().alive(ref.id)->position);
+        std::ostringstream xml;
+        result = persistence::writeCdxml(subset, xml);
+        if (!result.ok()) { error(result); return true; }
+        input = xml.str();
+        if (op == "nmr1h" || op == "nmr13c") { outMime = "text/x-moleculestudio-nmr"; action = op; }
+        else if (op == "structureToName") outMime = "chemical/x-name";
+        else if (copying) outMime = op=="copySMILES"?"chemical/x-daylight-smiles":op=="copyHELM"?"chemical/x-helm":op=="copyMol3000"?"chemical/x-mdl-molfile-v3000":"chemical/x-mdl-molfile";
+        else action = "expand";
     }
     if(op=="nmr"||op=="nmr1h"||op=="nmr13c"){openNmrTab(input);status="核磁预测已在独立标签页打开；原结构可继续编辑";return true;}
     bool localExpanded=false;
@@ -243,47 +168,35 @@ bool App::chemistryAction(const std::string& op,int){
     auto generated=std::make_shared<Session>();auto e=persistence::readCdxml(output,generated->doc);if(!e.ok()){error(e);return true;}generated->refresh();
     if(localExpanded&&!studio::validation::overValentAtoms(generated->doc).empty()){status="展开结果含异常价态，已保留原结构";invalidate(false);return true;}
     if(op=="expandNickname"&&generated->doc.atoms().size()==0){status="本地缩写展开未返回结构，已保留原结构";invalidate();return true;}
-    struct CleanStereoUpdate{ObjectId id,a,b;BondDisplay display;BondStereo stereo;};std::vector<CleanStereoUpdate> cleanStereo;std::vector<std::pair<ObjectId,std::string>> cleanFragments;
-    if(cleaning){std::map<int,ObjectId> sourceAtoms;for(size_t i=0;i<originals.size()&&i<fileIds.size();++i)sourceAtoms[fileIds[i]]=originals[i];for(const auto& atom:generated->doc.atoms().records())if(atom.isAlive()&&sourceAtoms.count(atom.sourceId)){auto raw=static_cast<const Document&>(generated->doc).extensions(ObjectRef(ObjectKind::Atom,atom.id)).findValue("studio.nickname.fragment");auto original=sourceAtoms[atom.sourceId];if(raw&&static_cast<const Document&>(s.doc).extensions(ObjectRef(ObjectKind::Atom,original)).findValue("studio.nickname.fragment"))cleanFragments.push_back({original,*raw});}for(const auto& bond:generated->doc.bonds().records())if(bond.isAlive()){int a=generated->doc.atoms().get(bond.beginAtom)->sourceId,b=generated->doc.atoms().get(bond.endAtom)->sourceId;if(!sourceAtoms.count(a)||!sourceAtoms.count(b))continue;auto from=sourceAtoms[a],to=sourceAtoms[b];for(const auto& old:s.doc.bonds().records())if(old.isAlive()&&((old.beginAtom==from&&old.endAtom==to)||(old.beginAtom==to&&old.endAtom==from))){bool wedge=old.display==BondDisplay::Wedge||old.display==BondDisplay::WedgeHash||bond.display==BondDisplay::Wedge||bond.display==BondDisplay::WedgeHash;if(wedge)cleanStereo.push_back({old.id,from,to,bond.display,bond.stereo});break;}}}
-    if(localClean){
-        cleanFragments.erase(std::remove_if(cleanFragments.begin(),cleanFragments.end(),[&](const std::pair<ObjectId,std::string>& f){return !cleanMovable.count(f.first);}),cleanFragments.end());
-        cleanStereo.erase(std::remove_if(cleanStereo.begin(),cleanStereo.end(),[&](const CleanStereoUpdate& b){return !cleanMovable.count(b.a)&&!cleanMovable.count(b.b);}),cleanStereo.end());
-    }
-    if(cleaning){if(originals.size()!=fileIds.size()){status="整理结果的原子映射不完整，已保留原结构";return true;}std::map<int,Vec2> returned;for(auto& a:generated->doc.atoms().records())if(a.isAlive()){returned[a.sourceId]=a.position;}if(returned.size()!=originals.size()){status="整理结果改变了原子数量，已保留原结构";return true;}double factor=op=="expandNickname"?1.:s.doc.defaultBondLength()/std::max(.1,generated->doc.defaultBondLength());std::vector<Vec2> positions;for(auto id:fileIds){auto it=returned.find(id);if(it==returned.end()){status="整理结果缺少原子映射，已保留原结构";return true;}positions.push_back(it->second);}positions=anchorCleanComponents(s.doc,originals,positions,factor,localClean?&cleanMovable:nullptr);error(s.submit(Command("整理结构",kInvalidateGeometry,[originals,positions,op,oldBounds,cleanStereo,cleanFragments,localClean,cleanMovable](CommandContext& c){for(size_t i=0;i<originals.size();i++){if(localClean&&!cleanMovable.count(originals[i]))continue;auto e=c.document.setAtomPosition(originals[i],positions[i]);if(!e.ok())return CommandResult::fail(e.code,e.message);auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,originals[i]));bag.erase("studio.atom.z");bag.erase("pst.attr.xyz");}for(auto fragment:cleanFragments)c.document.extensions(ObjectRef(ObjectKind::Atom,fragment.first)).set("studio.nickname.fragment",fragment.second);for(auto bond:cleanStereo){auto e=c.document.setBondEndpoints(bond.id,bond.a,bond.b);if(e.ok())e=c.document.setBondDisplay(bond.id,bond.display);if(e.ok())e=c.document.setBondStereo(bond.id,bond.stereo);if(!e.ok())return CommandResult::fail(e.code,e.message);}if(op=="cleanReaction"){advanced::LayoutInput input;auto e=advanced::captureLayoutInput(c.document,&input);if(!e.ok())return CommandResult::fail(e.code,e.message);std::set<ObjectId> chosen(originals.begin(),originals.end());input.atoms.erase(std::remove_if(input.atoms.begin(),input.atoms.end(),[&](const advanced::LayoutAtom& a){return !chosen.count(a.id);}),input.atoms.end());input.bonds.erase(std::remove_if(input.bonds.begin(),input.bonds.end(),[&](const advanced::LayoutBond& b){return !chosen.count(b.a)||!chosen.count(b.b);}),input.bonds.end());advanced::ArrangeOptions options;options.origin=Vec2(oldBounds.min.x,(oldBounds.min.y+oldBounds.max.y)*.5);advanced::ArrangePlan plan;e=advanced::planArrange(input,options,&plan);if(!e.ok())return CommandResult::fail(e.code,e.message);auto arranged=advanced::applyArrangeCommand(plan,false).execute(c);if(!arranged.error.ok())return arranged;}auto spaced=studio::clean_spacing::separate(c.document,originals,localClean?&cleanMovable:nullptr);if(!spaced.ok())return CommandResult::fail(spaced.code,spaced.message);return CommandResult::success();}),"整理结构"));status=op=="clean3d"?"已按三维构象整理绘图":(localClean?(cleanMovable.size()<originals.size()?"已局部整理结构，未选中部分保持不动":"已整理结构，并优先保留原骨架朝向"):"已用 RDKit 整理结构，保留原子、键级、立体化学和标注");return true;}
     // Parsed names and pasted formats enter as a single undoable insertion.
     double factor=op=="expandNickname"?1.:s.doc.defaultBondLength()/std::max(.1,generated->doc.defaultBondLength());Box bounds;for(auto& a:generated->doc.atoms().records())if(a.isAlive())bounds.add(a.position);Vec2 from=bounds.empty()?Vec2():(bounds.min+bounds.max)*.5,to=s.view().center;if(!s.selected.empty()){auto b=studioio::selectionBounds(s);if(!b.empty())to=Vec2((b.min.x+b.max.x)*.5,b.max.y+55);}if(op=="expandNickname")to=from;std::map<ObjectId,double> depths;for(auto& a:generated->doc.atoms().records())if(a.isAlive()){auto& bag=generated->doc.extensions(ObjectRef(ObjectKind::Atom,a.id));if(auto z=bag.findValue("studio.atom.z"))depths[a.id]=atof(z->c_str())*factor;bag.erase("studio.atom.z");bag.erase("pst.attr.xyz");}for(auto& a:generated->doc.atoms().records())if(a.isAlive())generated->doc.setAtomPosition(a.id,to+(a.position-from)*factor);for(auto z:depths)generated->doc.extensions(ObjectRef(ObjectKind::Atom,z.first)).set("studio.atom.z",std::to_string(z.second));auto all=generated->all();auto inserted=std::make_shared<std::vector<ObjectRef>>();auto removed=op=="expandNickname"?refs:std::vector<ObjectRef>();e=s.submit(Command(op=="expandNickname"?"展开缩写":"名称/格式转结构",kInvalidateStructure|kInvalidateGeometry,[generated,all,inserted,removed](CommandContext& c){for(auto r:removed)if(r.kind!=ObjectKind::Atom)c.document.removeObject(r);for(auto r:removed)if(r.kind==ObjectKind::Atom)c.document.removeAtom(r.id);inserted->clear();auto e=studioio::append(generated->doc,c.document,all,Vec2(),inserted.get());return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"导入化学结构");error(e);if(e.ok()){s.selected=*inserted;status=op=="expandNickname"?"已展开缩写":"已生成结构";}return true;
 }
 #endif
 
-#include "functional_groups.hpp"
-Error cleanExpandedGeometry(HWND owner,Document& doc,const std::vector<ObjectRef>& expanded,bool* changed,const std::set<ObjectId>& metalCenters={});
+#include "functional_group_actions.hpp"
 void App::collapseGroups(){
- if(catalyticFold(false))return;
- expandPending=false;if(textEditor.active&&!finishText(true))return;
- try{auto chosen=functional_groups::selection(s);if(chosen.empty()){status="请先选中要收起的结构";invalidate(false);return;}auto matches=functional_groups::findMatches(s.doc,chosen);
- if(matches.empty()){status="选区内没有与库定义及连接关系匹配的官能团";invalidate(false);return;}
- auto e=s.submit(Command("官能团收起",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics,[matches](CommandContext& c){try{for(const auto& m:matches)functional_groups::collapse(c.document,m);return CommandResult::success();}catch(const std::exception& e){return CommandResult::fail(ErrorCode::InvalidArgument,e.what());}}),"官能团收起");error(e);
- if(e.ok()){s.selected.clear();for(const auto& m:matches)s.selected.push_back(ObjectRef(ObjectKind::Atom,m.anchor));status="已收起 "+std::to_string(matches.size())+" 个官能团 · 可撤销";}invalidate();
- }catch(const std::exception& e){status=e.what();invalidate(false);}
-}
-void App::expandGroups(){
- if(catalyticFold(true))return;
- std::vector<ObjectId> methyls;bool otherGroups=false;std::vector<studio::explicit_hydrogens::Plan> hydrogenPlans;bool otherHydrides=false;
- for(auto id:functional_groups::selection(s)){auto a=s.doc.atoms().alive(id);auto label=s.doc.atomLabel(id);auto links=s.doc.incidentBonds(id);bool named=label=="Me"||label=="CH3"||label=="H3C";bool methyl=a&&a->element==6&&!a->semantics.charge&&!a->semantics.radical&&!a->semantics.isotope&&links.size()==1&&s.doc.bonds().alive(links.front())->order==BondOrder::Single&&(named||((label.empty()||label=="C")&&(a->semantics.implicitHydrogens<0||a->semantics.implicitHydrogens==3)));
-     studio::explicit_hydrogens::Plan hp;bool hydride=studio::explicit_hydrogens::plan(s.doc,id,&hp);if(hydride)hydrogenPlans.push_back(hp);if(methyl)methyls.push_back(id);else if(hydride)otherHydrides=true;else if(!functional_groups::definition(s.doc,id).empty())otherGroups=true;
- }
- if(otherHydrides&&!otherGroups&&!hydrogenPlans.empty()&&!(expandPending&&expandDocument==s.doc.id()&&expandDigest==s.doc.digest()&&expandSelection==s.selected)){expandPending=false;auto selected=s.selected;auto made=std::make_shared<std::vector<ObjectRef>>();auto e=s.submit(studio::explicit_hydrogens::command(hydrogenPlans,made),"显式氢展开");error(e);if(e.ok()){s.selected=selected;s.selected.insert(s.selected.end(),made->begin(),made->end());status="已将隐式氢展开为 "+std::to_string(made->size()/2)+" 个独立 H 原子 · 可撤销";}invalidate();return;}
- if(!methyls.empty()&&!otherGroups){expandPending=false;auto selected=s.selected;auto made=std::make_shared<std::vector<ObjectRef>>();auto e=s.submit(Command("甲基分级展开",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics|kInvalidateAppearance,[methyls,made](CommandContext& c){for(auto id:methyls){auto& d=c.document;auto a=*d.atoms().alive(id);bool explicitH=a.semantics.showLabel&&(d.atomLabel(id)=="C"||d.atomLabel(id)=="CH3"||d.atomLabel(id)=="H3C")&&a.semantics.nodeType==uint8_t(NodeType::Element);auto sem=a.semantics;sem.nodeType=uint8_t(NodeType::Element);sem.showLabel=true;sem.implicitHydrogens=explicitH?0:3;auto e=d.setAtomSemantics(id,sem);if(e.ok())e=d.setAtomLabel(id,"C");studioatom::set(d,id,{});auto& bag=d.extensions(ObjectRef(ObjectKind::Atom,id));bag.erase("studio.nickname.fragment");bag.erase("studio.compound.fragment");bag.set("studio.hydrogens.manual","1");if(!e.ok())return CommandResult::fail(e.code,e.message);
-     if(explicitH){auto b=d.bonds().alive(d.incidentBonds(id).front());auto other=d.atoms().alive(b->beginAtom==id?b->endAtom:b->beginAtom);double angle=core::angleOf(other->position-a.position);for(double turn:{90.,180.,270.}){ObjectId h,bond; e=d.addAtom(a.position+core::direction(angle+turn)*d.defaultBondLength(),1,&h);if(e.ok()){auto hs=d.atoms().alive(h)->semantics;hs.implicitHydrogens=0;hs.showLabel=true;e=d.setAtomSemantics(h,hs);}if(e.ok())e=d.addBond(id,h,&bond);if(!e.ok())return CommandResult::fail(e.code,e.message);made->emplace_back(ObjectKind::Atom,h);made->emplace_back(ObjectKind::Bond,bond);}}
- }return CommandResult::success();}),"甲基分级展开");error(e);if(e.ok()){s.selected=selected;s.selected.insert(s.selected.end(),made->begin(),made->end());status="甲基已分级展开：线端 → CH3 → 显式 C—H";}invalidate();return;}
- if(expandPending&&!otherGroups&&expandDocument==s.doc.id()&&expandDigest==s.doc.digest()&&expandSelection==s.selected){expandPending=false;chemistryAction("clean");invalidate();return;}
- expandPending=false;if(s.selected.empty()){status="请先选中要展开的结构";invalidate(false);return;}const auto retainedSelection=studioio::expanded(s.doc,s.selected);
- try{std::vector<functional_groups::Expansion> plans;for(auto id:functional_groups::selection(s))if(!functional_groups::definition(s.doc,id).empty())plans.push_back(functional_groups::prepareExpansion(s.doc,id));
- for(auto ref:studioio::expanded(s.doc,s.selected))if(ref.kind==ObjectKind::Text)if(const auto* compound=compounddata::find(s.doc.plainText(ref.id))){auto text=s.doc.texts().alive(ref.id);plans.push_back(functional_groups::prepareCompound(s.doc,compound->fragment,text->position+Vec2(text->size*.35,-text->size*.35),kInvalidObjectId,ref.id));}
- if(plans.empty()){status="选中结构没有可展开的官能团缩写";invalidate(false);return;}
- const auto originalDigest=s.doc.digest();Document prepared=s.doc;std::vector<ObjectRef> preview;std::set<ObjectId> metalCenters;for(const auto& p:plans){size_t start=preview.size();functional_groups::applyExpansion(prepared,p,preview);if(p.metalLigands&&preview.size()>start)metalCenters.insert(preview[start].id);}bool cleaned=false;auto ce=cleanExpandedGeometry(h,prepared,preview,&cleaned,metalCenters);if(!ce.ok()){error(ce);invalidate();return;}std::vector<Vec2> positions;for(auto ref:preview)if(ref.kind==ObjectKind::Atom)positions.push_back(prepared.atoms().alive(ref.id)->position);
- auto inserted=std::make_shared<std::vector<ObjectRef>>();auto e=s.submit(Command("官能团展开",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics,[plans,inserted,positions,originalDigest](CommandContext& c){try{if(c.document.digest()!=originalDigest)return CommandResult::fail(ErrorCode::RevisionConflict,"结构已改变，请重新展开");inserted->clear();for(const auto& p:plans)functional_groups::applyExpansion(c.document,p,*inserted);size_t i=0;for(auto ref:*inserted)if(ref.kind==ObjectKind::Atom){if(i>=positions.size())return CommandResult::fail(ErrorCode::InvalidGeometry,"展开原子映射不完整");auto e=c.document.setAtomPosition(ref.id,positions[i++]);if(!e.ok())return CommandResult::fail(e.code,e.message);}return CommandResult::success();}catch(const std::exception& e){return CommandResult::fail(ErrorCode::InvalidArgument,e.what());}}),"官能团展开");error(e);
- if(e.ok()){s.selected=*inserted;for(auto ref:retainedSelection)if(((ref.kind==ObjectKind::Atom&&s.doc.atoms().alive(ref.id))||(ref.kind==ObjectKind::Bond&&s.doc.bonds().alive(ref.id)))&&std::find(s.selected.begin(),s.selected.end(),ref)==s.selected.end())s.selected.push_back(ref);expandPending=std::none_of(plans.begin(),plans.end(),[](const functional_groups::Expansion& p){return p.intermediate;});expandDocument=s.doc.id();expandDigest=s.doc.digest();expandSelection=s.selected;status="所选官能团已分级展开并自动整理 · 可撤销";}invalidate();
- }catch(const std::exception& e){status=e.what();invalidate(false);}
+    if(catalyticFold(false))return;
+    expandPending=false;
+    if(textEditor.active&&!finishText(true))return;
+    auto result=studio_group_actions::collapse(s);
+    if(result.ok())status=s.status;
+    else error(result);
+    invalidate(result.ok());
 }
 
+void App::expandGroups(){
+    if(catalyticFold(true))return;
+    const bool repeated=expandPending&&expandDocument==s.doc.id()&&expandDigest==s.doc.digest()&&expandSelection==s.selected;
+    expandPending=false;
+    studio_group_actions::NextExpansion next;
+    auto result=studio_group_actions::expand(s,repeated,[this](const std::string& input,std::string& output){
+        return chemservice::run(h,input,"text/xml","text/xml","clean",&output);
+    },next);
+    if(!result.ok()){error(result);invalidate(false);return;}
+    if(next==studio_group_actions::NextExpansion::CleanSelection){chemistryAction("clean");invalidate();return;}
+    if(next==studio_group_actions::NextExpansion::AllowRepeatCleanup){
+        expandPending=true;expandDocument=s.doc.id();expandDigest=s.doc.digest();expandSelection=s.selected;
+    }
+    status=s.status;
+    invalidate();
+}

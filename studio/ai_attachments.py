@@ -36,6 +36,7 @@ def image_uri(raw):
 
 class Attachments:
     def __init__(self, request, progress=lambda message: None):
+        self.allow_local_paths = request.get("attachment_access") != "selection"
         self.pdfs = []
         self.sources = []
         self.content = []
@@ -104,15 +105,16 @@ class Attachments:
     def read_pages(self, args):
         if not isinstance(args,dict) or set(args)-{'attachment','path','pages'} or 'pages' not in args:
             raise ValueError('需要 pages 及 path 或 attachment')
-        from ai_local_sources import resolve_source
+        from ai_local_sources import resolve_source, source_label
         number,source,_,count=resolve_source(self,{k:v for k,v in args.items() if k!='pages'})
         path=source['path'];pages=args['pages']
+        label = source_label(self, path)
         if (not isinstance(pages, list) or not 1 <= len(pages) <= 4 or
                 any(type(p) is not int or not 1 <= p <= count for p in pages)):
             raise ValueError(f"每次读取1–4页，页码范围为1–{count}")
         if source['kind']=='image':
-            blocks=[{'type':'text','text':'本地图片（资料）：'+str(path)}, {'type':'image_url','image_url':{'url':image_uri(path.read_bytes())}}]
-            return {'attachment':number,'path':str(path),'pages':[1],'total_pages':1},blocks
+            blocks=[{'type':'text','text':'本地图片（资料）：'+label}, {'type':'image_url','image_url':{'url':image_uri(path.read_bytes())}}]
+            return {'attachment':number,'path':label,'pages':[1],'total_pages':1},blocks
         import pypdfium2 as pdfium
         blocks = []
         self.progress("正在读取 PDF 第 " + ", ".join(map(str, pages)) + " 页…")
@@ -130,9 +132,9 @@ class Attachments:
                         image.close()
                     finally:
                         bitmap.close()
-                blocks.append({"type": "text", "text": f"PDF来源{path} 第{number_page}/{count}页（资料）：\n{text[:24000]}" + ("\n[文字过长已截断，以页面图片为准]" if len(text) > 24000 else "")})
+                blocks.append({"type": "text", "text": f"PDF来源{label} 第{number_page}/{count}页（资料）：\n{text[:24000]}" + ("\n[文字过长已截断，以页面图片为准]" if len(text) > 24000 else "")})
                 blocks.append({"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(output.getvalue()).decode("ascii")}})
-        return {"attachment": number, "path":str(path), "pages": pages, "total_pages": count, "images": "页面图片和文字紧随工具结果提供"}, blocks
+        return {"attachment": number, "path":label, "pages": pages, "total_pages": count, "images": "页面图片和文字紧随工具结果提供"}, blocks
 
     def user_message(self, prompt):
         if not self.content:

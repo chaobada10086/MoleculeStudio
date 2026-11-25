@@ -79,7 +79,7 @@ def emit_cpp(entries, report):
               '// Number of compiled entries. docs/FUNCTIONAL_GROUPS.md is generated',
               '// from this catalogue and chem_completion.hpp asserts the two agree.',
               'static const unsigned count=sizeof(nicknames)/sizeof(nicknames[0]);',
-              'inline const Entry* find(const std::string& n){for(const auto& v:nicknames)if(n==v.name)return &v;if(n.find("(O")!=std::string::npos){auto key=[](std::string s){std::string out;for(auto c:s)if(c!=45)out+=c;return out;};auto k=key(n);for(const auto& v:nicknames)if(key(v.name)==k)return &v;}return nullptr;}',
+              'inline const Entry* find(const std::string& n){for(const auto& v:nicknames)if(n==v.name)return &v;for(size_t i=1;i+2<n.size();++i){if(n[i]!=45)continue;const bool butyl=n.compare(i+1,2,"Bu")==0&&std::string("nist").find(n[i-1])!=std::string::npos;const bool propyl=n.compare(i+1,2,"Pr")==0&&std::string("ni").find(n[i-1])!=std::string::npos;if(butyl||propyl){auto compact=n;compact.erase(i,1);return find(compact);}}if(n.find("(O")!=std::string::npos){auto key=[](std::string s){std::string out;for(auto c:s)if(c!=45)out+=c;return out;};auto k=key(n);for(const auto& v:nicknames)if(key(v.name)==k)return &v;}return nullptr;}',
               'inline const Entry* findAlias(const std::string& n){return find(n);}',
               '}']
     return "\n".join(lines) + "\n"

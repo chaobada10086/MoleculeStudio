@@ -1,10 +1,19 @@
 #include "session.hpp"
 #include "next/selection/transform.hpp"
+#include <algorithm>
 #include <functional>
 #include <set>
 namespace r62 { namespace integration {
 Error translateDocumentObjects(Document& d,const std::vector<ObjectRef>& refs,Vec2 delta){
-    std::set<ObjectRef> unique(refs.begin(),refs.end());
+    auto translateGeometry = [&](const std::vector<ObjectRef>& objects) {
+        const auto report = selection::translateObjects(d,objects,delta);
+        return report.refsSkippedUnsupported ? Error(ErrorCode::NotImplemented,"Unsupported transform") : Error();
+    };
+    // The transform already deduplicates geometry and shared bond endpoints.
+    if (std::all_of(refs.begin(),refs.end(),[](ObjectRef r){
+        return r.kind==ObjectKind::Atom || r.kind==ObjectKind::Bond ||
+               r.kind==ObjectKind::Text || r.kind==ObjectKind::Path;
+    })) return translateGeometry(refs);
     // A group has no geometry of its own: moving it means moving every leaf
     // member. Nested groups are flattened, and the visited set breaks cycles.
     std::set<ObjectRef> expanded;std::set<ObjectId> visitedGroups;
@@ -14,7 +23,7 @@ Error translateDocumentObjects(Document& d,const std::vector<ObjectRef>& refs,Ve
         const GroupRecord* g=d.groups().alive(r.id);if(!g)return;
         for(const auto& member:g->members)if(member.valid())collect(member);
     };
-    for(const auto& r:unique)collect(r);
+    for(const auto& r:refs)collect(r);
     std::vector<ObjectRef> base;
     for(auto r:expanded){
         Error e;bool ok=false;
@@ -36,8 +45,6 @@ Error translateDocumentObjects(Document& d,const std::vector<ObjectRef>& refs,Ve
         }
         if(!e.ok())return e;
     }
-    selection::TransformReport rep=selection::translateObjects(d,base,delta);
-    if(rep.refsSkippedUnsupported)return Error(ErrorCode::NotImplemented,"Unsupported transform");
-    return Error();
+    return translateGeometry(base);
 }
 } }

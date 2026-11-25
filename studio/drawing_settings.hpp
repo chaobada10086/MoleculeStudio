@@ -1,39 +1,15 @@
 #ifndef STUDIO_DRAWING_SETTINGS_HPP
 #define STUDIO_DRAWING_SETTINGS_HPP
 #include "app_paths.hpp"
-// Numeric style facts are audited in docs/JOURNAL_DRAWING_STYLE_AUDIT.txt.
-struct JournalStyle {
- const wchar_t* name;double bondLength,lineWidth,boldWidth,marginWidth,hashSpacing,bondSpacing,chainAngle;
- const wchar_t* font;double fontSize;const wchar_t* captionFont;double captionSize;const wchar_t* source;
-};
-inline const std::vector<JournalStyle>& journalStyles(){static const std::vector<JournalStyle> styles={
-        {L"ACS Document 1996",14.4,0.6,2,1.6,2.5,18,120,L"Arial",10,L"Arial",10,L"ACS 1996；已对照 ACS 作者指南与 ChemDraw 手册"},
-        {L"Nature Research",10.8,0.595275591,1.55905512,1.19055118,1.7007874,18,120,L"Arial",6,L"Arial",6,L"Nature 官方化学结构指南（Arial 6 pt）"},
-        {L"RSC (1 Column)",12.2,0.5,1.6,1.25,1.8,20,120,L"Arial",7,L"Arial",7,L"RSC 官方参数；留白沿用模板；单栏/双栏结构样式相同"},
-        {L"RSC (2 Column)",12.2,0.5,1.6,1.25,1.8,20,120,L"Arial",7,L"Arial",7,L"RSC 官方参数；留白沿用模板；单栏/双栏结构样式相同"},
-        {L"Wiley",17.0078735,0.736999512,2.60786438,2.0125885,2.60786438,18,120,L"Arial",12,L"Arial",12,L"ChemDraw 25.1 内置历史样式；请对照目标期刊现行要求"},
-        {L"Adv. Synth. Catal.",17,0.75,2.6,2,2.6,18,120,L"Arial",12,L"Arial",12,L"Advanced Synthesis & Catalysis 官方作者指南"},
-        {L"SYNTHESIS / SYNLETT",10.119685,0.566929134,1.38897638,0.907086614,1.75748031,18,120,L"Arial",6,L"Arial",6,L"Thieme SYNLETT 2026 / SYNTHESIS 2024 作者指南"},
-        {L"Science of Synthesis",17.0078735,0.793685913,2.0125885,2.23936462,2.49447632,18,120,L"Arial",10,L"Arial",10,L"Thieme 推荐 Science of Synthesis 模板；数值对照本机内置样式"},
-        {L"J. Chin. Chem. Soc.",14.4,0.6,2,1.6,2.5,18,120,L"Times New Roman",10,L"Times New Roman",10,L"Journal of the Chinese Chemical Society 官方作者指南"},
-        {L"J. Het. Chem.",17,0.75,2.6,2,2.6,18,120,L"Arial",12,L"Arial",12,L"Journal of Heterocyclic Chemistry 官方作者指南"},
-        {L"J. Mol. Mod. (1 Column)",14.3999939,0.599990845,2.0125885,1.58738708,2.49447632,18,120,L"Times New Roman",10,L"Times New Roman",10,L"ChemDraw 25.1 内置历史样式；请对照目标期刊现行要求"},
-        {L"J. Mol. Mod. (2 Column)",14.3999939,0.599990845,2.0125885,1.58738708,2.49447632,18,120,L"Times New Roman",10,L"Times New Roman",10,L"ChemDraw 25.1 内置历史样式；请对照目标期刊现行要求"},
-        {L"Verlag Helv. Chim. Acta",11.9,0.42,1.4,1.4,1.4,15,120,L"Arial",7,L"Arial",8.4,L"Helvetica Chimica Acta 官方作者指南；标签 7 pt / 文字 8.4 pt"},
-        {L"Phytomedicine",20.0125885,0.992111206,1.33332825,1.24723816,3,8,120,L"Arial",12,L"Arial",12,L"ChemDraw 25.1 内置历史样式；请对照目标期刊现行要求"},
-};return styles;}
-inline const JournalStyle* journalStyle(const std::wstring& name){for(const auto& s:journalStyles())if(name==s.name)return &s;return nullptr;}
-struct DrawingSettings {
- double bondLength=14.4,lineWidth=.6,boldWidth=2,marginWidth=1.6,hashSpacing=2.5,bondSpacing=18,chainAngle=120;
- std::wstring fontName=L"Arial",captionFontName=L"Arial";double fontSize=10,captionFontSize=10;
- std::wstring preset=L"ACS Document 1996",path;
- static bool parse(const wchar_t* text,double low,double high,double* value){wchar_t* end=nullptr;double n=wcstod(text,&end);if(end==text)return false;while(*end==L' '||*end==L'\t'||*end==L'\r'||*end==L'\n')++end;if(*end||!std::isfinite(n)||n<low||n>high)return false;*value=n;return true;}
- static bool safe(const std::wstring& s,size_t max){return !s.empty()&&s.size()<=max&&s.find_first_of(L"\r\n[]=\0")==std::wstring::npos;}
- void use(const JournalStyle& s){preset=s.name;bondLength=s.bondLength;lineWidth=s.lineWidth;boldWidth=s.boldWidth;marginWidth=s.marginWidth;hashSpacing=s.hashSpacing;bondSpacing=s.bondSpacing;chainAngle=s.chainAngle;fontName=s.font;fontSize=s.fontSize;captionFontName=s.captionFont;captionFontSize=s.captionSize;}
- void acsDefaults(){use(journalStyles().front());}
- // User state: portable next to the EXE, %LOCALAPPDATA%\\MoleculeStudio when packaged (read-only install).
+#include "drawing_style.hpp"
+using studio_drawing::JournalStyle;
+using studio_drawing::journalStyle;
+using studio_drawing::journalStyles;
+
+struct DrawingSettings : studio_drawing::Style {
+ std::wstring path;
+ // User state: portable next to the EXE, %LOCALAPPDATA%\\MoleculeStudio when packaged.
  DrawingSettings(){path=apppaths::dataFile(L"drawing.ini");load();}
- bool valid()const{auto ok=[](double v,double lo,double hi){return std::isfinite(v)&&v>=lo&&v<=hi;};return ok(bondLength,2,200)&&ok(lineWidth,.1,12)&&ok(boldWidth,.1,24)&&ok(marginWidth,0,20)&&ok(hashSpacing,.1,20)&&ok(bondSpacing,1,100)&&ok(chainAngle,30,180)&&ok(fontSize,4,96)&&ok(captionFontSize,4,96)&&safe(fontName,120)&&safe(captionFontName,120)&&safe(preset,80);}
  void read(const std::wstring& file,const wchar_t* section){wchar_t text[256]={};
   auto number=[&](const wchar_t* key,double lo,double hi,double& v){GetPrivateProfileStringW(section,key,std::to_wstring(v).c_str(),text,256,file.c_str());parse(text,lo,hi,&v);};
   number(L"BondLength",2,200,bondLength);number(L"LineWidth",.1,12,lineWidth);number(L"BoldWidth",.1,24,boldWidth);number(L"MarginWidth",0,20,marginWidth);number(L"HashSpacing",.1,20,hashSpacing);number(L"BondSpacing",1,100,bondSpacing);number(L"ChainAngle",30,180,chainAngle);number(L"FontSize",4,96,fontSize);
@@ -47,7 +23,7 @@ struct DrawingSettings {
  std::wstring templatesPath()const{return path+L".templates.ini";}
  std::vector<DrawingSettings> templates()const{std::vector<DrawingSettings> result;auto file=templatesPath();int count=GetPrivateProfileIntW(L"Templates",L"Count",0,file.c_str());if(count<0||count>100)return result;for(int i=0;i<count;++i){auto section=L"Template"+std::to_wstring(i);wchar_t name[256]={};GetPrivateProfileStringW(section.c_str(),L"Name",L"",name,256,file.c_str());auto v=*this;v.acsDefaults();v.preset=name;v.read(file,section.c_str());if(v.valid()&&!journalStyle(v.preset))result.push_back(v);}return result;}
  bool saveTemplates(const std::vector<DrawingSettings>& rows)const{if(rows.size()>100)return false;std::wstring contents=L"[Templates]\r\nCount="+std::to_wstring(rows.size())+L"\r\n";for(size_t i=0;i<rows.size();++i){if(!rows[i].valid()||journalStyle(rows[i].preset))return false;contents+=L"[Template"+std::to_wstring(i)+L"]\r\nName="+rows[i].preset+L"\r\n"+rows[i].values();}return write(templatesPath(),contents);}
- void apply(r62::core::Document& doc)const{doc.noteTouchedDefaults();doc.noteTouchedExtensions(r62::core::ObjectRef(),true);doc.setDefaultBondLength(bondLength);doc.setDefaultLineWidth(lineWidth);doc.setDefaultFont(U(captionFontName));doc.setDefaultTextSize(captionFontSize);auto& ext=doc.documentExtensions();ext.set("studio.style.LabelSize",std::to_string(fontSize));ext.set("studio.style.LabelFontName",U(fontName));for(const auto& v:std::vector<std::pair<std::string,double>>{{"ChainAngle",chainAngle},{"BondSpacing",bondSpacing},{"BoldWidth",boldWidth},{"MarginWidth",marginWidth},{"HashSpacing",hashSpacing}}){ext.set("studio.style."+v.first,std::to_string(v.second));ext.set("pst.attr."+v.first,std::to_string(v.second));}}
+ void apply(r62::core::Document& doc)const{Style::apply(doc,[](const std::wstring& text){return U(text);});}
 };
 struct DrawingSettingsDialog {
     DrawingSettings draft;bool applyCurrent=true;HFONT font=nullptr;

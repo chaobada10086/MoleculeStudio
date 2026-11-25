@@ -362,6 +362,8 @@ void emitText(Writer& writer, const core::TextRecord& text) {
         attribute(out, "Justification", "Center");
     else if (text.format.align == static_cast<uint8_t>(core::TextAlign::Right))
         attribute(out, "Justification", "Right");
+    else if (text.format.align == static_cast<uint8_t>(core::TextAlign::Justify))
+        attribute(out, "Justification", "Full");
     replayPreservedAttributes(out, document, ObjectRef(ObjectKind::Text, text.id));
     out << ">";
     const double defaultSize = text.size > 0.0 ? text.size : document.defaultTextSize();

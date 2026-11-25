@@ -1,8 +1,14 @@
 #pragma once
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include "linux/encoding.hpp"
+#endif
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
+#include "next/arrows_curves/model.hpp"
 #include <sstream>
 #include <stdexcept>
 #include <cmath>
@@ -10,12 +16,40 @@
 #include <algorithm>
 #include <cstdint>
 #include "third_party/tinyxml2/tinyxml2.h"
+#include "metafile_compression.hpp"
 // CDX <-> CDXML bridge. Coordinates remain in points, never screen pixels.
 // Wire types follow the archived CambridgeSoft CDX SDK. Unknown properties
 // are length-delimited and skipped; malformed lengths fail before import.
 namespace cdxbinary {
 #include "cdx_schema.hpp"
+// User-defined CDX property. Older readers can skip it; an ObjectTag child
+// would make their text reader reject the whole caption and document.
+constexpr unsigned kStudioTextWidthTag = 0x534d;
+constexpr char kStudioTextWidthName[] = "MoleculeStudioTextWidth";
+constexpr unsigned kStudioImageCornersTag = 0x534e;
+constexpr char kStudioImageCornersName[] = "MoleculeStudioImageCorners";
+constexpr unsigned kStudioGraphicParamsTag = 0x534f;
+constexpr unsigned kStudioChemistryTag = 0x5350;
+constexpr unsigned kStudioCellVAlignTag = 0x5351;
+constexpr char kStudioCellVAlignName[] = "MoleculeStudioCellVAlign";
+inline bool studioGraphicParams(const std::string& key) {
+    return key == "MoleculeStudioShape" || key == "MoleculeStudioBracket";
+}
+inline bool studioChemistry(const std::string& object, const std::string& key) {
+    if (object == "arrow" || object == "curve")
+        return key == "MoleculeStudioCatalytic" || key == "MoleculeStudioCatalyticPath" || key == "MoleculeStudioArrowPart";
+    if (object != "n") return false;
+    return key == "MoleculeStudioChargePosition" || key == "MoleculeStudioRadicalPosition" ||
+           key == "MoleculeStudioChargeCircle" || key == "MoleculeStudioLonePairs" ||
+           key == "MoleculeStudioLonePairPositions" || key == "MoleculeStudioRole" ||
+           key == "MoleculeStudioLiteralLabel" || key == "MoleculeStudioCompactIon" || key == "MoleculeStudioCatalyticMetal" ||
+           key == "MoleculeStudioCatalyticOxidation" || key == "MoleculeStudioCatalyticLigands" ||
+           key == "MoleculeStudioCatalyticNumerals" || key == "MoleculeStudioCatalyticFormat" ||
+           key == "MoleculeStudioCatalyticExcited";
+}
+#ifdef _WIN32
 inline UINT format(){static UINT f=RegisterClipboardFormatW(L"ChemDraw Interchange Format");return f;}
+#endif
 inline std::string number(double x){std::ostringstream o;o.precision(12);o<<x;return o.str();}
 inline const Property* property(unsigned tag){for(const auto& p:properties)if(p.tag==tag)return &p;return nullptr;}
 inline const Property* property(const std::string& name){
@@ -29,9 +63,21 @@ inline const Property* property(const std::string& name){
     if(name=="ArrowHeadTail")canonical="ArrowheadTail";
     for(const auto& p:properties)if(canonical==p.name)return &p;return nullptr;
 }
+inline bool studioMetadata(const std::string& key) {
+    return key.compare(0, 24, "MoleculeStudioProjection") == 0 || key == "MoleculeStudioHELM" ||
+           key == "MoleculeStudioTable" || key == "MoleculeStudioStyle" || key == "MoleculeStudioCellVAlign" ||
+           key == "MoleculeStudioPath" || key == "MoleculeStudioPathKinds" || key == "MoleculeStudioFill" ||
+           key == "MoleculeStudioEquivalenceGroup" || key == "MoleculeStudioBridgeLayer" ||
+           key == "MoleculeStudioArrow" || key == "MoleculeStudioElectronSource" ||
+           key == "MoleculeStudioElectronTarget" || key == "MoleculeStudioJoinedGroup";
+}
 inline const char* objectName(unsigned tag){for(const auto& p:objects)if(p.tag==tag)return p.name;return nullptr;}
 inline unsigned objectTag(const std::string& name){for(const auto& p:objects)if(name==p.name && (p.tag&0x8000))return p.tag;return 0;}
+#ifdef _WIN32
 inline std::string decodeText(const std::string& b,unsigned cp){if(b.empty())return {};if(!IsValidCodePage(cp))cp=1252;int n=MultiByteToWideChar(cp,0,b.data(),int(b.size()),nullptr,0);if(n<=0)throw std::runtime_error("CDX text encoding");std::wstring w(n,0);MultiByteToWideChar(cp,0,b.data(),int(b.size()),&w[0],n);n=WideCharToMultiByte(CP_UTF8,0,w.data(),int(w.size()),nullptr,0,nullptr,nullptr);std::string s(n,0);if(n)WideCharToMultiByte(CP_UTF8,0,w.data(),int(w.size()),&s[0],n,nullptr,nullptr);return s;}
+#else
+inline std::string decodeText(const std::string& bytes,unsigned cp){return linux_encoding::convert(bytes,linux_encoding::codepage(cp),"UTF-8");}
+#endif
 struct Reader {
     const std::string& b;size_t at=0;
     explicit Reader(const std::string& bytes):b(bytes){}
@@ -65,6 +111,42 @@ struct Decoder {
     }
     void prop(tinyxml2::XMLElement* e,unsigned tag,const std::string& data){
         Reader r(data);
+        if (tag == kStudioCellVAlignTag) {
+            if (std::strcmp(e->Name(), "t") == 0 && (data == "top" || data == "middle" || data == "bottom"))
+                e->SetAttribute(kStudioCellVAlignName, data.c_str());
+            return;
+        }
+        if (tag == kStudioTextWidthTag) {
+            const std::string prefix = std::string(kStudioTextWidthName) + '=';
+            if (std::strcmp(e->Name(), "t") == 0 && data.compare(0, prefix.size(), prefix) == 0)
+                e->SetAttribute(kStudioTextWidthName, data.c_str() + prefix.size());
+            return;
+        }
+        if (tag == kStudioImageCornersTag) {
+            const std::string prefix = std::string(kStudioImageCornersName) + '=';
+            if (std::strcmp(e->Name(), "embeddedobject") == 0 && data.size() < 512 &&
+                data.compare(0, prefix.size(), prefix) == 0) {
+                e->SetAttribute("MoleculeStudioRaster", "yes");
+                e->SetAttribute(kStudioImageCornersName, data.c_str() + prefix.size());
+            }
+            return;
+        }
+        if (tag == kStudioGraphicParamsTag) {
+            const auto separator = data.find('=');
+            if (std::strcmp(e->Name(), "graphic") == 0 && separator != std::string::npos && separator < 32) {
+                const auto key = data.substr(0, separator);
+                if (studioGraphicParams(key)) e->SetAttribute(key.c_str(), data.c_str() + separator + 1);
+            }
+            return;
+        }
+        if (tag == kStudioChemistryTag) {
+            const auto separator = data.find('=');
+            if (separator < 40 && data.size() <= 65534 && data.find('\0') == std::string::npos) {
+                const auto key = data.substr(0, separator);
+                if (studioChemistry(e->Name(), key)) e->SetAttribute(key.c_str(), data.c_str() + separator + 1);
+            }
+            return;
+        }
         // Unlike document/node Name, an ObjectTag's Name is an unstyled byte
         // string in native ChemDraw CDX, without a CDXString style-count header.
         if(tag==8&&std::string(e->Name())=="objecttag"){
@@ -116,7 +198,7 @@ struct Decoder {
         if(depth>128)throw std::runtime_error("CDX nesting too deep");
         std::string tagValue;bool hasTagValue=false;
         for(;;){unsigned tag=r.u(2);if(!tag){if(hasTagValue)objectValue(parent,tagValue);return;}if(++count>2000000)throw std::runtime_error("CDX object limit");
-            if(tag&0x8000){unsigned id=r.u(4);const char* name=objectName(tag);auto* child=xml.NewElement(name?name:"unsupportedCDXObject");child->SetAttribute("id",id);if(tag==0x801d){for(auto flag:{"ShowOrigin","ShowSolventFront","ShowBorders","ShowSideTicks"})child->SetAttribute(flag,"no");}parent->InsertEndChild(child);contents(r,child,depth+1);if(tag==0x8011){auto label=child->Attribute("Name");std::string metadata=label?label:"";auto equal=metadata.find('=');if(equal!=std::string::npos&&metadata.compare(0,24,"MoleculeStudioProjection")==0){parent->SetAttribute(metadata.substr(0,equal).c_str(),metadata.substr(equal+1).c_str());parent->DeleteChild(child);}}}
+            if(tag&0x8000){unsigned id=r.u(4);const char* name=objectName(tag);auto* child=xml.NewElement(name?name:"unsupportedCDXObject");child->SetAttribute("id",id);if(tag==0x801d){for(auto flag:{"ShowOrigin","ShowSolventFront","ShowBorders","ShowSideTicks"})child->SetAttribute(flag,"no");}parent->InsertEndChild(child);contents(r,child,depth+1);if(tag==0x8011){auto label=child->Attribute("Name");std::string metadata=label?label:"";auto equal=metadata.find('=');if(equal!=std::string::npos&&studioMetadata(metadata.substr(0,equal))){parent->SetAttribute(metadata.substr(0,equal).c_str(),metadata.substr(equal+1).c_str());parent->DeleteChild(child);}}}
             else{size_t n=r.u(2);if(n==65535)n=r.u(4);auto data=r.take(n);if(tag==0xd05&&std::string(parent->Name())=="objecttag"){tagValue=std::move(data);hasTagValue=true;}else prop(parent,tag,data);}
         }
     }
@@ -132,7 +214,11 @@ inline bool toXml(const std::string& bytes,std::string& xml,std::string& error){
 struct Encoder {
     tinyxml2::XMLDocument xml;unsigned nextId=1;std::map<unsigned,unsigned> charsets;
     std::string stringBytes(const std::string& utf8,unsigned cp){
+#ifdef _WIN32
         if(cp==65001)return utf8;int n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,utf8.data(),int(utf8.size()),nullptr,0);if(n<=0&&!utf8.empty())throw std::runtime_error("Invalid UTF-8");std::wstring w(n,0);if(n)MultiByteToWideChar(CP_UTF8,0,utf8.data(),int(utf8.size()),&w[0],n);BOOL lost=FALSE;n=WideCharToMultiByte(cp,0,w.data(),int(w.size()),nullptr,0,nullptr,&lost);std::string b(n,0);if(n)WideCharToMultiByte(cp,0,w.data(),int(w.size()),&b[0],n,nullptr,&lost);if(lost)throw std::runtime_error("CDX font charset cannot encode text");return b;
+#else
+        return linux_encoding::convert(utf8,"UTF-8",linux_encoding::codepage(cp));
+#endif
     }
     std::string text(tinyxml2::XMLElement* e){
         std::string runs,raw;unsigned count=0;
@@ -168,9 +254,39 @@ struct Encoder {
             long val;if(!enumValue(p.tag,v,val)){if(nums.size()!=1)return false;val=(long)std::lround(nums[0]*(p.tag==0x804?10:1));}put(out,val,t.find("8")!=std::string::npos?1:t.find("16")!=std::string::npos?2:4);
         }else return false;return true;
     }
-    void scan(tinyxml2::XMLElement* e,unsigned depth=0){if(depth>128)throw std::runtime_error("XML nesting too deep");nextId=std::max(nextId,e->UnsignedAttribute("id")+1);for(auto* c=e->FirstChildElement();c;c=c->NextSiblingElement())scan(c,depth+1);}
+    std::set<std::pair<const tinyxml2::XMLNode*, unsigned>> equilibriumOwners;
+    void scan(tinyxml2::XMLElement* e, unsigned depth=0) {
+        if (depth > 128) throw std::runtime_error("XML nesting too deep");
+        const auto id = e->UnsignedAttribute("id");
+        nextId = std::max(nextId, id + 1);
+        // Straight equilibrium arrows have a native CDX object. Retain the
+        // editable shaft spacing and length ratio even for readers that skip
+        // our routing metadata and cannot reunite the display-only curves.
+        const char* custom = e->Attribute("MoleculeStudioArrow");
+        if (custom && id && std::strcmp(e->Name(), "curve") == 0 &&
+            e->Attribute("ArrowShaftSpacing") && e->Attribute("ArrowEquilibriumRatio") &&
+            e->Attribute("Head3D") && e->Attribute("Tail3D")) {
+            bool valid = false;
+            const auto params = r62::arrows::decodeArrowParams(custom, &valid);
+            if (valid && params.family == r62::arrows::ArrowFamily::Straight &&
+                params.shafts == r62::arrows::ShaftCount::Two && params.route.empty() &&
+                !params.mechanism && !params.virtualBond) {
+                equilibriumOwners.emplace(e->Parent(), id);
+                e->SetName("arrow");
+                e->DeleteAttribute("CurvePoints");
+                e->DeleteAttribute("CurveType");
+                e->SetAttribute("ArrowheadHead", "HalfLeft");
+                e->SetAttribute("ArrowheadTail", "HalfLeft");
+            }
+        }
+        for (auto* child=e->FirstChildElement(); child; child=child->NextSiblingElement())
+            scan(child, depth + 1);
+    }
     void object(tinyxml2::XMLElement* e,std::string& out,unsigned depth=0){
         if(depth>128)throw std::runtime_error("XML nesting too deep");unsigned tag=objectTag(e->Name());if(!tag)return;
+        if (std::strcmp(e->Name(), "curve") == 0 &&
+            equilibriumOwners.count(std::make_pair(e->Parent(), e->UnsignedAttribute("MoleculeStudioArrowPart"))))
+            return;
         put(out,tag,2);put(out,tag==0x8000?0:e->UnsignedAttribute("id",nextId++),4);
         for(auto* a=e->FirstAttribute();a;a=a->Next()){auto* p=property(a->Name());if(!p)continue;
             if(tag==0x8011&&p->tag==8){field(out,8,stringBytes(a->Value(),1252));continue;}
@@ -195,9 +311,43 @@ struct Encoder {
         // Tables must precede text so the reader can decode style-run encodings.
         if(auto* table=e->FirstChildElement("fonttable")){std::string b;unsigned n=0;for(auto* f=table->FirstChildElement("font");f;f=f->NextSiblingElement("font"))++n;put(b,1,2);put(b,n,2);for(auto* f=table->FirstChildElement("font");f;f=f->NextSiblingElement("font")){unsigned id=f->UnsignedAttribute("id");charsets[id]=65001;std::string name=f->Attribute("name")?f->Attribute("name"):"Arial";put(b,id,2);put(b,65001,2);put(b,name.size(),2);b+=name;}field(out,0x100,b);}
         if(auto* table=e->FirstChildElement("colortable")){std::string b;unsigned n=0;for(auto* c=table->FirstChildElement("color");c;c=c->NextSiblingElement("color"))++n;put(b,n,2);for(auto* c=table->FirstChildElement("color");c;c=c->NextSiblingElement("color"))for(auto key:{"r","g","b"})put(b,(unsigned)std::lround(std::max(0.0,std::min(1.0,c->DoubleAttribute(key)))*65535),2);field(out,0x300,b);}
-        if(tag==0x8006)field(out,0x700,text(e));
-        for(auto* a=e->FirstAttribute();a;a=a->Next())if(std::string(a->Name()).compare(0,24,"MoleculeStudioProjection")==0){put(out,0x8011,2);put(out,nextId++,4);field(out,8,std::string(a->Name())+"="+a->Value());put(out,0,2);}
-        for(auto* c=e->FirstChildElement();c;c=c->NextSiblingElement())if(objectTag(c->Name())){std::string label=c->Attribute("Name")?c->Attribute("Name"):"";auto equal=label.find('=');if(std::string(c->Name())=="objecttag"&&label.compare(0,24,"MoleculeStudioProjection")==0&&equal!=std::string::npos&&e->Attribute(label.substr(0,equal).c_str()))continue;object(c,out,depth+1);}
+        if (tag == 0x8006) {
+            field(out,0x700,text(e));
+            if (const auto* width = e->Attribute(kStudioTextWidthName))
+                field(out, kStudioTextWidthTag, std::string(kStudioTextWidthName) + '=' + width);
+        }
+        if (tag == 0x8009 && e->Attribute("MoleculeStudioRaster")) {
+            const auto* corners = e->Attribute(kStudioImageCornersName);
+            field(out, kStudioImageCornersTag, std::string(kStudioImageCornersName) + '=' + (corners ? corners : ""));
+        }
+        if (tag == 0x8009 && !e->Attribute("EnhancedMetafile")) {
+            if (const auto* compressed = e->Attribute("CompressedEnhancedMetafile")) {
+                const auto expected = e->UnsignedAttribute("UncompressedEnhancedMetafileSize");
+                if (!expected || expected > 32u * 1024 * 1024 || std::strlen(compressed) > 64u * 1024 * 1024)
+                    throw std::runtime_error("Invalid compressed Enhanced Metafile size");
+                const auto raw = embedded::inflate(embedded::decode(compressed, true), expected);
+                field(out, 0xa65, std::string(raw.begin(), raw.end()));
+            }
+        }
+        if (std::strcmp(e->Name(), "graphic") == 0)
+            for (auto* a = e->FirstAttribute(); a; a = a->Next())
+                if (studioGraphicParams(a->Name()))
+                    field(out, kStudioGraphicParamsTag, std::string(a->Name()) + '=' + a->Value());
+        const std::string element = e->Name();
+        if (element == "n" || element == "arrow" || element == "curve")
+            for (auto* a = e->FirstAttribute(); a; a = a->Next())
+                if (studioChemistry(element, a->Name())) {
+                    const auto value = std::string(a->Name()) + '=' + a->Value();
+                    if (value.size() <= 65534) field(out, kStudioChemistryTag, value);
+                }
+        for(auto* a=e->FirstAttribute();a;a=a->Next())if(studioMetadata(a->Name())){
+            if(tag==0x8006 && std::strcmp(a->Name(),kStudioCellVAlignName)==0){
+                field(out,kStudioCellVAlignTag,a->Value());
+                continue;
+            }
+            put(out,0x8011,2);put(out,nextId++,4);field(out,8,std::string(a->Name())+"="+a->Value());put(out,0,2);
+        }
+        for(auto* c=e->FirstChildElement();c;c=c->NextSiblingElement())if(objectTag(c->Name())){std::string label=c->Attribute("Name")?c->Attribute("Name"):"";auto equal=label.find('=');if(std::string(c->Name())=="objecttag"&&equal!=std::string::npos&&studioMetadata(label.substr(0,equal))&&e->Attribute(label.substr(0,equal).c_str()))continue;object(c,out,depth+1);}
         put(out,0,2);
     }
     std::string write(const std::string& input){if(xml.Parse(input.data(),input.size())!=tinyxml2::XML_SUCCESS||!xml.FirstChildElement("CDXML"))throw std::runtime_error("Invalid CDXML");auto* root=xml.RootElement();scan(root);std::string b="VjCD0100";put(b,0x01020304,4);b.append(10,0);object(root,b);return b;}

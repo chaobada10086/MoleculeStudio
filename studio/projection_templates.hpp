@@ -65,12 +65,18 @@ struct MoleculeBuilder {
     void tip(ObjectId a,Vec2 p,const std::string& label="",int order=1){bond(a,atom(p,label),order);}
     std::shared_ptr<Session> done(){projection_molecule::seed(s->doc);s->refresh();return s;}
 };
-inline std::shared_ptr<Session> sugar(const Document& style,int index,bool mirror){
+inline std::shared_ptr<Session> sugar(const Document& style,int index,bool mirror,const char* secondCarbonGroup="OH",const char* terminalGroup="CH2OH"){
     const auto& item=sugars().at(index);MoleculeBuilder b(style);double L=b.L;int n=int(std::string(item.hydroxyl).size());double first=-(n-1)*L*.75,last=-first;
     auto top=b.atom(Vec2(0,first-L*(item.ketose?2.5:1.)),item.ketose?"CH2OH":"CHO");
     if(item.ketose){auto ketone=b.atom(Vec2(0,first-1.5*L));b.bond(top,ketone);b.tip(ketone,Vec2(L*.85,first-1.5*L),"O",2);top=ketone;}
-    for(int i=0;i<n;++i){auto c=b.core(Vec2(0,first+i*L*1.5),0);b.bond(top,c);top=c;bool right=(item.hydroxyl[i]=='R')!=mirror;b.tip(c,Vec2(-L,first+i*L*1.5),right?"H":"OH");b.tip(c,Vec2(L,first+i*L*1.5),right?"OH":"H");}
-    b.tip(top,Vec2(0,last+L),"CH2OH");return b.done();
+    for(int i=0;i<n;++i){
+        const double y=first+i*L*1.5;
+        auto c=b.core(Vec2(0,y),0);b.bond(top,c);top=c;
+        const bool right=(item.hydroxyl[i]=='R')!=mirror;
+        const char* group=i==0 && !item.ketose ? secondCarbonGroup : "OH";
+        b.tip(c,Vec2(-L,y),right?"H":group);b.tip(c,Vec2(L,y),right?group:"H");
+    }
+    b.tip(top,Vec2(0,last+L),terminalGroup);return b.done();
 }
 inline std::shared_ptr<Session> make(const Document& style,int kind,int variant){
     MoleculeBuilder b(style);double L=b.L;

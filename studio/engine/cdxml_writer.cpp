@@ -1,3 +1,4 @@
+#include "next/core/xml_encoding.hpp"
 #include "engine/projection_export.hpp"
 #include "engine/atom_runs.hpp"
 #include "engine/metal_labels.hpp"
@@ -10,6 +11,7 @@
 #include "table_layout.hpp"
 #include "next/experimental/render_bridge.hpp"
 #include "next/experimental/model.hpp"
+#include "next/graphics/model.hpp"
 
 #include "third_party/tinyxml2/tinyxml2.h"
 
@@ -289,6 +291,10 @@ void replayPreservedAttributes(std::ostringstream& out, const core::Document& do
     if(ref.kind==ObjectKind::Atom){written.insert("xyz");written.insert("MoleculeStudioHydrogens");
         if(!mechanism::genericRole(document,ref.id).empty()){written.insert("IgnoreWarnings");written.insert("GenericNickname");written.insert("Warning");}}
     auto custom=[&](const char* name,const std::string& value){attribute(out,name,value);written.insert(name);};
+    if (ref.kind == ObjectKind::Atom) {
+        if (auto helm = bag.findValue("studio.helm.original")) custom("MoleculeStudioHELM", *helm);
+        if (auto ion = bag.findValue("studio.mechanism.ion.base")) custom("MoleculeStudioCompactIon", *ion);
+    }
     if(auto z=bag.findValue("studio.z"))custom("Z",*z);
     if(ref.kind==ObjectKind::Text)if(auto angle=bag.findValue("studio.text.RotationAngle"))custom("RotationAngle",*angle);
     if(ref.kind==ObjectKind::Atom){auto atom=document.atoms().alive(ref.id);if(atom){auto z=bag.findValue("studio.atom.z");if(!z)z=bag.findValue("pst.attr.MoleculeStudioPerspectiveZ");if(z)custom("xyz",numberToText(atom->position.x)+" "+numberToText(atom->position.y)+" "+*z);if(auto n=bag.findValue("studio.atom.number")){custom("AtomNumber",*n);custom("ShowAtomNumber","yes");}}}
@@ -508,6 +514,10 @@ void emitText(Writer& writer, const core::TextRecord& text) {
         attribute(out, "Justification", "Center");
     else if (text.format.align == static_cast<uint8_t>(core::TextAlign::Right))
         attribute(out, "Justification", "Right");
+    else if (text.format.align == static_cast<uint8_t>(core::TextAlign::Justify))
+        attribute(out, "Justification", "Full");
+    if (const auto* align = document.extensions(ObjectRef(ObjectKind::Text, text.id)).findValue("studio.cell.valign"))
+        attribute(out, "MoleculeStudioCellVAlign", *align);
     if (const std::string* width = document.extensions(ObjectRef(ObjectKind::Text, text.id)).findValue("studio.text.width")) {
         const double value = std::atof(width->c_str());
         if (value > 0.0) attributeNumber(out, "MoleculeStudioTextWidth", value);
@@ -533,14 +543,17 @@ void emitText(Writer& writer, const core::TextRecord& text) {
     const double defaultSize = text.size > 0.0 ? text.size : document.defaultTextSize();
     if (runs.empty()) {
         out << "<s font=\"" << writer.fontFor(text.format.fontName) << "\" size=\""
-            << numberToText(defaultSize) << "\"/>";
+            << numberToText(defaultSize) << "\"";
+        const int face = faceFromTextFlags(text.format.flags);
+        if (face != 0) out << " face=\"" << face << "\"";
+        out << "/>";
     } else {
         for (size_t i = 0; i < runs.size(); ++i) {
             std::string escaped;
             escapeContent(runs[i].utf8, &escaped);
             out << "<s font=\"" << writer.fontFor(runs[i].fontName) << "\" size=\""
                 << numberToText(runs[i].size > 0.0 ? runs[i].size : defaultSize) << "\"";
-            const int face = faceFromTextFlags(runs[i].flags);
+            const int face = faceFromTextFlags(text.format.flags | runs[i].flags);
             if (face != 0) out << " face=\"" << face << "\"";
             out << ">" << escaped << "</s>";
         }
@@ -560,7 +573,8 @@ bool emitImportedGraphic(Writer& writer,ObjectRef ref,core::Vec2 current,int sou
         std::istringstream input(value);std::vector<double> values;double n;while(input>>n)values.push_back(n);bool pairs=std::string(key)=="BoundingBox"||std::string(key)=="CurvePoints";
         for(size_t i=0;i+1<values.size();i+=pairs?2:3){values[i]+=delta.x;values[i+1]+=delta.y;}std::ostringstream output;output.precision(12);for(size_t i=0;i<values.size();++i){if(i)output<<' ';output<<values[i];}root->SetAttribute(key,output.str().c_str());
     }
-    if(name=="embeddedobject"&&root->Attribute("MoleculeStudioRaster")){
+    if(name=="embeddedobject"&&(root->Attribute("MoleculeStudioRaster")||
+            writer.document.extensions(ref).findValue("studio.embedded.image"))){
         auto path=writer.document.paths().alive(ref.id);
         if(path&&path->points.size()==4){
             const auto& p=path->points;auto center=(p[0]+p[2])*.5,u=p[1]-p[0],v=p[3]-p[0];
@@ -568,6 +582,7 @@ bool emitImportedGraphic(Writer& writer,ObjectRef ref,core::Vec2 current,int sou
             std::ostringstream box,corners;box.precision(12);corners.precision(12);
             box<<center.x-width*.5<<' '<<center.y-height*.5<<' '<<center.x+width*.5<<' '<<center.y+height*.5;
             for(auto point:p)corners<<point.x<<' '<<point.y<<' ';
+            root->SetAttribute("MoleculeStudioRaster","yes");
             root->SetAttribute("BoundingBox",box.str().c_str());root->SetAttribute("MoleculeStudioImageCorners",corners.str().c_str());
             root->SetAttribute("RotationAngle",std::atan2(u.y,u.x)*180./3.141592653589793*65536.);
         }
@@ -606,10 +621,9 @@ void emitPath(Writer& writer, const core::PathRecord& path) {
 
 #include "tlc_cdxml_writer.inc"
 
-// Fit the sampled routing polyline to a few genuine Bezier segments. Exporting
-// one knot per renderer sample makes ChemDraw clamp the arrowhead to a tiny
-// final segment; it also produces hundreds of unhelpful editing handles.
-std::vector<core::Vec2> routeBezierPoints(const std::vector<core::Vec2>& pts,double tolerance,double headLength){
+// Fit the rendered shaft to editable cubic segments. The head has its own
+// outline, so short bends can be subdivided independently of head length.
+std::vector<core::Vec2> routeBezierPoints(const std::vector<core::Vec2>& pts,double tolerance){
     struct Cubic{core::Vec2 a,b,c,d;};std::vector<Cubic> segments;
     std::vector<double> lengths(pts.size(),0);for(size_t i=1;i<pts.size();++i)lengths[i]=lengths[i-1]+core::length(pts[i]-pts[i-1]);
     auto tangent=[&](size_t i){auto v=pts[std::min(i+1,pts.size()-1)]-pts[i?i-1:i];double l=core::length(v);return l>1e-9?v*(1/l):core::Vec2(1,0);};
@@ -624,8 +638,7 @@ std::vector<core::Vec2> routeBezierPoints(const std::vector<core::Vec2>& pts,dou
         if(alpha<=0||beta<=0||alpha>span*1.5||beta>span*1.5)alpha=beta=span/3;
         Cubic q{a,a+u*alpha,d-v*beta,d};double error=0;size_t split=(first+last)/2;
         for(size_t i=first+1;i<last;++i){double t=span>1e-9?(lengths[i]-lengths[first])/span:0,s=1-t;auto p=q.a*(s*s*s)+q.b*(3*s*s*t)+q.c*(3*s*t*t)+q.d*(t*t*t);double e=core::length(p-pts[i]);if(e>error){error=e;split=i;}}
-        const double minSpan=std::max(tolerance*8,headLength*2.5);
-        if(error>tolerance&&depth<5&&last>first+2&&lengths[split]-lengths[first]>=minSpan&&lengths[last]-lengths[split]>=minSpan){fit(first,split,depth+1);fit(split,last,depth+1);}
+        if(error>tolerance&&depth<10&&last>first+1){fit(first,split,depth+1);fit(split,last,depth+1);}
         else segments.push_back(q);
     };
     if(pts.size()<2)return {};fit(0,pts.size()-1,0);
@@ -635,7 +648,71 @@ std::vector<core::Vec2> routeBezierPoints(const std::vector<core::Vec2>& pts,dou
     return controls;
 }
 
+bool emitStudioGraphic(Writer& writer, const core::AnnotationRecord& annotation) {
+    using namespace graphics;
+    const ObjectRef ref(annotation.kind, annotation.id);
+    const auto& bag = writer.document.extensions(ref);
+    const char* type = nullptr;
+    const char* bracketType = nullptr;
+    const char* lineType = nullptr;
+    const char* parameterName = nullptr;
+    std::string parameters;
+    core::Vec2 a, b;
+    if (ref.kind == ObjectKind::Arrow && bag.findValue(kShapeParamsKey)) {
+        ShapeParams shape;
+        bool stored = false;
+        if (!readShape(writer.document, ref.id, &shape, &stored).ok() || !stored) return false;
+        const bool line = shape.form == ShapeForm::Line;
+        const bool round = shape.form == ShapeForm::Circle || shape.form == ShapeForm::Oval;
+        type = line ? "Line" : round ? "Oval" : shape.form == ShapeForm::Arc ? "Arc" : "Rectangle";
+        const auto bounds = shape.frame.aabb();
+        a = line ? shape.frame.pointAt(-1, 0) : bounds.min;
+        b = line ? shape.frame.pointAt(1, 0) : bounds.max;
+        if (shape.appearance == ShapeAppearance::Dashed || shape.line == LineVariant::Dashed)
+            lineType = "Dashed";
+        else if (shape.line == LineVariant::Bold) lineType = "Bold";
+        else if (shape.line == LineVariant::Wavy) lineType = "Wavy";
+        parameterName = "MoleculeStudioShape";
+        parameters = encodeShapeParams(shape);
+    } else if (ref.kind == ObjectKind::Bracket && bag.findValue(kBracketParamsKey)) {
+        BracketParams bracket;
+        bool stored = false;
+        if (!readBracket(writer.document, ref.id, &bracket, &stored).ok() || !stored) return false;
+        type = "Bracket";
+        if (bracket.family == BracketFamily::Parenthesis) bracketType = bracket.paired() ? "RoundPair" : "Round";
+        else if (bracket.family == BracketFamily::Curly) bracketType = bracket.paired() ? "CurlyPair" : "Curly";
+        else bracketType = bracket.paired() ? "SquarePair" : "Square";
+        const auto bounds = bracket.frame.aabb();
+        a = bounds.min;
+        b = bounds.max;
+        parameterName = "MoleculeStudioBracket";
+        parameters = encodeBracketParams(bracket);
+    } else return false;
+
+    auto& out = writer.out;
+    out << "<graphic";
+    attributeInteger(out, "id", writer.objectId(ref, annotation.sourceId));
+    attribute(out, "GraphicType", type);
+    if (bracketType) attribute(out, "BracketType", bracketType);
+    if (lineType) attribute(out, "LineType", lineType);
+    out << " BoundingBox=\"" << numberToText(a.x) << ' ' << numberToText(a.y) << ' '
+        << numberToText(b.x) << ' ' << numberToText(b.y) << "\"";
+    if (annotation.style.width > 0) attributeNumber(out, "LineWidth", annotation.style.width);
+    attribute(out, parameterName, parameters);
+    if (ref.kind == ObjectKind::Arrow) {
+        for (const auto& group : writer.document.groups().records()) {
+            if (!group.isAlive() || group.label != "等同符号" || group.members.size() != 3 ||
+                std::find(group.members.begin(), group.members.end(), ref) == group.members.end()) continue;
+            attributeInteger(out, "MoleculeStudioEquivalenceGroup", group.id + 1);
+            break;
+        }
+    }
+    out << "/>";
+    return true;
+}
+
 void emitAnnotation(Writer& writer, const core::AnnotationRecord& annotation) {
+    if (emitStudioGraphic(writer, annotation)) return;
     if(emitImportedGraphic(writer,ObjectRef(annotation.kind,annotation.id),annotation.geometry[0],annotation.sourceId))return;
     std::ostringstream& out = writer.out;
     if(annotation.kind==ObjectKind::Arrow&&writer.document.extensions(ObjectRef(ObjectKind::Arrow,annotation.id)).find(arrows::kArrowParamsKey)){
@@ -652,7 +729,10 @@ void emitAnnotation(Writer& writer, const core::AnnotationRecord& annotation) {
                 // Native Bezier splines retain the actual gesture/routing shape.
                 // Each knot has incoming handle, anchor, outgoing handle in CDXML.
                 std::ostringstream points;
-                for(auto q:routeBezierPoints(route,std::max(.04,width*.16),p.head.length))points<<numberToText(q.x)<<' '<<numberToText(q.y)<<' ';
+                // A head can cover the entire shaft of a short arrow. Keep the
+                // native curve valid without drawing an extra line under the head.
+                if(route.size() < 2) route.assign(2, route.empty() ? p.begin : core::Vec2(route.front()));
+                for(auto q:routeBezierPoints(route,std::max(.005,width*.016)))points<<numberToText(q.x)<<' '<<numberToText(q.y)<<' ';
                 attribute(out,"CurvePoints",points.str());
                 const bool half=p.head.sides!=arrows::HeadSides::Both;
                 attributeInteger(out,"CurveType",(vectorHead?0:((p.head.atEnd?(half?32:8):0)|(p.head.atBegin?(half?64:16):0)))|(p.line==arrows::ArrowLine::Dashed?2:0));
@@ -736,14 +816,15 @@ struct RawRegionEntry {
     std::string bytes;
     bool operator<(const RawRegionEntry& other) const { return order < other.order; }
 };
-void collectRawRegions(const core::Document& document,
+void collectRawRegions(const Writer& writer,
                        std::vector<RawRegionEntry>* out) {
-    const core::ExtensionBag& bag = document.documentExtensions();
+    const core::ExtensionBag& bag = writer.document.documentExtensions();
     const std::vector<core::ExtensionEntry>& entries = bag.entries();
     for (size_t i = 0; i < entries.size(); ++i) {
         const std::string& key = entries[i].key;
         if (key.compare(0, 8, "pst.raw.") != 0) continue;
-        if (key.compare(0, 18, "pst.raw.order.") == 0) continue;   // bookkeeping, not a region
+        if (key.compare(0, 14, "pst.raw.order.") == 0) continue;
+        if (writer.options.mode != CdxmlExportMode::Lossless && key.compare(0, 12, "pst.raw.gap.") == 0) continue;
         RawRegionEntry region;
         const std::string sourceId = key.substr(8);
         const std::string* recorded =
@@ -759,9 +840,9 @@ void collectRawRegions(const core::Document& document,
     }
 }
 
-void emitRawRegionsInRange(Writer& writer, long long from, long long to) {
+std::vector<RawRegionEntry> orderedRawRegions(const Writer& writer) {
     std::vector<RawRegionEntry> regions;
-    collectRawRegions(writer.document, &regions);
+    collectRawRegions(writer, &regions);
     // Promoting a standard electron graphic into its owner atom removes its
     // drawing record, but its leading </fragment>/<group> bytes still belong
     // to the document. Emit those at the original source position.
@@ -777,9 +858,15 @@ void emitRawRegionsInRange(Writer& writer, long long from, long long to) {
         for(const auto& a:writer.document.paths().records())if(!a.isAlive())gap({ObjectKind::Path,a.id},a.sourceId);
     }
     std::stable_sort(regions.begin(), regions.end());
-    for (size_t i = 0; i < regions.size(); ++i) {
-        if (regions[i].order < from || regions[i].order >= to) continue;
-        writer.out << regions[i].bytes;
+    return regions;
+}
+
+void emitRawRegionsInRange(Writer& writer, const std::vector<RawRegionEntry>& regions,
+                           long long from, long long to) {
+    auto region = std::lower_bound(regions.begin(), regions.end(), from,
+        [](const RawRegionEntry& entry, long long order) { return entry.order < order; });
+    for (; region != regions.end() && region->order < to; ++region) {
+        writer.out << region->bytes;
         if (writer.fidelity) ++writer.fidelity->rawFragmentsEmitted;
     }
 }
@@ -840,6 +927,8 @@ bool emitPreservedIfUnchanged(Writer& writer, const ObjectRef& ref,
     if (!bytes || bytes->empty()) return false;
     if (!objectUnchanged(writer.document, ref, currentSignature)) return regenerate();
     const auto& appearance=writer.document.extensions(ref);if(appearance.findValue("studio.color.override")||appearance.findValue("studio.text.colors.edited")||appearance.findValue("studio.graphics.width")){tinyxml2::XMLDocument raw;if(raw.Parse(bytes->c_str())==tinyxml2::XML_SUCCESS&&raw.RootElement()&&raw.RootElement()->Attribute("id"))writer.fileId[ref]=raw.RootElement()->IntAttribute("id");}
+    if (appearance.findValue("studio.z") && sourceIdOf(writer.document, ref) > 0)
+        writer.fileId[ref] = sourceIdOf(writer.document, ref);
     writer.out << *bytes;
     if (writer.fidelity) ++writer.fidelity->objectsFromSource;
     return true;
@@ -1001,7 +1090,9 @@ Error writeDocument(Writer& writer) {
         // The prologue is emitted VERBATIM, with no added separator: its final bytes
         // are the container open tag, and the first object's preserved slice already
         // begins with the whitespace that followed it.
-        std::string header=*prologue;std::ostringstream extra;
+        std::string header = *prologue;
+        core::canonicalizeXmlUtf8Alias(header);
+        std::ostringstream extra;
         for(const auto& name:writer.fontNames){int id=writer.fontIdByName[name];if(writer.sourceFontIds.count(id))continue;std::string escaped;escapeAttribute(name,&escaped);extra<<"<font id=\""<<id<<"\" charset=\"iso-8859-1\" name=\""<<escaped<<"\"/>";}
         auto end=header.find("</fonttable>");if(end!=std::string::npos)header.insert(end,extra.str());else if(!extra.str().empty()){auto page=header.find("<page");header.insert(page==std::string::npos?header.size():page,"<fonttable>"+extra.str()+"</fonttable>");}
         out << header;
@@ -1092,6 +1183,7 @@ Error writeDocument(Writer& writer) {
         out << "<page id=\"" << writer.reserveFileId() << "\">\n";
         out << "<fragment id=\"" << writer.reserveFileId() << "\">\n";
     }
+    const auto rawRegions = orderedRawRegions(writer);
     long long rawCursor = 0;
     for (size_t i = 0; i < objectOrder.size(); ++i) {
         const ObjectRef& ref = objectOrder[i];
@@ -1107,7 +1199,7 @@ Error writeDocument(Writer& writer) {
                 in.imbue(std::locale::classic());
                 in >> position;
             }
-            emitRawRegionsInRange(writer, rawCursor, position);
+            emitRawRegionsInRange(writer, rawRegions, rawCursor, position);
             rawCursor = position;
         }
         switch (ref.kind) {
@@ -1145,7 +1237,8 @@ Error writeDocument(Writer& writer) {
         case ObjectKind::Arrow: {
             const core::AnnotationRecord* a = document.arrows().get(ref.id);
             if (!a) break;
-            if (emitPreservedIfUnchanged(writer, ref, annotationSignature(*a))) {
+            if (!document.extensions(ref).findValue(graphics::kShapeParamsKey) &&
+                emitPreservedIfUnchanged(writer, ref, annotationSignature(*a))) {
                 preservedEmitted = true;
                 break;
             }
@@ -1155,7 +1248,8 @@ Error writeDocument(Writer& writer) {
         case ObjectKind::Bracket: {
             const core::AnnotationRecord* a = document.brackets().get(ref.id);
             if (!a) break;
-            if (emitPreservedIfUnchanged(writer, ref, annotationSignature(*a))) {
+            if (!document.extensions(ref).findValue(graphics::kBracketParamsKey) &&
+                emitPreservedIfUnchanged(writer, ref, annotationSignature(*a))) {
                 preservedEmitted = true;
                 break;
             }
@@ -1223,7 +1317,7 @@ Error writeDocument(Writer& writer) {
     // element that came last in the source) still has to be written. Regions that sit
     // between modelled objects were already emitted by the interleaving above, so this
     // final flush only covers the tail - running it twice would duplicate them.
-    emitRawRegionsInRange(writer, rawCursor, 1000000000LL);
+    emitRawRegionsInRange(writer, rawRegions, rawCursor, 1000000000LL);
     // The epilogue is the source's own closing bytes when available, so the trailing
     // whitespace is the file's, not the generator's. Regenerating it is what turns a
     // 2-byte difference into a "not identical" verdict.
@@ -1339,6 +1433,104 @@ std::string normalizeColorTable(const std::string& source) {
     return printXml(xml);
 }
 
+struct BridgeEdge {
+    XMLElement* bond;
+    core::Vec2 begin, end;
+};
+
+bool writeBridgeCrossings(const std::vector<BridgeEdge>& backs,const std::vector<BridgeEdge>& fronts){
+    bool changed=false;
+    auto addReference=[&](XMLElement* bond,int other){
+        const char* old=bond->Attribute("CrossingBonds");
+        std::istringstream refs(old?old:"");
+        for(int id;refs>>id;)if(id==other)return;
+        std::string value=old&&*old?std::string(old)+" ":"";
+        bond->SetAttribute("CrossingBonds",(value+std::to_string(other)).c_str());
+        changed=true;
+    };
+    auto cross=[](core::Vec2 a,core::Vec2 b){return a.x*b.y-a.y*b.x;};
+    for(const auto& back:backs)for(const auto& front:fronts){
+        const auto a=back.end-back.begin,b=front.end-front.begin,offset=front.begin-back.begin;
+        const double det=cross(a,b);
+        if(std::abs(det)<1e-8)continue;
+        const double t=cross(offset,b)/det,u=cross(offset,a)/det;
+        if(t<=0||t>=1||u<=0||u>=1)continue;
+        addReference(back.bond,front.bond->IntAttribute("id"));
+        addReference(front.bond,back.bond->IntAttribute("id"));
+        int rearZ=back.bond->IntAttribute("Z",0),frontZ=front.bond->IntAttribute("Z",0);
+        if(rearZ>=frontZ){
+            if(rearZ>=32767)rearZ=32766;
+            frontZ=rearZ+1;
+        }
+        if(!back.bond->Attribute("Z")||back.bond->IntAttribute("Z")!=rearZ){
+            back.bond->SetAttribute("Z",rearZ);changed=true;
+        }
+        if(!front.bond->Attribute("Z")||front.bond->IntAttribute("Z")!=frontZ){
+            front.bond->SetAttribute("Z",frontZ);changed=true;
+        }
+    }
+    return changed;
+}
+
+// A bond endpoint can identify the page of a loose molecular object. Keep
+// each fragment or group intact and only move components with a unique page.
+bool restoreLinkedPageObjects(XMLElement* root){
+    using Node=XMLElement*;
+    std::vector<Node> loose;
+    std::map<int,Node> atomOwner;
+    std::vector<std::pair<Node,Node>> bonds;
+    std::map<Node,std::vector<Node>> neighbors;
+    std::set<Node> incomplete;
+    std::function<void(Node,Node)> collect=[&](Node item,Node owner){
+        const std::string tag=item->Name();
+        if(tag=="n"){
+            const int id=item->IntAttribute("id");
+            if(id>0&&!atomOwner.emplace(id,owner).second)atomOwner[id]=nullptr;
+        }else if(tag=="b")bonds.emplace_back(item,owner);
+        else if(tag=="page"||tag=="fragment"||tag=="group"){
+            for(auto child=item->FirstChildElement();child;child=child->NextSiblingElement())collect(child,owner);
+        }
+    };
+    for(Node item=root->FirstChildElement();item;item=item->NextSiblingElement()){
+        const std::string tag=item->Name();
+        if(tag=="n"||tag=="b"||tag=="fragment"||tag=="group")loose.push_back(item);
+    }
+    if(loose.empty())return false;
+    for(Node page=root->FirstChildElement("page");page;page=page->NextSiblingElement("page"))collect(page,page);
+    for(Node item:loose)collect(item,item);
+    for(auto entry:bonds){
+        Node owner=entry.second;
+        for(const char* attr:{"B","E"}){
+            auto found=atomOwner.find(entry.first->IntAttribute(attr));
+            if(found==atomOwner.end()||!found->second){incomplete.insert(owner);continue;}
+            Node other=found->second;
+            if(other!=owner){neighbors[owner].push_back(other);neighbors[other].push_back(owner);}
+        }
+    }
+    std::set<Node> seen;
+    std::map<Node,Node> destination;
+    for(Node start:loose){
+        if(!seen.insert(start).second)continue;
+        std::vector<Node> members{start};
+        std::set<Node> pages;
+        bool complete=true;
+        for(size_t i=0;i<members.size();++i){
+            Node item=members[i];
+            if(incomplete.count(item))complete=false;
+            for(Node other:neighbors[item]){
+                if(std::strcmp(other->Name(),"page")==0)pages.insert(other);
+                else if(seen.insert(other).second)members.push_back(other);
+            }
+        }
+        if(complete&&pages.size()==1)for(Node item:members)destination[item]=*pages.begin();
+    }
+    for(Node item:loose){
+        auto dest=destination.find(item);
+        if(dest!=destination.end())dest->second->InsertEndChild(item);
+    }
+    return !destination.empty();
+}
+
 // A lossless source may close its last fragment before newly added objects are
 // emitted. ChemDraw and other readers require molecular nodes and bonds inside
 // one fragment, including a new bond that extends an imported molecule.
@@ -1346,6 +1538,25 @@ std::string normalizeMoleculeContainers(const std::string& bytes){
     tinyxml2::XMLDocument xml;if(xml.Parse(bytes.c_str())!=tinyxml2::XML_SUCCESS)return bytes;
     auto root=xml.RootElement();if(!root)return bytes;int nextId=1;bool changed=false;
     std::function<void(XMLElement*)> ids=[&](XMLElement* e){nextId=std::max(nextId,e->IntAttribute("id",0)+1);for(auto c=e->FirstChildElement();c;c=c->NextSiblingElement())ids(c);};ids(root);
+    // A lossless save of a single self-closing source page can leave new
+    // molecular objects beside the page. Restore their drawing scope before
+    // grouping the connected atoms and bonds into fragments.
+    auto* onlyPage = root->FirstChildElement("page");
+    if (onlyPage && !onlyPage->NextSiblingElement("page")) {
+        for (auto* node = root->FirstChildElement(); node;) {
+            auto* next = node->NextSiblingElement();
+            const std::string tag = node->Name();
+            if (tag == "n" || tag == "b" || tag == "fragment" || tag == "group" ||
+                tag == "t" || tag == "graphic" || tag == "curve" || tag == "arrow" ||
+                tag == "embeddedobject" || tag == "tlcplate" || tag == "table") {
+                onlyPage->InsertEndChild(node);
+                changed = true;
+            }
+            node = next;
+        }
+    }else if(onlyPage){
+        changed|=restoreLinkedPageObjects(root);
+    }
     for(auto page=root->FirstChildElement("page");page;page=page->NextSiblingElement("page")){
         struct Site{XMLElement* node;XMLElement* fragment;};
         std::map<int,Site> atoms;std::vector<Site> bonds;std::map<int,int> parents;
@@ -1365,6 +1576,19 @@ std::string normalizeMoleculeContainers(const std::string& bytes){
         for(auto bond:bonds){int b=bond.node->IntAttribute("B"),e=bond.node->IntAttribute("E");if(atoms.count(b)&&atoms.count(e))edges[find(b)].push_back(bond);}
         for(auto& component:components){
             auto& nodes=component.second;auto& links=edges[component.first];auto target=nodes.front().fragment;bool repair=!target;
+            std::vector<BridgeEdge> backs,fronts;
+            for(auto site:links){
+                auto* bond=site.node;
+                const bool back=bond->Attribute("MoleculeStudioBridgeLayer","back");
+                if(!back&&!bond->Attribute("MoleculeStudioBridgeLayer","front"))continue;
+                BridgeEdge edge{bond,{},{}};
+                auto point=[&](const char* endpoint,core::Vec2& out){
+                    const char* value=atoms.at(bond->IntAttribute(endpoint)).node->Attribute("p");
+                    return value&&bool(std::istringstream(value)>>out.x>>out.y);
+                };
+                if(point("B",edge.begin)&&point("E",edge.end))(back?backs:fronts).push_back(edge);
+            }
+            changed|=writeBridgeCrossings(backs,fronts);
             for(auto site:nodes){repair|=!site.fragment||site.fragment!=target;if(!target&&site.fragment)target=site.fragment;}
             for(auto site:links)repair|=!site.fragment||site.fragment!=target;
             if(!repair)continue;
@@ -1388,7 +1612,7 @@ std::string applyStudioAppearance(Writer& writer,const std::string& source){
     std::map<ObjectRef,int32_t> objects=writer.fileId;for(const auto& atom:writer.atomFileId)objects[ObjectRef(ObjectKind::Atom,atom.first)]=atom.second;
     bool needed=false;
     for(const auto& entry:objects){const auto& bag=writer.document.extensions(entry.first);
-        if(entry.first.kind==ObjectKind::Path||experimental::isFigureObject(writer.document,entry.first)||bag.findValue("studio.color.override")||bag.findValue("studio.color")||bag.findValue("studio.text.colors")||bag.findValue("studio.graphics.width"))needed=true;
+        if(bag.findValue("studio.z")||entry.first.kind==ObjectKind::Path||experimental::isFigureObject(writer.document,entry.first)||bag.findValue("studio.color.override")||bag.findValue("studio.color")||bag.findValue("studio.text.colors")||bag.findValue("studio.graphics.width"))needed=true;
         if(auto tags=bag.findValue("studio.atom.tags"))if(tags->find("MoleculeStudio.NMR.")!=std::string::npos)needed=true;
     }
     if(!needed)return source;
@@ -1419,6 +1643,7 @@ std::string applyStudioAppearance(Writer& writer,const std::string& source){
         for(auto c=e->FirstChildElement();c;c=c->NextSiblingElement())colorFigures(c);
     };colorFigures(root);
     for(const auto& entry:objects){auto found=nodes.find(entry.second);if(found==nodes.end())continue;auto e=found->second;auto ref=entry.first;const auto& bag=writer.document.extensions(ref);
+        if (const auto* z = bag.findValue("studio.z")) e->SetAttribute("Z", z->c_str());
         if(experimental::isFigureObject(writer.document,ref))continue;
         if(ref.kind==ObjectKind::Path&&e->Attribute("MoleculeStudioPath")){auto path=writer.document.paths().get(ref.id);if(path){e->SetAttribute("color",colorFor(path->style.colorRGBA));if(path->fillEnabled)e->SetAttribute("FillColor",colorFor(path->fillRGBA));}}
         if(ref.kind!=ObjectKind::Bond&&ref.kind!=ObjectKind::Atom&&ref.kind!=ObjectKind::Text)if(auto width=bag.findValue("studio.graphics.width")){

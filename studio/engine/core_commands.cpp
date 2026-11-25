@@ -2,6 +2,7 @@
 #include "tool_registry.hpp"
 
 #include <algorithm>
+#include <utility>
 #include <cmath>
 #include <cstring>
 #include <map>
@@ -117,6 +118,8 @@ void buildRuns(const std::vector<ObjectId>& ids,
         while (j < changed.size() && changed[j] == changed[j - 1] + 1) ++j;
         RecordRun<T> runBefore;
         RecordRun<T> runAfter;
+        runBefore.records.reserve(j - i);
+        runAfter.records.reserve(j - i);
         runBefore.offset = changed[i];
         runAfter.offset = changed[i];
         // A run is emitted per slab, so both directions must cover the SAME ids.
@@ -131,10 +134,10 @@ void buildRuns(const std::vector<ObjectId>& ids,
             runAfter.records.push_back(now ? *now : deadLike(was, id));
             runBefore.records.push_back(was ? *was : deadLike(now, id));
         }
-        before->push_back(runBefore);
-        after->push_back(runAfter);
-        if (maxRunLength && runAfter.records.size() > *maxRunLength)
-            *maxRunLength = runAfter.records.size();
+        before->push_back(std::move(runBefore));
+        after->push_back(std::move(runAfter));
+        if (maxRunLength && j - i > *maxRunLength)
+            *maxRunLength = j - i;
         i = j;
     }
 }
@@ -468,7 +471,7 @@ void DocumentSession::buildChangeSet(ChangeSet* out, size_t* maxRunLength) const
     // Labels and styled runs must follow atom insertion/deletion too.
     for(auto id:atomIds){
         auto it=baseline_.atomLabels.find(id);std::string was=it==baseline_.atomLabels.end()?std::string():it->second;
-        std::string now=doc.atomLabel(id);if(was!=now){ExtensionPatch patch;patch.ref=ObjectRef(ObjectKind::Atom,id);patch.beforePresent=patch.afterPresent=true;patch.before.set("studio.history.atom-label",was);patch.after.set("studio.history.atom-label",now);out->extensions.push_back(patch);}
+        std::string now=doc.atomLabel(id);if(was!=now){ExtensionPatch patch;patch.ref=ObjectRef(ObjectKind::Atom,id);patch.beforePresent=patch.afterPresent=true;patch.before.set("studio.history.atom-label",was);patch.after.set("studio.history.atom-label",now);out->extensions.push_back(std::move(patch));}
     }
     textIds.insert(textIds.end(),atomIds.begin(),atomIds.end());
     // Styled text runs are diffed per object id, in both directions.
@@ -478,20 +481,19 @@ void DocumentSession::buildChangeSet(ChangeSet* out, size_t* maxRunLength) const
         runIds.erase(std::unique(runIds.begin(), runIds.end()), runIds.end());
         for (size_t i = 0; i < runIds.size(); ++i) {
             const ObjectId id = runIds[i];
-            const std::vector<TextRun> now = doc.runs(id);
+            const auto& now = doc.runs(id);
             std::map< ObjectId, std::vector<TextRun> >::const_iterator it =
                 baseline_.runs.find(id);
-            const bool hadBefore = it != baseline_.runs.end();
-            const std::vector<TextRun> was = hadBefore
-                ? it->second : std::vector<TextRun>();
-            if (hadBefore && was == now) continue;
+            // Empty runs are erased by setRunsQuiet. Moving an unlabelled atom
+            // therefore leaves its styled text unchanged in both directions.
+            if (it == baseline_.runs.end() ? now.empty() : it->second == now) continue;
             RecordRun<TextRun> afterRun;
             afterRun.offset = id;
             afterRun.records = now;
             forward.textRunsAfter.push_back(afterRun);
             RecordRun<TextRun> beforeRun;
             beforeRun.offset = id;
-            beforeRun.records = was;
+            if (it != baseline_.runs.end()) beforeRun.records = it->second;
             reverse.textRunsAfter.push_back(beforeRun);
         }
     }
@@ -532,7 +534,7 @@ void DocumentSession::buildChangeSet(ChangeSet* out, size_t* maxRunLength) const
                 patch.after = now;
             }
             if (patch.beforePresent != patch.afterPresent || patch.before != patch.after)
-                out->extensions.push_back(patch);
+                out->extensions.push_back(std::move(patch));
         }
     }
     if (maxRunLength) *maxRunLength = localMax;

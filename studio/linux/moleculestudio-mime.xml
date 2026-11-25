@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-moleculestudio-document">
+    <comment>MoleculeStudio document</comment>
+    <comment xml:lang="zh_CN">MoleculeStudio 结构文档</comment>
+    <glob pattern="*.r62doc"/>
+    <glob pattern="*.t01doc"/>
+  </mime-type>
+  <mime-type type="chemical/x-cdxml">
+    <comment>ChemDraw XML document</comment>
+    <sub-class-of type="application/xml"/>
+    <glob pattern="*.cdxml"/>
+  </mime-type>
+  <mime-type type="chemical/x-cdx">
+    <comment>ChemDraw binary document</comment>
+    <glob pattern="*.cdx" weight="70"/>
+    <magic priority="80">
+      <match type="string" value="VjCD0100" offset="0"/>
+    </magic>
+  </mime-type>
+</mime-info>

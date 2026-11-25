@@ -1,3 +1,4 @@
+#include "bond_axis_point.hpp"
 #include "engine/projection_export.hpp"
 #include "projection_molecule.hpp"
 #include "session.hpp"
@@ -45,6 +46,9 @@
 #include <cmath>
 #include <cstring>
 #include <stdexcept>
+#ifdef __linux__
+namespace r62 { namespace text { GlyphProvider* createLinuxGlyphProvider(); } }
+#endif
 namespace r62 { namespace integration {
 static double traceNow(){return std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();}
 static bool traceOn(){static const bool on=std::getenv("MOLECULE_STUDIO_PERF_TRACE")!=nullptr;return on;}
@@ -55,39 +59,130 @@ static double dist(Vec2 a,Vec2 b){return std::hypot(a.x-b.x,a.y-b.y);}
 static double lineDist(Vec2 p,Vec2 a,Vec2 b){Vec2 v=b-a; double n=v.x*v.x+v.y*v.y; double t=n?((p.x-a.x)*v.x+(p.y-a.y)*v.y)/n:0; return dist(p,a+v*std::max(0.0,std::min(1.0,t)));}
 // A perspective projection may show a rear bond interrupted by a foreground
 // bridge. Split only the ink. The molecular graph still has one intact bond.
-static void clipBridgeCrossing(const Document& doc,const BondRecord& rear,bonds::BondRenderData& data){
+using CrossingPairs = std::map<ObjectId,std::set<ObjectId>>;
+static CrossingPairs standardCrossings(const Document& doc){
+    CrossingPairs result;
+    std::map<int32_t,ObjectId> bySource;
+    for(const auto& bond:doc.bonds().records()){
+        if(!bond.isAlive())continue;
+        auto& bag=doc.extensions(ObjectRef(ObjectKind::Bond,bond.id));
+        auto refs=bag.findValue("pst.attr.CrossingBonds");
+        if(!refs)continue;
+        if(bySource.empty()){
+            for(const auto& b:doc.bonds().records())
+                if(b.isAlive()&&b.sourceId>0)bySource.emplace(b.sourceId,b.id);
+        }
+        auto z=bag.findValue("studio.z");
+        int depth=z?std::atoi(z->c_str()):0;
+        std::istringstream ids(*refs);
+        for(int32_t id;ids>>id;){
+            auto found=bySource.find(id);
+            if(found==bySource.end())continue;
+            ObjectId other=found->second;
+            auto otherZ=doc.extensions(ObjectRef(ObjectKind::Bond,other)).findValue("studio.z");
+            int otherDepth=otherZ?std::atoi(otherZ->c_str()):0;
+            if(depth<otherDepth)result[bond.id].insert(other);
+            if(otherDepth<depth)result[other].insert(bond.id);
+        }
+    }
+    return result;
+}
+static std::vector<Vec2> clipBondPolygon(const std::vector<Vec2>& contour,Vec2 origin,Vec2 normal,double gap){
+    std::vector<Vec2> result;
+    if(contour.empty())return result;
+    auto distance=[&](Vec2 p){return (p.x-origin.x)*normal.x+(p.y-origin.y)*normal.y-gap;};
+    Vec2 a=contour.back();double da=distance(a);
+    for(Vec2 b:contour){
+        const double db=distance(b);
+        if((da>0)!=(db>0))result.push_back(a+(b-a)*(da/(da-db)));
+        if(db>0)result.push_back(b);
+        a=b;da=db;
+    }
+    return result;
+}
+
+static void clipBondInk(const bonds::BondShape& shape,Vec2 origin,Vec2 normal,double gap,
+                        double lineWidth,std::vector<bonds::BondShape>& out){
+    if(shape.kind==bonds::BondShapeKind::FilledPolygon){
+        for(Vec2 side:{normal,normal*(-1)}){
+            auto part=shape;
+            part.outline=clipBondPolygon(shape.outline,origin,side,gap);
+            if(part.outline.size()<3)continue;
+            part.fillHoles=clipBondPolygon(shape.fillHoles,origin,side,gap);
+            out.push_back(std::move(part));
+        }
+        return;
+    }
+    std::vector<std::vector<Vec2>> strokes;
+    render::geom::applyDash(shape.points,false,render::DashPattern(shape.dashOn,shape.dashOff),
+                            shape.strokeWidth>0?shape.strokeWidth:lineWidth,&strokes);
+    for(const auto& path:strokes)for(Vec2 side:{normal,normal*(-1)}){
+        auto part=shape;
+        part.dashOn=part.dashOff=0;
+        part.points.clear();
+        auto finish=[&](){if(part.points.size()>1)out.push_back(part);part.points.clear();};
+        auto distance=[&](Vec2 p){return (p.x-origin.x)*side.x+(p.y-origin.y)*side.y-gap;};
+        // Start a closed outline outside this half-plane so its surviving
+        // corner stays joined when the cut spans the last and first edges.
+        size_t start=0;
+        const bool closed=path.size()>2&&path.front()==path.back();
+        if(closed){
+            auto cut=std::find_if(path.begin(),path.end()-1,[&](Vec2 p){return distance(p)<=0;});
+            if(cut!=path.end()-1)start=size_t(cut-path.begin());
+        }
+        for(size_t i=1;i<path.size();++i){
+            const Vec2 a=closed?path[(start+i-1)%(path.size()-1)]:path[i-1];
+            const Vec2 b=closed?path[(start+i)%(path.size()-1)]:path[i];
+            const double da=distance(a),db=distance(b);
+            if(da>0&&part.points.empty())part.points.push_back(a);
+            if((da>0)!=(db>0))part.points.push_back(a+(b-a)*(da/(da-db)));
+            if(db>0)part.points.push_back(b);else finish();
+        }
+        finish();
+    }
+}
+
+static void clipBridgeCrossing(const Document& doc,const BondRecord& rear,const CrossingPairs& crossings,bonds::BondRenderData& data){
     const char* key="pst.attr.MoleculeStudioBridgeLayer";
     const auto* layer=doc.extensions(ObjectRef(ObjectKind::Bond,rear.id)).findValue(key);
-    if(!layer||*layer!="back"||rear.order!=BondOrder::Single||rear.display!=BondDisplay::Normal||data.shapes.size()!=1)return;
-    auto& stroke=data.shapes.front();
-    if(stroke.kind!=bonds::BondShapeKind::Stroke||stroke.points.size()!=2)return;
-    const Vec2 start=stroke.points.front(),axis=stroke.points.back()-start;
+    auto listed=crossings.find(rear.id);
+    bool nativeRear=layer&&*layer=="back";
+    if(!nativeRear&&listed==crossings.end())return;
+    if(data.shapes.empty()||rear.display==BondDisplay::Bold)return;
+    const Vec2 start=data.axisBegin,axis=data.axisEnd-start;
     const double span=length(axis);
     if(span<1e-8)return;
     const auto cross=[](Vec2 a,Vec2 b){return a.x*b.y-a.y*b.x;};
-    for(ObjectId endpoint:{rear.beginAtom,rear.endAtom})for(auto adjacentId:doc.incidentBonds(endpoint)){
+    std::set<ObjectId> fronts;
+    if(listed!=crossings.end())fronts=listed->second;
+    if(nativeRear)for(ObjectId endpoint:{rear.beginAtom,rear.endAtom})for(auto adjacentId:doc.incidentBonds(endpoint)){
         const auto* adjacent=doc.bonds().alive(adjacentId);
         if(!adjacent||adjacent->id==rear.id)continue;
         const ObjectId neighbor=adjacent->beginAtom==endpoint?adjacent->endAtom:adjacent->beginAtom;
         for(auto frontId:doc.incidentBonds(neighbor)){
             const auto* frontLayer=doc.extensions(ObjectRef(ObjectKind::Bond,frontId)).findValue(key);
-            if(!frontLayer||*frontLayer!="front")continue;
-            const auto* front=doc.bonds().alive(frontId);
-            const auto* a=doc.atoms().alive(front->beginAtom);
-            const auto* b=doc.atoms().alive(front->endAtom);
-            if(!a||!b)continue;
-            const Vec2 offset=a->position-start,across=b->position-a->position;
-            const double det=cross(axis,across);
-            if(std::abs(det)<1e-8)continue;
-            const double t=cross(offset,across)/det,u=cross(offset,axis)/det;
-            const double halfGap=std::max(doc.defaultBondLength()*.12,stroke.strokeWidth*1.5)/span;
-            if(u<=0||u>=1||t<=halfGap||t>=1-halfGap)continue;
-            auto right=stroke;
-            stroke.points.back()=start+axis*(t-halfGap);
-            right.points.front()=start+axis*(t+halfGap);
-            data.shapes.push_back(std::move(right));
-            return;
+            if(frontLayer&&*frontLayer=="front")fronts.insert(frontId);
         }
+    }
+    const double halfGap=std::max(doc.defaultBondLength()*.12,doc.defaultLineWidth()*1.5)/span;
+    for(auto id:fronts){
+        const auto* front=doc.bonds().alive(id);
+        if(!front||front->beginAtom==rear.beginAtom||front->beginAtom==rear.endAtom||
+           front->endAtom==rear.beginAtom||front->endAtom==rear.endAtom)continue;
+        const auto* a=doc.atoms().alive(front->beginAtom);
+        const auto* b=doc.atoms().alive(front->endAtom);
+        if(!a||!b)continue;
+        const Vec2 offset=a->position-start,across=b->position-a->position;
+        const double det=cross(axis,across);
+        if(std::abs(det)<1e-8)continue;
+        const double t=cross(offset,across)/det,u=cross(offset,axis)/det;
+        if(u<=0||u>=1||t<=halfGap||t>=1-halfGap)continue;
+        const double width=length(across);
+        Vec2 normal(-across.y/width,across.x/width);
+        const double gap=halfGap*std::abs(det)/width;
+        std::vector<bonds::BondShape> visible;
+        for(const auto& shape:data.shapes)clipBondInk(shape,a->position,normal,gap,doc.defaultLineWidth(),visible);
+        data.shapes.swap(visible);
     }
 }
 static Error unavailable(const std::string& x){return Error(ErrorCode::NotImplemented,x);}
@@ -159,10 +254,12 @@ static Error fixedLengthDrag(Document& d,const std::vector<ObjectRef>& refs,Vec2
 }
 // The delete half of a cut. T05 publishes first and only then calls this, so a
 // refused clipboard publish never reaches the document.
+#ifndef __linux__
 static Error cutDelete(void* userData,const std::vector<ObjectRef>& refs){
     Session& s=*static_cast<Session*>(userData);
     return s.submit(commands::deleteObjects(refs),"cut selection");
 }
+#endif
 constexpr int kAtomLabelZ=10;
 static void appendRich(const text::RichLayout& layout,ObjectRef ref,uint32_t color,uint32_t layer,int z,std::vector<render::Primitive>* out,const std::vector<uint32_t>* colors=nullptr){
     render::Primitive p;p.kind=render::PrimKind::Polygon;p.source=ref;p.layer=render::LayerId(layer);p.z=z;
@@ -190,7 +287,24 @@ static uint64_t versionOf(const render::Primitive& p,DocumentId doc){
     auto add=[&h](const void* data,size_t n){const unsigned char* b=static_cast<const unsigned char*>(data);for(size_t i=0;i<n;++i){h^=b[i];h*=1099511628211ull;}};
     add(&p.kind,sizeof(p.kind));add(&p.source.kind,sizeof(p.source.kind));add(&p.source.id,sizeof(p.source.id));
     for(auto v:p.points){add(&v.x,8);add(&v.y,8);}
-    for(const auto& sub:p.subpaths)for(auto v:sub.points){add(&v.x,8);add(&v.y,8);}
+    if (!p.pointKind.empty()) add(p.pointKind.data(),p.pointKind.size());
+    for (const auto& sub : p.subpaths) {
+        const size_t count = sub.points.size();
+        add(&count,sizeof(count)); add(&sub.closed,sizeof(sub.closed));
+        for (auto v : sub.points) { add(&v.x,8); add(&v.y,8); }
+        if (!sub.kind.empty()) add(sub.kind.data(),sub.kind.size());
+    }
+    if (p.kind == render::PrimKind::Text) {
+        const size_t length = p.text.size();
+        add(&length,sizeof(length)); add(p.text.data(),length);
+        add(p.fontName.data(),p.fontName.size()); add(&p.textSize,sizeof(p.textSize));
+    }
+    add(&p.marker,sizeof(p.marker)); add(&p.style.cap,sizeof(p.style.cap));
+    add(&p.style.join,sizeof(p.style.join)); add(&p.style.fillRule,sizeof(p.style.fillRule));
+    if (p.style.wavyAmplitude != 0) {
+        add(&p.style.wavyAmplitude,sizeof(double)); add(&p.style.wavyWavelength,sizeof(double));
+    }
+    if (p.style.miterLimit != 4) add(&p.style.miterLimit,sizeof(double));
     add(&p.bounds.min.x,8);add(&p.bounds.min.y,8);add(&p.bounds.max.x,8);add(&p.bounds.max.y,8);
     add(&p.style.strokeWidth,8);add(&p.style.stroke.rgba,4);add(&p.style.fill.rgba,4);
     add(&p.style.dash.on,8);add(&p.style.dash.off,8);add(&p.arrow,sizeof(p.arrow));add(&p.size,8);
@@ -198,10 +312,17 @@ static uint64_t versionOf(const render::Primitive& p,DocumentId doc){
     return h;
 }
 Session::Session():dirty(false),fixedLen(true),fixedAngle(true),dragFixedLength(false),whiteCanvas(false),serial(1),viewSerial(1),activeIndex(0),rebuilds(0),
-    font(text::createGdiGlyphProvider("Arial","Microsoft YaHei")),glyphs(font.get()),
+#ifdef __linux__
+    font(text::createLinuxGlyphProvider()),
+#else
+    font(text::createGdiGlyphProvider("Arial","Microsoft YaHei")),
+#endif
+    glyphs(font.get()),
     measurer(text::createMeasurerAdapter(&glyphs,text::FontSpec())),editAtom(kInvalidObjectId),createdTextId(kInvalidObjectId),
     bondDrawing(false),clickBond(kInvalidObjectId),selecting(false),moving(false),tlcSpotting(false),tlcFigure(kInvalidObjectId) {
+#ifdef _WIN32
     selection::registerSelectionClipboardFormat();
+#endif
     if(!requestCompatibility(1,0)||!render::requestRenderCompatibility(1,0)||!interaction::requestInteractionCompatibility(1,0))
         throw std::runtime_error("Interface version mismatch");
     renderView.widthPx=1000; renderView.heightPx=700;
@@ -262,12 +383,175 @@ Session::Session():dirty(false),fixedLen(true),fixedAngle(true),dragFixedLength(
         router.registerHandler(accel.action,&Session::action,this);
     refresh();activateCommand("chooseSelectionTool_Marquee");
 }
-void Session::addToSelection(const std::vector<ObjectRef>& x){for(auto r:x)if(std::find(selected.begin(),selected.end(),r)==selected.end())selected.push_back(r);}
+void Session::addToSelection(const std::vector<ObjectRef>& refs) {
+    if (refs.size() <= 1) {
+        if (!refs.empty() && std::find(selected.begin(),selected.end(),refs.front()) == selected.end())
+            selected.push_back(refs.front());
+        return;
+    }
+    std::unordered_set<ObjectRef,studioio::ObjectRefHash> seen(selected.begin(),selected.end());
+    seen.reserve(selected.size()+refs.size());
+    for (auto ref:refs) if (seen.insert(ref).second) selected.push_back(ref);
+}
 void Session::setView(const ViewTransform& x){renderView.transform=x;++viewSerial;
     // T04 v10000 uses scale alone for pixel radii. Flatten DPI in its adapter
     // while preserving the identical document <-> device transform.
     auto inputView=x;inputView.scale*=x.dpiScale;inputView.dpiScale=1;
     input.setView(inputView);input.notifyViewChanged(viewSerial);}
+// Moving skeletal carbons changes only the endpoints of their straight bonds.
+// A bonded heteroatom whose incident geometry stays fixed retains its label.
+// Check every prerequisite before editing the retained scene; any unsupported
+// object or source property takes the ordinary rebuild path.
+bool Session::refreshStraightBondMove(const ChangeSet& patch, bool undo) {
+    auto& s = *this;
+    const Document& doc = s.doc;
+    if (s.scene.size() < 2000 || s.scene.size() < doc.bonds().size() ||
+        !local_scene::orderCache(s).matches(s) || patch.forward.atomsAfter.empty() ||
+        !patch.forward.bondsAfter.empty() || !patch.forward.textRunsAfter.empty() ||
+        patch.forward.atomsSize != patch.reverse.atomsSize || !patch.extensions.empty() || patch.defaults.present ||
+        doc.paths().size() || doc.texts().size() || doc.tables().size() || doc.groups().size() ||
+        doc.arrows().size() || doc.symbols().size() || doc.brackets().size() ||
+        doc.orbitals().size() || doc.bioShapes().size() || advanced::readCamera(doc).enabled) return false;
+
+    for (const auto& atom : doc.atoms().records()) {
+        if (!atom.isAlive() || (atom.element != 6 && atom.element != 7 && atom.element != 8) || atom.semantics.showLabel ||
+            atom.semantics.charge || atom.semantics.radical || atom.semantics.isotope ||
+            atom.semantics.nodeType != uint8_t(NodeType::Element) ||
+            doc.incidentBonds(atom.id).empty() || !atom.position.finite()) return false;
+        const auto label = doc.atomLabel(atom.id);
+        if (!label.empty() && label != elementSymbol(atom.element)) return false;
+    }
+    for (const auto& entry : doc.allObjectExtensions()) {
+        if (entry.first.kind != ObjectKind::Atom && entry.first.kind != ObjectKind::Bond) return false;
+        for (const auto& attribute : entry.second.entries()) {
+            const std::string& key = attribute.key;
+            if (key == "studio.color" || key == "studio.color.override" || key == "studio.z" ||
+                key == "studio.atom.source.xy" || key == "pst.attr.LineWidth" ||
+                key == "pst.source.order" || key == "pst.page.index" || key == "pst.page.ordinal" ||
+                key.compare(0,8,"pst.src.") == 0 || key.compare(0,9,"pst.sign.") == 0 ||
+                key.compare(0,15,"pst.attr.order.") == 0) continue;
+            return false;
+        }
+    }
+    std::vector<Vec2> before(doc.atoms().size());
+    for (const auto& a : doc.atoms().records()) before[a.id] = a.position;
+    const auto& previous = undo ? patch.forward : patch.reverse;
+    for (const auto& run : previous.atomsAfter)
+        for (const auto& a : run.records) {
+            if (a.id >= before.size()) return false;
+            const auto& current = *doc.atoms().get(a.id);
+            if (current.element != a.element || current.alive != a.alive ||
+                current.sourceId != a.sourceId || !(current.semantics == a.semantics)) return false;
+            before[a.id] = a.position;
+        }
+    struct EndpointEdit { size_t slot; Vec2 first, last; };
+    std::vector<EndpointEdit> endpoints;
+    std::vector<bool> changed(doc.bonds().size()), seen(doc.bonds().size());
+    size_t changedCount = 0;
+    local_scene::Update labels;
+    labels.owner = this;
+    for (const auto& bond : doc.bonds().records()) {
+        if (!bond.isAlive() || bond.order != BondOrder::Single || bond.display != BondDisplay::Normal ||
+            bond.semantics != BondSemantics::Normal || bond.stereo != BondStereo::None) return false;
+        const auto& first = *doc.atoms().get(bond.beginAtom);
+        const auto& last = *doc.atoms().get(bond.endAtom);
+        if (before[first.id] == first.position && before[last.id] == last.position) continue;
+        if (first.element != 6 || last.element != 6) {
+            if (first.element != 6) labels.atoms.insert(first.id);
+            if (last.element != 6) labels.atoms.insert(last.id);
+            continue;
+        }
+        changed[bond.id] = true;
+        ++changedCount;
+    }
+    // A changed label can clip every incident bond, including a stationary
+    // neighbour. Supply both endpoint labels when rebuilding these bonds.
+    for (auto id : labels.atoms)
+        for (auto bond : doc.incidentBonds(id)) labels.bonds.insert(bond);
+    for (auto id : labels.bonds) {
+        const auto* bond = doc.bonds().alive(id);
+        labels.atoms.insert(bond->beginAtom);
+        labels.atoms.insert(bond->endAtom);
+    }
+    endpoints.reserve(changedCount);
+    const double minLength = bonds::BondGeometryOptions().minDecoratedLength;
+    for (size_t i = 0; i < s.scene.size(); ++i) {
+        const auto& p = s.scene.primitives()[i];
+        if (p.source.kind == ObjectKind::Atom) {
+            const auto* atom = doc.atoms().alive(p.source.id);
+            if (!atom || atom->element == 6) return false;
+            continue;
+        }
+        if (p.source.kind != ObjectKind::Bond || p.source.id >= changed.size()) return false;
+        if (!changed[p.source.id]) continue;
+        if (seen[p.source.id] || p.kind != render::PrimKind::Polyline ||
+            p.points.size() != 2 || !p.subpaths.empty()) return false;
+        seen[p.source.id] = true;
+        const auto* b = doc.bonds().get(p.source.id);
+        const auto first = before[b->beginAtom], last = before[b->endAtom];
+        const auto oldAxis = bonds::makeAxis(first,last,minLength);
+        const auto oldBegin = bonds::pointOnBondAxis(oldAxis,0);
+        const auto oldEnd = bonds::pointOnBondAxis(oldAxis,oldAxis.length);
+        if (oldAxis.degenerate || p.points[0].x != oldBegin.x || p.points[0].y != oldBegin.y ||
+            p.points[1].x != oldEnd.x || p.points[1].y != oldEnd.y) return false;
+        const auto axis = bonds::makeAxis(doc.atoms().get(b->beginAtom)->position,
+                                          doc.atoms().get(b->endAtom)->position,minLength);
+        if (axis.degenerate) return false;
+        endpoints.push_back({i,bonds::pointOnBondAxis(axis,0),bonds::pointOnBondAxis(axis,axis.length)});
+    }
+    if (endpoints.size() != changedCount) return false;
+    // Both scenes retain their slot order during this coordinate-only edit.
+    const bool submitted = submittedSceneGeneration == scene.generation() &&
+        submittedGpuGeneration == gpuScene.generation() && gpuScene.size() == scene.size()+2 &&
+        gpuScene.primitives().front().style.fill.rgba == (whiteCanvas ? 0xFFFFFFFFu : 0xEEF0F2FFu);
+    for (const auto& edit : endpoints) {
+        auto& p = s.scene.mutablePrimitives()[edit.slot];
+        p.points[0] = edit.first;
+        p.points[1] = edit.last;
+        p.bounds = render::geom::computeBounds(p,.6);
+        if (!labels.bonds.empty()) {
+            p.version = 0;
+        } else if (submitted) {
+            p.version = versionOf(p,doc.id());
+            auto& copy = gpuScene.mutablePrimitives()[edit.slot+2];
+            copy.points = p.points;
+            copy.bounds = p.bounds;
+            copy.version = p.version;
+        }
+    }
+    if (!labels.bonds.empty()) {
+        if (traceOn()) std::fprintf(stderr,"[move] straight=%zu label atoms=%zu clipped bonds=%zu\n",
+                                    endpoints.size(),labels.atoms.size(),labels.bonds.size());
+        local_scene::refresh(*this,labels);
+        return true;
+    }
+    s.scene.touch();
+    local_scene::orderCache(s).generation = s.scene.generation();
+    // This path only moves unlabeled skeletal carbons. Connectivity, chemistry
+    // and stationary label bounds were checked above. Carry an existing
+    // valence result forward, relocating point bounds for flagged carbons.
+    if (valenceWarningDocument == doc.id() && valenceWarningSerial == serial) {
+        for (auto& warning : valenceWarningBounds) {
+            const auto* atom = doc.atoms().alive(warning.first);
+            if (atom && atom->element == 6)
+                warning.second = Box(atom->position,atom->position);
+        }
+        valenceWarningSerial = serial + 1;
+    }
+    if (submitted) {
+        gpuScene.touch();
+        submittedSceneGeneration = scene.generation();
+        submittedGpuGeneration = gpuScene.generation();
+        ++serial;
+        ++rebuilds;
+        input.notifyDocumentChanged(serial);
+        rebuildHitIndexes();
+    } else {
+        refresh(false);
+    }
+    if (traceOn()) std::fprintf(stderr,"[move] updated straight bonds=%zu\n",endpoints.size());
+    return true;
+}
 Error Session::submit(const Command& c,const std::string& tag){
     const bool orderOnly=tag=="堆叠顺序";
     std::map<ObjectRef,int> oldOrder;
@@ -277,7 +561,9 @@ Error Session::submit(const Command& c,const std::string& tag){
     Command effective;const Command* command=&c;
     if(tag=="graphics.placeShape"||tag=="graphics.placeBracket"||tag=="graphics.placeTable"||tag=="arrows.add"||tag=="curves.draw"||tag=="experimental.placeFigure"||tag=="resolved bond"||tag=="bond.tool"||tag=="rings_chains.ring.create"||tag=="rings_chains.chain.create"||tag=="T09 text placement"||tag=="原位文字"||tag=="symbols.add"||tag=="orbitals.add"||tag=="push.add"||tag=="biodraw.place"||tag=="稠合环"||tag=="添加结构片段"||tag=="插入缩写"){
         const double width=graphicsWidth;const uint32_t color=graphicsColor;
-        effective=Command(c.name(),c.invalidation(),[c,width,color](CommandContext& context){studio::graphic_style::Counts before(context.document);auto result=c.execute(context);if(!result.ok())return result;auto e=before.styleNew(context.document,width,color);return e.ok()?result:CommandResult::fail(e.code,e.message);});
+        const bool setFill=graphicsFillSet&&(tag=="graphics.placeShape"||tag=="curves.draw");
+        const uint32_t fill=graphicsFill;
+        effective=Command(c.name(),c.invalidation(),[c,width,color,setFill,fill](CommandContext& context){studio::graphic_style::Counts before(context.document);auto result=c.execute(context);if(!result.ok())return result;auto e=before.styleNew(context.document,width,color,setFill,fill);return e.ok()?result:CommandResult::fail(e.code,e.message);});
         command=&effective;
     }
     if(studio::bond_hydrogens::editing(tag)){
@@ -292,7 +578,7 @@ Error Session::submit(const Command& c,const std::string& tag){
         const bool infer=studio::bond_hydrogens::editing(tag)||tag=="原位文字"||tag=="原位原子标签"||tag=="官能团展开"||tag=="原子快捷键"||base.name()=="atoms.element"||tag=="循环氧氮氢数";
         effective=Command(base.name(),base.invalidation()|(infer?kInvalidateGeometry:0),[base,infer](CommandContext& context){
             studio::electron_valence::Before before(context.document);
-            studio::cumulene_layout::Before geometry(context.document);
+            studio::cumulene_layout::Before geometry(context.document, infer);
             studio::mechanism_follow::Before arrowsBefore(context.document);
             auto result=base.execute(context);if(!result.ok())return result;
             auto e=before.apply(context.document,infer);
@@ -322,39 +608,57 @@ Error Session::submit(const Command& c,const std::string& tag){
         const ChangeSet& patch=history.lastChangeSet();
         const bool noop=history.cursor()==cursorBefore;
         const uint32_t invalidation=command->invalidation();
-        if(orderOnly)refresh(false);
-        else if(!(noop&&!(invalidation&(kInvalidateStructure|kInvalidateGeometry))))local_scene::refresh(*this,patch);
+        if (orderOnly) refresh(false);
+        else if (!noop || (invalidation & (kInvalidateStructure | kInvalidateGeometry))) {
+            const bool translate = tag == "unified move" && c.name() == "T19 move";
+            if (!translate || !refreshStraightBondMove(patch)) local_scene::refresh(*this,patch);
+        }
         if(traceOn())std::fprintf(stderr,"[submit] tag=%s exec=%.1f refresh=%.1f\n",tag.c_str(),tExec,traceNow()-tRefresh0);
     }else status=e.message;return e;
 }
 Error Session::undo(bool redo){
     cancel();
-    // Undo moves the history cursor, so preserve the patch before moving it.
-    ChangeSet change;if(!redo)change=history.lastChangeSet();
-    Error e=redo?history.redo(doc):history.undo(doc);
-    if(e.ok()){dirty=true;local_scene::refresh(*this,redo?history.lastChangeSet():change);}return e;
+    // Applying history changes the cursor but preserves its entries. Keep the
+    // pre-undo entry by reference, including for large discontiguous edits.
+    const ChangeSet& before = history.lastChangeSet();
+    const bool move = (redo ? history.redoLabel() : history.undoLabel()) == "T19 move";
+    Error e = redo ? history.redo(doc) : history.undo(doc);
+    if (e.ok()) {
+        dirty = true;
+        const ChangeSet& change = redo ? history.lastChangeSet() : before;
+        if (!move || !refreshStraightBondMove(change, !redo))
+            local_scene::refresh(*this, change);
+    }
+    return e;
 }
-std::vector<ObjectRef> Session::all() const {
+static std::vector<ObjectRef> liveObjects(const Document& doc) {
     std::vector<ObjectRef> r;
 #define ADD(s,k) for(const auto& x:doc.s().records())if(x.isAlive())r.push_back(ObjectRef(ObjectKind::k,x.id));
     ADD(atoms,Atom) ADD(bonds,Bond) ADD(texts,Text) ADD(paths,Path) ADD(arrows,Arrow) ADD(brackets,Bracket)
     ADD(orbitals,Orbital) ADD(symbols,Symbol) ADD(bioShapes,BioShape) ADD(tables,Table) ADD(groups,Group)
 #undef ADD
+    return r;
+}
+std::vector<ObjectRef> Session::all() const {
     // Select All means every OBJECT. A group is one object, so its members are
     // collapsed to the group; otherwise deleting "everything" would leave the
     // group holding dead member references.
-    return topLevelSelection(r);
+    auto objects = liveObjects(doc);
+    for (const auto& group : doc.groups().records())
+        if (group.isAlive()) return topLevelSelection(objects);
+    return objects;
 }
 template<class T> static void captionKeyScalar(std::string& key,const T& value){key.append(reinterpret_cast<const char*>(&value),sizeof(value));}
 Error Session::buildScene(){
     auto& orderCache=local_scene::orderCache(*this);
     const auto* update=local_scene::pending();
     const bool partial=update&&update->owner==this&&orderCache.matches(*this);
-    std::vector<std::pair<uint64_t,render::Primitive>> ordered;
-    if(partial){ordered.reserve(scene.size()+32);for(size_t i=0;i<scene.size();++i)
-        if(!update->contains(scene.primitives()[i].source))ordered.emplace_back(orderCache.keys[i],std::move(scene.mutablePrimitives()[i]));}
+    // Keep the previous primitives alive until the final painter order is known.
+    std::vector<render::Primitive> previous;
+    if (partial) previous.swap(scene.mutablePrimitives());
     scene.clear();
     std::vector<render::Primitive> ps;
+    ps.reserve(partial?update->bonds.size():doc.bonds().size());
     std::vector<uint64_t> psOrder,sceneOrder,resolvedOrder;
     std::map<ObjectRef,uint32_t> graphicOrdinals;
     auto stamp=[&](uint64_t stage){while(psOrder.size()<ps.size()){size_t i=psOrder.size();auto ref=ps[i].source;
@@ -404,7 +708,7 @@ Error Session::buildScene(){
     // every rebuild, so it follows the atom and cannot be left behind by a move.
     const double radicalEm=molecular::setting(doc,"LabelSize",10);
 
-    for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&mechanism::cumuleneCenter(doc,atom)&&wanted(ObjectKind::Atom,atom.id)){
+    for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&wanted(ObjectKind::Atom,atom.id)&&mechanism::cumuleneCenter(doc,atom)){
         render::Primitive p;p.kind=render::PrimKind::Polygon;p.source=ObjectRef(ObjectKind::Atom,atom.id);
         p.layer=render::LayerId(100);p.z=12;p.style.fill=render::Paint(0x000000FF,true);p.style.stroke.enabled=false;
         for(int i=0;i<32;++i){double angle=6.283185307179586*i/32.;p.points.push_back(atom.position+Vec2(std::cos(angle),std::sin(angle))*std::max(.55,radicalEm*.11));}
@@ -445,13 +749,16 @@ Error Session::buildScene(){
         }
     }
 
-    for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&projection_molecule::kind(doc,atom.id)==2&&wanted(ObjectKind::Atom,atom.id)){
+    for(const auto& atom:doc.atoms().records())if(atom.isAlive()&&wanted(ObjectKind::Atom,atom.id)&&projection_molecule::kind(doc,atom.id)==2){
         bool rear=projection_molecule::rear(doc,atom.id);double radius=rear?projection_molecule::radius(doc):std::max(doc.defaultLineWidth(),doc.defaultTextSize()*.055);
         render::Primitive circle;circle.source=ObjectRef(ObjectKind::Atom,atom.id);circle.kind=rear?render::PrimKind::Polyline:render::PrimKind::Polygon;circle.layer=render::LayerId(100);circle.z=12;circle.style.stroke=render::Paint(0x000000FF,true);circle.style.strokeWidth=doc.defaultLineWidth();circle.style.fill=render::Paint(0x000000FF,!rear);
         for(int i=0;i<=48;++i){double t=i*6.28318530718/48;circle.points.push_back(atom.position+Vec2(cos(t),sin(t))*radius);}circle.bounds=render::geom::computeBounds(circle,.6);ps.push_back(circle);
     }
     stamp(1);
     const double tAtomStage=traceNow()-tScene0;
+    const double marginWidth=molecular::setting(doc,"MarginWidth",1.6);
+    const auto crossings=standardCrossings(doc);
+    std::vector<render::Primitive> bondPrimitives;
     for(const auto& storedBond:doc.bonds().records())if(storedBond.isAlive()&&wanted(ObjectKind::Bond,storedBond.id)){
         auto b=storedBond;
         if(projection_molecule::axis(doc,b)&&projection_molecule::kind(doc,b.beginAtom)==2)continue;
@@ -459,13 +766,11 @@ Error Session::buildScene(){
         auto isBold=[&](const BondRecord& edge){return edge.display==BondDisplay::Bold||static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,edge.id)).findValue("pst.attr.MoleculeStudioPerspectiveFront");};
         if(b.display==BondDisplay::Normal&&isBold(b))b.display=BondDisplay::Bold;
         const auto* a=doc.atoms().alive(b.beginAtom);const auto* z=doc.atoms().alive(b.endAtom);if(!a||!z)return unavailable("dangling bond");
-        bonds::BondAxes axes;axes.order=b.order;axes.display=b.display;axes.semantics=b.semantics;axes.stereo=b.stereo;
-        axes.side=bonds::sideOf(static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,b.id)));
         // Standard CDXML Bold doubles retain their inner pi stroke.
         auto plain=b;if(plain.display==BondDisplay::Bold)plain.display=BondDisplay::Normal;
         auto data=rings.build(plain);
-        molecular::clip(data,b,bondLabels,molecular::setting(doc,"MarginWidth",1.6));
-        clipBridgeCrossing(doc,b,data);
+        molecular::clip(data,b,bondLabels,marginWidth);
+        clipBridgeCrossing(doc,b,crossings,data);
         for(auto id:{b.beginAtom,b.endAtom})if(projection_molecule::rear(doc,id)){
             auto center=doc.atoms().alive(id)->position;double radius=projection_molecule::radius(doc);
             for(auto& shape:data.shapes)for(auto& point:shape.points)if(length(point-center)<radius){auto other=doc.atoms().alive(id==b.beginAtom?b.endAtom:b.beginAtom)->position;auto direction=other-center;double span=length(direction);if(span>1e-8)point=center+direction*(radius/span);}
@@ -475,7 +780,6 @@ Error Session::buildScene(){
         if(b.display==BondDisplay::Bold&&!data.shapes.empty())data.shapes.front().strokeWidth=widthOf(b);
         bonds::RenderAdapterOptions opts;opts.style.width=opts.viewDefaultWidth=doc.defaultLineWidth();
         if(auto c=static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Bond,b.id)).findValue("studio.color"))opts.color=uint32_t(std::strtoull(c->c_str(),0,10));
-        std::vector<render::Primitive> bondPrimitives;
         bonds::toPrimitives(data,ObjectRef(ObjectKind::Bond,b.id),opts,&bondPrimitives);
         if(b.display==BondDisplay::Bold&&!bondPrimitives.empty()&&bondPrimitives.front().points.size()==2){
             auto& ink=bondPrimitives.front();Vec2 p=ink.points[0],q=ink.points[1];double half=widthOf(b)*.5;
@@ -484,7 +788,7 @@ Error Session::buildScene(){
             auto l=offset(b.beginAtom,b.endAtom,p,q),r=offset(b.endAtom,b.beginAtom,q,p);
             ink.kind=render::PrimKind::Polygon;ink.points={p+l,q-r,q+r,p-l};ink.style.fill=ink.style.stroke;ink.style.stroke.enabled=false;ink.bounds=render::geom::computeBounds(ink,.6);
         }
-        ps.insert(ps.end(),bondPrimitives.begin(),bondPrimitives.end());
+        for(auto& primitive:bondPrimitives)ps.push_back(std::move(primitive));
     }
     stamp(2);
     const double tBondStage=traceNow()-tScene0;
@@ -588,26 +892,32 @@ Error Session::buildScene(){
     if(!partial)for(const auto& a:doc.tables().records())if(a.isAlive()){Error e=graphics::appendTablePrimitivesFor(doc,a.id,100,10,&ps);if(!e.ok())++skipped;}
     stamp(4);
     const double tOtherStage=traceNow()-tScene0;
-    for(size_t i=0;i<ps.size();++i){auto& p=ps[i];const auto& bag=static_cast<const Document&>(doc).extensions(p.source);auto visible=bag.findValue("studio.visible"),tv=bag.findValue("studio.text.Visible");if((visible&&*visible=="no")||(tv&&*tv=="no"))continue;p.bounds=render::geom::computeBounds(p,.6);scene.add(p);sceneOrder.push_back(psOrder[i]);}
+    for(size_t i=0;i<ps.size();++i){auto& p=ps[i];const auto& bag=static_cast<const Document&>(doc).extensions(p.source);auto visible=bag.findValue("studio.visible"),tv=bag.findValue("studio.text.Visible");if((visible&&*visible=="no")||(tv&&*tv=="no"))continue;p.bounds=render::geom::computeBounds(p,.6);scene.add(std::move(p));sceneOrder.push_back(psOrder[i]);}
     if(!partial)for(const auto& a:doc.bioShapes().records())if(a.isAlive()){Error e=biodraw::appendBioPrimitivesFor(doc,a.id,&scene);if(!e.ok())++skipped;}
     while(sceneOrder.size()<scene.size())sceneOrder.push_back((uint64_t(5)<<56)|sceneOrder.size());
     // All remaining Text primitives (element labels and table labels) also use T09.
-    render::Scene resolved;
-    for(size_t i=0;i<scene.size();++i){const auto& p=scene.primitives()[i];
-        if(p.kind!=render::PrimKind::Text){resolved.add(p);resolvedOrder.push_back(sceneOrder[i]);continue;}
+    const bool hasText=std::any_of(scene.primitives().begin(),scene.primitives().end(),
+        [](const render::Primitive& p){return p.kind==render::PrimKind::Text;});
+    render::Scene expandedText;
+    auto& resolved=hasText?expandedText:scene;
+    if(hasText)resolved.reserve(scene.size());
+    else resolvedOrder.swap(sceneOrder);
+    for(size_t i=0;hasText&&i<scene.size();++i){auto& p=scene.mutablePrimitives()[i];
+        if(p.kind!=render::PrimKind::Text){resolved.add(std::move(p));resolvedOrder.push_back(sceneOrder[i]);continue;}
         text::RichLayout l;text::LayoutOptions opt;opt.triangulateGlyphs=false;opt.defaultSize=p.textSize>0?p.textSize:10;
         opt.defaultFont=p.fontName;
         checked(text::layoutPlainText(p.text,p.points.empty()?Vec2():p.points[0],opt,&glyphs,&l));
         std::vector<render::Primitive> v;appendRich(l,p.source,p.style.fill.enabled?p.style.fill.rgba:p.style.stroke.rgba,p.layer.value,p.z,&v);
-        for(auto& q:v){q.source=p.source;q.bounds=render::geom::computeBounds(q,.6);resolved.add(q);resolvedOrder.push_back(sceneOrder[i]);}
+        for(auto& q:v){q.source=p.source;q.bounds=render::geom::computeBounds(q,.6);resolved.add(std::move(q));resolvedOrder.push_back(sceneOrder[i]);}
     }
     auto camera=advanced::readCamera(doc);
     for(auto& p:resolved.mutablePrimitives()){
-        if(p.source.kind==ObjectKind::Arrow){auto c=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color");if(c){uint32_t rgba=uint32_t(std::strtoull(c->c_str(),0,10));p.style.stroke.rgba=rgba;p.style.fill.rgba=rgba;}}
-        if(auto color=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color.override")){uint32_t value=uint32_t(std::strtoull(color->c_str(),0,10));p.style.stroke.rgba=value;if(p.source.kind!=ObjectKind::Path&&(p.source.kind!=ObjectKind::Symbol||(!experimental::isFigureObject(doc,p.source)&&p.style.fill.rgba!=0xFFFFFFFFu)))p.style.fill.rgba=value;}
-        if(p.source.kind!=ObjectKind::Bond)if(auto width=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.graphics.width")){double value=std::atof(width->c_str());if(value>0){p.style.strokeWidth=value;p.bounds=render::geom::computeBounds(p,value);}}
-        auto z=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.z");if(z)p.z+=std::atoi(z->c_str());
-        auto rotation=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.text.RotationAngle");
+        const auto& bag=static_cast<const Document&>(doc).extensions(p.source);
+        if(p.source.kind==ObjectKind::Arrow){auto c=bag.findValue("studio.color");if(c){uint32_t rgba=uint32_t(std::strtoull(c->c_str(),0,10));p.style.stroke.rgba=rgba;p.style.fill.rgba=rgba;}}
+        if(auto color=bag.findValue("studio.color.override")){uint32_t value=uint32_t(std::strtoull(color->c_str(),0,10));p.style.stroke.rgba=value;if(p.source.kind!=ObjectKind::Path&&(p.source.kind!=ObjectKind::Symbol||(!experimental::isFigureObject(doc,p.source)&&p.style.fill.rgba!=0xFFFFFFFFu)))p.style.fill.rgba=value;}
+        if(p.source.kind!=ObjectKind::Bond)if(auto width=bag.findValue("studio.graphics.width")){double value=std::atof(width->c_str());if(value>0){p.style.strokeWidth=value;p.bounds=render::geom::computeBounds(p,value);}}
+        auto z=bag.findValue("studio.z");if(z)p.z+=std::atoi(z->c_str());
+        auto rotation=bag.findValue("studio.text.RotationAngle");
         if(rotation&&(p.source.kind==ObjectKind::Text||p.source.kind==ObjectKind::Atom)){
             Vec2 origin=p.source.kind==ObjectKind::Text?doc.texts().get(p.source.id)->position:doc.atoms().get(p.source.id)->position;double angle=std::atof(rotation->c_str())/65536.*3.141592653589793/180.;
             auto rotate=[&](Vec2 v){v=v-origin;return origin+Vec2(v.x*cos(angle)-v.y*sin(angle),v.x*sin(angle)+v.y*cos(angle));};for(auto& v:p.points)v=rotate(v);for(auto& sub:p.subpaths)for(auto& v:sub.points)v=rotate(v);p.bounds=render::geom::computeBounds(p,.6);
@@ -616,28 +926,54 @@ Error Session::buildScene(){
     }
     // Batcher preserves scene order; it does not sort by layer or source Z.
     // Emit the painter's order here so shaded regions do not erase labels.
-    const size_t retainedCount=ordered.size();
-    for(size_t i=0;i<resolved.size();++i)ordered.emplace_back(resolvedOrder[i],std::move(resolved.mutablePrimitives()[i]));
-    auto painterLess=[](const std::pair<uint64_t,render::Primitive>& a,const std::pair<uint64_t,render::Primitive>& b){
-        if(a.second.layer.value!=b.second.layer.value)return a.second.layer.value<b.second.layer.value;
-        if(a.second.z!=b.second.z)return a.second.z<b.second.z;
-        return a.first<b.first;
+    // Sort lightweight references so a sort or merge never moves glyph contours
+    // and path storage through intermediate primitive buffers.
+    struct PaintEntry {
+        uint64_t key;
+        render::Primitive* primitive;
     };
-    // Retained primitives are already in painter order. Sort only the newly
-    // generated portion and merge stably so equal keys preserve the old order.
-    if(partial){
-        auto middle=ordered.begin()+retainedCount;
-        std::stable_sort(middle,ordered.end(),painterLess);
-        std::inplace_merge(ordered.begin(),middle,ordered.end(),painterLess);
-    }else std::stable_sort(ordered.begin(),ordered.end(),painterLess);
-    scene.clear();scene.reserve(ordered.size());orderCache.keys.clear();orderCache.keys.reserve(ordered.size());
-    for(auto& item:ordered){orderCache.keys.push_back(item.first);scene.mutablePrimitives().push_back(std::move(item.second));}
+    std::vector<PaintEntry> ordered;
+    ordered.reserve(previous.size() + resolved.size());
+    for (size_t i = 0; i < previous.size(); ++i) {
+        if (!update->contains(previous[i].source))
+            ordered.push_back({orderCache.keys[i], &previous[i]});
+    }
+    const size_t retainedCount = ordered.size();
+    for (size_t i = 0; i < resolved.size(); ++i)
+        ordered.push_back({resolvedOrder[i], &resolved.mutablePrimitives()[i]});
+    auto painterLess = [](const PaintEntry& a, const PaintEntry& b) {
+        if (a.primitive->layer.value != b.primitive->layer.value)
+            return a.primitive->layer.value < b.primitive->layer.value;
+        if (a.primitive->z != b.primitive->z) return a.primitive->z < b.primitive->z;
+        return a.key < b.key;
+    };
+    auto middle = ordered.begin() + retainedCount;
+    if (!std::is_sorted(middle, ordered.end(), painterLess))
+        std::stable_sort(middle, ordered.end(), painterLess);
+    if (middle != ordered.begin() && middle != ordered.end() && painterLess(*middle, *(middle - 1)))
+        std::inplace_merge(ordered.begin(), middle, ordered.end(), painterLess);
+
+    std::vector<render::Primitive> painted;
+    painted.reserve(ordered.size());
+    orderCache.keys.clear();
+    orderCache.keys.reserve(ordered.size());
+    for (const auto& entry : ordered) {
+        orderCache.keys.push_back(entry.key);
+        painted.push_back(std::move(*entry.primitive));
+    }
+    scene.mutablePrimitives().swap(painted);
     scene.touch();orderCache.owner=this;orderCache.document=doc.id();orderCache.generation=scene.generation();
     if(traceOn())std::fprintf(stderr,"[scene] partial=%d rings=%.1f labels=%.1f clip=%.1f atoms=%.1f bonds=%.1f other=%.1f rest=%.1f total=%.1f\n",partial?1:0,tRings,tAtomLabels,tLabels,tAtomStage,tBondStage,tOtherStage,traceNow()-tScene0-tOtherStage,traceNow()-tScene0);
     if(skipped)status="Partial display: "+std::to_string(skipped)+" object(s) have no renderable geometry";
     return Error();
 }
 void Session::refresh(bool rebuildGeometry){
+    refreshScenes(rebuildGeometry,true);
+}
+void Session::refreshDrawingPreview(){
+    refreshScenes(true,false);
+}
+void Session::refreshScenes(bool rebuildGeometry,bool rebuildHitTests){
     ++serial;++rebuilds;input.notifyDocumentChanged(serial);
     const double tBuild0=traceNow();
     if(rebuildGeometry){Error e=buildScene();if(!e.ok())status="Partial display: "+e.message;}
@@ -677,11 +1013,30 @@ void Session::refresh(bool rebuildGeometry){
         gpuScene.touch();
     }
     const double tGpu=traceNow()-tGpu0;
+    submittedSceneGeneration = scene.generation();
+    submittedGpuGeneration = gpuScene.generation();
+    if(!rebuildHitTests)return; // This transient scene is only painted, never hit tested.
+    rebuildHitIndexes();
+    if(traceOn())std::fprintf(stderr,"[refresh] build=%.1f keys=%.1f gpu=%.1f total=%.1f prims=%zu\n",tBuild,tKeys,tGpu,traceNow()-tBuild0,scene.size());
+}
+void Session::rebuildHitIndexes(){
     const double tSpatial0=traceNow();
     std::vector<spatial::Box> ob,cb;objectRefs.clear();candidates.clear();
     std::unordered_map<ObjectId,Box> labelBounds;
+#ifdef __linux__
+    std::unordered_map<ObjectId,Box> atomArtwork;
+#endif
     for(const auto& p:scene.primitives())if(p.source.valid()&&!p.bounds.empty()){
         ob.push_back(sb(p.bounds));objectRefs.push_back(p.source);
+#ifdef __linux__
+        if (p.source.kind == ObjectKind::Atom) {
+            auto entry = atomArtwork.emplace(p.source.id, p.bounds);
+            if (!entry.second) {
+                entry.first->second.add(p.bounds.min);
+                entry.first->second.add(p.bounds.max);
+            }
+        }
+#endif
         // Only the atom label is a bond hotspot. Its annotations and electron
         // markers have separate draw orders in the atom's scene geometry.
         if(p.source.kind==ObjectKind::Atom&&p.layer.value==100&&p.z==kAtomLabelZ){
@@ -703,10 +1058,21 @@ void Session::refresh(bool rebuildGeometry){
         auto a=doc.atoms().alive(b.beginAtom),z=doc.atoms().alive(b.endAtom);if(!a||!z)continue;
         Vec2 p=(a->position+z->position)*.5; candidates.push_back(interaction::SnapCandidate(ObjectRef(ObjectKind::Bond,b.id),p,interaction::CandidateKind::Bond));cb.push_back(sb(box(a->position,z->position)));
     }
+#ifdef __linux__
+    std::vector<spatial::Box> artworkBounds;
+    artworkBounds.reserve(atomArtwork.size());
+    for (const auto& entry : atomArtwork) artworkBounds.push_back(sb(entry.second));
+    atomArtworkIndex.build(artworkBounds);
+#endif
     const double tOb=traceNow();objectIndex.build(ob);const double tOa=traceNow();candidateIndex.build(cb);const double tCa=traceNow();
     if(traceOn())std::fprintf(stderr,"[spatial] loop=%.1f object=%.1f candidate=%.1f\n",tOb-tSpatial0,tOa-tOb,tCa-tOa);
-    if(traceOn())std::fprintf(stderr,"[refresh] build=%.1f keys=%.1f gpu=%.1f total=%.1f prims=%zu\n",tBuild,tKeys,tGpu,traceNow()-tBuild0,scene.size());
 }
+#ifdef __linux__
+bool Session::nearAtomArtwork(Vec2 p, double radius) const {
+    const Vec2 pad(radius,radius);
+    return !atomArtworkIndex.query(sb(Box(p-pad,p+pad))).empty();
+}
+#endif
 ObjectId Session::nearestAtom(const Vec2& p,double rad) const{
     double r=view().deviceRadiusToDocument(rad),best=r;ObjectId id=kInvalidObjectId;
     for(size_t k:candidateIndex.query(sb(Box(p-Vec2(r,r),p+Vec2(r,r))))){const auto& c=candidates[k];
@@ -748,7 +1114,8 @@ std::vector<ObjectRef> Session::objectsInPolygon(const std::vector<Vec2>& pts) c
 void Session::query(const Box& b,std::vector<interaction::SnapCandidate>* out,interaction::QueryStats* qs){
     spatial::QueryStats s;Vec2 p=(b.min+b.max)*.5;
     auto nearby=candidateIndex.query(sb(b),&s);bool atomPriority=false;
-    for(size_t k:nearby)if(candidates[k].ref.kind==ObjectKind::Atom&&candidates[k].hitDistance(p)<=view().deviceRadiusToDocument(snapRadiusDevice())){atomPriority=true;break;}
+    const double priorityRadius=view().deviceRadiusToDocument(hotspotAtomPriorityPixels);
+    for(size_t k:nearby)if(candidates[k].ref.kind==ObjectKind::Atom&&candidates[k].hitDistance(p)<=priorityRadius){atomPriority=true;break;}
     for(size_t k:nearby){auto c=candidates[k];
         if(atomPriority&&c.ref.kind==ObjectKind::Bond)continue;
         if(c.ref.kind==ObjectKind::Bond){auto bond=doc.bonds().alive(c.ref.id);if(!bond)continue;
@@ -809,7 +1176,11 @@ ObjectRef Session::pick(Vec2 p) const {
     return ObjectRef();
 }
 void Session::fit(){auto b=scene.bounds();if(doc.atoms().size())for(const auto& a:doc.atoms().records())if(a.isAlive())b.add(a.position);
-    ViewTransform v=view();v.center=(b.min+b.max)*.5;v.scale=std::min((renderView.widthPx-40)/std::max(20.0,b.width()),(renderView.heightPx-40)/std::max(20.0,b.height()))/v.dpiScale;setView(v);}
+    const double padding = 40. / devicePixelsPerViewPixel;
+    ViewTransform v=view();v.center=(b.min+b.max)*.5;
+    v.scale=std::min((renderView.widthPx-padding)/std::max(20.0,b.width()),
+                     (renderView.heightPx-padding)/std::max(20.0,b.height()))/v.dpiScale;
+    setView(v);}
 void Session::cancel(){if(activeIndex<entries.size()&&entries[activeIndex].tool)entries[activeIndex].tool->cancelGesture(*this);selecting=moving=bondDrawing=tlcSpotDragging=arrowMiddleDragging=false;arrowMiddleId=kInvalidObjectId;bondHysteresis.clear();ghost.clear();if(dragBaseActive){doc=dragBase;dragBaseActive=false;refresh();}input.unwind("T19 cancel");}
 bool Session::activateCommand(const std::string& c){for(size_t i=0;i<entries.size();++i)if(entries[i].command==c)return activate(i);reportUnsupported(c);return false;}
 bool Session::activate(size_t n){if(n>=entries.size())return false;cancel();activeIndex=n;auto& e=entries[n];input.notifyToolChanged(e.command);
@@ -1036,23 +1407,37 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         moving=hit.valid()||(within&&!(mods&kModShift));selecting=!moving;
         if(moving&&hit.valid()&&!within&&std::find(selected.begin(),selected.end(),hit)==selected.end()){if(!(mods&kModShift))selected.clear();addToSelection({hit});}
         else if(selecting&&!(mods&kModShift))selected.clear();
+        partialMove = false;
+        projectedMove = moving && allowProjectedMove && gpuScene.size() == scene.size()+2 && selected.size() >= 200 &&
+            std::all_of(selected.begin(), selected.end(), [](ObjectRef ref) {
+                return ref.kind == ObjectKind::Atom || ref.kind == ObjectKind::Bond;
+            }) && selected == all();
+        if (projectedMove) {
+            projectedOffset = {};
+            return {};
+        }
         if(moving){movingRefs=studioio::expanded(doc,selected);
             dragScene=gpuScene;deferredDragArrows.clear();dragCatalytic=false;
             movingSlots.clear();movingBoundary=false;
-            std::set<ObjectId> movingAtoms;
-            for(auto ref:movingRefs)if(ref.kind==ObjectKind::Atom)movingAtoms.insert(ref.id);
+            std::vector<uint8_t> movingAtoms(doc.atoms().size());
+            std::vector<uint8_t> movingBonds(doc.bonds().size());
+            for (auto ref:movingRefs) {
+                if (ref.kind==ObjectKind::Atom && ref.id<movingAtoms.size()) movingAtoms[ref.id]=1;
+                if (ref.kind==ObjectKind::Bond && ref.id<movingBonds.size()) movingBonds[ref.id]=1;
+            }
+            const auto movesAtom=[&](ObjectId id){return id<movingAtoms.size() && movingAtoms[id];};
             // expanded() closes the selection over its bonds, so every bond that
             // is selected has both ends selected. The bond that leaves a dragged
             // fragment is therefore NOT selected, although one of its atoms is
             // moving: it has to be stretched during the drag, not left behind.
             for(const auto& b:doc.bonds().records())if(b.isAlive()&&
-                bool(movingAtoms.count(b.beginAtom))!=bool(movingAtoms.count(b.endAtom))){movingBoundary=true;break;}
+                movesAtom(b.beginAtom)!=movesAtom(b.endAtom)){movingBoundary=true;break;}
             auto movingEnds=[&](ObjectRef ref){
-                if(ref.kind==ObjectKind::Atom)return movingAtoms.count(ref.id)?2:0;
+                if(ref.kind==ObjectKind::Atom)return movesAtom(ref.id)?2:0;
                 ObjectId a,b;
                 if(auto edge=ref.kind==ObjectKind::Bond?doc.bonds().alive(ref.id):nullptr){a=edge->beginAtom;b=edge->endAtom;}
                 else if(!virtual_bonds::endpoints(doc,ref,a,b))return 0;
-                return int(movingAtoms.count(a)+movingAtoms.count(b));
+                return int(movesAtom(a))+int(movesAtom(b));
             };
             for(const auto& record:doc.arrows().records())if(record.isAlive()){
                 ObjectRef ref(ObjectKind::Arrow,record.id);
@@ -1065,16 +1450,35 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
             }
             if((dragFixedLength&&movingBoundary)||dragCatalytic){dragBase=doc;dragBaseActive=true;}
             deferredDragSlots.clear();
+            boundarySlots.clear();
+            dragSceneRegrouped=false;
+            renewDragLabels = true;
             for(size_t i=0;i<scene.size();++i){
                 const auto ref=scene.primitives()[i].source;
-                if(movingRefs.count(ref))movingSlots[ref].push_back(i);
+                const bool moves = ref.kind==ObjectKind::Atom ? movesAtom(ref.id) :
+                    ref.kind==ObjectKind::Bond ? ref.id<movingBonds.size() && movingBonds[ref.id] : movingRefs.count(ref)!=0;
+                if(moves)movingSlots.push_back(i);
                 else if(deferredDragArrows.count(ref))deferredDragSlots.push_back(i);
+                else if(movingBoundary && ref.kind==ObjectKind::Bond && movingEnds(ref)==1)boundarySlots[ref].push_back(i);
+            }
+            if (preparePartialMove && scene.size() >= 2000 && selected.size() >= 200 && !dragBaseActive && dragScene.size()==scene.size()+2) {
+                std::vector<uint8_t> motion(scene.size(),0);
+                for (auto i:movingSlots) motion[i]=1;
+                for (const auto& entry:boundarySlots) for (auto i:entry.second) motion[i]=2;
+                for (auto i:deferredDragSlots) motion[i]=2;
+                partialMove=preparePartialMove(motion);
+                projectedOffset={};
             }
         }
     } else if(phase==PointerPhase::Move){if(selecting){if(e.command.find("Lasso")==std::string::npos&&lasso.size()>1)lasso.back()=p;else lasso.push_back(p);}ghost.clear();
         if(selecting){PreviewItem x;x.primitive=PreviewPrimitive::Rect;x.points={press,p};ghost.add(x);}
         if(moving){Vec2 delta=p-press;
             if(dist(p,press)<view().deviceRadiusToDocument(2))delta=Vec2();
+            if (projectedMove) {
+                projectedOffset = delta;
+                return {};
+            }
+            if (partialMove) projectedOffset=delta;
             if(dragBaseActive){
                 doc=dragBase;
                 Error result=dragFixedLength?fixedLengthDrag(doc,selected,delta):translateDocumentObjects(doc,selected,delta);
@@ -1103,15 +1507,20 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
             };
             std::set<ObjectRef> emitted;
             const bool boundary=movingBoundary;
-            if(!boundary&&dragScene.size()==gpuScene.size()){
-                // The stationary scene was copied once on mouse-down. Update only
-                // moving primitives from their original coordinates, with no drift.
-                for(const auto& entry:movingSlots)for(size_t i:entry.second){
-                    auto q=scene.primitives()[i];for(auto& v:q.points)v=v+delta;
-                    for(auto& sub:q.subpaths)for(auto& v:sub.points)v=v+delta;
-                    q.bounds.min=q.bounds.min+delta;q.bounds.max=q.bounds.max+delta;
-                    q.version=versionOf(q,doc.id());q.source=ObjectRef();dragScene.mutablePrimitives()[i+2]=std::move(q);
+            auto translateMovingSlots = [&]() {
+                for (auto i : movingSlots) {
+                    auto q = scene.primitives()[i];
+                    for (auto& v:q.points) v=v+delta;
+                    for (auto& sub:q.subpaths) for (auto& v:sub.points) v=v+delta;
+                    q.bounds.min=q.bounds.min+delta;
+                    q.bounds.max=q.bounds.max+delta;
+                    q.version=versionOf(q,doc.id());
+                    q.source=ObjectRef();
+                    dragScene.mutablePrimitives()[i+2]=std::move(q);
                 }
+            };
+            if(!boundary&&dragScene.size()==gpuScene.size()){
+                if(!partialMove) translateMovingSlots();
                 maskDeferred();dragScene.touch();return Error();
             }
             static const Session* ringOwner=nullptr;static DocumentId ringDocument=0;static uint64_t ringSerial=0;
@@ -1123,7 +1532,8 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
             // Rigid translations (including images) reuse all existing glyphs
             // and bond geometry. Only a stretched boundary bond needs labels.
             static const Session* labelOwner=nullptr;static DocumentId labelDocument=0;static uint64_t labelSerial=0;static molecular::Labels atomLabels;
-            if(boundary&&(labelOwner!=this||labelDocument!=doc.id()||labelSerial!=serial)){
+            if(boundary&&(renewDragLabels||labelOwner!=this||labelDocument!=doc.id()||labelSerial!=serial)){
+                renewDragLabels=false;
                 // Only the labels around the stretched (boundary) bonds are
                 // consulted by clip().  Laying out every label in the document
                 // cost ~0.5 s on the first move of each drag of a large file.
@@ -1158,30 +1568,12 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
             if(dragScene.size()==gpuScene.size()){
                 // A previous general rebuild may have regrouped bond primitives.
                 // Restore the original slots before resuming sparse updates.
-                for(size_t i=0;i<scene.size();++i)if(dragScene.primitives()[i+2].cacheKey!=scene.primitives()[i].cacheKey){
-                    dragScene=gpuScene;break;
+                if(dragSceneRegrouped){
+                    dragScene=gpuScene;
+                    dragSceneRegrouped=false;
                 }
-                // Boundary bonds are not part of the selection, so movingSlots
-                // does not know their primitives. Collect their slots from the
-                // untouched scene; the dragged end of each one is re-built below.
-                std::map<ObjectRef,std::vector<size_t>> boundarySlots;
-                for(size_t i=0;i<scene.size();++i){
-                    const auto& ref=scene.primitives()[i].source;
-                    if(ref.kind!=ObjectKind::Bond||movingSlots.count(ref))continue;
-                    const auto* bond=doc.bonds().alive(ref.id);if(!bond)continue;
-                    if(bool(movingRefs.count(ObjectRef(ObjectKind::Atom,bond->beginAtom)))!=
-                       bool(movingRefs.count(ObjectRef(ObjectKind::Atom,bond->endAtom))))boundarySlots[ref].push_back(i);
-                }
+                // Only bonds crossing the selection need replacement geometry.
                 std::map<ObjectRef,std::vector<render::Primitive>> replacements;bool sameLayout=true;
-                for(const auto& entry:movingSlots)if(entry.first.kind==ObjectKind::Bond){
-                    const auto* bond=doc.bonds().alive(entry.first.id);if(!bond){sameLayout=false;break;}
-                    const auto& b=*bond;
-                    if(bool(movingRefs.count(ObjectRef(ObjectKind::Atom,b.beginAtom)))==bool(movingRefs.count(ObjectRef(ObjectKind::Atom,b.endAtom))))continue;
-                    auto data=rings.build(b,&movingRefs,delta);
-                    molecular::clip(data,b,atomLabels,molecular::setting(doc,"MarginWidth",1.6),&movingRefs,delta);
-                    auto& v=replacements[entry.first];bonds::toPrimitives(data,entry.first,bonds::RenderAdapterOptions(),&v);
-                    if(v.size()!=entry.second.size()){sameLayout=false;break;}
-                }
                 for(const auto& entry:boundarySlots){
                     if(!sameLayout)break;
                     const auto* bond=doc.bonds().alive(entry.first.id);if(!bond){sameLayout=false;break;}
@@ -1189,25 +1581,32 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
                     molecular::clip(data,*bond,atomLabels,molecular::setting(doc,"MarginWidth",1.6),&movingRefs,delta);
                     auto& v=replacements[entry.first];bonds::toPrimitives(data,entry.first,bonds::RenderAdapterOptions(),&v);
                     if(v.size()!=entry.second.size()){sameLayout=false;break;}
+                    if(partialMove) for(size_t k=0;k<v.size();++k){
+                        const auto& original=scene.primitives()[entry.second[k]];
+                        if(v[k].layer.value!=original.layer.value || v[k].z!=original.z){
+                            partialMove=false;break;
+                        }
+                    }
                 }
                 if(sameLayout){
-                    auto write=[&](const std::map<ObjectRef,std::vector<size_t>>& slots){
-                        for(const auto& entry:slots)for(size_t k=0;k<entry.second.size();++k){
-                            size_t i=entry.second[k];auto found=replacements.find(entry.first);
-                            auto q=found!=replacements.end()?found->second[k]:scene.primitives()[i];
-                            if(found==replacements.end()){
-                                for(auto& point:q.points)point=point+delta;
-                                for(auto& sub:q.subpaths)for(auto& point:sub.points)point=point+delta;
-                                q.bounds.min=q.bounds.min+delta;q.bounds.max=q.bounds.max+delta;
-                            }
-                            q.cacheKey=scene.primitives()[i].cacheKey;q.version=versionOf(q,doc.id());q.source=ObjectRef();
+                    if(!partialMove) translateMovingSlots();
+                    for (const auto& entry : boundarySlots) {
+                        auto& pieces = replacements.at(entry.first);
+                        for (size_t k=0; k<pieces.size(); ++k) {
+                            auto i=entry.second[k];
+                            auto& q=pieces[k];
+                            q.cacheKey=scene.primitives()[i].cacheKey;
+                            q.version=versionOf(q,doc.id());
+                            q.source=ObjectRef();
                             dragScene.mutablePrimitives()[i+2]=std::move(q);
                         }
-                    };
-                    write(movingSlots);write(boundarySlots);maskDeferred();
+                    }
+                    maskDeferred();
                     dragScene.touch();return Error();
                 }
             }
+            partialMove=false;
+            dragSceneRegrouped=true;
             dragScene.clear();for(const auto& bg:gpuScene.primitives())if(bg.layer.value==0)dragScene.add(bg);
             for(size_t i=0;i<scene.size();++i){const auto& original=scene.primitives()[i];auto ref=original.source;
                 if(deferredDragArrows.count(ref)&&length(delta)>0)continue;
@@ -1237,7 +1636,10 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
             }
             return Error();
         }return dragFixedLength?moveFixedLength(selected,delta):move(selected,delta);}
-        lasso.push_back(p);bool polygon=e.command.find("Lasso")!=std::string::npos&&lasso.size()>2;Box region=box(press,p);auto contains=[&](Vec2 pt){return polygon?selection::polygonContainsPoint(lasso,pt):studioio::inside(region,pt);};auto candidates=polygon?objectsInPolygon(lasso):objectsInBox(region);std::vector<ObjectRef> chosen;for(auto r:candidates){if(r.kind==ObjectKind::Atom){if(contains(doc.atoms().get(r.id)->position))chosen.push_back(r);}else if(r.kind==ObjectKind::Bond){auto b=doc.bonds().alive(r.id);if(b&&contains(doc.atoms().get(b->beginAtom)->position)&&contains(doc.atoms().get(b->endAtom)->position))chosen.push_back(r);}else chosen.push_back(r);}addToSelection(topLevelSelection(chosen));
+        lasso.push_back(p);bool polygon=e.command.find("Lasso")!=std::string::npos&&lasso.size()>2;Box region=box(press,p);auto contains=[&](Vec2 pt){return polygon?selection::polygonContainsPoint(lasso,pt):studioio::inside(region,pt);};auto candidates=polygon?objectsInPolygon(lasso):objectsInBox(region);std::vector<ObjectRef> chosen;for(auto r:candidates){if(r.kind==ObjectKind::Atom){if(contains(doc.atoms().get(r.id)->position))chosen.push_back(r);}else if(r.kind==ObjectKind::Bond){auto b=doc.bonds().alive(r.id);if(b&&contains(doc.atoms().get(b->beginAtom)->position)&&contains(doc.atoms().get(b->endAtom)->position))chosen.push_back(r);}else chosen.push_back(r);}
+        auto top = topLevelSelection(chosen);
+        if (selected.empty()) selected = std::move(top);
+        else addToSelection(top);
     }return Error();
 }
 Error Session::move(const std::vector<ObjectRef>& refs,Vec2 delta){
@@ -1316,7 +1718,8 @@ render::OverlayScene Session::overlay(){
         const auto id=warning.first;
         const Box bounds=studio::validation::warningSquare(warning.second);
         Vec2 p=(bounds.min+bounds.max)*.5;
-        if(moving&&movingRefs.count(ObjectRef(ObjectKind::Atom,id))&&!lasso.empty())p=p+lasso.back()-press;
+        if(projectedMoveActive()||(partialMoveActive()&&movingRefs.count(ObjectRef(ObjectKind::Atom,id))))p=p+projectedOffset;
+        else if(moving&&movingRefs.count(ObjectRef(ObjectKind::Atom,id))&&!lasso.empty())p=p+lasso.back()-press;
         double radius=(bounds.max.x-bounds.min.x)*.5;
         render::Primitive q;q.kind=render::PrimKind::Polyline;
         q.points={p+Vec2(-radius,-radius),p+Vec2(radius,-radius),p+Vec2(radius,radius),p+Vec2(-radius,radius),p+Vec2(-radius,-radius)};
@@ -1360,13 +1763,81 @@ render::OverlayScene Session::overlay(){
     // Overlay cache has the same ordinal issue as content; geometry is the key.
     for(auto& q:o.scene().mutablePrimitives()){q.version=versionOf(q,doc.id());q.source=ObjectRef();}return o;
 }
+#ifdef __linux__
+static Error copyDocumentSelection(Session& session, bool cut) {
+    if (session.selected.empty()) return {ErrorCode::InvalidArgument, "没有选中对象"};
+    Document subset;
+    auto result = studioio::clipboardSubset(session.doc, session.selected, subset);
+    if (!result.ok()) return result;
+    if (liveObjects(subset).empty()) return {ErrorCode::NotFound, "没有可复制的对象"};
+    std::ostringstream out;
+    result = saveSafeNative(subset, out);
+    if (!result.ok()) return result;
+    std::map<std::string,std::string> formats{{selection::kDocumentClipboardFormat, out.str()}};
+    std::string legacy;
+    if (persistence::encodeSelectionPackage(session.doc, session.selected, &legacy).ok())
+        formats.emplace(selection::kSelectionClipboardFormatName, std::move(legacy));
+    std::string xml;
+    if (studioio::exportXml(subset, &xml).ok()) {
+        std::string cdx, why;
+        if (cdxbinary::fromXml(xml, cdx, why)) formats.emplace(selection::kCdxClipboardFormat, std::move(cdx));
+        formats.emplace(selection::kSelectionClipboardTextName, xml);
+        formats.emplace(selection::kCdxmlVendorClipboardFormat, xml);
+        formats.emplace(selection::kCdxmlClipboardFormat, std::move(xml));
+    }
+    result = session.clipboard.open();
+    if (!result.ok()) return result;
+    result = session.clipboard.publishAll(formats);
+    session.clipboard.close();
+    if (!result.ok() || !cut) return result;
+    result = session.submit(commands::deleteObjects(session.selected), "剪切");
+    if (result.ok()) session.selected.clear();
+    return result;
+}
+
+static Error readDocumentSelection(Session& session, Document& source, bool& present) {
+    auto result = session.clipboard.open();
+    if (!result.ok()) return result;
+    std::string bytes;
+    result = session.clipboard.read(selection::kDocumentClipboardFormat, &bytes, &present);
+    session.clipboard.close();
+    if (!result.ok() || !present) return result;
+    std::istringstream stream(bytes);
+    return loadSafeNative(source, stream);
+}
+
+static std::vector<ObjectRef> pastedObjects(Session& session, const std::vector<ObjectRef>& refs) {
+    std::set<ObjectId> cellTexts;
+    for (const auto& ref : refs) {
+        if (ref.kind != ObjectKind::Table) continue;
+        if (const auto* table = session.doc.tables().alive(ref.id))
+            cellTexts.insert(table->cells.begin(), table->cells.end());
+    }
+    auto result = session.topLevelSelection(refs);
+    result.erase(std::remove_if(result.begin(), result.end(), [&](ObjectRef ref) {
+        return ref.kind == ObjectKind::Text && cellTexts.count(ref.id);
+    }), result.end());
+    return result;
+}
+#endif
+
 Error Session::open(const std::string& path){
-    Document scratch;std::string bytes;Error e=persistence::readFileBytes(path,&bytes);if(!e.ok())return e;
+    std::string bytes;
+    const auto result = persistence::readFileBytes(path, &bytes);
+    return result.ok() ? openBytes(std::move(bytes), path) : result;
+}
+Error Session::openBytes(std::string bytes, const std::string& path){
+    Document scratch;
+    Error e;
     if(bytes.compare(0,8,"VjCD0100")==0){std::string xml,why;if(!cdxbinary::toXml(bytes,xml,why))return Error(ErrorCode::InvalidArgument,"ChemDraw CDX 解码失败："+why);bytes=std::move(xml);}
     // ChemDraw XML may arrive as UTF-16 from Windows editors.
     if(bytes.size()>2 && ((unsigned char)bytes[0]==0xFF||(unsigned char)bytes[0]==0xFE)){
+#ifdef _WIN32
         bool little=(unsigned char)bytes[0]==0xFF;std::wstring wide;for(size_t i=2;i+1<bytes.size();i+=2){unsigned a=(unsigned char)bytes[i],b=(unsigned char)bytes[i+1];wide.push_back(wchar_t(little?(a|(b<<8)):(b|(a<<8))));}
         int n=WideCharToMultiByte(CP_UTF8,0,wide.data(),int(wide.size()),0,0,0,0);bytes.resize(n);WideCharToMultiByte(CP_UTF8,0,wide.data(),int(wide.size()),&bytes[0],n,0,0);
+#else
+        bytes=linux_encoding::convert(bytes.substr(2),uint8_t(bytes[0])==0xff?"UTF-16LE":"UTF-16BE","UTF-8");
+#endif
         auto enc=bytes.find("UTF-16");if(enc==std::string::npos)enc=bytes.find("utf-16");if(enc!=std::string::npos)bytes.replace(enc,6,"UTF-8");
     }
     if(bytes.find("<CDXML")!=std::string::npos){bytes=studio_projection_io::normalize(studio_projection_export::strip(bytes));persistence::repairUnreferencedArrowIds(bytes);e=persistence::readCdxml(bytes,scratch);if(e.ok()){studioio::readPage(bytes,scratch);e=studioio::readArrows(bytes,scratch);}}
@@ -1383,16 +1854,24 @@ Error Session::open(const std::string& path){
 }
 Error Session::save(const std::string& path,bool cdxml){
     auto dot=path.find_last_of('.');auto extension=dot==std::string::npos?std::string():path.substr(dot);for(auto& c:extension)c=char(std::tolower(static_cast<unsigned char>(c)));
-    if(extension==".cdxml")cdxml=true;
-    std::ostringstream out;std::string xml;Error e;if(cdxml){e=studioio::exportXml(doc,&xml);out<<xml;}else e=saveSafeNative(doc,out);
-    if(!e.ok()){return e;} persistence::AtomicWriteOptions opts;opts.sourcePath=sourcePath;
-    e=persistence::writeFileAtomic(path,out.str(),opts);if(e.ok())dirty=false;return e;
+    persistence::AtomicWriteOptions options;
+    options.sourcePath=sourcePath;
+    auto result=studioio::writeDocument(doc,path,cdxml || extension==".cdxml",extension==".cdx",options);
+    if(result.ok())dirty=false;
+    return result;
 }
 interaction::RouterOutcome Session::action(void* v,const interaction::ActionRequest& req){
     Session& s=*static_cast<Session*>(v);using A=interaction::HotkeyAction;Error err;
     auto chemistry=chemistryAction(s,req);if(chemistry!=interaction::RouterOutcome::NotHandled)return chemistry;
     switch(req.action){
     case A::Undo:err=s.undo();break;case A::Redo:err=s.undo(true);break;
+#ifdef __linux__
+    case A::EditCopy:
+    case A::EditCut:
+        err = copyDocumentSelection(s, req.action == A::EditCut);
+        if (err.ok()) s.status = req.action == A::EditCut ? "已剪切" : "已复制";
+        break;
+#else
     case A::EditCopy:{
         if(s.selected.empty()){s.status="没有选中对象";return interaction::RouterOutcome::Rejected;}
         selection::PublishReport rep=selection::copySelection(s.doc,s.selected,s.clipboard,true);
@@ -1404,16 +1883,49 @@ interaction::RouterOutcome Session::action(void* v,const interaction::ActionRequ
         selection::CutReport rep=selection::cutSelection(s.doc,s.selected,s.clipboard,&cutDelete,&s,0);
         if(!rep.ok()){s.status=rep.why;return interaction::RouterOutcome::Rejected;}
         s.selected.clear();s.status="已剪切 "+std::to_string(rep.deletedObjects)+" 个对象";break;}
+#endif
     case A::EditPaste:{
-        selection::PasteReport rep=selection::pasteSelection(s.doc,s.clipboard,Vec2(12,-12));
-        if(!rep.pasted){s.status=rep.why;return interaction::RouterOutcome::Rejected;}
-        s.selected=rep.inserted;s.status="已粘贴 "+std::to_string(rep.objectsInserted)+" 个对象";break;}
-    case A::RepeatLastAction:err=s.history.repeat(s.doc);if(err.ok()){s.dirty=true;s.refresh();}break;
+        auto source=std::make_shared<Document>();
+        std::vector<ObjectRef> refs;
+        bool native = false;
+#ifdef __linux__
+        err = readDocumentSelection(s, *source, native);
+        if (!err.ok()) break;
+        if (native) {
+            refs = liveObjects(*source);
+            if (refs.empty()) { err = {ErrorCode::NotFound, "剪贴板中没有可编辑的对象"}; break; }
+        }
+#endif
+        if (!native) {
+            std::string package;
+            auto fetch=selection::fetchSelection(s.clipboard,&package);
+            if(!fetch.present){s.status=fetch.why;return interaction::RouterOutcome::Rejected;}
+            auto decoded=selection::pastePackage(*source,package,Vec2());
+            if(!decoded.pasted){s.status=decoded.why;return interaction::RouterOutcome::Rejected;}
+            refs = std::move(decoded.inserted);
+        }
+        auto inserted=std::make_shared<std::vector<ObjectRef>>();
+        err=s.submit(Command("粘贴",kInvalidateStructure|kInvalidateGeometry|kInvalidateAppearance,
+            [source,refs,inserted](CommandContext& c){
+                inserted->clear();
+                auto result=studioio::append(*source,c.document,refs,Vec2(12,-12),inserted.get());
+                return result.ok()?CommandResult::success():CommandResult::fail(result.code,result.message);
+            }),"粘贴");
+        if(err.ok()){
+#ifdef __linux__
+            s.selected = pastedObjects(s, *inserted);
+#else
+            s.selected = *inserted;
+#endif
+            s.status="已粘贴 "+std::to_string(s.selected.size())+" 个对象";
+        }
+        break;}
+    case A::RepeatLastAction:err=s.history.repeat(s.doc);if(err.ok()){s.dirty=true;++s.serial;s.refresh();}break;
     case A::EditSelectAll:s.selected=s.all();break;
     case A::EditDelete:err=s.submit(commands::deleteObjects(s.selected),"delete selection");break;
     case A::ZoomFit:s.fit();break;
     case A::ZoomActualSize:{auto v=s.view();v.scale=1;s.setView(v);break;}
-    case A::ZoomIn:case A::ZoomOut:{auto v=s.view();v.scale*=req.action==A::ZoomIn?1.25:.8;s.setView(v);break;}
+    case A::ZoomIn:case A::ZoomOut:{auto v=s.view();v.scale=std::clamp(v.scale*(req.action==A::ZoomIn?1.25:.8),.02,80.);s.setView(v);break;}
     case A::ActivateMarqueeTool:case A::ActivateBondTool:case A::ActivateTextTool:case A::ActivateArrowTool:{
         std::string c=req.action==A::ActivateMarqueeTool?"chooseSelectionTool_Marquee":req.action==A::ActivateBondTool?"chooseBondTool_Solid":req.action==A::ActivateTextTool?"chooseEdittingTool_Text":"chooseArrowTool_Large_Solid";
         bool found=false;for(size_t i=0;i<s.entries.size();++i)if(s.entries[i].command==c){s.activate(i);found=true;break;}

@@ -1,10 +1,18 @@
 #include "next/arrows_curves/model.hpp"
+#include "arrow_preview_cache.hpp"
 
 #include <cmath>
 #include <cstdio>
 #include <cstring>
-#include <map>
-#include <sstream>
+#include <charconv>
+#ifdef __linux__
+#include <cfenv>
+#include <langinfo.h>
+#endif
+#include <string_view>
+#include <memory_resource>
+#include <cstddef>
+#include <unordered_map>
 
 namespace r62 {
 namespace arrows {
@@ -20,48 +28,71 @@ static const char* const kAnchorKey = "arc.arrow.anchor.1";
 namespace {
 
 std::string fmt(double v) {
+    if (v == 0.) return std::signbit(v) ? "-0" : "0";
+    if (v == 1.) return "1";
     char buf[64];
     // %.17g is what makes a double survive a text encode/decode EXACTLY. %.9g
     // looks tidier but loses the low bits, and a "the parameter came back" check
     // then fails by about 1e-7 - which is exactly the kind of silent precision
     // loss that makes a save/reload look lossy.
+#ifdef __linux__
+    // In the usual decimal locale and rounding mode, to_chars with an explicit
+    // precision has the same general-format spelling as %.17g.
+    if (std::isfinite(v) && std::fegetround() == FE_TONEAREST &&
+        std::strcmp(nl_langinfo(RADIXCHAR), ".") == 0) {
+        const auto result = std::to_chars(buf, buf + sizeof(buf), v, std::chars_format::general, 17);
+        if (result.ec == std::errc()) return std::string(buf, result.ptr);
+    }
+#endif
     std::snprintf(buf, sizeof(buf), "%.17g", v);
     return std::string(buf);
 }
 
 std::string fmtInt(long long v) {
     char buf[32];
-    std::snprintf(buf, sizeof(buf), "%lld", v);
-    return std::string(buf);
+    const auto result = std::to_chars(buf, buf + sizeof(buf), v);
+    return std::string(buf, result.ptr);
 }
 
-void put(std::ostringstream& o, const char* key, const std::string& value) {
-    o << key << '=' << value << ';';
+void put(std::string& o, std::string_view key, std::string_view value) {
+    o.append(key);
+    o += '=';
+    o.append(value);
+    o += ';';
 }
 
-// A tiny key/value reader. It does NOT use strtod directly on the raw pointer
-// because a malformed value must be detectable, and "the field was absent" must
-// be distinguishable from "the field was 0".
-typedef std::map<std::string, std::string> Fields;
-
-Fields parse(const std::string& text) {
-    Fields out;
-    size_t pos = 0;
-    while (pos < text.size()) {
-        const size_t eq = text.find('=', pos);
-        if (eq == std::string::npos) break;
-        const size_t end = text.find(';', eq);
-        if (end == std::string::npos) break;
-        out[text.substr(pos, eq - pos)] = text.substr(eq + 1, end - eq - 1);
-        pos = end + 1;
+// Split one owned copy in place. Numeric readers still see a terminating NUL
+// for every field. The short-lived map nodes share a local allocation buffer.
+class Fields {
+    std::string record_;
+    alignas(std::max_align_t) char storage_[3072];
+    std::pmr::monotonic_buffer_resource arena_{storage_, sizeof(storage_)};
+    std::pmr::unordered_map<std::string_view, std::string_view> values_{&arena_};
+public:
+    explicit Fields(const std::string& text) : record_(text) {
+        const std::string_view record(record_);
+        size_t pos = 0;
+        while (pos < record.size()) {
+            const size_t eq = record.find('=', pos);
+            if (eq == std::string_view::npos) break;
+            const size_t end = record.find(';', eq);
+            if (end == std::string_view::npos) break;
+            record_[end] = '\0';
+            values_[record.substr(pos, eq - pos)] = record.substr(eq + 1, end - eq - 1);
+            pos = end + 1;
+        }
     }
-    return out;
-}
-
+    auto find(std::string_view key) const { return values_.find(key); }
+    auto end() const { return values_.end(); }
+};
 bool fieldDouble(const Fields& f, const char* key, double* out) {
-    Fields::const_iterator it = f.find(key);
+    auto it = f.find(key);
     if (it == f.end() || it->second.empty()) return false;
-    const char* s = it->second.c_str();
+    if (it->second.size() == 1 && it->second[0] >= '0' && it->second[0] <= '9') {
+        *out = it->second[0] - '0';
+        return true;
+    }
+    const char* s = it->second.data();
     char* stop = 0;
     const double v = std::strtod(s, &stop);
     if (stop == s || *stop != '\0') return false;
@@ -71,9 +102,13 @@ bool fieldDouble(const Fields& f, const char* key, double* out) {
 }
 
 bool fieldLong(const Fields& f, const char* key, long long* out) {
-    Fields::const_iterator it = f.find(key);
+    auto it = f.find(key);
     if (it == f.end() || it->second.empty()) return false;
-    const char* s = it->second.c_str();
+    if (it->second.size() == 1 && it->second[0] >= '0' && it->second[0] <= '9') {
+        *out = it->second[0] - '0';
+        return true;
+    }
+    const char* s = it->second.data();
     char* stop = 0;
     const long long v = std::strtoll(s, &stop, 10);
     if (stop == s || *stop != '\0') return false;
@@ -82,7 +117,7 @@ bool fieldLong(const Fields& f, const char* key, long long* out) {
 }
 
 bool fieldBool(const Fields& f, const char* key, bool* out) {
-    Fields::const_iterator it = f.find(key);
+    auto it = f.find(key);
     if (it == f.end()) return false;
     if (it->second == "1") { *out = true;  return true; }
     if (it->second == "0") { *out = false; return true; }
@@ -98,11 +133,11 @@ std::string refText(const core::ObjectRef& ref) {
            fmtInt(static_cast<long long>(ref.id));
 }
 
-core::ObjectRef parseRef(const std::string& text) {
+core::ObjectRef parseRef(std::string_view text) {
     if (text == "-" || text.empty()) return core::ObjectRef();
     const size_t colon = text.find(':');
     if (colon == std::string::npos) return core::ObjectRef();
-    const std::string kindText=text.substr(0,colon),idText=text.substr(colon+1);
+    const std::string kindText(text.substr(0,colon)),idText(text.substr(colon+1));
     if(kindText.empty()||idText.empty())return core::ObjectRef();
     char* stop=0;
     const long long kindN=std::strtoll(kindText.c_str(),&stop,10);
@@ -129,8 +164,7 @@ core::ObjectRef parseRef(const std::string& text) {
 // encodeArrowParams / decodeArrowParams
 // ---------------------------------------------------------------------------
 std::string encodeArrowParams(const ArrowParams& p) {
-    std::ostringstream o;
-    o << "v=1;";
+    std::string o = "v=1;";
     if(p.virtualBond)put(o,"virtualBond","1");
     if(p.mechanism||p.virtualBond||p.electronSource.valid()||p.electronTarget.valid()){put(o,"mechanism",p.mechanism?"1":"0");put(o,"es",refText(p.electronSource));put(o,"et",refText(p.electronTarget));put(o,"sv",fmtInt(p.sourceVisualAnchor));put(o,"tv",fmtInt(p.targetVisualAnchor));put(o,"mside",fmtInt(p.mechanismSide));}
     if(p.mechanism||p.electronSource.valid()||p.electronTarget.valid()){put(o,"mdx",fmt(p.mechanismDeparture.x));put(o,"mdy",fmt(p.mechanismDeparture.y));put(o,"max",fmt(p.mechanismArrival.x));put(o,"may",fmt(p.mechanismArrival.y));}
@@ -158,13 +192,13 @@ std::string encodeArrowParams(const ArrowParams& p) {
     put(o, "scale",   fmt(p.scale));
     if(p.strokeWidth>0)put(o,"stroke",fmt(p.strokeWidth));
     if(!p.route.empty()) {put(o,"rn",fmtInt(p.route.size()));for(size_t i=0;i<p.route.size();++i){put(o,("rx"+fmtInt(i)).c_str(),fmt(p.route[i].x));put(o,("ry"+fmtInt(i)).c_str(),fmt(p.route[i].y));}}
-    return o.str();
+    return o;
 }
 
 ArrowParams decodeArrowParams(const std::string& text, bool* ok) {
     ArrowParams out;
     if (ok) *ok = false;
-    const Fields f = parse(text);
+    const Fields f(text);
     fieldBool(f,"mechanism",&out.mechanism);
     fieldBool(f,"virtualBond",&out.virtualBond);
     {auto s=f.find("es"),t=f.find("et");if(s!=f.end())out.electronSource=parseRef(s->second);if(t!=f.end())out.electronTarget=parseRef(t->second);}
@@ -222,8 +256,7 @@ ArrowParams decodeArrowParams(const std::string& text, bool* ok) {
 }
 
 std::string encodeCurveStyle(const CurveStyleSpec& s) {
-    std::ostringstream o;
-    o << "v=1;";
+    std::string o = "v=1;";
     put(o, "preset", fmtInt(static_cast<long long>(s.presetId)));
     put(o, "closed", s.closed  ? "1" : "0");
     put(o, "dashed", s.dashed  ? "1" : "0");
@@ -232,13 +265,13 @@ std::string encodeCurveStyle(const CurveStyleSpec& s) {
     put(o, "faded",  s.faded   ? "1" : "0");
     put(o, "shaded", s.shaded  ? "1" : "0");
     put(o, "filled", s.filled  ? "1" : "0");
-    return o.str();
+    return o;
 }
 
 CurveStyleSpec decodeCurveStyle(const std::string& text, bool* ok) {
     CurveStyleSpec out;
     if (ok) *ok = false;
-    const Fields f = parse(text);
+    const Fields f(text);
     long long v = 0;
     if (!fieldLong(f, "v", &v) || v != 1) return out;
     long long n = 0;
@@ -275,13 +308,40 @@ CurveStyleSpec decodeCurveStyle(const std::string& text, bool* ok) {
 // ---------------------------------------------------------------------------
 // FNV-1a over the encoded record. Used by the renderer cache and by the test
 // that asserts "a style change moves the signature and a no-op does not".
-uint64_t arrowParamsSignature(const ArrowParams& params) {
-    const std::string text = encodeArrowParams(params);
+uint64_t arrowParamsSignature(const ArrowParams& p) {
+    // This version is local to the render cache. Hash scalar fields directly
+    // so repainting a routed arrow does not format every point as CDXML text.
     uint64_t h = 1469598103934665603ull;
-    for (size_t i = 0; i < text.size(); ++i) {
-        h ^= static_cast<uint64_t>(static_cast<unsigned char>(text[i]));
-        h *= 1099511628211ull;
-    }
+    auto word = [&](uint64_t value) {
+        // Mix bytes separately. With a single XOR per double, changing the
+        // sign of two coordinates can cancel out of the signature exactly.
+        for (unsigned i = 0; i < 8; ++i) {
+            h = (h ^ (value & 0xffu)) * 1099511628211ull;
+            value >>= 8;
+        }
+    };
+    auto number = [&](double value) {
+        uint64_t bits;
+        static_assert(sizeof(bits) == sizeof(value));
+        std::memcpy(&bits, &value, sizeof(bits));
+        word(bits);
+    };
+    auto point = [&](core::Vec2 v) { number(v.x); number(v.y); };
+    auto ref = [&](core::ObjectRef r) { word(static_cast<uint64_t>(r.kind)); word(r.id); };
+    word(p.mechanism); word(p.virtualBond);
+    ref(p.electronSource); ref(p.electronTarget);
+    word(p.sourceVisualAnchor); word(p.targetVisualAnchor); word(p.mechanismSide);
+    point(p.mechanismDeparture); point(p.mechanismArrival);
+    word(p.presetId); word(static_cast<uint64_t>(p.family));
+    word(static_cast<uint64_t>(p.sizeClass)); word(static_cast<uint64_t>(p.line));
+    word(static_cast<uint64_t>(p.shafts)); word(static_cast<uint64_t>(p.sweep));
+    word(static_cast<uint64_t>(p.direction));
+    word(static_cast<uint64_t>(p.head.shape)); word(static_cast<uint64_t>(p.head.sides));
+    number(p.head.length); number(p.head.width); word(p.head.atEnd); word(p.head.atBegin);
+    point(p.begin); point(p.end); number(p.arcSagitta); number(p.separation);
+    number(p.splitRatio); number(p.originalSplitRatio); number(p.strokeWidth); number(p.scale);
+    word(p.route.size());
+    for (auto v : p.route) point(v);
     return h;
 }
 
@@ -326,7 +386,7 @@ ArrowParams fromAnnotationRecord(const core::AnnotationRecord& record,
     if (ok) *ok = false;
     if (const std::string* encoded = bag.findValue(kArrowParamsKey)) {
         bool parsed = false;
-        ArrowParams p = decodeArrowParams(*encoded, &parsed);
+        ArrowParams p = PreviewArrowCache::decode(record.id, *encoded, &parsed);
         if (parsed) {
             // The FROZEN record is authoritative for the two endpoints: a stale
             // bag must not be able to move an arrow that a non-T10 tool moved
@@ -547,23 +607,22 @@ core::Error readCurve(const core::Document& document, core::ObjectId id,
 // the connection used) go into the bag. Splitting it that way means a non-T10
 // reader still sees a valid `anchors[]` entry rather than an opaque string.
 std::string encodeAnchor(const ArrowAnchor& anchor) {
-    std::ostringstream o;
-    o << "v=1;";
+    std::string o = "v=1;";
     put(o, "slot", fmtInt(static_cast<long long>(anchor.slot)));
     put(o, "target", refText(anchor.target));
-    return o.str();
+    return o;
 }
 
 ArrowAnchor decodeAnchor(const std::string& text, bool* ok) {
     ArrowAnchor out;
     if (ok) *ok = false;
-    const Fields f = parse(text);
+    const Fields f(text);
     long long v = 0;
     if (!fieldLong(f, "v", &v) || v != 1) return out;
     long long slot = 0;
     if (!fieldLong(f, "slot", &slot)) return out;
     if (slot < 1 || slot > 3) return out;
-    Fields::const_iterator it = f.find("target");
+    auto it = f.find("target");
     if (it == f.end()) return out;
     const core::ObjectRef target = parseRef(it->second);
     if (!target.valid()) return out;

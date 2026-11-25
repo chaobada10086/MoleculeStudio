@@ -21,7 +21,9 @@ inline std::set<ObjectId> branch(const Document& d,ObjectId start,ObjectId exclu
 }
 struct Before {
     std::map<ObjectId,std::vector<ObjectId>> pairs;
-    explicit Before(const Document& d){for(const auto& a:d.atoms().records())if(a.isAlive()){auto p=pair(d,a);if(!p.empty())pairs[a.id]=p;}}
+    Before(const Document& d, bool capture){
+        if (!capture) return;
+        for(const auto& a:d.atoms().records())if(a.isAlive()){auto p=pair(d,a);if(!p.empty())pairs[a.id]=p;}}
     Error apply(Document& d)const{
         for(const auto& a:d.atoms().records())if(a.isAlive()){
             auto ids=pair(d,a);if(ids.empty())continue;

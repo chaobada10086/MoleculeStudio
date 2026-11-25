@@ -3,6 +3,7 @@
 #define WINVER 0x0A00
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+#include "transform_preview.hpp"
 #include <windows.h>
 #include "app_paths.hpp"
 #include "ui_language.hpp"
@@ -21,6 +22,7 @@
 #include <GL/gl.h>
 #include "ui_native_language.hpp"
 #include "formula.hpp"
+#include "mass_calculator.hpp"
 #include "project_test_data.hpp"
 #include "ring_library_data.hpp"
 #include "engine/sprout_layout.hpp"
@@ -31,6 +33,8 @@
 #include "page_dialog.hpp"
 #include "next/core/commands.hpp"
 #include "next/selection/transform.hpp"
+#include "arrange_actions.hpp"
+#include "drawing_style.hpp"
 #include "branch_direction.hpp"
 #include "structure_perspective.hpp"
 #include "next/selection/grouping.hpp"
@@ -51,6 +55,7 @@
 #include <fstream>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <cassert>
 #include <chrono>
 #include <thread>
@@ -76,7 +81,15 @@ using namespace studio;
 using r62::integration::Session;
 #include "engine/compact_radicals.hpp"
 #include "engine/diazo.hpp"
+#include "nicknames.hpp"
+#include "electron_marker_actions.hpp"
+#include "attached_atoms.hpp"
+#include "reactive_center_model.hpp"
+#include "atom_hydrogen_actions.hpp"
+#include "hotspot_actions.hpp"
+#include "calculator_model.hpp"
 namespace {
+namespace studio_mechanism_step { struct StepPlan; }
 struct MarqueeBackdrop {
     HDC memory=nullptr;HBITMAP bitmap=nullptr;HGDIOBJ previous=nullptr;int width=0,height=0;
     uint64_t serial=0,viewSerial=0;bool valid=false;
@@ -197,22 +210,9 @@ void icon(Graphics& g,const std::string& id,RectF r,Color c){if(!g.IsVisible(r))
     else {std::string t=id=="text"?"A":id=="boldText"?"B":id=="italic"?"I":id=="under"?"U":id=="sub"?"x₂":id=="super"?"x²":id=="formula"?"CH₂":id=="sizeUp"?"A+":id=="sizeDown"?"A−":id=="font"?"Aa":id=="fit"?"⌖":id=="stamp"?"♟":id=="pen"?"✎":id;txt(g,t,RectF(0,0,28,28),id=="formula"?12:21,c,id=="boldText",true);}
     g.Restore(st);
 }
-std::vector<Group> makeTools(){std::vector<Group> v;
-    auto G=[&](std::string n){v.push_back(Group());v.back().name=n;};
-    auto T=[&](std::string l,std::string i,std::string c){v.back().items.push_back(Button(c,l,i,c));};
-    auto A=[&](std::string l,std::string i,std::string id,int n=0){v.back().items.push_back(Button(id+std::to_string(n),l,i,"@"+id,n));};
-    G("选择与编辑");T("框选","select","chooseSelectionTool_Marquee");T("套索","lasso","chooseSelectionTool_Lasso");T("橡皮","erase","chooseEdittingTool_Eraser");A("结构透视","perspective","perspective");A("撤销","undo","undo");A("重做","redo","redo");A("全选","group","all");A("复制","copy","copy");A("粘贴","paste","paste");
-    G("化学键");T("单键","bond","chooseBondTool_Solid");T("双键","double","chooseMultipleBondsTool_DoubleBond");T("三键","triple","chooseMultipleBondsTool_TripleBond");T("交叉双键","doubleEither","chooseMultipleBondsTool_DoubleEitherBond");T("实楔","wedge","chooseBondTool_Wedged");T("虚楔","hashed","chooseBondTool_Hashed_Wedged");T("空楔","hollow","chooseBondTool_Hollow_Wedged");T("虚线","dash","chooseBondTool_Dashed");T("点线","dot","chooseBondTool_DottedHydrogen");T("短线","hash","chooseBondTool_Hashed");T("粗键","bold","chooseBondTool_Bold");T("波浪","wave","chooseBondTool_Wavy");T("配位","arrow","chooseMultipleBondsTool_DativeBond");
-    G("环与碳链");const char* names[]={"三元环","四元环","五元环","六元环","七元环","八元环"};const char* commands[]={"Cyclopropane","Cyclobutane","Cyclopentane","Cyclohexane","Cycloheptane","Cyclooctane"};for(int i=0;i<6;i++)T(names[i],"ring"+std::to_string(i+3),"chooseRingTool_"+std::string(commands[i]));T("苯环","benzene","chooseRingTool_Benzene");T("二烯环","diene","chooseRingTool_Cyclopentadiene");T("椅式 Ⅰ","chair","chooseRingTool_Chair_Cyclohexane1");T("椅式 Ⅱ","chair2","chooseRingTool_Chair_Cyclohexane2");T("曲折链","chain","chooseAlkaneTool_Snaking_Chain");
-    G("图形与标注");T("箭头","arrow","chooseArrowTool_Large_Solid");T("曲线","curve","choosePenTool_DrawCurve");T("圆形","oval","chooseDrawingTool_Circle_Hollow");T("矩形","rect","chooseDrawingTool_Rectangle_Hollow");T("圆角矩形","roundRect","chooseDrawingTool_RoundRect_Hollow");T("方括号","bracket","chooseBracketTool_SquareBrackets");T("圆括号","paren","chooseBracketTool_Parenthesis");T("负电荷","minus","chooseSymbolTool_CircleMinus");T("正电荷","plus","chooseSymbolTool_CirclePlus");T("自由基","radical","chooseSymbolTool_Radical");T("编辑曲线","pen","choosePenTool_EditCurve");T("直线","bond","chooseDrawingTool_Line");T("虚线框","dottedRect","chooseDrawingTool_Rectangle_Dashed");T("圆角虚线框","roundDashed","chooseDrawingTool_RoundRect_Dashed");
-    G("文字与格式");T("文字","text","chooseEdittingTool_Text");A("字体","font","font");A("颜色","color","color");A("加粗","boldText","flag",kBold);A("斜体","italic","flag",kItalic);A("下划线","under","flag",kUnderline);A("化学式","formula","flag",kFormula);A("下标","sub","flag",kSubscript);A("上标","super","flag",kSuperscript);A("左对齐","textalign0","textalign",0);A("居中","textalign1","textalign",1);A("右对齐","textalign2","textalign",2);A("字号 +","sizeUp","size",1);A("字号 −","sizeDown","size",-1);A("两端对齐","textalign3","textalign",3);
-    G("排列与变换");A("编组","group","group");A("解组","ungroup","ungroup");A("合并","merge","merge");A("左对齐","align0","align",0);A("水平居中","align1","align",1);A("右对齐","align2","align",2);A("顶部对齐","align3","align",3);A("垂直居中","align4","align",4);A("底部对齐","align5","align",5);A("水平分布","distH","distribute",0);A("垂直分布","distV","distribute",1);A("旋转 90°","rotate","rotate");A("水平翻转","flipH","flip",0);A("垂直翻转","flipV","flip",1);A("置于顶层","front","unsupported",1);A("置于底层","back","unsupported",2);A("前移一层","layerUp","unsupported",3);A("后移一层","layerDown","unsupported",4);
-    for(auto& g:v)for(auto& b:g.items){if(b.cmd=="@unsupported"&&b.arg==1)b.cmd="@front";if(b.cmd=="@unsupported"&&b.arg==2)b.cmd="@back";if(b.cmd=="@unsupported")b.enabled=false;}
-    return v;
-}
+#include "ribbon_home.hpp"
 #include "ribbon_tabs.hpp"
 uint32_t mods(){return (GetKeyState(VK_CONTROL)<0?uint32_t(kModControl):0u)|(GetKeyState(VK_SHIFT)<0?uint32_t(kModShift):0u)|(GetKeyState(VK_MENU)<0?uint32_t(kModAlt):0u);}
-#include "nicknames.hpp"
 #include "chem_service.hpp"
 #include "inline_text.hpp"
 #include "shortcut_config.hpp"
@@ -313,7 +313,7 @@ struct App : TextEditHost {
     render::Scene tablePreview;std::vector<size_t> tablePreviewSlots;uint64_t tablePreviewDocument=0,tablePreviewSerial=0;void tableContextMenu(Vec2 point,POINT screen);
     struct TableControls{ObjectId table=kInvalidObjectId;uint32_t rows=0,cols=0;RectF addRow,delRow,addCol,delCol;};bool tableControlLayout(TableControls* out)const;bool tableControlClick(Vec2 pixel,uint32_t modifiers);
     AiWindow ai;DocumentId aiDocument=0;uint64_t aiSerial=0;std::vector<ObjectRef> aiSelection;Vec2 aiOrigin;double aiWidth=0;uint32_t aiColor=0x000000FFu;
-    std::string aiContext();std::string applyAI(const std::string& bytes);void showAI(const std::string& prompt="",bool settings=false);void aiCheck(const std::string& dir);struct StepPlan { Command command; std::shared_ptr<std::vector<ObjectRef>> created=std::make_shared<std::vector<ObjectRef>>(); std::shared_ptr<bool> wrapped=std::make_shared<bool>(false); std::string detail; };
+    std::string aiContext();std::string applyAI(const std::string& bytes);void showAI(const std::string& prompt="",bool settings=false);void aiCheck(const std::string& dir);using StepPlan = studio_mechanism_step::StepPlan;
     StepPlan planMechanismStep(const Document& doc,const std::vector<ObjectRef>& selection,const std::vector<ObjectRef>& scene,int mode,int arrowStyle,bool interactive,bool keepLossStructures=false);
     void generateMechanismStep(int mode=0,int arrowStyle=0);void reagentMenu(bool inorganic);void placeReagent(Vec2 center);void insertReactiveCenter(bool allene);void insertMechanismRole(bool base);void catalyticAction(int action);bool catalyticFold(bool expand);bool catalyticEllipse(ObjectRef ref,graphics::ShapeParams* out=nullptr);ObjectId catalyticShape=kInvalidObjectId;void insertMechanismProton();void attachMechanismHydrogen(ObjectId id);void applyMechanismElectronState(int state,bool circled=false);bool mechanismStepChecking=false;void mechanismStepCheck(const std::string& dir);bool electronStateChecking=false;void electronStateCheck(const std::string& dir);bool mechanismInferChecking=false;void mechanismInferCheck(const std::string& dir);void aiUxCheck(const std::string& dir);void skillUpdateCheck(const std::string& dir);
     void showOcsr();void showOcsrDemo();void showImageToStructure();void openImageToStructure(const std::wstring& imagePath);bool insertOcsrStructure(const std::string& cdxmlPath,const std::string& recordPath,std::wstring& error);bool copyOcsrStructure(const std::string& cdxmlPath,std::wstring& error);
@@ -1057,14 +1057,7 @@ void cdxmlColorCheck(const std::string& dir);
     Error saveToPath(const std::string& p,bool xml=false){
         // Explicit UI save/overwrite has already selected this destination.
         // Keep Session::save's source-file protection for background exporters.
-        auto dot=p.find_last_of('.');std::string ext=dot==std::string::npos?"":p.substr(dot);
-        for(auto& ch:ext)ch=char(tolower((unsigned char)ch));
-        std::string bytes;Error e;
-        if(ext==".cdxml"||ext==".cdx"||(ext.empty()&&xml)){
-            e=studioio::exportXml(s.doc,&bytes);
-            if(e.ok()&&ext==".cdx"){std::string binary,why;if(!cdxbinary::fromXml(bytes,binary,why))e=Error(ErrorCode::ParseError,why);else bytes=std::move(binary);}
-        }else{std::ostringstream out;e=integration::saveSafeNative(s.doc,out);bytes=out.str();}
-        if(e.ok())e=persistence::writeFileAtomic(p,bytes);
+        Error e=studioio::saveDocumentFile(s.doc,p,xml);
         if(e.ok()){s.dirty=false;s.sourcePath=p;fileName=p.substr(p.find_last_of("/\\")+1);status="已保存";}
         return e;}
 
@@ -1286,7 +1279,11 @@ struct StudioOleHost:ole::Host{
 LRESULT CALLBACK fontEntryProc(HWND h,UINT m,WPARAM w,LPARAM l,UINT_PTR,DWORD_PTR data){auto a=(App*)data;if(m==WM_KEYDOWN&&(w==VK_RETURN||w==VK_ESCAPE)){if(w==VK_RETURN)a->styleFromBox(GetParent(h),false);SetFocus(a->textEditor.active?a->edit:a->canvas);return 0;}return DefSubclassProc(h,m,w,l);}
 #include "hydrogen_cycle.hpp"
 #include "app_actions.hpp"
-#include "arrange_actions.hpp"
+bool App::arrangeAction(const std::string& op,int arg){
+    if(!studio::arrangeSelection(s,status,op,arg))return false;
+    invalidate();
+    return true;
+}
 #include "align_check.hpp"
 #include "radical_actions.hpp"
 #include "chemistry_actions.hpp"
@@ -1294,6 +1291,7 @@ LRESULT CALLBACK fontEntryProc(HWND h,UINT m,WPARAM w,LPARAM l,UINT_PTR,DWORD_PT
 #include "editor_hotkeys.hpp"
 #include "extra_actions.hpp"
 #include "canvas_guides.hpp"
+#include "mechanism_step_plan.hpp"
 #include "ai_actions.hpp"
 #include "ocsr_review_edit.hpp"
 static void styleOcsr(Session& source,const Session& canvas);
@@ -2062,7 +2060,7 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         if(m==WM_KEYDOWN&&wp=='R'&&!(mods()&(kModControl|kModAlt))&&a->pointerOverCanvas&&!a->down){
             auto id=s.nearestAtom(s.view().toDocument(a->pointerPixel),s.snapRadiusDevice());
             if(id!=kInvalidObjectId&&s.doc.incidentBonds(id).size()==1){
-                a->insertionPreviewPending=false;auto base=nicknames::labelCommand(id,"R");a->error(s.submit(Command("末端 R 基团",kInvalidateStructure|kInvalidateSemantics|kInvalidateAppearance,[id,base](CommandContext& c)mutable{auto result=base.execute(c);if(!result.ok())return result;auto sem=c.document.atoms().alive(id)->semantics;sem.showLabel=true;auto e=c.document.setAtomSemantics(id,sem);if(e.ok())e=c.document.setAtomLabel(id,"R");return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"末端 R 基团"));a->swallowHotkeyChar=true;a->status="已将末端标为 R 基团 · 可撤销";a->invalidate();return 0;
+                a->insertionPreviewPending=false;a->error(s.submit(studio::hotspot_actions::markTerminalR(id),"末端 R 基团"));a->swallowHotkeyChar=true;a->status="已将末端标为 R 基团 · 可撤销";a->invalidate();return 0;
             }
         }
         a->swallowHotkeyChar=false;

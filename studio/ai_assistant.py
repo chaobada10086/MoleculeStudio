@@ -742,8 +742,9 @@ def _advanced_execute(engine, items, limit, progress, attachments=None, deadline
         if name == "read_pdf_pages" and attachments is not None:
             try:
                 value, blocks = attachments.read_pages(args)
-                from ai_local_sources import save_previews
-                value['preview_images']=save_previews(blocks)
+                if attachments.allow_local_paths:
+                    from ai_local_sources import save_previews
+                    value['preview_images'] = save_previews(blocks)
                 text = "\n".join(str(block.get("text", "")) for block in blocks if isinstance(block, dict) and block.get("type") == "text")
                 results.append({"tool": name, "arguments": args, "ok": True, "result": (json.dumps(value, ensure_ascii=False) + "\n" + text)[:6000]})
             except Exception as exc:
@@ -799,13 +800,13 @@ def _advanced_result(request, engine, plugins, message, executions=(), warnings=
     return result
 
 
-def _stage_attachments(request, ai_dsh):
+def _stage_attachments(request, workspace):
     import re as _re
     import shutil
     import uuid
     from pathlib import Path
     try:
-        target = ai_dsh.workspace_dir() / "molecule_studio_attachments"
+        target = workspace / "molecule_studio_attachments"
         target.mkdir(parents=True, exist_ok=True)
     except Exception:
         return []
@@ -956,6 +957,17 @@ def missing_arrow_message(engine):
 def run_advanced(request, progress=lambda message: None):
     """Plan with DSH, execute locally, then let DSH verify and correct."""
     import ai_dsh
+    import os
+    import tempfile
+    from pathlib import Path
+
+    if os.name != "nt" and request.get("attachment_access") == "selection" and ai_dsh.available():
+        with tempfile.TemporaryDirectory(prefix="moleculestudio-dsh-") as workspace:
+            return _run_advanced(request, progress, ai_dsh, Path(workspace))
+    return _run_advanced(request, progress, ai_dsh)
+
+
+def _run_advanced(request, progress, ai_dsh, private_workspace=None):
     deadline = time.monotonic() + ADVANCED_TIMEOUT_SECONDS
     def remaining():
         seconds = deadline - time.monotonic()
@@ -972,7 +984,9 @@ def run_advanced(request, progress=lambda message: None):
             model_name = choose_model(endpoint, key, "auto")
         except Exception:
             raise ValueError("高级绘图需要具体模型：请先在 AI 设置中选择模型，不要用 auto")
-    use_harness = ai_dsh.available() or bool(__import__("os").environ.get("MOLECULE_STUDIO_DSH_STUB"))
+    selected_attachments = request.get("attachment_access") == "selection"
+    use_harness = private_workspace is not None or (not selected_attachments and (
+        ai_dsh.available() or bool(__import__("os").environ.get("MOLECULE_STUDIO_DSH_STUB"))))
     base_url = ""
     if use_harness and urllib.parse.urlsplit(endpoint).hostname != "api.deepseek.com":
         import dsh_proxy
@@ -984,7 +998,8 @@ def run_advanced(request, progress=lambda message: None):
     attachments = Attachments(request, progress)
     def plan_turn(task):
         if use_harness:
-            return ai_dsh.run_task(task,key,timeout=remaining(),progress=progress,base_url=base_url,model=model_name)
+            return ai_dsh.run_task(task, key, timeout=remaining(), progress=progress, base_url=base_url,
+                                   model=model_name, workspace=private_workspace)
         payload={"model":model_name,"messages":[attachments.user_message(task)],"stream":False,"max_tokens":8192}
         reply=request_json(endpoint+"/chat/completions",payload,key,timeout=remaining())
         try:
@@ -1008,7 +1023,7 @@ def run_advanced(request, progress=lambda message: None):
         arrow_guide += "\n" + COPY_GUIDE
     if engine.whole_scheme:
         schema = [tool for tool in schema if tool["name"] in SCHEME_TOOLS]
-    staged = _stage_attachments(request, ai_dsh) if use_harness else []
+    staged = _stage_attachments(request, private_workspace or ai_dsh.workspace_dir()) if use_harness else []
     attachment_lines = []
     for index, source in enumerate(attachments.sources, 1):
         kind = "PDF" if source["kind"] == "pdf" else "图片"
@@ -1021,7 +1036,13 @@ def run_advanced(request, progress=lambda message: None):
     for path in staged:
         attachment_lines.append("- 工作区副本：%s" % path)
     attachment_text = ""
-    if attachment_lines:
+    if attachment_lines and selected_attachments:
+        attachment_text = ("附件：\n" + "\n".join(attachment_lines) + "\n"
+            "只使用本轮选择的附件编号。先用 detect_structure_regions 定位，再用 "
+            "recognize_regions(attachment=编号, page=页码, regions=[...], stage=false) 取得候选。"
+            "用 read_pdf_pages(attachment=编号, pages=[...]) 核对 PDF 原图与文字。"
+            "先与原图比对并核对结构，再插入最终结果。\n\n")
+    elif attachment_lines:
         attachment_text = ("附件：\n" + "\n".join(attachment_lines) + "\n"
             "识别图片/PDF 中的结构时，先调用 detect_structure_regions 定位，再用 recognize_regions(path=本地图片或PDF路径, page=页码, regions=[...], stage=false)，也支持attachment=编号 取得候选；由本地 OCSR 处理，PDF 页码从 1 开始。必须先与原图比对、修正并核实一致，再插入最终结构。"
             "需要原图或PDF文字时调用 read_pdf_pages(path=本地图片或PDF路径, pages=[...])，也支持attachment=编号。也可以用你的文件/命令工具读取工作区副本。\n\n")
@@ -1065,7 +1086,7 @@ def run_advanced(request, progress=lambda message: None):
         report = {"error": str(exc)[:300]}
     verification = (
         "[MoleculeStudio 高级绘图 · 校验]\n"
-        "你是内置 DSH。上一轮计划已由宿主执行，下面是执行结果和布局报告。\n"
+        "上一轮计划已由宿主执行，下面是执行结果和布局报告。\n"
         + STRUCTURE_RECONSTRUCTION_POLICY + "\n" + MECHANISM_GUIDE + "\n" + arrow_guide + "\n"
         + "read_pdf_pages执行结果的preview_images是可直接用read_image读取的原图文件，先实际看图；没有视觉工具时done必须为false，不凭文本推断图像内容。核对来自原图的每个候选是否实际经过结构比对；结构比对先于排版检查。发现不一致时修正或移除该候选，未能确认一致时 done 必须为 false，并说明具体未核实项。\n"
         + "用户要求：\n" + prompt + "\n\n"
@@ -1108,6 +1129,7 @@ def run(request, progress=lambda message: None):
         raise ValueError("请填写有效的 API Key")
     global _ACTIVE_API_KEY
     _ACTIVE_API_KEY = key
+    selected_attachments = request.get("attachment_access") == "selection"
     if request.get("advanced") == "1" and request.get("mode", "draw") == "draw":
         return run_advanced(request, progress)
     endpoint = endpoint_url(request.findtext("endpoint", "https://api.deepseek.com"))
@@ -1134,7 +1156,15 @@ def run(request, progress=lambda message: None):
     if len(preset) > 6000:
         raise ValueError("预设提示词不得超过 6000 字")
     preset_context = "\n用户保存的 AI 预设提示词（绘图偏好）：\n" + preset if preset else ""
-    messages = [{"role": "system", "content": SYSTEM + preset_context + "\n调用示例：" + TOOL_MANUAL.partition("调用示例")[2] + "\n当前文档概况：" + json.dumps(context, ensure_ascii=False)}]
+    system = SYSTEM
+    examples = TOOL_MANUAL.partition("调用示例")[2]
+    if selected_attachments:
+        lines = system.splitlines()
+        system = "\n".join(
+            "3. 使用本轮用户所选附件的编号。PDF 先读取相关页面，再定位结构并按完整结构裁剪。"
+            if line.startswith("3. OCSR和read_pdf_pages") else line for line in lines)
+        examples = "\n".join(line for line in examples.splitlines() if not line.startswith("本地来源无需上传"))
+    messages = [{"role": "system", "content": system + preset_context + "\n调用示例：" + examples + "\n当前文档概况：" + json.dumps(context, ensure_ascii=False)}]
     arrow_request = configure_arrow_request(engine, request)
     if arrow_request:
         messages[0]["content"] += "\n" + ARROW_CALL_GUIDE
@@ -1148,6 +1178,27 @@ def run(request, progress=lambda message: None):
     engine.attachments = attachments
     messages.append(attachments.user_message(prompt))
     request_tools = TOOLS + [PDF_TOOL]
+    if selected_attachments:
+        scoped_tools = []
+        for tool in request_tools:
+            function = tool["function"]
+            if function["name"] == "insert_recognized_structure":
+                continue
+            if "path" in function["parameters"].get("properties", {}):
+                if not attachments.sources:
+                    continue
+                tool = copy.deepcopy(tool)
+                function = tool["function"]
+                parameters = function["parameters"]
+                parameters["properties"].pop("path")
+                parameters["properties"]["attachment"]["description"] = "本轮用户选择的附件编号，从 1 开始"
+                parameters.setdefault("required", []).append("attachment")
+                if function["name"] == "read_pdf_pages":
+                    function["description"] = "读取本轮附件的 PDF 页或图片，返回原图和文字。页码从 1 开始，每次最多四页。"
+                else:
+                    function["description"] = function["description"].replace("或 path 指定的本地图片/PDF", "")
+            scoped_tools.append(tool)
+        request_tools = scoped_tools
     cycle_request = bool(re.search(r'催化循环|催化.{0,12}循环|机理循环|catalytic cycles?', prompt, re.I) and re.search(r'画|绘|生成|draw|create',prompt,re.I) and not re.search(r'如何|怎么|how to',prompt,re.I))
     cycle_retry = False
     if cycle_request:

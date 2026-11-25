@@ -1,3 +1,4 @@
+#include "next/core/xml_encoding.hpp"
 #include "cdxml_adapter.hpp"
 
 #include "third_party/tinyxml2/tinyxml2.h"
@@ -518,12 +519,7 @@ Error importCdxmlInto(const std::string& bytes, Document& document,
     for (const tinyxml2::XMLNode* n = xml.FirstChild(); n; n = n->NextSibling()) {
         if (n == root || n->ToComment()) continue;
         if (n->ToDeclaration()) {
-            std::string declaration = n->Value();
-            for (size_t i = 0; i < declaration.size(); ++i)
-                declaration[i] = static_cast<char>(
-                    std::tolower(static_cast<unsigned char>(declaration[i])));
-            if (declaration.find("encoding") != std::string::npos &&
-                declaration.find("utf-8") == std::string::npos)
+            if (!r62::core::declaresUtf8Xml(n->Value() ? n->Value() : ""))
                 return fail("only UTF-8 XML documents are supported");
             continue;
         }

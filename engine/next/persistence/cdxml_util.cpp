@@ -403,6 +403,7 @@ bool textAlignFromCdxml(const char* text, core::TextAlign* align, bool* known) {
     if (v == "left" || v == "0" || v == "l") { *align = core::TextAlign::Left; return true; }
     if (v == "center" || v == "centre" || v == "1" || v == "c") { *align = core::TextAlign::Center; return true; }
     if (v == "right" || v == "2" || v == "r") { *align = core::TextAlign::Right; return true; }
+    if (v == "full" || v == "justify") { *align = core::TextAlign::Justify; return true; }
     if (v == "automatic") { *align = core::TextAlign::Left; return true; }
     *known = false;
     return false;

@@ -9,6 +9,7 @@ import json
 import math
 import os
 import subprocess
+import sys
 import queue
 import threading
 import tempfile
@@ -16,6 +17,7 @@ import re
 import xml.etree.ElementTree as ET
 from contextlib import contextmanager
 from pathlib import Path
+from ai_local_sources import resolve_source, source_label
 
 
 def state_dir(base):
@@ -27,11 +29,14 @@ def state_dir(base):
     the variable nothing changes (portable behaviour stays identical).
     """
     configured = os.environ.get('MOLECULE_STUDIO_DATA_DIR')
-    return Path(configured) if configured else Path(base)
+    if configured:
+        return Path(configured)
+    if sys.platform.startswith('linux'):
+        return Path(os.environ.get('XDG_DATA_HOME') or Path.home() / '.local/share') / 'moleculestudio-native'
+    return Path(base)
 
 
 def _resolve_source(attachments, args):
-    from ai_local_sources import resolve_source
     number, source, page, count = resolve_source(attachments,args)
     return number,source,page
 
@@ -77,27 +82,39 @@ class OcsrServiceError(ValueError):
 @contextmanager
 def service_session(base):
     base = Path(base).resolve()
-    configured = os.environ.get('MOLECULE_STUDIO_OCSR_RUNTIME')
-    runtime = Path(configured) if configured else base / 'ocsr_runtime'
-    local = os.environ.get('LOCALAPPDATA')
-    if not configured and not runtime.exists() and local:
-        installed = Path(local) / 'Programs' / 'MoleculeStudio' / 'ocsr_runtime'
-        if installed.is_dir():
-            runtime = installed
-    try: python, site = prepare_runtime(runtime)
-    except (OSError, ValueError) as exc:
-        raise OcsrServiceError('本地识别运行时初始化失败：' + str(exc), None, 'service_startup') from None
-    script = base / 'ocsr_service.py'
-    if not python.is_file() or not script.is_file():
-        raise ValueError('本地图片转结构组件不可用，请检查 ocsr_runtime')
     state = state_dir(base)
-    cache, records = state / 'OCSRCache', state / 'recognition_records'
-    command = [str(python), '-X', 'utf8', '-u', str(script), '--serve', '--models', str(runtime / 'models'),
+    records = state / 'recognition_records'
+    if sys.platform.startswith('linux'):
+        python = Path('/usr/lib/moleculestudio-ocsr/python/bin/python3.10')
+        assets = Path('/usr/share/moleculestudio-ocsr')
+        script, models = assets / 'ocsr_service.py', assets / 'models'
+        cache = Path(os.environ.get('XDG_CACHE_HOME') or Path.home() / '.cache') / 'moleculestudio-native/ocsr'
+        site = None
+        if not python.is_file():
+            raise ValueError('请安装 moleculestudio-ocsr 图片转结构运行时')
+    else:
+        configured = os.environ.get('MOLECULE_STUDIO_OCSR_RUNTIME')
+        runtime = Path(configured) if configured else base / 'ocsr_runtime'
+        local = os.environ.get('LOCALAPPDATA')
+        if not configured and not runtime.exists() and local:
+            installed = Path(local) / 'Programs' / 'MoleculeStudio' / 'ocsr_runtime'
+            if installed.is_dir():
+                runtime = installed
+        try:
+            python, site = prepare_runtime(runtime)
+        except (OSError, ValueError) as exc:
+            raise OcsrServiceError('本地识别运行时初始化失败：' + str(exc), None, 'service_startup') from None
+        script, models = base / 'ocsr_service.py', runtime / 'models'
+        cache = state / 'OCSRCache'
+    if not python.is_file() or not script.is_file():
+        raise ValueError('本地图片转结构组件不可用')
+    command = [str(python), '-X', 'utf8', '-u', str(script), '--serve', '--models', str(models),
                '--cache', str(cache), '--records', str(records)]
     flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
     env = os.environ.copy()
     for key in ('PYTHONHOME', 'PYTHONPATH', 'PYTHONSTARTUP'): env.pop(key, None)
-    env['PYTHONPATH'] = str(site)
+    if site is not None:
+        env['PYTHONPATH'] = str(site)
     env['PYTHONNOUSERSITE'] = '1'
     stderr = tempfile.TemporaryFile(mode='w+b')
     try:
@@ -251,8 +268,7 @@ def _recognize(request, source, page, crop, rendered):
 def recognize_and_draw(engine, attachments, args, base, number, style):
     source_id, source, page = _resolve_source(attachments, args)
     crop = _validate_crop(args.get('crop', [0, 0, 1, 1]))
-    state = state_dir(base)
-    cache, records = state / 'OCSRCache', state / 'recognition_records'
+    records = state_dir(base) / 'recognition_records'
     with service_session(base) as request:
         engine.progress('正在本地渲染附件…')
         rendered = request({'op': 'render', 'file': str(source['path']),
@@ -278,7 +294,7 @@ def recognize_and_draw(engine, attachments, args, base, number, style):
         raise
     warnings = [n.text for n in result.findall('warning') if n.text]
     warnings.append('识别结果需要核对原图，特别是实楔、虚楔、粗实线和粗虚线；模型置信度不等于正确率。')
-    return {'staged': True, **created, 'attachment': source_id, 'path': str(source['path']), 'page': page,
+    return {'staged': True, **created, 'attachment': source_id, 'path': source_label(attachments, source['path']), 'page': page,
             'crop': crop, 'atoms': len(atoms), 'bonds': len(list(root.iter('b'))),
             'confidence': result.get('confidence'), 'stereo_status': result.get('stereo_status'),
             'service_insertable': result.get('insertable') == '1', 'warnings': warnings}
@@ -296,15 +312,16 @@ def detect_regions(engine, attachments, args, base):
         engine.progress('正在检测页面上的结构区域…')
         detected = _detect(request, source, page,
                            min_score=min_score, max_regions=max_regions)
-    return {'attachment': source_id, 'path': str(source['path']), 'page': page, 'method': detected['method'],
+    return {'attachment': source_id, 'path': source_label(attachments, source['path']), 'page': page, 'method': detected['method'],
             'dpi': detected['dpi'], 'page_size_px': detected['page_size_px'],
             'count': detected['count'], 'regions': detected['regions'],
-            'preview': detected['preview'], 'warnings': detected['warnings']}
+            'preview': source_label(attachments, detected['preview']) if detected['preview'] else '',
+            'warnings': detected['warnings']}
 
 
 def recognize_regions(engine, attachments, args, base, number, style):
     source_id, source, page = _resolve_source(attachments, args)
-    records = base / 'recognition_records'
+    records = state_dir(base) / 'recognition_records'
     explicit = args.get('regions')
     stage = args.get('stage', True)
     max_regions = args.get('max_regions', 24)
@@ -369,7 +386,7 @@ def recognize_regions(engine, attachments, args, base, number, style):
                     'stereo_status': response.get('stereo_status') or '',
                     'insertable': response.get('insertable') == '1',
                     'warnings': region_warnings,
-                    'record': response.get('record') or '',
+                    'record': source_label(attachments, response.get('record')) if response.get('record') else '',
                     '_root': root,
                 })
             except Exception as exc:
@@ -401,7 +418,7 @@ def recognize_regions(engine, attachments, args, base, number, style):
     for item in results:
         item.pop('_root', None)
     output = {
-        'attachment': source_id, 'path': str(source['path']),
+        'attachment': source_id, 'path': source_label(attachments, source['path']),
         'page': page,
         'mode': mode,
         'detected': len(regions),

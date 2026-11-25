@@ -135,7 +135,8 @@ inline void orientHydride(Label& placed,const AtomRecord& atom,const Document& d
     if(!ink)placed.box=Box(atom.position+Vec2(-ew*.5,-size*.5),atom.position+Vec2(ew*.5,size*.5));
     placed.layout.metrics.inkBox=placed.box;
 }
-inline Labels labels(const Document& doc,text::GlyphCache& glyphs,const RingGeometry& rings,const std::set<ObjectId>* affected=nullptr){
+template<class AtomSet=std::set<ObjectId>>
+inline Labels labels(const Document& doc,text::GlyphCache& glyphs,const RingGeometry& rings,const AtomSet* affected=nullptr){
     const double tStart=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();
     Labels result;std::string labelFont=doc.defaultFont();if(auto f=doc.documentExtensions().findValue("studio.style.LabelFontName"))labelFont=*f;
     std::set<int> representedCharges;
@@ -148,7 +149,7 @@ inline Labels labels(const Document& doc,text::GlyphCache& glyphs,const RingGeom
     const double tSymbols=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();
     std::vector<size_t> degree(doc.atoms().size(),0);std::map<ObjectId,const BondRecord*> terminal,terminalAny;
     for(auto& b:doc.bonds().records())if(b.isAlive()){++degree[b.beginAtom];++degree[b.endAtom];}
-    for(auto& b:doc.bonds().records())if(b.isAlive()){
+    for(auto& b:doc.bonds().records())if(b.isAlive()&&(degree[b.beginAtom]==1||degree[b.endAtom]==1)){
         // Hidden formula bonds retain chemical connectivity, but have no
         // visible corridor that should push apart or reorient their labels.
         const auto& bag=doc.extensions(ObjectRef(ObjectKind::Bond,b.id));auto visible=bag.findValue("pst.attr.Visible");if(!visible)visible=bag.findValue("studio.visible");if(visible&&*visible=="no")continue;

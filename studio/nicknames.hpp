@@ -2,10 +2,15 @@
 #define STUDIO_NICKNAMES_HPP
 #include "chem_completion.hpp"
 #include "chem_italic.hpp"
+#include "interop.hpp"
+#include "next/chemistry/edit.hpp"
 #include "engine/atom_runs.hpp"
 #include "engine/compact_radicals.hpp"
 #include "engine/diazo.hpp"
 namespace nicknames {
+using namespace r62;
+using namespace r62::core;
+using integration::Session;
 inline Error applyWholeIon(Document& d,ObjectId id,const compounddata::Entry& ion){
     const auto* atom=d.atoms().alive(id);if(!atom)return Error(ErrorCode::NotFound,"原子不存在");
     auto sem=atom->semantics;sem.nodeType=uint8_t(NodeType::Nickname);sem.showLabel=true;sem.aromatic=false;
@@ -42,9 +47,69 @@ inline Error apply(Document& d,ObjectId id,const std::string& label){if(studio::
         if(runs.size()>1)studioatom::set(d,id,runs);
     }
     return e;}
-inline Command labelCommand(ObjectId id,const std::string& label){if(studio::diazo::requested(label))return Command("输入重氮基",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics|kInvalidateAppearance,[id,label](CommandContext& c){auto e=apply(c.document,id,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);});if(!nickdata::find(label)&&!nickdata::findAlias(label)&&!customgroups::find(label)&&!compounddata::find(label)){auto base=chemistry::setLabelTextCommand(id,label,{},nullptr);return Command("原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateSemantics,[id,base](CommandContext& c)mutable{auto result=base.execute(c);if(result.ok()){auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,id));bag.erase("studio.nickname.fragment");bag.erase("studio.compound.fragment");bag.erase("studio.hydrogens.manual");bag.erase("studio.query.description");}return result;});}return Command("缩写标签",kInvalidateAppearance|kInvalidateSemantics,[id,label](CommandContext& c){auto e=apply(c.document,id,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);});}
+inline Command labelCommand(ObjectId id,const std::string& label){
+    if(studio::diazo::requested(label))
+        return Command("输入重氮基",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics|kInvalidateAppearance,
+            [id,label](CommandContext& c){auto e=apply(c.document,id,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);});
+    if(!nickdata::find(label)&&!nickdata::findAlias(label)&&!customgroups::find(label)&&!compounddata::find(label)){
+        auto base=chemistry::setLabelTextCommand(id,label,{},nullptr);
+        return Command("原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateSemantics,
+            [id,label,base](CommandContext& c){
+                auto result=base.execute(c);
+                if(!result.ok())return result;
+                auto error=c.document.setAtomLabel(id,label);
+                if(!error.ok())return CommandResult::fail(error.code,error.message);
+                auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,id));
+                for(auto key:{"studio.nickname.fragment","studio.compound.fragment","studio.hydrogens.manual","studio.query.description"})
+                    bag.erase(key);
+                return result;
+            });
+    }
+    return Command("缩写标签",kInvalidateAppearance|kInvalidateSemantics,[id,label](CommandContext& c){auto e=apply(c.document,id,label);return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);});
+}
+inline Error insert(Session& session, const std::string& name, ObjectId target = kInvalidObjectId) {
+    if (target != kInvalidObjectId) return session.submit(labelCommand(target, name), "插入缩写");
+    const auto point = session.view().center;
+    auto created = std::make_shared<ObjectId>(kInvalidObjectId);
+    const auto result = session.submit(Command("插入缩写", kInvalidateStructure | kInvalidateAppearance,
+        [point, name, created](CommandContext& ctx) {
+            auto error = ctx.document.addAtom(point, 6, created.get());
+            if (error.ok()) error = apply(ctx.document, *created, name);
+            return error.ok() ? CommandResult::success() : CommandResult::fail(error.code, error.message);
+        }), "插入缩写");
+    if (result.ok()) session.setSelection({ObjectRef(ObjectKind::Atom, *created)});
+    return result;
+}
 }
 namespace customgroups {
+using namespace r62;
+using namespace r62::core;
+using integration::Session;
+inline Error preview(const Entry& entry, Document& document) {
+    tinyxml2::XMLDocument xml;
+    if (xml.Parse(entry.fragment.c_str()) != tinyxml2::XML_SUCCESS ||
+            !xml.RootElement() || std::string(xml.RootElement()->Name()) != "fragment")
+        return {ErrorCode::ParseError, "结构数据损坏"};
+    auto* root = xml.RootElement();
+    int attachments = 0;
+    for (auto* atom = root->FirstChildElement("n"); atom; atom = atom->NextSiblingElement("n")) {
+        const auto* type = atom->Attribute("NodeType");
+        if (!type || std::string(type) != "ExternalConnectionPoint") continue;
+        ++attachments;
+        atom->SetAttribute("NodeType", "GenericNickname");
+        atom->SetAttribute("NumHydrogens", 0);
+        auto* text = xml.NewElement("t");
+        auto* run = xml.NewElement("s");
+        run->SetText("R");
+        text->InsertEndChild(run);
+        atom->InsertEndChild(text);
+    }
+    if (attachments != 1) return {ErrorCode::InvalidArgument, "官能团需要一个连接点"};
+    tinyxml2::XMLPrinter bytes;
+    xml.Print(&bytes);
+    return persistence::readCdxml(std::string("<CDXML BondLength=\"14.4\"><page id=\"2000000000\">")
+        + bytes.CStr() + "</page></CDXML>", document);
+}
 inline void saveSelection(Session& s,const std::string& name){
  if(name.empty()||name.size()>24||name[0]<'A'||(name[0]>'Z'&&name[0]<'a')||name[0]>'z')throw std::runtime_error("缩写须以英文字母开头，最多24字符");for(char c:name)if(!((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')||c=='-'))throw std::runtime_error("缩写仅支持字母、数字与连字符");
  auto k=chemcompletion::key(name);load();if(!readError().empty())throw std::runtime_error(readError());for(auto& e:entries())if(chemcompletion::key(e.name)==k)throw std::runtime_error("缩写与已有官能团冲突");if(chemcompletion::protectedKey(k)||find(name)||chemcompletion::state().custom.count(k))throw std::runtime_error("缩写与元素或已有自定义项冲突");for(auto& e:nickdata::nicknames)if(chemcompletion::key(e.name)==k)throw std::runtime_error("缩写与内置官能团冲突");

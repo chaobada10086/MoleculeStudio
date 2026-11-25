@@ -199,6 +199,7 @@ TransformReport transformObjects(core::Document& document,
     //    geometry. A bond contributes its endpoints; the atoms are deduplicated
     //    so a bond and one of its atoms selected together move the atom ONCE.
     std::vector<core::ObjectRef> expanded;
+    expanded.reserve(refs.size());
     uint64_t groupsTouched = 0;
     for (size_t i = 0; i < refs.size(); ++i) {
         const core::ObjectRef& ref = refs[i];
@@ -227,7 +228,6 @@ TransformReport transformObjects(core::Document& document,
     std::sort(expanded.begin(), expanded.end());
     expanded.erase(std::unique(expanded.begin(), expanded.end()), expanded.end());
 
-    std::set<core::ObjectId> movedAtoms;
     for (size_t i = 0; i < expanded.size(); ++i) {
         const core::ObjectRef ref = expanded[i];
         switch (ref.kind) {
@@ -238,7 +238,6 @@ TransformReport transformObjects(core::Document& document,
             const core::Vec2 moved = matrix.apply(atom->position);
             if (!moved.finite()) { ++report.refsSkippedUnsupported; break; }
             document.setAtomPosition(ref.id, moved);
-            movedAtoms.insert(ref.id);
             ++report.atomsMoved;
             break;
         }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" oor:name="Addons" oor:package="org.openoffice.Office">
+  <node oor:name="AddonUI">
+    <node oor:name="OfficeMenuBar">
+      <node oor:name="org.moleculestudio.office" oor:op="replace">
+        <prop oor:name="Title"><value>MoleculeStudio</value></prop>
+        <node oor:name="Submenu">
+          <node oor:name="New" oor:op="replace">
+            <prop oor:name="URL"><value>moleculestudio.office:new</value></prop>
+            <prop oor:name="Title">
+              <value xml:lang="en">New drawing…</value><value xml:lang="zh-CN">新建结构图…</value>
+            </prop>
+            <prop oor:name="Target"><value>_self</value></prop>
+            <prop oor:name="Context"><value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument</value></prop>
+          </node>
+          <node oor:name="Insert" oor:op="replace">
+            <prop oor:name="URL"><value>moleculestudio.office:insert</value></prop>
+            <prop oor:name="Title">
+              <value xml:lang="en">Insert drawing…</value><value xml:lang="zh-CN">插入结构图…</value>
+            </prop>
+            <prop oor:name="Target"><value>_self</value></prop>
+            <prop oor:name="Context"><value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument</value></prop>
+          </node>
+          <node oor:name="InsertFile" oor:op="replace">
+            <prop oor:name="URL"><value>moleculestudio.office:insertFile</value></prop>
+            <prop oor:name="Title">
+              <value xml:lang="en">Insert drawing from file…</value><value xml:lang="zh-CN">从文件插入结构图…</value>
+            </prop>
+            <prop oor:name="Target"><value>_self</value></prop>
+            <prop oor:name="Context"><value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument</value></prop>
+          </node>
+          <node oor:name="Edit" oor:op="replace">
+            <prop oor:name="URL"><value>moleculestudio.office:edit</value></prop>
+            <prop oor:name="Title">
+              <value xml:lang="en">Edit in MoleculeStudio</value><value xml:lang="zh-CN">在 MoleculeStudio 中编辑</value>
+            </prop>
+            <prop oor:name="Target"><value>_self</value></prop>
+            <prop oor:name="Context"><value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument</value></prop>
+          </node>
+          <node oor:name="Apply" oor:op="replace">
+            <prop oor:name="URL"><value>moleculestudio.office:apply</value></prop>
+            <prop oor:name="Title">
+              <value xml:lang="en">Apply saved changes</value><value xml:lang="zh-CN">应用已保存的修改</value>
+            </prop>
+            <prop oor:name="Target"><value>_self</value></prop>
+            <prop oor:name="Context"><value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument</value></prop>
+          </node>
+          <node oor:name="Refresh" oor:op="replace">
+            <prop oor:name="URL"><value>moleculestudio.office:refresh</value></prop>
+            <prop oor:name="Title">
+              <value xml:lang="en">Refresh drawing preview</value><value xml:lang="zh-CN">刷新结构图预览</value>
+            </prop>
+            <prop oor:name="Target"><value>_self</value></prop>
+            <prop oor:name="Context"><value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument</value></prop>
+          </node>
+          <node oor:name="Recover" oor:op="replace">
+            <prop oor:name="URL"><value>moleculestudio.office:recover</value></prop>
+            <prop oor:name="Title">
+              <value xml:lang="en">Recover saved edit…</value><value xml:lang="zh-CN">恢复已保存的编辑…</value>
+            </prop>
+            <prop oor:name="Target"><value>_self</value></prop>
+            <prop oor:name="Context"><value>com.sun.star.text.TextDocument,com.sun.star.presentation.PresentationDocument</value></prop>
+          </node>
+        </node>
+      </node>
+    </node>
+  </node>
+</oor:component-data>

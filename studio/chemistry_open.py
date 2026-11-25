@@ -6,6 +6,7 @@ import math
 import json
 import tempfile
 import re
+import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -20,11 +21,22 @@ from rdkit.Geometry import Point2D
 
 
 def java(jar, args, text=None):
+    package = RUNTIME / jar
+    if sys.platform == 'win32':
+        executable = RUNTIME / 'java/bin/java.exe'
+        cwd = RUNTIME
+    else:
+        executable = shutil.which('java')
+        if jar == 'opsin.jar' and not package.is_file():
+            package = Path('/usr/share/java/opsin.jar')
+        if not executable or not package.is_file():
+            raise ValueError('命名转结构需要 Java 和 OPSIN，请安装 default-jre-headless 和 libopsin-java')
+        cwd = BASE
     result = subprocess.run(
-        [str(RUNTIME / 'java/bin/java.exe'), '-Xmx512m', '-Dfile.encoding=UTF-8',
-         '-jar', str(RUNTIME / jar), *args], input=text, text=True, encoding='utf-8',
+        [str(executable), '-Xmx512m', '-Dfile.encoding=UTF-8',
+         '-jar', str(package), *args], input=text, text=True, encoding='utf-8',
         errors='replace', stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        cwd=RUNTIME, timeout=24, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        cwd=cwd, timeout=24, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     if result.returncode:
         raise ValueError('开源化学引擎执行失败：' + result.stderr.strip()[-800:])
     return result.stdout
@@ -308,7 +320,16 @@ def identity(mol):
 
 
 def systematic_name(mol):
-    from nispo import mol_to_iupac
+    if sys.platform.startswith('linux'):
+        site = Path('/usr/share/moleculestudio-naming')
+        if (site / 'nispo/__init__.py').is_file() and str(site) not in sys.path:
+            sys.path.insert(0, str(site))
+    try:
+        from nispo import mol_to_iupac
+    except ModuleNotFoundError as error:
+        if sys.platform.startswith('linux') and error.name == 'nispo':
+            raise ValueError('结构转命名需要安装 moleculestudio-naming 化学命名运行时') from error
+        raise
     name = mol_to_iupac(mol)
     if not name:
         raise ValueError('NISPO 暂不能为此结构生成系统名称')
@@ -508,6 +529,8 @@ def predict_ml_nmr(mol, nucleus, solvent=None):
     # Prefer the interpreter's ABI-matched native packages; this directory
     # supplies CSP5 and its checkpoints when not installed in the runtime.
     sys.path.append(str(RUNTIME / 'nmr-ml-site'))
+    if sys.platform.startswith('linux'):
+        sys.path.append('/usr/share/moleculestudio-nmr')
     import torch
     torch.set_num_threads(2)
     from csp5 import predict_mols
@@ -907,6 +930,25 @@ def run(source, in_mime, out_mime, action):
         # "unsupported local chemical format conversion".
         if out_mime == 'chemical/x-name': return systematic_name(one_molecule(source, in_mime))
         mol = one_molecule(source, in_mime, allow_disconnected=True, allow_queries=True)
+        if in_mime == 'chemical/x-helm' and out_mime == 'text/xml':
+            # CDXML represents the editable graph but does not carry RDKit's
+            # residue information. Retain the original notation on an atom so it
+            # follows the structure through copies, selection and file saves.
+            root = ET.fromstring(to_cdxml(mol))
+            root.find('.//n').set('MoleculeStudioHELM', source.strip())
+            return ET.tostring(root, encoding='unicode', xml_declaration=True)
+        if in_mime == 'text/xml' and out_mime == 'chemical/x-helm':
+            originals = {node.get('MoleculeStudioHELM') for node in ET.fromstring(source).iter('n')
+                         if node.get('MoleculeStudioHELM')}
+            if len(originals) == 1:
+                notation = originals.pop()
+                try:
+                    original = one_molecule(notation, 'chemical/x-helm', allow_disconnected=True)
+                except ValueError:
+                    original = None
+                if original is not None and identity(original) == identity(mol):
+                    return notation
+                raise ValueError('结构与导入的 HELM 不一致，无法保留原有聚合物定义')
         return convert_molecule(mol, out_mime)
     if action.split(';',1)[0] in ('nmr1h','nmr13c','nmr19f'):
         parts=action.split(';'); solvent='cdcl3'

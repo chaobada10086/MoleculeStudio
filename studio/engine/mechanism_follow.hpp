@@ -5,6 +5,38 @@
 namespace studio { namespace mechanism_follow {
 using namespace r62::core;
 struct Item {ObjectId id;r62::arrows::ArrowParams arrow;Vec2 source,target;bool hasSource=false,hasTarget=false,hadOverlap=false;};
+// Arrow writes do not affect atom or bond glyph geometry. Keep that geometry
+// stable for the batch, while later routes still see every earlier arrow edit.
+class RoutingObstacles {
+    using Obstacle = r62::arrows::MechanismObstacle;
+    std::vector<Obstacle> fixed_, combined_;
+    std::map<ObjectId,std::vector<Obstacle>> arrows_;
+    std::vector<ObjectId> order_;
+public:
+    const std::vector<r62::core::Box> routingLabels;
+    explicit RoutingObstacles(const Document& doc):fixed_(r62::arrows::mechanismFixedObstacles(doc)), routingLabels(r62::arrows::mechanismRoutingLabels(doc)) {
+        for (const auto& record:doc.arrows().records()) if (record.isAlive()) {
+            r62::arrows::ArrowParams p;
+            bool valid=false;
+            r62::arrows::readArrow(doc,record.id,&p,&valid);
+            order_.push_back(record.id);
+            if (valid) update(record.id,p);
+        }
+    }
+    void update(ObjectId id,const r62::arrows::ArrowParams& p) {
+        auto& segments=arrows_[id];
+        segments.clear();
+        r62::arrows::appendArrowObstacles(p,segments);
+    }
+    const std::vector<Obstacle>& excluding(ObjectId id) {
+        combined_=fixed_;
+        for (auto other:order_) if (other!=id) {
+            const auto found=arrows_.find(other);
+            if (found!=arrows_.end()) combined_.insert(combined_.end(),found->second.begin(),found->second.end());
+        }
+        return combined_;
+    }
+};
 struct Before {
     std::vector<Item> items;std::set<ObjectId> originalArrows;std::map<ObjectId,std::string> originalParams;
     explicit Before(const Document& doc){for(const auto& record:doc.arrows().records())if(record.isAlive()){
@@ -15,7 +47,10 @@ struct Before {
         item.hadOverlap=r62::arrows::mechanismOverlapsGlyphs(doc,item.arrow);
         if(item.hasSource||item.hasTarget)items.push_back(item);
     }}
-    Error apply(Document& doc)const{for(const auto& item:items){
+    Error apply(Document& doc)const{
+        std::unique_ptr<RoutingObstacles> obstacles;
+        std::vector<std::pair<ObjectId,r62::arrows::ArrowParams>> updates;
+        for(const auto& item:items){
         if(!doc.arrows().alive(item.id))continue;
         Vec2 source,target,ds,dt;
         if(item.hasSource&&r62::arrows::mechanismAnchorPoint(doc,item.arrow.electronSource,&source))ds=source-item.source;
@@ -29,10 +64,20 @@ struct Before {
             if(item.hasTarget&&(p.targetVisualAnchor<2||p.targetVisualAnchor==5))p.end=target;
             if(!p.mechanismSide){double bow=0;for(auto q:p.route)bow+=q.y;if(std::abs(bow)<1e-8)bow=p.arcSagitta;p.mechanismSide=bow>=0?1:-1;}
             p.route.clear();p.arcSagitta=r62::core::length(p.end-p.begin)*.22*p.mechanismSide;
-            Document routing=doc;routing.removeObject(ObjectRef(ObjectKind::Arrow,item.id));
-            r62::arrows::routeMechanism(routing,p);r62::arrows::clearMechanismLabels(routing,p);
+            if (!obstacles) {
+                obstacles.reset(new RoutingObstacles(doc));
+                for (const auto& prior:updates) obstacles->update(prior.first,prior.second);
+            }
+            r62::arrows::routeMechanism(doc,p,true,&obstacles->excluding(item.id),&obstacles->routingLabels);
+            r62::arrows::clearMechanismLabels(doc,p);
         }
-        auto e=r62::arrows::writeArrow(doc,item.id,p,doc.defaultLineWidth());if(!e.ok())return e;
-    }auto e=studio::catalytic::update(doc);std::set<ObjectId> created;for(const auto& a:doc.arrows().records())if(a.isAlive()){r62::arrows::ArrowParams p;bool ok=false;r62::arrows::readArrow(doc,a.id,&p,&ok);if(ok&&(!originalArrows.count(a.id)||(originalParams.count(a.id)&&originalParams.at(a.id)!=r62::arrows::encodeArrowParams(p))))created.insert(a.id);}return e.ok()?studio::arrow_crossings::update(doc,&created):e;}
+        if (obstacles) obstacles->update(item.id,p);
+        updates.emplace_back(item.id,std::move(p));
+    }
+        for (const auto& edit:updates) {
+            auto result=r62::arrows::writeArrow(doc,edit.first,edit.second,doc.defaultLineWidth());
+            if (!result.ok()) return result;
+        }
+        auto e=studio::catalytic::update(doc);std::set<ObjectId> created;for(const auto& a:doc.arrows().records())if(a.isAlive()){r62::arrows::ArrowParams p;bool ok=false;r62::arrows::readArrow(doc,a.id,&p,&ok);if(ok&&(!originalArrows.count(a.id)||(originalParams.count(a.id)&&originalParams.at(a.id)!=r62::arrows::encodeArrowParams(p))))created.insert(a.id);}return e.ok()?studio::arrow_crossings::update(doc,&created):e;}
 };
 } }

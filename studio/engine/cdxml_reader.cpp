@@ -1,8 +1,10 @@
+#include "next/core/xml_encoding.hpp"
 #include "engine/projection_export.hpp"
 #include "engine/projection_migration.hpp"
 #include "engine/cdxml_id_repair.hpp"
 #include "engine/projection_interop.hpp"
 #include "engine/atom_runs.hpp"
+#include "engine/ion_labels.hpp"
 #include "engine/name_link.hpp"
 #include "persistence.hpp"
 #include "persistence_internal.hpp"
@@ -10,6 +12,7 @@
 #include "next/core/commands.hpp"
 #include "table_layout.hpp"
 #include "next/experimental/model.hpp"
+#include "next/graphics/model.hpp"
 #include "third_party/tinyxml2/tinyxml2.h"
 
 #include <algorithm>
@@ -76,6 +79,7 @@ struct RawRegion {
     int32_t sourceId;          // CDXML id of the region root, 0 when anonymous
     std::vector<std::pair<std::string, int32_t> > refs;   // attr name -> id
     std::string bytes;
+    size_t prefixLength = 0;
     ObjectRef ref;             // filled when this region IS one editable object
     int  order;                // position in the source's own object order
     bool orderAssigned;        // set when order was fixed at push time
@@ -98,6 +102,7 @@ struct ReaderContext {
     std::set<int32_t> containerIds;     // reset at each container boundary
     std::map<uint32_t, std::string> fontNames;
     std::map<int,uint32_t> palette;
+    std::map<unsigned, std::vector<ObjectRef>> equivalenceGroups;
     bool color(const char* value,uint32_t* out) const {
         if(value){char* end=0;long id=std::strtol(value,&end,10);auto it=palette.find(int(id));if(end&&!*end&&it!=palette.end()){*out=it->second;return true;}}
         return colorFromCdxml(value,out);
@@ -247,7 +252,7 @@ Error readTextRuns(ReaderContext& ctx, const XMLElement* element, double default
     const char* const allowed[] = { "id", "p", "BoundingBox", "Justification",
                                     "LineHeight", "LineStarts", "CaptionLineHeight",
                                     "TextStrikethrough", "MoleculeStudioTextWidth",
-                                    "MoleculeStudioNameLink" };
+                                    "MoleculeStudioNameLink", "MoleculeStudioCellVAlign" };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);
     Error r = applyAttributeGate(ctx, element, table, ref, scopeObject);
@@ -407,7 +412,7 @@ void recordRef(RawRegion* region, const XMLElement* element, const char* attribu
 // Instrumentation used only by an off-by-default diagnostic build.
 
 bool sliceSource(ReaderContext& ctx, const XMLElement* element,
-                 size_t* begin, size_t* end) {
+                 size_t* begin, size_t* end, size_t* elementStart) {
     if (!ctx.source) return false;
     const std::string& bytes = *ctx.source;
     std::string open = "<";
@@ -440,6 +445,7 @@ bool sliceSource(ReaderContext& ctx, const XMLElement* element,
         at=bytes.find(open,close+1);
     }
     if(at==std::string::npos)return false;
+    *elementStart=at;
     // Start the slice at the CURSOR, not at the '<'. The cursor sits just after the
     // previous element's end (or the container's '>'), so it includes the whitespace
     // and indentation that precedes this element - which is part of the file and must
@@ -517,9 +523,10 @@ void captureRegion(ReaderContext& ctx, const XMLElement* element, RawRegion* reg
         region->order = static_cast<int>(ctx.nextSourceOrder++);
         region->orderAssigned = true;
     }
-    size_t begin = 0, end = 0;
+    size_t begin = 0, end = 0, elementStart = 0;
     const size_t savedFloor = ctx.sliceFloor;
-    if (sliceSource(ctx, element, &begin, &end)) {
+    if (sliceSource(ctx, element, &begin, &end, &elementStart)) {
+        region->prefixLength = elementStart - begin;
         region->bytes = ctx.source->substr(begin, end - begin);
         // Advance the outer cursor, and let any CHILD of this element search from the
         // element's own start. An element's children are visited immediately after it,
@@ -545,7 +552,7 @@ void storeRawRegion(ReaderContext& ctx, RawRegion* region) {
     std::ostringstream orderKey;
     orderKey << kExtensionPrefix << "raw.order." << region->sourceId;
     std::ostringstream orderValue;
-    orderValue << region->order;
+    orderValue << (2LL * region->order + 1);
     ctx.document.documentExtensions().set(orderKey.str(), orderValue.str());
     if (ctx.report) ++ctx.report->rawElements;
 }
@@ -619,7 +626,7 @@ void attachSource(ReaderContext& ctx, const ObjectRef& ref, const RawRegion& reg
         // construction and this runs once per object per read, so it is avoided; the
         // decimal spelling is produced directly.
         char buffer[16];
-        int value = region.order;
+        long long value = 2LL * region.order + 1;
         int length = 0;
         if (value <= 0) {
             buffer[length++] = '0';
@@ -632,7 +639,17 @@ void attachSource(ReaderContext& ctx, const ObjectRef& ref, const RawRegion& reg
         ctx.document.extensions(ref).set(std::string(kExtensionPrefix) + "source.order",
                                          std::string(buffer, buffer + length));
     }
-    ctx.document.extensions(ref).set(sourceKey(ref.kind, ref.id), region.bytes);
+    // Container boundaries between objects belong to the document. They must
+    // survive deleting the following object or reusing its slot.
+    if (region.bytes.find('<') < region.prefixLength) {
+        const std::string key = "gap." + std::to_string(region.order);
+        auto& extensions = ctx.document.documentExtensions();
+        extensions.set("pst.raw." + key, region.bytes.substr(0, region.prefixLength));
+        extensions.set("pst.raw.order." + key, std::to_string(2LL * region.order));
+        ctx.document.extensions(ref).set(sourceKey(ref.kind, ref.id), region.bytes.substr(region.prefixLength));
+    } else {
+        ctx.document.extensions(ref).set(sourceKey(ref.kind, ref.id), region.bytes);
+    }
     // The signature is the load-time snapshot the writer compares against to
     // decide whether the source bytes are still valid for this object.
     // NOTE: the signature is NOT stored here. It is stored in a FINAL pass after the
@@ -673,7 +690,7 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
         "ExternalConnectionType", "ExternalConnectionNum", "Z", "Geometry",
         "AS", "Alkyl", "AttachedLabels", "SupersededBy",
         "MoleculeStudioChargePosition", "MoleculeStudioRadicalPosition", "MoleculeStudioLiteralLabel",
-        "MoleculeStudioLonePairPositions", "MoleculeStudioChargeCircle"
+        "MoleculeStudioLonePairPositions", "MoleculeStudioChargeCircle", "MoleculeStudioHELM", "MoleculeStudioCompactIon"
     };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);
@@ -758,6 +775,8 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
     if (ctx.report) ++ctx.report->nodes;
 
     const ObjectRef ref(ObjectKind::Atom, id);
+    if (const char* helm = element->Attribute("MoleculeStudioHELM"))
+        ctx.document.extensions(ref).set("studio.helm.original", helm);
     if(const char* type=element->Attribute("NodeType"))ctx.document.extensions(ref).set("studio.cdxml.NodeType",type);
     for(const char* key:{"ElementList","GenericNickname","GenericList","SubstituentsUpTo","SubstituentsExactly","UnsaturatedBonds","RingBondCount","IgnoreWarnings"})
         if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
@@ -769,6 +788,13 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
     }
     if(const char* value=element->Attribute("MoleculeStudioPerspectiveZ"))ctx.document.extensions(ref).set("pst.attr.MoleculeStudioPerspectiveZ",value);
     if(const char* role=element->Attribute("MoleculeStudioRole"))ctx.document.extensions(ref).set("pst.attr.MoleculeStudioRole",role);
+    if (const auto* name = element->Attribute("MoleculeStudioCompactIon")) {
+        const auto* ion = studioions::find(name);
+        if (ion && ion->element == elementNumber && std::strcmp(name, ion->label) == 0) {
+            ctx.document.extensions(ref).set("studio.mechanism.ion.base", ion->label);
+            ctx.document.extensions(ref).set("studio.mechanism.compact.valence", std::to_string(ion->hidden));
+        }
+    }
     for(const char* key:{"MoleculeStudioChargePosition","MoleculeStudioRadicalPosition","MoleculeStudioLiteralLabel",
                         "MoleculeStudioLonePairPositions","MoleculeStudioChargeCircle","MoleculeStudioProjection","MoleculeStudioCatalyticMetal","MoleculeStudioCatalyticOxidation","MoleculeStudioCatalyticLigands","MoleculeStudioCatalyticNumerals","MoleculeStudioCatalyticFormat","MoleculeStudioCatalyticExcited"})
         if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
@@ -987,7 +1013,7 @@ Error resolveBond(ReaderContext& ctx, const XMLElement* element, RawRegion* regi
     const ObjectRef ref(ObjectKind::Bond, id);
     if(order==core::BondOrder::Double && element->Attribute("MoleculeStudioUnspecifiedEZ","yes"))
         ctx.document.extensions(ref).set("studio.bond.unspecifiedEZ","yes");
-    for(const char* key:{"DoublePosition","DoubleBondSpacing","LineWidth","BoldWidth","HashSpacing","Visible","MoleculeStudioBridgeLayer","MoleculeStudioPerspectiveFront","MoleculeStudioProjectionBegin","MoleculeStudioProjectionEnd"})if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
+    for(const char* key:{"CrossingBonds","DoublePosition","DoubleBondSpacing","LineWidth","BoldWidth","HashSpacing","Visible","MoleculeStudioBridgeLayer","MoleculeStudioPerspectiveFront","MoleculeStudioProjectionBegin","MoleculeStudioProjectionEnd"})if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
     sourceAppearance(ctx,element,ref);
     if (region) {
         region->ref = ref;
@@ -1046,6 +1072,11 @@ Error readFreeText(ReaderContext& ctx, const XMLElement* element) {
     const ObjectRef ref(ObjectKind::Text, id);
     if (piece.hasWidth && piece.width > 0.0 && std::isfinite(piece.width))
         ctx.document.extensions(ref).set("studio.text.width", std::to_string(piece.width));
+    if (const char* value = element->Attribute("MoleculeStudioCellVAlign")) {
+        const std::string align(value);
+        if (align == "top" || align == "middle" || align == "bottom")
+            ctx.document.extensions(ref).set("studio.cell.valign", align);
+    }
     // Caption intent must survive copying and text edits as well as raw replay.
     if(const char* interpret=element->Attribute("InterpretChemically"))
         ctx.document.extensions(ref).set("pst.attr.InterpretChemically",interpret);
@@ -1194,7 +1225,8 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
         "Tail3D", "Head3D", "Center3D", "MajorAxisEnd3D", "MinorAxisEnd3D",
         "Closed", "CurveType", "CurvePoints", "BioShapeType", "DNAWaveLength",
         "DNAWaveHeight", "DNAWaveWidth", "DNAWaveOffset", "MembraneElementSize",
-        "PrintTrimMarks", "xyz", "Visible"
+        "PrintTrimMarks", "xyz", "Visible", "MoleculeStudioShape", "MoleculeStudioBracket",
+        "MoleculeStudioEquivalenceGroup"
     };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);
@@ -1202,7 +1234,18 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
     if (!r.ok()) return r;
 
     const GraphicFamily family = std::string(elementName)=="embeddedobject" ? kGraphicPath : std::string(elementName)=="curve" ? (element->Attribute("CurvePoints")?kGraphicPath:kGraphicUnknown) : classifyGraphic(element);
-    const ObjectKind kind = objectKindForFamily(family);
+    ObjectKind kind = objectKindForFamily(family);
+    bool shapeUsed = false, bracketUsed = false;
+    graphics::ShapeParams shape;
+    graphics::BracketParams bracket;
+    if (const char* value = element->Attribute("MoleculeStudioShape")) {
+        shape = graphics::decodeShapeParams(value, &shapeUsed);
+        if (shapeUsed) kind = ObjectKind::Arrow;
+    }
+    if (kind == ObjectKind::Bracket) {
+        if (const char* value = element->Attribute("MoleculeStudioBracket"))
+            bracket = graphics::decodeBracketParams(value, &bracketUsed);
+    }
 
     if (kind == ObjectKind::Unknown) {
         // Either an unrecognised type, or a recognised vendor type this reader
@@ -1245,6 +1288,17 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
         }
         record.closed = (type == "rectangle" || type == "oval");
         if(const char* curve=element->Attribute("CurvePoints")){record.points.clear();std::istringstream input(curve);double x,y;while(input>>x>>y)record.points.push_back(core::Vec2(x,y));record.pointKind.assign(record.points.size(),0);record.closed=(element->IntAttribute("CurveType")&1)!=0;}
+        // Earlier exporters wrote an empty shaft when the head covered a short
+        // arrow. The arrow importer restores its editable geometry from metadata.
+        if (record.points.empty() && element->Attribute("MoleculeStudioArrow") &&
+            element->Attribute("Tail3D") && element->Attribute("Head3D")) {
+            std::istringstream tail(element->Attribute("Tail3D"));
+            double x, y;
+            if (tail >> x >> y) {
+                record.points.assign(2, core::Vec2(x, y));
+                record.pointKind.assign(2, 0);
+            }
+        }
         if(const char* vertices=element->Attribute("MoleculeStudioPath")){record.points.clear();std::istringstream input(vertices);double x,y;while(input>>x>>y)record.points.push_back(core::Vec2(x,y));record.pointKind.assign(record.points.size(),0);record.fillEnabled=(element->IntAttribute("CurveType")&128)!=0;record.fillRGBA=element->UnsignedAttribute("MoleculeStudioFill");}
         // Older exports translated the standard curve but left the private
         // vertices at the document origin. Both encodings start at the same knot.
@@ -1274,10 +1328,39 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
             if (ctx.color(color, &rgba)) record.style.colorRGBA = rgba;
         }
         core::ObjectId id = core::kInvalidObjectId;
-        if(element->Attribute("MoleculeStudioRaster"))if(const char* corners=element->Attribute("MoleculeStudioImageCorners")){
-            std::istringstream input(corners);std::vector<core::Vec2> points;double x,y;
-            while(input>>x>>y)if(std::isfinite(x)&&std::isfinite(y))points.push_back(core::Vec2(x,y));
-            if(points.size()==4){record.points=points;record.pointKind.assign(4,0);}
+        const bool embeddedImage = std::strcmp(elementName, "embeddedobject") == 0 &&
+            (element->Attribute("MoleculeStudioRaster") || element->Attribute("PNG") ||
+             element->Attribute("EnhancedMetafile") || element->Attribute("CompressedEnhancedMetafile") ||
+             element->Attribute("WindowsMetafile"));
+        if (embeddedImage) {
+            std::vector<core::Vec2> points;
+            if (const char* corners = element->Attribute("MoleculeStudioImageCorners")) {
+                std::istringstream input(corners);
+                double x, y;
+                while (points.size() <= 4 && input >> x >> y)
+                    if (std::isfinite(x) && std::isfinite(y)) points.emplace_back(x, y);
+            }
+            if (points.size() == 4) {
+                // Earlier exports moved the bounding box onto the page but left
+                // the four corners in document coordinates. Keep their orientation.
+                if (haveBox) {
+                    const auto delta = (box.min + box.max - points[0] - points[2]) * .5;
+                    for (auto& point : points) point = point + delta;
+                }
+                record.points = std::move(points);
+                record.pointKind.assign(4, 0);
+            } else if (haveBox && record.points.size() == 4) {
+                const auto angle = element->DoubleAttribute("RotationAngle") * (3.141592653589793 / (180. * 65536.));
+                if (std::isfinite(angle) && angle != 0) {
+                    const auto center = (box.min + box.max) * .5;
+                    const auto sine = std::sin(angle), cosine = std::cos(angle);
+                    for (auto& point : record.points) {
+                        const auto offset = point - center;
+                        point = center + core::Vec2(offset.x * cosine - offset.y * sine,
+                                                    offset.x * sine + offset.y * cosine);
+                    }
+                }
+            }
         }
         r = ctx.document.addPath(record, &id);
         if (!r.ok()) return r;
@@ -1285,6 +1368,10 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
         const ObjectRef ref(ObjectKind::Path, id);
         region.ref = ref;
         sourceAppearance(ctx,element,ref);
+        if (embeddedImage) {
+            auto& bag = ctx.document.extensions(ref);
+            bag.set("studio.embedded.image", "1");
+        }
     attachSource(ctx, ref, region);
         if (!region.orderAssigned) {
         region.order = static_cast<int>(ctx.regions.size());
@@ -1327,10 +1414,27 @@ Error readGraphic(ReaderContext& ctx, const XMLElement* element, const char* ele
     core::ObjectId id = core::kInvalidObjectId;
     r = ctx.document.addAnnotation(kind, record, &id);
     if (!r.ok()) return r;
+    if (shapeUsed) {
+        if (havePair) shape.frame.centre = (pair[0] + pair[1]) * .5;
+        r = graphics::writeShape(ctx.document, id, shape, ctx.document.defaultLineWidth());
+    } else if (bracketUsed) {
+        if (havePair) bracket.frame.centre = (pair[0] + pair[1]) * .5;
+        r = graphics::writeBracket(ctx.document, id, bracket, ctx.document.defaultLineWidth());
+    }
+    if (!r.ok()) return r;
     ++ctx.objectCount;
     const ObjectRef ref(kind, id);
+    if (shapeUsed && shape.form == graphics::ShapeForm::Line) {
+        const auto group = element->UnsignedAttribute("MoleculeStudioEquivalenceGroup");
+        if (group) ctx.equivalenceGroups[group].push_back(ref);
+    }
     region.ref = ref;
     sourceAppearance(ctx,element,ref);
+    if (shapeUsed || bracketUsed) {
+        auto& bag = ctx.document.extensions(ref);
+        bag.erase("studio.cdxml.graphic");
+        if (!graphicColorAttribute(element)) bag.erase("studio.color");
+    }
     attachSource(ctx, ref, region);
     if (!region.orderAssigned) {
         region.order = static_cast<int>(ctx.regions.size());
@@ -1660,12 +1764,7 @@ Error readInto(const std::string& bytes, core::Document& document,
     for (const tinyxml2::XMLNode* n = xml.FirstChild(); n; n = n->NextSibling()) {
         if (n == root || n->ToComment()) continue;
         if (n->ToDeclaration()) {
-            std::string declaration = n->Value() ? n->Value() : "";
-            for (size_t i = 0; i < declaration.size(); ++i)
-                declaration[i] = static_cast<char>(
-                    std::tolower(static_cast<unsigned char>(declaration[i])));
-            if (declaration.find("encoding") != std::string::npos &&
-                declaration.find("utf-8") == std::string::npos)
+            if (!r62::core::declaresUtf8Xml(n->Value() ? n->Value() : ""))
                 return fail("only UTF-8 XML documents are supported",
                             ErrorCode::Unsupported);
             continue;
@@ -1853,6 +1952,14 @@ Error readInto(const std::string& bytes, core::Document& document,
         std::map<int32_t, RawRegion*>::iterator found = regionBySourceId.find(bondSourceId);
         RawRegion* region = found == regionBySourceId.end() ? 0 : found->second;
         r = resolveBond(ctx, ctx.pendingBonds[i], region);
+        if (!r.ok()) return r;
+    }
+    for (const auto& entry : ctx.equivalenceGroups) {
+        if (entry.second.size() != 3) continue;
+        core::GroupRecord group;
+        group.label = "等同符号";
+        group.members = entry.second;
+        r = document.addGroup(group, nullptr);
         if (!r.ok()) return r;
     }
     // Final pass: record the load-time signature of every object the reader produced.

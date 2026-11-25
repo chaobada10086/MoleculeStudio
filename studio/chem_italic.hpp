@@ -117,7 +117,7 @@ inline bool stereoToken(const std::string& t) {
 }
 
 // One entry per codepoint: 1 means the character is written italic.
-inline std::vector<uint8_t> mask(const std::vector<uint32_t>& c) {
+inline std::vector<uint8_t> mask(const std::vector<uint32_t>& c, bool caption = false) {
     const size_t n = c.size();
     std::vector<uint8_t> out(n, 0);
     if (n == 0 || n > 4096) return out;
@@ -130,12 +130,15 @@ inline std::vector<uint8_t> mask(const std::vector<uint32_t>& c) {
     }
     for (size_t i = 0; i < n; ++i) {
         const uint32_t ch = c[i];
-        if (isItalicGreek(ch)) out[i] = 1;
+        if (isItalicGreek(ch) && (!caption || (i >= 2 && isHyphen(c[i - 1]) && isDigit(c[i - 2])) || (i + 1 < n &&
+            (isDigit(c[i + 1]) || isHyphen(c[i + 1]) ||
+             (c[i + 1] == ',' && i + 2 < n && isItalicGreek(c[i + 2]))))))
+            out[i] = 1;
         // A stereo group is recognised wherever its parenthesis sits, including
         // directly after a name: poly(trans-...) and methyl (S)-lactate.
         if (isParen(ch)) {
             size_t q = i + 1;
-            std::vector<std::pair<size_t, size_t> > spans;
+            std::vector<std::pair<size_t, size_t>> spans;
             bool complete = false;
             for (;;) {
                 size_t save = q;
@@ -147,23 +150,30 @@ inline std::vector<uint8_t> mask(const std::vector<uint32_t>& c) {
                 std::string token;
                 for (size_t k = start; k < q; ++k) token += char(c[k]);
                 if (!stereoToken(token)) { q = save; break; }
-                spans.push_back(std::make_pair(start, q));
-                if (q < n && c[q] == '*') { out[q] = 1; ++q; }
+                if (q < n && c[q] == '*') ++q;
+                spans.emplace_back(start, q);
                 if (q < n && c[q] == ',') { ++q; continue; }
                 complete = true;
                 break;
             }
-            if (!spans.empty() && complete && q < n && isClose(c[q]))
+            if (complete && q < n && (c[q] == ')' || c[q] == 0xFF09))
                 for (size_t s = 0; s < spans.size(); ++s)
                     for (size_t k = spans[s].first; k < spans[s].second; ++k) out[k] = 1;
             continue;
         }
-        bool alkoxy=i>0&&(c[i-1]=='O'||c[i-1]=='S')&&(ch=='i'||ch=='t'||ch=='s'||ch=='n')&&i+1<n&&isHyphen(c[i+1]);
+        bool alkoxy=i>0&&(c[i-1]=='O'||c[i-1]=='S'||c[i-1]=='P')&&(ch=='i'||ch=='t'||ch=='s'||ch=='n')&&i+1<n&&isHyphen(c[i+1]);
         if (i == 0 || isBreak(c[i - 1]) || alkoxy) {
             size_t length = 0;
             if (italicPrefixAt(c, i, &length) || italicLocatorAt(c, i, &length)) {
-                for (size_t k = i; k < i + length; ++k) out[k] = 1;
-                continue;
+                const size_t after = i + length;
+                // In captions a comma after a stand-alone element symbol is
+                // often prose punctuation (e.g. "N, O and S").
+                const bool proseComma = caption && after + 1 < n &&
+                    c[after] == ',' && isSpace(c[after + 1]);
+                if (!proseComma) {
+                    for (size_t k = i; k < after; ++k) out[k] = 1;
+                    continue;
+                }
             }
         }
         // Indicated hydrogen: 1H-indole, 2H-pyran, 9H-carbazole. The ¹H of NMR
@@ -185,7 +195,10 @@ inline std::vector<uint8_t> mask(const std::vector<uint32_t>& c) {
         {
             static const char* const ratios[] = {"ee", "de", "dr", "er"};
             bool boundary = i == 0 || isBreak(c[i - 1]) || c[i - 1] == '%';
-            if (boundary) {
+            if (boundary && (ch == 'e' || ch == 'd')) {
+                size_t before = i;
+                while (before > 0 && isSpace(c[before - 1])) --before;
+                if (caption && (before == 0 || (c[before - 1] != '%' && !isDigit(c[before - 1])))) continue;
                 for (size_t r = 0; r < sizeof(ratios) / sizeof(ratios[0]); ++r) {
                     size_t length = wordLength(ratios[r]);
                     if (!wordAt(c, i, ratios[r], length)) continue;
@@ -232,9 +245,9 @@ inline std::vector<uint32_t> codepointsUtf8(const std::string& text) {
 
 // The mask aligned to UTF-16 code units, so the RichEdit character loop can use
 // it directly (surrogate pairs simply share their lead's flag).
-inline std::vector<uint8_t> maskUtf16(const std::wstring& text) {
+inline std::vector<uint8_t> maskUtf16(const std::wstring& text, bool caption = false) {
     std::vector<uint32_t> cps = codepoints(text);
-    std::vector<uint8_t> m = mask(cps);
+    std::vector<uint8_t> m = mask(cps, caption);
     std::vector<uint8_t> out;
     out.reserve(text.size());
     size_t k = 0;
@@ -246,7 +259,9 @@ inline std::vector<uint8_t> maskUtf16(const std::wstring& text) {
     return out;
 }
 
-inline std::vector<uint8_t> maskUtf8(const std::string& text) { return mask(codepointsUtf8(text)); }
+inline std::vector<uint8_t> maskUtf8(const std::string& text, bool caption = false) {
+    return mask(codepointsUtf8(text), caption);
+}
 
 // "N,N-dimethylformamide" -> "^^.............." (one character per codepoint).
 inline std::string patternUtf8(const std::string& text) {

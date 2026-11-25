@@ -23,9 +23,7 @@ struct StudioSettingsWindow {
         if(row<0||size_t(row)>=entries.size()){groupPreview.reset();groupRenderer.reset();previewFragment.clear();previewName.clear();previewError.clear();InvalidateRect(hwnd,&previewRect,FALSE);return;}
         const auto& entry=entries[size_t(row)];if(previewFragment==entry.fragment&&previewName==entry.name)return;
         groupPreview.reset();groupRenderer.reset();previewFragment=entry.fragment;previewName=entry.name;previewError.clear();
-        try{tinyxml2::XMLDocument xml;if(xml.Parse(entry.fragment.c_str())!=tinyxml2::XML_SUCCESS||!xml.RootElement())throw std::runtime_error("结构数据损坏");
-            nicknameexpand::walk(xml.RootElement(),[&](tinyxml2::XMLElement* e){if(e->Attribute("NodeType")&&std::string(e->Attribute("NodeType"))=="ExternalConnectionPoint"){e->SetAttribute("NodeType","GenericNickname");e->SetAttribute("NumHydrogens",0);auto t=xml.NewElement("t"),s=xml.NewElement("s");s->SetText("R");t->InsertEndChild(s);e->InsertEndChild(t);}});
-            tinyxml2::XMLPrinter p;xml.Print(&p);std::unique_ptr<Session> session(new Session());auto error=persistence::readCdxml(std::string("<CDXML BondLength=\"14.4\"><page id=\"2000000000\">")+p.CStr()+"</page></CDXML>",session->doc);if(!error.ok())throw std::runtime_error(error.message);
+        try{std::unique_ptr<Session> session(new Session());auto error=customgroups::preview(entry,session->doc);if(!error.ok())throw std::runtime_error(error.message);
             session->refresh();groupPreview=std::move(session);groupRenderer.reset(new compatible::Renderer());groupRenderer->initialize(nullptr);
         }catch(const std::exception& e){previewError=e.what();}
         InvalidateRect(hwnd,&previewRect,FALSE);
@@ -464,8 +462,8 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
             if(id==916&&event==CBN_SELCHANGE){self->chooseDrawingStyle(int(::SendDlgItemMessageW(h,916,CB_GETCURSEL,0,0)));return 0;}
             if(group(id)==0&&(event==EN_CHANGE||event==CBN_EDITCHANGE||((id==914||id==1008)&&event==CBN_SELCHANGE))&&id!=916){::SendDlgItemMessageW(h,916,CB_SETCURSEL,WPARAM(-1),0);self->set(1010,L"自定义参数 · 点击“另存为模板”保存为可复用模板");}
 
-            if((id==940||id==941)&&event==CBN_SELCHANGE){int index=int(studio_i18n::sendDlgItemMessage(h,940,CB_GETCURSEL,0,0)),orientation=int(studio_i18n::sendDlgItemMessage(h,941,CB_GETCURSEL,0,0));double sizes[][2]={{210,297},{297,420},{148,210},{176,250},{215.9,279.4},{215.9,355.6}};
-                if(index>=0&&index<6){self->set(942,number(sizes[index][orientation?1:0]));self->set(943,number(sizes[index][orientation?0:1]));}else{double width,height;if(DrawingSettings::parse(self->text(942).c_str(),25.4,5080,&width)&&DrawingSettings::parse(self->text(943).c_str(),25.4,5080,&height)&&(orientation==1)!=(width>height)){self->set(942,number(height));self->set(943,number(width));}}}
+            if((id==940||id==941)&&event==CBN_SELCHANGE){int index=int(studio_i18n::sendDlgItemMessage(h,940,CB_GETCURSEL,0,0)),orientation=int(studio_i18n::sendDlgItemMessage(h,941,CB_GETCURSEL,0,0));
+                if(index>=0&&size_t(index)<pagedefaults::papers.size()){const auto& size=pagedefaults::papers[size_t(index)];self->set(942,number(orientation?size.heightMM:size.widthMM));self->set(943,number(orientation?size.widthMM:size.heightMM));}else{double width,height;if(DrawingSettings::parse(self->text(942).c_str(),25.4,5080,&width)&&DrawingSettings::parse(self->text(943).c_str(),25.4,5080,&height)&&(orientation==1)!=(width>height)){self->set(942,number(height));self->set(943,number(width));}}}
             return 0;}
         case WM_TIMER:if(w==2){KillTimer(h,2);self->fillCompletion();}else self->poll();return 0;case WM_CLOSE:KillTimer(h,2);ShowWindow(h,SW_HIDE);return 0;case WM_DESTROY:KillTimer(h,1);KillTimer(h,2);self->hwnd=0;return 0;
         case WM_ERASEBKGND:return 1;case WM_PAINT:self->paint();return 0;

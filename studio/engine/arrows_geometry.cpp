@@ -123,6 +123,7 @@ void addBound(core::Box* box, const core::Vec2& p, bool* any) {
 // ---------------------------------------------------------------------------
 std::vector<core::Vec2> routedPoints(const ArrowParams& p) {
     std::vector<core::Vec2> points;core::Vec2 d=sub(p.end,p.begin),n=clockwiseNormal(d);
+    points.reserve(p.route.size());
     for(const auto& q:p.route)points.push_back(add(p.begin,add(mul(d,q.x),mul(n,q.y))));
     if(points.size()>1){points.front()=p.begin;points.back()=p.end;}
     // Earlier label clipping stored sparse samples of a circular arc. Recover
@@ -145,7 +146,8 @@ std::vector<core::Vec2> routedPoints(const ArrowParams& p) {
                 for(const auto& q:points){double nearest=1e30;
                     for(size_t i=1;i<smooth.size();++i){auto delta=sub(smooth[i],smooth[i-1]);double dd=dotp(delta,delta);
                         double t=dd>1e-12?std::max(0.,std::min(1.,dotp(sub(q,smooth[i-1]),delta)/dd)):0.;
-                        nearest=std::min(nearest,len(sub(q,add(smooth[i-1],mul(delta,t)))));}
+                        nearest=std::min(nearest,len(sub(q,add(smooth[i-1],mul(delta,t)))));
+                        if(nearest<=.06)break;}
                     if(nearest>.06){samePath=false;break;}}
                 if(samePath)points.swap(smooth);
             }

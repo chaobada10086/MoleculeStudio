@@ -3208,16 +3208,22 @@ if __name__ == "__main__":
     log_stream = None
     try:
         log_dir = APP_DIR / "OCSRCache"
+        if sys.platform.startswith("linux"):
+            cache_home = os.environ.get("XDG_CACHE_HOME")
+            cache_root = Path(cache_home) if cache_home and Path(cache_home).is_absolute() else Path.home() / ".cache"
+            log_dir = cache_root / "moleculestudio-native" / "ocsr"
         try:
             log_dir.mkdir(parents=True, exist_ok=True)
             log_stream = (log_dir / "last-service-error.log").open("w", encoding="utf-8")
         except OSError:
-            import tempfile
-            log_dir = Path(tempfile.gettempdir()) / "MoleculeStudio-OCSR"
-            log_dir.mkdir(parents=True, exist_ok=True)
-            log_stream = (log_dir / "last-service-error.log").open("w", encoding="utf-8")
-        sys.stderr = log_stream
-        sys.stderr.reconfigure(line_buffering=True)
+            if not sys.platform.startswith("linux"):
+                import tempfile
+                log_dir = Path(tempfile.gettempdir()) / "MoleculeStudio-OCSR"
+                log_dir.mkdir(parents=True, exist_ok=True)
+                log_stream = (log_dir / "last-service-error.log").open("w", encoding="utf-8")
+        if log_stream is not None:
+            sys.stderr = log_stream
+            sys.stderr.reconfigure(line_buffering=True)
         raise SystemExit(main())
     except Exception:
         traceback.print_exc()

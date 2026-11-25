@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" oor:name="ProtocolHandler" oor:package="org.openoffice.Office">
+  <node oor:name="HandlerSet">
+    <node oor:name="org.moleculestudio.office.ProtocolHandler" oor:op="replace">
+      <prop oor:name="Protocols">
+        <value>moleculestudio.office:*</value>
+      </prop>
+    </node>
+  </node>
+</oor:component-data>

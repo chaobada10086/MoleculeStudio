@@ -3,6 +3,7 @@
 #include "mechanism_electrons.hpp"
 #include "compound_catalog.hpp"
 #include "terminal_atom_drag.hpp"
+#include "platform_font.hpp"
 #include <memory>
 namespace r62 { namespace arrows {
 inline double mechanismRadicalRadius(const core::Document& doc,core::ObjectId atom=core::kInvalidObjectId){double em=integration::molecular::setting(doc,"LabelSize",10);if(atom!=core::kInvalidObjectId)for(const auto& run:studioatom::runs(doc,atom))if(run.size>0&&!(run.flags&(core::kSubscript|core::kSuperscript))){em=run.size;break;}return std::max(.45,em*.09);}
@@ -176,7 +177,7 @@ struct MechanismVisualBoxes {
 };
 inline const std::map<core::ObjectId,MechanismVisualBoxes>& mechanismVisualBoxes(const core::Document& doc){
     struct Cache {const core::Document* owner=nullptr;core::DocumentId id=0;uint64_t revision=~uint64_t(0);std::unique_ptr<text::GlyphProvider> provider;std::unique_ptr<text::GlyphCache> glyphs;std::map<core::ObjectId,MechanismVisualBoxes> boxes;
-        Cache():provider(text::createGdiGlyphProvider("Arial","Microsoft YaHei")),glyphs(new text::GlyphCache(provider.get())){} };
+        Cache():provider(studio::createGlyphProvider()),glyphs(new text::GlyphCache(provider.get())){} };
     static Cache cache;
     if(cache.owner==&doc&&cache.id==doc.id()&&cache.revision==doc.revision())return cache.boxes;
     cache.owner=&doc;cache.id=doc.id();cache.revision=doc.revision();cache.boxes.clear();

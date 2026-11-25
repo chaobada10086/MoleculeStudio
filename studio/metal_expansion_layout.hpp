@@ -1,4 +1,5 @@
 #pragma once
+#include "platform_font.hpp"
 // Coordination labels need a local drawing layout, not an organic-valence
 // cleanup. Keep the metal and the user's scaffold fixed; move new ligands as
 // rigid branches so their internal bonds, rings and stereochemistry survive.
@@ -37,7 +38,8 @@ inline double crowd(const Document& doc,const Branch& branch,const std::set<Obje
 inline std::set<ObjectId> run(Document& doc,const std::vector<ObjectRef>& expanded,const std::set<ObjectId>& centers,bool* changed){
     std::set<ObjectId> made,protectedAtoms;for(auto ref:expanded)if(ref.kind==ObjectKind::Atom)made.insert(ref.id);
     if(centers.empty())return protectedAtoms;
-    std::unique_ptr<text::GlyphProvider> provider(text::createGdiGlyphProvider("Arial","Microsoft YaHei"));text::GlyphCache glyphs(provider.get());
+    auto provider = studio::createGlyphProvider();
+    text::GlyphCache glyphs(provider.get());
     for(auto metal:centers){if(!made.count(metal)||!doc.atoms().alive(metal))continue;auto origin=doc.atoms().alive(metal)->position;
         std::vector<Branch> branches;std::vector<double> fixed;std::set<ObjectId> seen;bool chelate=false,stereo=false;
         for(auto bid:doc.incidentBonds(metal)){auto edge=doc.bonds().alive(bid);auto root=edge->beginAtom==metal?edge->endAtom:edge->beginAtom;

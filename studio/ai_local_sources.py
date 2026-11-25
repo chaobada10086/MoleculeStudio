@@ -41,6 +41,8 @@ def resolve_local(path, workspace=None):
 def resolve_source(attachments,args):
     if ('path' in args)==('attachment' in args): raise ValueError('path 与 attachment 必须且只能指定一个')
     if 'path' in args:
+        if not getattr(attachments, 'allow_local_paths', True):
+            raise ValueError('请使用本轮选中的附件编号')
         source,count=resolve_local(args['path'],getattr(attachments,'workspace',None)); number=None
     else:
         number=args.get('attachment'); sources=getattr(attachments,'sources',[])
@@ -49,6 +51,10 @@ def resolve_source(attachments,args):
     page=args.get('page',1)
     if type(page) is not int or not 1<=page<=count: raise ValueError('页码超出范围：1–'+str(count))
     return number,source,page,count
+
+
+def source_label(attachments, path):
+    return str(path) if getattr(attachments, 'allow_local_paths', True) else Path(path).name
 
 
 def save_previews(blocks):

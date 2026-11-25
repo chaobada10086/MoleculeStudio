@@ -454,7 +454,7 @@ bool readWideInto(const std::string& path, std::string* bytes, std::string* erro
 
 namespace {
 
-bool removeWide(const std::string& path) {
+bool removePath(const std::string& path) {
     return DeleteFileW(toWide(path).c_str()) != 0;
 }
 
@@ -482,6 +482,15 @@ bool fileExists(const std::string& path) {
 
 #else
 
+bool fileExists(const std::string& path) {
+    struct stat st;
+    return stat(path.c_str(), &st) == 0;
+}
+
+static bool removePath(const std::string& path) {
+    return unlink(path.c_str()) == 0;
+}
+
 bool sameFile(const std::string& a, const std::string& b) {
     struct stat sa, sb;
     if (stat(a.c_str(), &sa) != 0 || stat(b.c_str(), &sb) != 0) return a == b;
@@ -503,30 +512,52 @@ core::Error writeFileAtomic(const std::string& path, const std::string& bytes,
     const std::string name = pathFileName(path);
     // The temporary lives in the SAME directory, so the final rename is a
     // same-volume operation and cannot fail with a cross-device error.
+#ifdef _WIN32
     const std::string temporary = pathJoin(directory, "." + name + ".r62tmp");
-    local.replacedExisting = fileExists(path);
+
 
     {
         std::string error;
         if (!writeWide(temporary, bytes, &error)) {
-            removeWide(temporary);
+            removePath(temporary);
             local.tempRemoved = true;
             return core::Error(core::ErrorCode::IoError,
                                error + " (previous file left intact: " + path + ")");
         }
     }
 
+#else
+    std::string temporary = pathJoin(directory, "." + name + ".r62tmp.XXXXXX");
+    int fd = mkstemp(&temporary[0]);
+    if (fd < 0)
+        return core::Error(core::ErrorCode::IoError, "cannot create temporary file: " + path);
+    size_t offset = 0;
+    while (offset < bytes.size()) {
+        ssize_t n = write(fd, bytes.data() + offset,
+                          std::min<size_t>(bytes.size() - offset, 1048576));
+        if (n < 0 && errno == EINTR) continue;
+        if (n <= 0) break;
+        offset += static_cast<size_t>(n);
+    }
+    bool ok = offset == bytes.size() && fsync(fd) == 0;
+    if (close(fd) != 0 || !ok) {
+        removePath(temporary);
+        return core::Error(core::ErrorCode::IoError, "failed to write temporary file: " + path);
+    }
+#endif
+    local.replacedExisting = fileExists(path);
+
     if (options.verifyAfterWrite) {
         std::string readBack;
         core::Error read = readFileBytes(temporary, &readBack);
         if (!read.ok()) {
-            removeWide(temporary);
+            removePath(temporary);
             local.tempRemoved = true;
             return read;
         }
         if (readBack.size() != bytes.size() ||
             (bytes.size() && std::memcmp(readBack.data(), bytes.data(), bytes.size()) != 0)) {
-            removeWide(temporary);
+            removePath(temporary);
             local.tempRemoved = true;
             return core::Error(core::ErrorCode::IoError,
                                "post-write verification failed, previous file left intact");
@@ -539,7 +570,7 @@ core::Error writeFileAtomic(const std::string& path, const std::string& bytes,
         core::LoadReport loaded;
         core::Error parsed = core::loadDocument(scratch, temporary, &loaded);
         if (!parsed.ok()) {
-            removeWide(temporary);
+            removePath(temporary);
             local.tempRemoved = true;
             return core::Error(parsed.code,
                                "temporary file is not a loadable document: " +
@@ -552,14 +583,14 @@ core::Error writeFileAtomic(const std::string& path, const std::string& bytes,
 #ifdef _WIN32
     bool replaced = false;
     if (!moveIntoPlace(toWide(temporary), toWide(path), &replaced)) {
-        removeWide(temporary);
+        removePath(temporary);
         local.tempRemoved = true;
         return core::Error(core::ErrorCode::IoError,
                            "cannot replace destination, previous file left intact: " + path);
     }
 #else
     if (std::rename(temporary.c_str(), path.c_str()) != 0) {
-        removeWide(temporary);
+        removePath(temporary);
         local.tempRemoved = true;
         return core::Error(core::ErrorCode::IoError,
                            "cannot replace destination, previous file left intact: " + path);

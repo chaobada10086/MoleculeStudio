@@ -1,5 +1,12 @@
 #pragma once
+
+#include "formula.hpp"
+#include "interop.hpp"
+#include "engine/name_link.hpp"
 #include <cerrno>
+#include <cwchar>
+#include <cwctype>
+
 namespace yieldcalc {
 using namespace r62;using namespace core;
 inline bool number(const std::wstring& text,double& value,bool positive=false){
@@ -8,7 +15,23 @@ inline bool number(const std::wstring& text,double& value,bool positive=false){
     while(*end&&std::iswspace(*end))++end;
     return !*end&&(positive?value>0:value>=0);
 }
-inline std::wstring compact(double value,int precision=7){std::wostringstream out;out.imbue(std::locale::classic());out<<std::setprecision(precision)<<value;return out.str();}
+inline bool number(const std::string& text, double& value, bool positive=false) {
+    std::istringstream in(text);
+    in.imbue(std::locale::classic());
+    if (!(in >> value) || !std::isfinite(value)) return false;
+    in >> std::ws;
+    return in.eof() && (positive ? value > 0 : value >= 0);
+}
+inline std::string formatNumber(double value, int precision=7) {
+    std::ostringstream out;
+    out.imbue(std::locale::classic());
+    out << std::setprecision(precision) << value;
+    return out.str();
+}
+inline std::wstring compact(double value,int precision=7) {
+    const auto text = formatNumber(value, precision);
+    return std::wstring(text.begin(), text.end());
+}
 inline double massFactor(int unit){const double factors[]={1.,.001,.000001,1000.};return factors[std::max(0,std::min(3,unit))];}
 inline double amountFactor(int unit){const double factors[]={1.,.001,1.,.000001};return factors[std::max(0,std::min(3,unit))];}
 inline int amountUnit(double mol){return mol<.1?1:2;}
@@ -23,14 +46,14 @@ inline bool percent(double mol,double startMol,double coefficient,double startCo
     value=100.*(mol/startMol)*(startCoefficient/coefficient);return std::isfinite(value);
 }
 struct Row {
-    std::vector<ObjectRef> refs;Formula formula;Box bounds;
+    std::vector<ObjectRef> refs;studio::Formula formula;Box bounds;
     int role=2,massUnit=0,amountDisplay=0; // role: reactant, reagent, product
     double coefficient=1,grams=0,mol=0,yield=0,initialMol=0,initialCoefficient=1;bool valid=false,yieldValid=false,include=true;
     std::string problem;
-    std::shared_ptr<Session> preview;
+    std::shared_ptr<integration::Session> preview;
     std::string key()const{return namelink::encodeRefs(refs);}
 };
-inline std::vector<Row> collect(Session& session,const std::vector<ObjectRef>& selected){
+inline std::vector<Row> collect(integration::Session& session,const std::vector<ObjectRef>& selected){
     const Document& doc=session.doc;auto chosen=studioio::expanded(doc,selected);
     std::set<ObjectId> seeds,seen;std::vector<Row> rows;
     for(auto ref:chosen){if(ref.kind==ObjectKind::Atom&&doc.atoms().alive(ref.id))seeds.insert(ref.id);
@@ -51,14 +74,14 @@ inline std::vector<Row> collect(Session& session,const std::vector<ObjectRef>& s
         if(row.bounds.empty())for(auto ref:row.refs)if(ref.kind==ObjectKind::Atom){auto p=doc.atoms().alive(ref.id)->position;if(row.bounds.empty())row.bounds=Box(p,p);else row.bounds.add(p);}
         if(haveArrow){auto direction=reaction.end-reaction.begin;if(reaction.head.atBegin&&!reaction.head.atEnd)direction=direction*-1;
             row.role=dot((row.bounds.min+row.bounds.max)*.5-(reaction.begin+reaction.end)*.5,direction)<0?0:2;}
-        row.preview=std::make_shared<Session>();studioio::append(doc,row.preview->doc,row.refs,Vec2(),nullptr);row.preview->refresh();
+        row.preview=std::make_shared<integration::Session>();studioio::append(doc,row.preview->doc,row.refs,Vec2(),nullptr);row.preview->refresh();
         for(const auto& t:doc.texts().records())if(t.isAlive()){
             const auto& bag=doc.extensions(ObjectRef(ObjectKind::Text,t.id));auto key=bag.findValue("studio.yield.refs");
-            if(key&&*key==row.key()){double value=0;auto raw=bag.findValue("studio.yield.grams");if(raw&&number(W(*raw),value)&&row.formula.valid){row.grams=value;row.mol=value/row.formula.averageMass;row.valid=true;}
+            if(key&&*key==row.key()){double value=0;auto raw=bag.findValue("studio.yield.grams");if(raw&&number(*raw,value)&&row.formula.valid){row.grams=value;row.mol=value/row.formula.averageMass;row.valid=true;}
                 if(auto role=bag.findValue("studio.yield.role"))row.role=std::max(0,std::min(2,std::atoi(role->c_str())));
-                if(auto coefficient=bag.findValue("studio.yield.coefficient"))if(number(W(*coefficient),value,true))row.coefficient=value;
-                if(auto initial=bag.findValue("studio.yield.initialMol"))if(number(W(*initial),value,true))row.initialMol=value;
-                if(auto coefficient=bag.findValue("studio.yield.initialCoefficient"))if(number(W(*coefficient),value,true))row.initialCoefficient=value;
+                if(auto coefficient=bag.findValue("studio.yield.coefficient"))if(number(*coefficient,value,true))row.coefficient=value;
+                if(auto initial=bag.findValue("studio.yield.initialMol"))if(number(*initial,value,true))row.initialMol=value;
+                if(auto coefficient=bag.findValue("studio.yield.initialCoefficient"))if(number(*coefficient,value,true))row.initialCoefficient=value;
                 break;}
         }
     }
@@ -78,7 +101,7 @@ inline std::string label(const Row& row,int massUnit=0){
     if(row.role==2&&row.yieldValid){std::ostringstream y;y.imbue(std::locale::classic());y<<std::fixed<<std::setprecision(1)<<row.yield;auto value=y.str();if(value.size()>2&&value.substr(value.size()-2)==".0")value.resize(value.size()-2);text<<"\nYield = "<<value<<" %";}
     return text.str();
 }
-inline Error insert(Session& session,const std::vector<Row>& rows,int unit){
+inline Error insert(integration::Session& session,const std::vector<Row>& rows,int unit){
     std::vector<Row> ready;for(const auto& row:rows)if(row.include&&row.valid&&row.formula.valid&&row.coefficient>0&&std::isfinite(row.coefficient))ready.push_back(row);
     if(ready.empty())return Error(ErrorCode::InvalidArgument,"请先填写至少一个有效的质量或物质的量。");
     return session.submit(Command("插入质量与产率",kInvalidateStructure|kInvalidateGeometry|kInvalidateAppearance,[ready,unit](CommandContext& c){
@@ -95,8 +118,8 @@ inline Error insert(Session& session,const std::vector<Row>& rows,int unit){
             if(!error.ok())return CommandResult::fail(error.code,error.message);
             TextFormat format;format.fontName=doc.defaultFont();format.size=size;format.align=1;format.colorRGBA=0x000000FFu;
             error=doc.setTextFormat(target,format);if(!error.ok())return CommandResult::fail(error.code,error.message);
-            auto& bag=doc.extensions(ObjectRef(ObjectKind::Text,target));bag.set("studio.yield.refs",row.key());bag.set("studio.yield.grams",U(compact(row.grams,15)));bag.set("studio.yield.mol",U(compact(row.mol,15)));bag.set("studio.yield.role",std::to_string(row.role));bag.set("studio.yield.coefficient",U(compact(row.coefficient,15)));
-            bag.set("studio.yield.initialMol",U(compact(row.initialMol,15)));bag.set("studio.yield.initialCoefficient",U(compact(row.initialCoefficient,15)));
+            auto& bag=doc.extensions(ObjectRef(ObjectKind::Text,target));bag.set("studio.yield.refs",row.key());bag.set("studio.yield.grams",formatNumber(row.grams,15));bag.set("studio.yield.mol",formatNumber(row.mol,15));bag.set("studio.yield.role",std::to_string(row.role));bag.set("studio.yield.coefficient",formatNumber(row.coefficient,15));
+            bag.set("studio.yield.initialMol",formatNumber(row.initialMol,15));bag.set("studio.yield.initialCoefficient",formatNumber(row.initialCoefficient,15));
         }
         return CommandResult::success();
     }),"插入质量与产率");

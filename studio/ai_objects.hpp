@@ -2,6 +2,11 @@
 namespace aiobjects {
 using Refs=std::vector<ObjectRef>;
 using Registry=std::map<std::string,Refs>;
+inline std::string captionText(const Document& doc,ObjectId id){
+    std::string text;
+    for(const auto& run:doc.runs(id))text+=run.utf8;
+    return text;
+}
 inline std::string hexColor(uint32_t color){char text[16];std::snprintf(text,sizeof(text),"#%06X",unsigned(color>>8));return text;}
 inline std::string kind(ObjectKind k){
     switch(k){case ObjectKind::Atom:return "atom";case ObjectKind::Bond:return "bond";case ObjectKind::Text:return "text";case ObjectKind::Arrow:return "arrow";case ObjectKind::Path:return "path";case ObjectKind::Bracket:return "bracket";case ObjectKind::Orbital:return "orbital";case ObjectKind::Symbol:return "symbol";case ObjectKind::BioShape:return "bio";case ObjectKind::Table:return "table";case ObjectKind::Group:return "group";default:return "unknown";}
@@ -66,7 +71,7 @@ inline void snapshot(const Document& d,const Refs& selection,Vec2 origin,tinyxml
                 if(arrow.electronTarget.valid())item->SetAttribute("target",key(arrow.electronTarget).c_str());
             }
         }
-        if(ref.kind==ObjectKind::Text){auto text=d.texts().get(ref.id);item->SetAttribute("text",textPreview(fullText(d,ref.id)).c_str());item->SetAttribute("size",text->size);item->SetAttribute("font",(text->format.fontName.empty()?d.defaultFont():text->format.fontName).c_str());item->SetAttribute("bold",(text->format.flags&kBold)!=0);item->SetAttribute("italic",(text->format.flags&kItalic)!=0);}
+        if(ref.kind==ObjectKind::Text){auto text=d.texts().get(ref.id);item->SetAttribute("text",textPreview(captionText(d,ref.id)).c_str());item->SetAttribute("size",text->size);item->SetAttribute("font",(text->format.fontName.empty()?d.defaultFont():text->format.fontName).c_str());item->SetAttribute("bold",(text->format.flags&kBold)!=0);item->SetAttribute("italic",(text->format.flags&kItalic)!=0);}
         if(auto color=d.extensions(ref).findValue("studio.color.override"))item->SetAttribute("color",hexColor(uint32_t(std::strtoul(color->c_str(),nullptr,10))).c_str());
     }
     scene->SetAttribute("truncated",r["document"].size()>1500);
@@ -84,7 +89,7 @@ inline Refs resolve(const Document& d,const Registry& registry,const Selector& s
     if(s.refs.empty())add(s.target);else for(const auto& ref:s.refs)add(ref);
     Refs out;for(auto ref:candidates){auto k=kind(ref.kind);if(s.kind!="all"&&s.kind!=k&&!(s.kind=="graphics"&&k!="atom"&&k!="bond"&&k!="text"&&k!="group"))continue;
         if(!s.element.empty()){if(ref.kind!=ObjectKind::Atom)continue;auto a=d.atoms().get(ref.id);if(a->element!=core::elementNumber(s.element)||a->semantics.nodeType!=uint8_t(NodeType::Element))continue;}
-        if(!s.contains.empty()&&(ref.kind!=ObjectKind::Text||fullText(d,ref.id).find(s.contains)==std::string::npos))continue;out.push_back(ref);
+        if(!s.contains.empty()&&(ref.kind!=ObjectKind::Text||captionText(d,ref.id).find(s.contains)==std::string::npos))continue;out.push_back(ref);
     }return out;
 }
 inline void created(Registry& registry,const std::string& handle,const Refs& refs,const Document* source=nullptr){

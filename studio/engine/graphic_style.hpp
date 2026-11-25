@@ -40,12 +40,44 @@ inline Error apply(Document& doc,ObjectRef ref,double width,uint32_t color,bool 
     if(setColor)bag.set("studio.color.override",std::to_string(color));
     doc.noteTouchedExtensions(ref,false);return Error();
 }
+inline Error fill(Document& doc, ObjectRef ref, uint32_t color) {
+    if (ref.kind == ObjectKind::Path) {
+        auto* path = doc.paths().mutableGet(ref.id);
+        if (!path || !path->closed) return {};
+        doc.noteTouchedPath(ref.id);
+        path->fillEnabled = color != 0;
+        path->fillRGBA = color;
+        return {};
+    }
+    if (ref.kind != ObjectKind::Arrow) return {};
+    graphics::ShapeParams shape;
+    bool stored = false;
+    const auto result = graphics::readShape(doc, ref.id, &shape, &stored);
+    if (!result.ok() || !stored || shape.form == graphics::ShapeForm::Line || shape.form == graphics::ShapeForm::Arc)
+        return result;
+    if (color && !shape.hasInterior()) {
+        if (graphics::appearanceDashed(shape.appearance)) shape.line = graphics::LineVariant::Dashed;
+        shape.appearance = graphics::ShapeAppearance::Solid;
+    } else if (!color && shape.hasInterior()) {
+        shape.appearance = shape.line == graphics::LineVariant::Dashed ? graphics::ShapeAppearance::Dashed :
+            graphics::ShapeAppearance::Hollow;
+    }
+    shape.fillRGBA = color;
+    return graphics::writeShape(doc, ref.id, shape, doc.defaultLineWidth());
+}
 struct Counts {
     size_t arrows,paths,brackets,tables,symbols,atoms,bonds,texts,orbitals,bioShapes;
     explicit Counts(const Document& doc):arrows(doc.arrows().size()),paths(doc.paths().size()),brackets(doc.brackets().size()),tables(doc.tables().size()),symbols(doc.symbols().size()),atoms(doc.atoms().size()),bonds(doc.bonds().size()),texts(doc.texts().size()),orbitals(doc.orbitals().size()),bioShapes(doc.bioShapes().size()){}
-    Error styleNew(Document& doc,double width,uint32_t color)const{
+    Error styleNew(Document& doc,double width,uint32_t color,bool setFill=false,uint32_t fillColor=0)const{
         auto applyRange=[&](ObjectKind kind,size_t begin,size_t end){for(size_t i=begin;i<end;++i){if(kind==ObjectKind::Text&&static_cast<const Document&>(doc).extensions(ObjectRef(kind,ObjectId(i))).findValue("studio.text.colors.edited"))continue;auto e=apply(doc,ObjectRef(kind,ObjectId(i)),width,color,width>0,true);if(!e.ok())return e;}return Error();};
-        Error e=applyRange(ObjectKind::Arrow,arrows,doc.arrows().size());if(e.ok())e=applyRange(ObjectKind::Path,paths,doc.paths().size());if(e.ok())e=applyRange(ObjectKind::Bracket,brackets,doc.brackets().size());if(e.ok())e=applyRange(ObjectKind::Table,tables,doc.tables().size());if(e.ok())e=applyRange(ObjectKind::Symbol,symbols,doc.symbols().size());if(e.ok())e=applyRange(ObjectKind::Atom,atoms,doc.atoms().size());if(e.ok())e=applyRange(ObjectKind::Bond,bonds,doc.bonds().size());if(e.ok())e=applyRange(ObjectKind::Text,texts,doc.texts().size());if(e.ok())e=applyRange(ObjectKind::Orbital,orbitals,doc.orbitals().size());if(e.ok())e=applyRange(ObjectKind::BioShape,bioShapes,doc.bioShapes().size());return e;
+        Error e=applyRange(ObjectKind::Arrow,arrows,doc.arrows().size());if(e.ok())e=applyRange(ObjectKind::Path,paths,doc.paths().size());if(e.ok())e=applyRange(ObjectKind::Bracket,brackets,doc.brackets().size());if(e.ok())e=applyRange(ObjectKind::Table,tables,doc.tables().size());if(e.ok())e=applyRange(ObjectKind::Symbol,symbols,doc.symbols().size());if(e.ok())e=applyRange(ObjectKind::Atom,atoms,doc.atoms().size());if(e.ok())e=applyRange(ObjectKind::Bond,bonds,doc.bonds().size());if(e.ok())e=applyRange(ObjectKind::Text,texts,doc.texts().size());if(e.ok())e=applyRange(ObjectKind::Orbital,orbitals,doc.orbitals().size());if(e.ok())e=applyRange(ObjectKind::BioShape,bioShapes,doc.bioShapes().size());
+        if (setFill) {
+            for (size_t index = arrows; e.ok() && index < doc.arrows().size(); ++index)
+                e = fill(doc, ObjectRef(ObjectKind::Arrow, ObjectId(index)), fillColor);
+            for (size_t index = paths; e.ok() && index < doc.paths().size(); ++index)
+                e = fill(doc, ObjectRef(ObjectKind::Path, ObjectId(index)), fillColor);
+        }
+        return e;
     }
 };
 } }

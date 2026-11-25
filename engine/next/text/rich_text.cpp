@@ -608,6 +608,20 @@ core::Error layoutRichText(const std::vector<core::TextRun>& runs,
                 x += u.width;
             }
         }
+        if (options.align == core::TextAlign::Justify && !line.hardBreak && options.widthLimit > x) {
+            std::vector<size_t> gaps;
+            for (size_t j = 1; j + 1 < line.units.size(); ++j) {
+                const auto at = line.units[j];
+                if (units[at].cp == ' ' && units[line.units[j + 1]].cp != ' ')
+                    gaps.push_back(at);
+            }
+            if (!gaps.empty()) {
+                const auto slack = options.widthLimit - x;
+                for (auto at : gaps) units[at].width += slack / gaps.size();
+                line.inkRight += slack;
+                x = options.widthLimit;
+            }
+        }
         line.width = x;
     }
 

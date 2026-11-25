@@ -2,6 +2,7 @@
 #include "engine/hydride_labels.hpp"
 #include "next/integration/session.hpp"
 #include "next/chemistry/valence.hpp"
+#include <algorithm>
 #include <queue>
 #include <map>
 #include <cctype>
@@ -72,17 +73,37 @@ inline bool addFormulaText(const std::string& formula,std::map<std::string,int>&
 // Evaluate whole connected structures touched by selection, not a chemically
 // capped fragment. Never guess abbreviation expansion or unknown valence.
 inline Formula analyze(const Document& d,const std::vector<ObjectRef>& refs){
-    Formula r;std::set<ObjectId> seeds,seen,texts;std::set<ObjectRef> groups;
+    Formula r;std::vector<ObjectId> seeds,seen;std::set<ObjectId> texts;std::set<ObjectRef> groups;
     std::function<void(ObjectRef)> add=[&](ObjectRef x){
-        if(x.kind==ObjectKind::Atom&&d.atoms().alive(x.id))seeds.insert(x.id);
+        if(x.kind==ObjectKind::Atom&&d.atoms().alive(x.id))seeds.push_back(x.id);
         if(x.kind==ObjectKind::Text&&d.texts().alive(x.id)&&compounddata::find(d.plainText(x.id)))texts.insert(x.id);
-        if(x.kind==ObjectKind::Bond){auto b=d.bonds().alive(x.id);if(b){seeds.insert(b->beginAtom);seeds.insert(b->endAtom);}}
+        if(x.kind==ObjectKind::Bond){auto b=d.bonds().alive(x.id);if(b){seeds.push_back(b->beginAtom);seeds.push_back(b->endAtom);}}
         if(x.kind==ObjectKind::Group&&groups.insert(x).second){auto g=d.groups().alive(x.id);if(g)for(auto y:g->members)add(y);}
     };for(auto x:refs)add(x);
     if(seeds.empty()&&texts.empty()){r.note="选择结构或库内化合物文字，查看分子信息";return r;}
     r.components=texts.size();
-    for(auto seed:seeds){if(seen.count(seed))continue;++r.components;std::queue<ObjectId> q;q.push(seed);seen.insert(seed);
-        while(!q.empty()){auto a=q.front();q.pop();for(auto b:d.incidentBonds(a)){auto br=d.bonds().alive(b);if(!br)continue;auto n=br->beginAtom==a?br->endAtom:br->beginAtom;if(seen.insert(n).second)q.push(n);}}}
+    std::vector<bool> visited(seeds.empty() ? 0 : d.atoms().records().size());
+    for (auto seed : seeds) {
+        if (visited[seed]) continue;
+        ++r.components;
+        size_t next = seen.size();
+        seen.push_back(seed);
+        visited[seed] = true;
+        while (next < seen.size()) {
+            const auto atom = seen[next++];
+            for (auto id : d.incidentBonds(atom)) {
+                const auto* bond = d.bonds().alive(id);
+                if (!bond) continue;
+                const auto neighbour = bond->beginAtom == atom ? bond->endAtom : bond->beginAtom;
+                if (!visited[neighbour]) {
+                    visited[neighbour] = true;
+                    seen.push_back(neighbour);
+                }
+            }
+        }
+    }
+    // Preserve atom ID order for mass accumulation and fragment reconstruction.
+    std::sort(seen.begin(), seen.end());
     // Analyze the saved molecular graph, including attachment valence, instead
     // of trying to infer a custom definition from its display name.
     auto fragmentFor=[&](ObjectId id){
@@ -95,7 +116,7 @@ inline Formula analyze(const Document& d,const std::vector<ObjectRef>& refs){
     if(embedded){try{
         Document copy;copy.setDefaultBondLength(d.defaultBondLength());std::map<ObjectId,ObjectId> mapping;
         for(auto id:seen){auto atom=*d.atoms().alive(id);atom.sourceId=0;ObjectId fresh;auto e=copy.addAtomRecord(atom,&fresh);if(!e.ok())throw std::runtime_error(e.message);mapping[id]=fresh;copy.setAtomLabel(fresh,d.atomLabel(id));auto raw=fragmentFor(id);if(!raw.empty()){auto sem=copy.atoms().alive(fresh)->semantics;sem.nodeType=uint8_t(NodeType::Nickname);copy.setAtomSemantics(fresh,sem);copy.extensions(ObjectRef(ObjectKind::Atom,fresh)).set("studio.nickname.fragment",raw);}}
-        for(auto id:seen)for(auto bid:d.incidentBonds(id)){auto bond=*d.bonds().alive(bid);if(bond.beginAtom!=id||!seen.count(bond.endAtom))continue;bond.sourceId=0;bond.beginAtom=mapping[bond.beginAtom];bond.endAtom=mapping[bond.endAtom];ObjectId fresh;auto e=copy.addBondRecord(bond,&fresh);if(!e.ok())throw std::runtime_error(e.message);}
+        for(auto id:seen)for(auto bid:d.incidentBonds(id)){auto bond=*d.bonds().alive(bid);if(bond.beginAtom!=id||!visited[bond.endAtom])continue;bond.sourceId=0;bond.beginAtom=mapping[bond.beginAtom];bond.endAtom=mapping[bond.endAtom];ObjectId fresh;auto e=copy.addBondRecord(bond,&fresh);if(!e.ok())throw std::runtime_error(e.message);}
         std::ostringstream xml;auto e=persistence::writeCdxml(copy,xml);if(!e.ok())throw std::runtime_error(e.message);
         Document expanded;e=persistence::readCdxml(nicknameexpand::expand(xml.str()),expanded);if(!e.ok())throw std::runtime_error(e.message);
         std::vector<ObjectRef> all;for(const auto& a:expanded.atoms().records())if(a.isAlive())all.push_back(ObjectRef(ObjectKind::Atom,a.id));
@@ -110,12 +131,12 @@ inline Formula analyze(const Document& d,const std::vector<ObjectRef>& refs){
             if(!addFormulaExact(ion->formula,exact))exactOk=false;if(heavy)r.atoms+=heavy-1;
             charge+=compounddata::ionCharge(ion);continue;
         }
-        const int elementalH=sem.nodeType==uint8_t(NodeType::Element)?hydride_labels::count(a->element,label):-1;
+        const int elementalH=!label.empty() && sem.nodeType==uint8_t(NodeType::Element)?hydride_labels::count(a->element,label):-1;
         if(elementalH<0&&!d.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.nickname.fragment")&&
            !label.empty()&&label!=core::elementSymbol(a->element)){
             if(const auto* compound=compounddata::find(label)){size_t heavy=0;if(!addFormulaText(compound->formula,counts,mass,heavy)){r.note="化合物分子式数据不可用";return r;}if(!addFormulaExact(compound->formula,exact))exactOk=false;if(heavy)r.atoms+=heavy-1;int intrinsicCharge=0;formulaComposition(compound->formula,&intrinsicCharge);charge+=sem.charge+intrinsicCharge;continue;}
         }
-        if(auto alias=elementalH<0?nickdata::findAlias(label):nullptr){size_t heavy=0;if(!addFormulaText(alias->formula,counts,mass,heavy)){r.note="缩写分子式数据不可用";return r;}if(!addFormulaExact(alias->formula,exact))exactOk=false;if(heavy>0)r.atoms+=heavy-1;continue;}
+        if(auto alias=!label.empty() && elementalH<0?nickdata::findAlias(label):nullptr){size_t heavy=0;if(!addFormulaText(alias->formula,counts,mass,heavy)){r.note="缩写分子式数据不可用";return r;}if(!addFormulaExact(alias->formula,exact))exactOk=false;if(heavy>0)r.atoms+=heavy-1;continue;}
         bool countedCarbonRadical=sem.implicitHydrogens>=0&&sem.radical>=uint8_t(Radical::Singlet)&&sem.radical<=uint8_t(Radical::Triplet);
         if(sem.nodeType!=uint8_t(NodeType::Element)||(!label.empty()&&label!=core::elementSymbol(a->element)&&elementalH<0)||(sem.radical&&!countedCarbonRadical&&elementalH<0)){r.note="含未解析标签或未明确氢数的自由基，暂不计算";return r;}
         int sum=0,arom=0,degree=0;for(auto bid:d.incidentBonds(id)){auto b=d.bonds().alive(bid);if(!b)continue;++degree;

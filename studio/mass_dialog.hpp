@@ -3,12 +3,7 @@
 // Common mass-spectrometry calculator: average and monoisotopic mass, DBE,
 // and the usual positive/negative adducts with their theoretical m/z.
 struct MassCalculatorDialog {
-    struct Adduct {
-        const wchar_t* name;
-        int charge;
-        double monoDelta;   // exact adduct mass relative to M
-        double avgDelta;    // average adduct mass relative to M
-    };
+    using Adduct = studio::mass::Adduct;
     Formula formula;
     HWND list=0, theoretical=0, filterBox=0, copy=0;bool embedded=false,showAll=false,expanded[2]={false,false};
     HFONT font=0, bigFont=0, monoFont=0,tableFont=0;
@@ -16,29 +11,7 @@ struct MassCalculatorDialog {
     int filter=1;                 // 0 all, 1 positive, 2 negative
     int selected=-1;              // index into adducts()
     std::vector<size_t> visible;
-    static const std::vector<Adduct>& adducts(){
-        static const std::vector<Adduct> table={
-            {L"[M]+•",             1, -0.000548579909, -0.000548579909},
-            {L"[M+H]+",            1,  1.007276466621,  1.00794},
-            {L"[M+Na]+",           1, 22.989220702,     22.98977},
-            {L"[M+K]+",            1, 38.963157906,     39.0983},
-            {L"[M+NH4]+",          1, 18.033825554,     18.03846},
-            {L"[M+H-H2O]+",        1,-17.003288231,    -17.00734},
-            {L"[M+2H]2+",          2,  2.014552933,      2.01588},
-            {L"[M+3H]3+",          3,  3.021829400,      3.02382},
-            {L"[M+ACN+H]+",        1, 42.033825554,     42.06102},
-            {L"[M+MeOH+H]+",       1, 33.033491208,     33.05010},
-            {L"[M]-•",            -1,  0.000548579909,  0.000548579909},
-            {L"[M-H]-",           -1, -1.007276466621, -1.00794},
-            {L"[M+Cl]-",          -1, 34.969401262,     35.453},
-            {L"[M+HCOO]-",        -1, 44.998202715,     45.01744},
-            {L"[M+CH3COO]-",      -1, 59.013853563,     59.04454},
-            {L"[M+Br]-",          -1, 78.918886180,     79.904},
-            {L"[M+NO3]-",         -1, 61.988366190,     62.00490},
-            {L"[M-2H]2-",         -2, -2.014552933,     -2.01588}
-        };
-        return table;
-    }
+    static const std::array<Adduct, 18>& adducts(){ return studio::mass::adducts(); }
     static std::wstring number(double value,int decimals){
         wchar_t buffer[64];swprintf(buffer,64,L"%.*f",decimals,value);return buffer;
     }
@@ -48,10 +21,7 @@ struct MassCalculatorDialog {
         if(magnitude!=1)out+=std::to_wstring(magnitude);
         return out;
     }
-    double mz(const Adduct& a,bool average)const{
-        double base=average?formula.averageMass:formula.exactMass;
-        return (base+(average?a.avgDelta:a.monoDelta))/std::abs(a.charge);
-    }
+    double mz(const Adduct& a,bool average)const{ return studio::mass::mz(formula,a,average); }
     int selectedAdduct()const{
         if(selected<0||size_t(selected)>=adducts().size())return -1;
         return selected;
@@ -60,13 +30,12 @@ struct MassCalculatorDialog {
         studio_i18n::sendMessage(list,LVM_DELETEALLITEMS,0,0);visible.clear();
         if(!formula.valid){selected=-1;update(h);return;}
         for(size_t i=0;i<adducts().size();++i){
-            const Adduct& a=adducts()[i];
+            const auto& a=adducts()[i];
             if(filter==1&&a.charge<0)continue;
             if(filter==2&&a.charge>0)continue;
-            const bool common=i==1||i==2||i==3||i==4||i==11||i==12||i==13||i==14;
-            if(!showAll&&!common)continue;
+            if(!showAll&&!a.common)continue;
             int row=int(visible.size());visible.push_back(i);
-            std::wstring name=a.name;
+            std::wstring name=W(a.name);
             LVITEMW item={};item.mask=LVIF_TEXT;item.iItem=row;item.pszText=&name[0];
             studio_i18n::sendMessage(list,LVM_INSERTITEMW,0,(LPARAM)&item);
             auto set=[&](int col,const std::wstring& value){
@@ -79,7 +48,7 @@ struct MassCalculatorDialog {
         }
         int row=0;
         if(!visible.empty()){
-            for(size_t i=0;i<visible.size();++i)if(wcscmp(adducts()[visible[i]].name,L"[M+H]+")==0){row=int(i);break;}
+            for(size_t i=0;i<visible.size();++i)if(std::strcmp(adducts()[visible[i]].name,"[M+H]+")==0){row=int(i);break;}
             selected=int(visible[size_t(row)]);
             LVITEMW state={};state.stateMask=LVIS_SELECTED|LVIS_FOCUSED;state.state=state.stateMask;
             studio_i18n::sendMessage(list,LVM_SETITEMSTATE,row,(LPARAM)&state);
@@ -90,7 +59,7 @@ struct MassCalculatorDialog {
     void update(HWND h){
         int adduct=selectedAdduct();
         if(adduct<0||!formula.exactValid){studio_i18n::setWindowText(theoretical,L"—");EnableWindow(copy,FALSE);return;}
-        const Adduct& a=adducts()[size_t(adduct)];
+        const auto& a=adducts()[size_t(adduct)];
         double calculated=mz(a,false);
         studio_i18n::setWindowText(theoretical,number(calculated,4).c_str());
         EnableWindow(copy,TRUE);

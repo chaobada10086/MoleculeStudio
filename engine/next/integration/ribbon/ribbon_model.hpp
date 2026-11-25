@@ -5,6 +5,7 @@
 // to, plus a disposition. Nothing here may claim a capability the assembly does
 // not have - the view disables and explains Unsupported rows.
 #include "ribbon_icons.hpp"
+#include "command_labels.hpp"
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -70,8 +71,6 @@ const Model& ribbonModel();
 // Chinese label for a source command, derived from its category and a reviewed
 // token dictionary. Never returns an empty string; unknown tokens fall through
 // so the real command name stays visible in the tooltip.
-std::string zhLabelForCommand(const std::string& command, const std::string& category);
-std::string zhCategory(const std::string& category);
 // Semantic icon for a source command; writes a variant where relevant.
 int iconForCommand(const std::string& command, int* variant);
 

@@ -2,6 +2,7 @@
 #include "engine/molecular_render.hpp"
 #include "engine/mechanism_visual_anchors.hpp"
 #include "engine/name_link.hpp"
+#include "platform_font.hpp"
 #include "next/selection/bounds.hpp"
 #include <memory>
 #include <set>
@@ -25,7 +26,8 @@ inline std::vector<Component> components(const Document& doc,const std::vector<O
         result.push_back(c);
     }
     size_t chosenCount=0;for(const auto& c:result)chosenCount+=c.chosen;if(chosenCount<2)return result;
-    std::unique_ptr<text::GlyphProvider> provider(text::createGdiGlyphProvider("Arial","Microsoft YaHei"));text::GlyphCache glyphs(provider.get());
+    auto provider = studio::createGlyphProvider();
+    text::GlyphCache glyphs(provider.get());
     integration::RingGeometry rings(doc);auto labels=integration::molecular::labels(doc,glyphs,rings);
     const double em=integration::molecular::setting(doc,"LabelSize",10);
     for(auto& c:result)for(auto id:c.atoms){auto label=labels.find(id);const auto* layout=label==labels.end()?nullptr:&label->second.layout;

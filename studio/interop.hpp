@@ -4,19 +4,26 @@
 #define STUDIO_INTEROP_HPP
 #include "next/integration/session.hpp"
 #include "next/arrows_curves/model.hpp"
+#include "next/graphics/model.hpp"
 #include "engine/table_layout.hpp"
 #include "engine/atom_runs.hpp"
 #include "engine/bond_hydrogens.hpp"
 #include "engine/virtual_bonds.hpp"
 #include "engine/electron_graphics.hpp"
 #include "third_party/tinyxml2/tinyxml2.h"
+#ifdef _WIN32
 #include <windows.h>
+#endif
 #include <functional>
+#include <unordered_map>
+#include <unordered_set>
 #include <cctype>
 #include "cdx_binary.hpp"
 #include "page_defaults.hpp"
 #include "engine/name_link.hpp"
+#ifdef _WIN32
 #include "clipboard_image.hpp"
+#endif
 namespace studioio {
 using namespace r62; using namespace core;
 struct Page {
@@ -108,7 +115,16 @@ inline Error exportXml(const Document& d,std::string* bytes){
         pg->SetAttribute("MoleculeStudioPageHeight",numberText(p.height).c_str());
         // Captions and graphics belong to the page, not to a molecule fragment.
         for(auto frag=pg->FirstChildElement("fragment");frag;frag=frag->NextSiblingElement("fragment")){
-            for(auto child=frag->FirstChildElement();child;){auto next=child->NextSiblingElement();std::string n=child->Name();if(n!="n"&&n!="b"&&n!="fragment"){auto clone=child->DeepClone(&xml);pg->InsertEndChild(clone);frag->DeleteChild(child);}child=next;}
+            for(auto child=frag->FirstChildElement();child;){
+                auto next=child->NextSiblingElement();
+                const std::string name=child->Name();
+                if(name=="t"||name=="graphic"||name=="arrow"||name=="curve"||
+                   name=="embeddedobject"||name=="bioshape"||name=="group"||
+                   name=="table"||name=="tlcplate"||name=="spectrum"||
+                   name=="scheme"||name=="bracketedgroup")
+                    pg->InsertEndChild(child);
+                child=next;
+            }
         }
         // Keep drawing coordinates as they are, but move the exported copy into
         // the canvas. ChemDraw reads them unchanged, so the translation must not
@@ -130,9 +146,24 @@ inline Error exportXml(const Document& d,std::string* bytes){
                         e->SetAttribute("MoleculeStudioPath",fixed.str().c_str());
                     }
                 }
-                for(const char* name:{"p","xyz","BoundingBox","CurvePoints","MoleculeStudioPath","Head3D","Tail3D","Center3D","MajorAxisEnd3D","MinorAxisEnd3D","TopLeft","TopRight","BottomLeft","BottomRight"})if(auto attr=e->Attribute(name)){
+                if (!move && e->Attribute("MoleculeStudioImageCorners") && e->Attribute("BoundingBox")) {
+                    std::istringstream corners(e->Attribute("MoleculeStudioImageCorners")), box(e->Attribute("BoundingBox"));
+                    Vec2 points[4], a, b;
+                    if (box >> a.x >> a.y >> b.x >> b.y &&
+                        corners >> points[0].x >> points[0].y >> points[1].x >> points[1].y
+                                >> points[2].x >> points[2].y >> points[3].x >> points[3].y) {
+                        const auto offset = (a + b - points[0] - points[2]) * .5;
+                        if (length(offset) > 1e-6) {
+                            std::ostringstream fixed;
+                            fixed.precision(12);
+                            for (const auto& point : points) fixed << point.x+offset.x << ' ' << point.y+offset.y << ' ';
+                            e->SetAttribute("MoleculeStudioImageCorners", fixed.str().c_str());
+                        }
+                    }
+                }
+                for(const char* name:{"p","xyz","BoundingBox","CurvePoints","MoleculeStudioPath","MoleculeStudioImageCorners","Head3D","Tail3D","Center3D","MajorAxisEnd3D","MinorAxisEnd3D","TopLeft","TopRight","BottomLeft","BottomRight"})if(auto attr=e->Attribute(name)){
                     std::istringstream in(attr);std::vector<double> v;double n;while(in>>n)v.push_back(n);if(v.size()<2)continue;
-                    const bool corners=std::string(name)=="BoundingBox"||std::string(name)=="CurvePoints"||std::string(name)=="MoleculeStudioPath";
+                    const bool corners=std::string(name)=="BoundingBox"||std::string(name)=="CurvePoints"||std::string(name)=="MoleculeStudioPath"||std::string(name)=="MoleculeStudioImageCorners";
                     if(!move){
                         minX=std::min(minX,v[0]);minY=std::min(minY,v[1]);maxX=std::max(maxX,v[0]);maxY=std::max(maxY,v[1]);
                         if(corners)for(size_t k=2;k+1<v.size();k+=2){minX=std::min(minX,v[k]);minY=std::min(minY,v[k+1]);maxX=std::max(maxX,v[k]);maxY=std::max(maxY,v[k+1]);}
@@ -162,22 +193,55 @@ inline Error exportXml(const Document& d,std::string* bytes){
 }
 // Copy selected objects through the model API so every insertion is recorded by
 // the caller's transaction. Source IDs are cleared to avoid cross-file collisions.
-inline std::set<ObjectRef> expanded(const Document& doc,const std::vector<ObjectRef>& refs,bool copyDependencies=false){
-    std::set<ObjectRef> chosen;
-    std::vector<ObjectRef> pending;
-    auto add=[&](ObjectRef r){if(chosen.insert(r).second)pending.push_back(r);};
+inline Error writeDocument(const Document& doc,const std::string& p,bool xml,bool binaryCdx,
+                           const persistence::AtomicWriteOptions& options){
+        std::string bytes;Error e;
+        if(xml || binaryCdx){
+            e=studioio::exportXml(doc,&bytes);
+            if(e.ok()&&binaryCdx){std::string binary,why;if(!cdxbinary::fromXml(bytes,binary,why))e=Error(ErrorCode::ParseError,why);else bytes=std::move(binary);}
+        }else{std::ostringstream out;e=integration::saveSafeNative(doc,out);bytes=out.str();}
+        if(e.ok())e=persistence::writeFileAtomic(p,bytes,options);
+        return e;
+}
+inline Error saveDocumentFile(const Document& doc,const std::string& p,bool xml){
+    auto dot=p.find_last_of('.');std::string ext=dot==std::string::npos?"":p.substr(dot);
+    for(auto& ch:ext)ch=char(tolower((unsigned char)ch));
+    return writeDocument(doc,p,ext==".cdxml"||(ext.empty()&&xml),ext==".cdx",{});
+}
+struct ObjectRefHash {
+    size_t operator()(ObjectRef ref) const {
+        return std::hash<uint64_t>{}((uint64_t(ref.kind)<<32)|ref.id);
+    }
+};
+inline std::vector<ObjectRef> collectExpandedObjects(const Document& doc,const std::vector<ObjectRef>& refs,bool copyDependencies,
+        std::unordered_set<ObjectRef,ObjectRefHash>& seen){
+    seen.reserve(refs.size());
+    std::vector<ObjectRef> chosen;
+    chosen.reserve(refs.size());
+    auto add=[&](ObjectRef r){if(seen.insert(r).second)chosen.push_back(r);};
     for(auto r:refs)add(r);
     bool atoms=false;
-    while(!pending.empty()){
-        auto r=pending.back();pending.pop_back();
+    for(size_t i=0;i<chosen.size();++i){
+        const auto r=chosen[i];
         if(r.kind==ObjectKind::Atom)atoms=true;
         if(r.kind==ObjectKind::Group){auto g=doc.groups().alive(r.id);if(g)for(auto member:g->members)add(member);}
         if(r.kind==ObjectKind::Bond){auto b=doc.bonds().alive(r.id);if(b){add({ObjectKind::Atom,b->beginAtom});add({ObjectKind::Atom,b->endAtom});}}
         if(copyDependencies && r.kind==ObjectKind::Arrow){ObjectId a,b;if(virtual_bonds::endpoints(doc,r,a,b)){add({ObjectKind::Atom,a});add({ObjectKind::Atom,b});}}
         if(copyDependencies && r.kind==ObjectKind::Table){auto t=doc.tables().alive(r.id);if(t)for(auto id:t->cells)if(id!=kInvalidObjectId)add({ObjectKind::Text,id});}
     }
-    if(atoms)for(const auto& b:doc.bonds().records())if(b.isAlive() && chosen.count({ObjectKind::Atom,b.beginAtom}) && chosen.count({ObjectKind::Atom,b.endAtom}))chosen.insert({ObjectKind::Bond,b.id});
+    if(atoms)for(const auto& b:doc.bonds().records())if(b.isAlive() && seen.count({ObjectKind::Atom,b.beginAtom}) && seen.count({ObjectKind::Atom,b.endAtom}))add({ObjectKind::Bond,b.id});
     return chosen;
+}
+inline std::vector<ObjectRef> expandedObjects(const Document& doc,const std::vector<ObjectRef>& refs,bool copyDependencies){
+    std::unordered_set<ObjectRef,ObjectRefHash> seen;
+    auto chosen=collectExpandedObjects(doc,refs,copyDependencies,seen);
+    // Fresh IDs, group members and arrow remapping follow the same order as the source.
+    std::sort(chosen.begin(),chosen.end());
+    return chosen;
+}
+inline std::set<ObjectRef> expanded(const Document& doc,const std::vector<ObjectRef>& refs,bool copyDependencies=false){
+    auto objects=expandedObjects(doc,refs,copyDependencies);
+    return {objects.begin(),objects.end()};
 }
 inline Box selectionBounds(integration::Session& s){
     // An empty selection has no bounds. Keep the last nonempty selection cached
@@ -186,32 +250,39 @@ inline Box selectionBounds(integration::Session& s){
     static const integration::Session* owner=nullptr;static DocumentId document=0;static uint64_t serial=0;
     static std::vector<ObjectRef> selection;static Box cached;
     if(owner==&s&&document==s.doc.id()&&serial==s.serial&&selection==s.selected)return cached;
-    auto refs=expanded(s.doc,s.selected);Box b(Vec2(1,1),Vec2(-1,-1));
+    std::unordered_set<ObjectRef,ObjectRefHash> refs;
+    auto objects=collectExpandedObjects(s.doc,s.selected,false,refs);
+    Box b(Vec2(1,1),Vec2(-1,-1));
     auto include=[&](Vec2 p){if(!p.finite())return;if(b.empty())b=Box(p,p);else b.add(p);};
     for(auto& p:s.scene.primitives())if(refs.count(p.source)&&!p.bounds.empty()){include(p.bounds.min);include(p.bounds.max);}
-    for(auto r:refs)if(r.kind==ObjectKind::Atom&&s.doc.atoms().alive(r.id))include(s.doc.atoms().get(r.id)->position);
+    for(auto r:objects)if(r.kind==ObjectKind::Atom&&s.doc.atoms().alive(r.id))include(s.doc.atoms().get(r.id)->position);
     owner=&s;document=s.doc.id();serial=s.serial;selection=s.selected;cached=b;return b;
 }
 inline bool inside(const Box& b,Vec2 p,double pad=0){return !b.empty()&&p.x>=b.min.x-pad&&p.x<=b.max.x+pad&&p.y>=b.min.y-pad&&p.y<=b.max.y+pad;}
 inline Error append(const Document& src,Document& dst,const std::vector<ObjectRef>& refs,Vec2 delta,std::vector<ObjectRef>* inserted){
-    auto chosen=expanded(src,refs,true);
-    std::map<ObjectRef,ObjectRef> map;Error error;
+    auto chosen=expandedObjects(src,refs,true);
+    std::unordered_map<ObjectRef,ObjectRef,ObjectRefHash> map;
+    map.reserve(chosen.size());
+    const double defaultWidth=src.defaultLineWidth();
+    const std::string defaultWidthText=std::to_string(defaultWidth);
+    Error error;
     auto add=[&](ObjectRef old,ObjectId id,Error e){if(!e.ok()){error=e;return;}ObjectRef fresh(old.kind,id);map[old]=fresh;if(inserted)inserted->push_back(fresh);
         // Preserve non-source custom data; stale source snapshots must not be
         // re-emitted at their pre-paste coordinates on a later CDXML save.
         // A pasted copy gets fresh object ids, so a stored structure link would
         // point at unrelated objects; the copy starts unlinked instead.
-        for(auto& v:src.extensions(old).entries())if((v.key.compare(0,4,"pst.")!=0||v.key.find("pst.attr.MoleculeStudioCatalytic")==0||v.key.compare(0,30,"pst.attr.MoleculeStudioProject")==0||v.key=="pst.attr.MoleculeStudioRole"||v.key=="pst.attr.MoleculeStudioLonePairs"||
-            v.key=="pst.attr.MoleculeStudioRadicalPosition"||v.key=="pst.attr.MoleculeStudioChargePosition"||
+        const auto& sourceProperties=src.extensions(old);
+        for(auto& v:sourceProperties.entries())if((v.key.compare(0,4,"pst.")!=0||v.key.find("pst.attr.MoleculeStudioCatalytic")==0||v.key.compare(0,30,"pst.attr.MoleculeStudioProject")==0||v.key=="pst.attr.MoleculeStudioRole"||v.key=="pst.attr.MoleculeStudioLonePairs"||
+            v.key=="pst.attr.MoleculeStudioBridgeLayer"||v.key=="pst.attr.MoleculeStudioRadicalPosition"||v.key=="pst.attr.MoleculeStudioChargePosition"||
             v.key=="pst.attr.MoleculeStudioLiteralLabel"||v.key=="pst.attr.MoleculeStudioLonePairPositions"||
             v.key=="pst.attr.MoleculeStudioChargeCircle"||v.key=="pst.attr.BoldWidth"||v.key=="pst.attr.IgnoreWarnings"||v.key=="pst.attr.InterpretChemically"||v.key=="pst.attr.Visible"||v.key=="pst.attr.ElementList"||v.key=="pst.attr.GenericNickname"||
             v.key=="pst.attr.GenericList"||v.key=="pst.attr.SubstituentsUpTo"||v.key=="pst.attr.SubstituentsExactly"||
             v.key=="pst.attr.UnsaturatedBonds"||v.key=="pst.attr.RingBondCount")&&!namelink::isLinkKey(v.key))dst.extensions(fresh).set(v.key,v.value);
-        if(old.kind==ObjectKind::Bond&&!dst.extensions(fresh).findValue("studio.graphics.width")){
-            double width=src.defaultLineWidth();if(auto v=src.extensions(old).findValue("pst.attr.LineWidth"))width=std::atof(v->c_str());
-            if(std::isfinite(width)&&width>0)dst.extensions(fresh).set("studio.graphics.width",std::to_string(width));
+        if(old.kind==ObjectKind::Bond&&!sourceProperties.findValue("studio.graphics.width")){
+            double width=defaultWidth;if(auto v=sourceProperties.findValue("pst.attr.LineWidth"))width=std::atof(v->c_str());
+            if(std::isfinite(width)&&width>0)dst.extensions(fresh).set("studio.graphics.width",width==defaultWidth?defaultWidthText:std::to_string(width));
         }
-        if(old.kind==ObjectKind::Atom){auto runs=studioatom::runs(src,old.id);double size=10;if(auto v=src.documentExtensions().findValue("studio.style.LabelSize"))size=std::atof(v->c_str());for(auto& run:runs){if(run.size<=0)run.size=size;if(run.fontName.empty())run.fontName=src.defaultFont();}if(!runs.empty())studioatom::set(dst,fresh.id,runs);}
+        if(old.kind==ObjectKind::Atom&&sourceProperties.findValue("studio.atom.runs")){auto runs=studioatom::runs(src,old.id);double size=10;if(auto v=src.documentExtensions().findValue("studio.style.LabelSize"))size=std::atof(v->c_str());for(auto& run:runs){if(run.size<=0)run.size=size;if(run.fontName.empty())run.fontName=src.defaultFont();}if(!runs.empty())studioatom::set(dst,fresh.id,runs);}
 
     };
     for(auto r:chosen)if(r.kind==ObjectKind::Atom){auto a=src.atoms().alive(r.id);if(!a)continue;auto c=*a;c.sourceId=0;c.position=c.position+delta;ObjectId id;auto e=dst.addAtomRecord(c,&id);add(r,id,e);if(e.ok()){if(!src.atomLabel(r.id).empty())dst.setAtomLabel(id,src.atomLabel(r.id));}}
@@ -240,7 +311,9 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
             e=graphics::writeTable(dst,id,data);if(!e.ok())return e;
         }
     }
-    for(const auto& entry:map)if(entry.first.kind==ObjectKind::Arrow){
+    for(auto ref:chosen)if(ref.kind==ObjectKind::Arrow){
+        const auto copied=map.find(ref);if(copied==map.end())continue;
+        const auto& entry=*copied;
         arrows::ArrowParams original,current;bool valid=false;
         arrows::readArrow(src,entry.first.id,&original,&valid);
         if(!valid||(!original.mechanism&&!original.virtualBond))continue;
@@ -254,10 +327,33 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
     for(auto r:chosen)if(r.kind==ObjectKind::Group){auto a=src.groups().alive(r.id);if(!a)continue;auto c=*a;c.sourceId=0;c.members.clear();for(auto m:a->members){auto it=map.find(m);if(it!=map.end())c.members.push_back(it->second);}ObjectId id;auto e=dst.addGroup(c,&id);add(r,id,e);}
     return error;
 }
+inline Error clipboardSubset(const Document& source, const std::vector<ObjectRef>& refs, Document& subset) {
+    subset.setDefaultBondLength(source.defaultBondLength());
+    subset.setDefaultLineWidth(source.defaultLineWidth());
+    subset.setDefaultFont(source.defaultFont());
+    subset.setDefaultTextSize(source.defaultTextSize());
+    for (const auto& entry : source.documentExtensions().entries())
+        if (entry.key.compare(0, 13, "studio.style.") == 0 || entry.key.compare(0, 15, "studio.palette.") == 0)
+            subset.documentExtensions().set(entry.key, entry.value);
+    return append(source, subset, refs, Vec2(), nullptr);
+}
+inline bool documentEmpty(const Document& d) {
+    for (const auto& atom : d.atoms().records()) if (atom.isAlive()) return false;
+    for (const auto& bond : d.bonds().records()) if (bond.isAlive()) return false;
+    for (const auto& text : d.texts().records()) if (text.isAlive()) return false;
+    for (const auto& path : d.paths().records()) if (path.isAlive()) return false;
+    for (const auto& table : d.tables().records()) if (table.isAlive()) return false;
+    for (const auto& group : d.groups().records()) if (group.isAlive()) return false;
+    for (const auto* records : {&d.arrows(), &d.brackets(), &d.orbitals(), &d.symbols(), &d.bioShapes()})
+        for (const auto& record : records->records()) if (record.isAlive()) return false;
+    return true;
+}
+#ifdef _WIN32
 inline UINT nativeFormat(){return RegisterClipboardFormatW(L"MoleculeStudio.DocumentSelection.v2");}
 // Host hook for OLE publishing. When set, copy() hands the selection to the
 // OLE data object (Embed Source + EMF) instead of writing raw clipboard formats.
 inline std::function<bool(const Document&,const std::string&,const std::string&)>& olePublisher(){static std::function<bool(const Document&,const std::string&,const std::string&)> fn;return fn;}
+#endif
 // ---------------------------------------------------------------------------
 // Paste format confirmation (task 2)
 // ---------------------------------------------------------------------------
@@ -313,23 +409,6 @@ inline PasteFormatMode pasteFormatDecision(const DrawingFormat& source, const Dr
 }
 
 enum class PasteFormatAction { Default, AdoptSource, KeepTarget };
-
-// "No drawable content": a blank canvas that has nothing to be consistent with.
-inline bool documentEmpty(const Document& d) {
-    for (const auto& atom : d.atoms().records()) if (atom.isAlive()) return false;
-    for (const auto& bond : d.bonds().records()) if (bond.isAlive()) return false;
-    for (const auto& text : d.texts().records()) if (text.isAlive()) return false;
-    for (const auto& path : d.paths().records()) if (path.isAlive()) return false;
-    for (const auto& table : d.tables().records()) if (table.isAlive()) return false;
-    for (const auto& group : d.groups().records()) if (group.isAlive()) return false;
-    for (int slab = 0; slab < 5; ++slab) {
-        const ObjectSlab<AnnotationRecord>& records =
-            slab == 0 ? d.arrows() : slab == 1 ? d.brackets() : slab == 2 ? d.orbitals()
-            : slab == 3 ? d.symbols() : d.bioShapes();
-        for (const auto& record : records.records()) if (record.isAlive()) return false;
-    }
-    return true;
-}
 
 // Adopting the source format means adopting it for the WHOLE document, not just
 // for the pasted objects: the document defaults (bond length, line width, font)
@@ -396,12 +475,11 @@ inline std::string drawingFormatSummary(const DrawingFormat& format) {
     return out.str();
 }
 
+#ifdef _WIN32
 inline Error put(UINT fmt,const void* bytes,size_t size){HGLOBAL h=GlobalAlloc(GMEM_MOVEABLE|GMEM_ZEROINIT,size);if(!h)return Error(ErrorCode::IoError,"剪贴板内存不足");void* p=GlobalLock(h);if(!p){GlobalFree(h);return Error(ErrorCode::IoError,"剪贴板分配失败");}memcpy(p,bytes,size);GlobalUnlock(h);if(!SetClipboardData(fmt,h)){GlobalFree(h);return Error(ErrorCode::IoError,"剪贴板写入失败");}return Error();}
 inline Error copy(integration::Session& s,HWND owner,bool cut){
     if(s.selected.empty())return Error(ErrorCode::InvalidArgument,"请先选择对象");
-    Document subset;subset.setDefaultBondLength(s.doc.defaultBondLength());subset.setDefaultLineWidth(s.doc.defaultLineWidth());subset.setDefaultFont(s.doc.defaultFont());subset.setDefaultTextSize(s.doc.defaultTextSize());
-    for(const auto& entry:s.doc.documentExtensions().entries())if(entry.key.compare(0,13,"studio.style.")==0||entry.key.compare(0,15,"studio.palette.")==0)subset.documentExtensions().set(entry.key,entry.value);
-    auto e=append(s.doc,subset,s.selected,Vec2(),nullptr);if(!e.ok())return e;std::ostringstream out;e=integration::saveSafeNative(subset,out);if(!e.ok())return e;auto bytes=out.str();std::string xml;e=exportXml(subset,&xml); // Native clipboard remains usable for objects not exportable as CDXML.
+    Document subset;auto e=clipboardSubset(s.doc,s.selected,subset);if(!e.ok())return e;std::ostringstream out;e=integration::saveSafeNative(subset,out);if(!e.ok())return e;auto bytes=out.str();std::string xml;e=exportXml(subset,&xml); // Native clipboard remains usable for objects not exportable as CDXML.
     if(olePublisher()){
         if(!olePublisher()(subset,bytes,xml))return Error(ErrorCode::IoError,s.status.empty()?"无法复制可编辑的 OLE 对象，请重试":s.status);
         if(cut){e=s.submit(commands::deleteObjects(s.selected),"剪切");if(e.ok())s.selected.clear();}
@@ -489,6 +567,18 @@ inline Error paste(integration::Session& s,HWND owner){
         else s.status=image?"已粘贴图片 · 可移动、缩放和撤销":"已粘贴";
     }return e;
 }
+#endif
+inline bool selectionHasFrame(const integration::Session& session) {
+    if (session.selected.empty()) return false;
+    if (session.selected.size() != 1) return true;
+    const auto ref = session.selected.front();
+    if (ref.kind == ObjectKind::Table) return false;
+    if (ref.kind != ObjectKind::Arrow) return true;
+    graphics::ShapeParams shape;
+    bool nativeShape = false;
+    return graphics::readShape(session.doc, ref.id, &shape, &nativeShape).ok() && nativeShape;
+}
+
 inline void selectionOverlay(integration::Session& s,render::OverlayScene& out){
     using namespace render;auto v=s.view();double unit=v.deviceRadiusToDocument(v.dpiScale*.75);
     auto segment=[&](Vec2 a,Vec2 b,uint32_t color,double width){Primitive p;p.kind=PrimKind::Segment;p.points={a,b};p.layer=LayerId(900);p.z=100;p.style.stroke=Paint(color,true);p.style.strokeWidth=unit*width;p.style.fill.enabled=false;p.bounds=geom::computeBounds(p,.6);out.scene().add(p);};
@@ -500,7 +590,7 @@ inline void selectionOverlay(integration::Session& s,render::OverlayScene& out){
     for(auto r:s.selected)if(r.kind==ObjectKind::Arrow){arrows::ArrowParams params;bool ok=false;if(arrows::readArrow(s.doc,r.id,&params,&ok).ok()){for(auto h:arrows::arrowHandles(params,s.doc.defaultLineWidth(),arrows::Tessellation())){Primitive p;p.kind=PrimKind::Rect;p.points={h.point-Vec2(unit*2,unit*2),h.point+Vec2(unit*2,unit*2)};p.layer=LayerId(900);p.z=102;p.style.fill=Paint(0x7CB9E8FF,true);p.style.stroke.enabled=false;p.bounds=Box(p.points[0],p.points[1]);out.scene().add(p);}}}
     // One frame for the entire selection; hit testing uses the identical frame.
     std::map<ObjectRef,Box> boxes;auto selectedBounds=selectionBounds(s);
-    if(!selectedBounds.empty()&&!s.selected.empty()&&!(s.selected.size()==1&&(s.selected[0].kind==ObjectKind::Arrow||s.selected[0].kind==ObjectKind::Table)))boxes[ObjectRef(ObjectKind::Atom,0)]=selectedBounds;
+    if(!selectedBounds.empty()&&selectionHasFrame(s))boxes[ObjectRef(ObjectKind::Atom,0)]=selectedBounds;
     for(auto kv:boxes){Box b=kv.second;double pad=unit*3;b.min=b.min-Vec2(pad,pad);b.max=b.max+Vec2(pad,pad);double cx=(b.min.x+b.max.x)*.5,cy=(b.min.y+b.max.y)*.5;uint32_t color=0x7CB9E8FF;
         segment(b.min,Vec2(b.max.x,b.min.y),color,1);segment(Vec2(b.max.x,b.min.y),b.max,color,1);segment(b.max,Vec2(b.min.x,b.max.y),color,1);segment(Vec2(b.min.x,b.max.y),b.min,color,1);
         std::vector<Vec2> handles={b.min,Vec2(cx,b.min.y),Vec2(b.max.x,b.min.y),Vec2(b.min.x,cy),Vec2(b.max.x,cy),Vec2(b.min.x,b.max.y),Vec2(cx,b.max.y),b.max};

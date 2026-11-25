@@ -1,42 +1,26 @@
 #pragma once
+#ifdef _WIN32
 #include <windows.h>
 #include "app_paths.hpp"
+#endif
 #include <string>
 #include <map>
 #include <vector>
 #include <regex>
 #include <cwctype>
-#include <vector>
-#include <regex>
-#include <cwctype>
-#include <vector>
-#include <regex>
-#include <cwctype>
-#include <vector>
-#include <regex>
-#include <cwctype>
-#include <vector>
-#include <regex>
-#include <cwctype>
-#include <vector>
-#include <regex>
-#include <cwctype>
-#include <vector>
-#include <cwctype>
-#include <vector>
-#include <cwctype>
-#include <vector>
-#include <cwctype>
 namespace studio_i18n {
 #include "ui_language_extra.hpp"
-inline std::wstring& pathOverride(){static std::wstring p;return p;}
-inline std::wstring path(){if(!pathOverride().empty())return pathOverride();return apppaths::dataFile(L"interface.ini");}
+constexpr int languageCount = 15;
 inline const wchar_t* code(int i){static const wchar_t* v[]={L"zh-CN",L"zh-TW",L"en",L"ja",L"ko",L"fr",L"de",L"es",L"ru",L"pt",L"it",L"ar",L"hi",L"id",L"vi"};return v[i>=0&&i<15?i:0];}
 inline const wchar_t* name(int i){static const wchar_t* v[]={L"简体中文",L"繁體中文",L"English",L"日本語",L"한국어",L"Français",L"Deutsch",L"Español",L"Русский",L"Português",L"Italiano",L"العربية",L"हिन्दी",L"Bahasa Indonesia",L"Tiếng Việt"};return v[i>=0&&i<15?i:0];}
+#ifdef _WIN32
+inline std::wstring& pathOverride(){static std::wstring p;return p;}
+inline std::wstring path(){if(!pathOverride().empty())return pathOverride();return apppaths::dataFile(L"interface.ini");}
 inline int load(){wchar_t v[32]={};GetPrivateProfileStringW(L"Interface",L"Language",L"zh-CN",v,32,path().c_str());for(int i=0;i<15;++i)if(wcscmp(v,code(i))==0)return i;return 0;}
 inline int& current(){static int i=load();return i;}
 inline bool rtl(){return current()==11;}
 inline bool save(int i){if(i<0||i>=15)return false;if(!WritePrivateProfileStringW(L"Interface",L"Language",code(i),path().c_str()))return false;current()=i;return true;}
+#endif
 struct Row{const wchar_t* text[15];};
 inline const wchar_t* translationBlob(){static const wchar_t data[]=
 L"AI 结果无效\037AI 結果無效\037AI result is invalid\037結果は無効です。\037결과가 불가능한\037Le résultat est invalide\037Das Ergebnis ist unbeeinbar\037El resultado es inadecuado\037Итоги недействительны\037O resultado é inexistente\037Il risultato è invalido\037النتيجة غير مؤثرة\037परिणाम अयोग्य है\037Hasilnya tidak sah\037Kết quả là vô hiệu\036"
@@ -2524,14 +2508,14 @@ inline const std::vector<MessageTemplate>& messageTemplates(){static const std::
  if(count)result.push_back({std::wregex(pattern+L"$"),&entry.second,count});}return result;}();return values;}
 inline bool formattedMessage(const std::wstring& text,int language,std::wstring& output){for(auto& entry:messageTemplates()){std::wsmatch match;if(!std::regex_match(text,match,entry.pattern))continue;
  std::wstring target=entry.row->text[language];size_t at=0;int slot=1;for(auto it=std::wsregex_iterator(target.begin(),target.end(),printfPattern());it!=std::wsregex_iterator();++it){output+=target.substr(at,size_t(it->position())-at);if(it->str()==L"%%")output+=L'%';else if(slot<=entry.slots)output+=match[slot++].str();at=size_t(it->position()+it->length());}output+=target.substr(at);while(slot<=entry.slots){output+=L" ["+match[slot++].str()+L"]";}return true;}return false;}
-inline std::wstring tr(const std::wstring& text){
-    int language=current();if(language<0||language>=15||text.empty())return text;
+inline std::wstring tr(const std::wstring& text,int language){
+    if(language<0||language>=languageCount||text.empty())return text;
     auto found=catalog().find(text);if(found!=catalog().end())return found->second.text[language];
     if(language==0)return text;
     bool numericToken=text.find_first_of(L"0123456789")!=std::wstring::npos&&text.find_first_of(L" \t\n")==std::wstring::npos;
     if(text.size()>=4&&!numericToken){auto reverse=reverseCatalog().find(text);if(reverse!=reverseCatalog().end())return reverse->second->text[language];}
     // Menu accelerators are separate from the caption, never translated as text.
-    auto tab=text.find(L'\t');if(tab!=std::wstring::npos)return tr(text.substr(0,tab))+text.substr(tab);
+    auto tab=text.find(L'\t');if(tab!=std::wstring::npos)return tr(text.substr(0,tab),language)+text.substr(tab);
     if(!hasHan(text))return text;
     static std::map<std::pair<int,std::wstring>,std::wstring> memo;auto key=std::make_pair(language,text);auto hit=memo.find(key);if(hit!=memo.end())return hit->second;
     std::wstring output;if(formattedMessage(text,language,output)){memo.emplace(key,output);return output;}
@@ -2545,4 +2529,7 @@ inline std::wstring tr(const std::wstring& text){
     }
     if(memo.size()>4096)memo.clear();memo.emplace(std::move(key),output);return output;
 }
+#ifdef _WIN32
+inline std::wstring tr(const std::wstring& text){return tr(text,current());}
+#endif
 }

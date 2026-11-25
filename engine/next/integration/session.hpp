@@ -17,6 +17,9 @@
 #include "next/selection/clipboard_win32.hpp"
 #include "spatial_index.hpp"
 #include <memory>
+#ifdef __linux__
+#include "linux/clipboard.hpp"
+#endif
 namespace r62 { namespace integration {
 using namespace core;
 struct Entry {
@@ -45,11 +48,16 @@ public:
     render::Scene scene, gpuScene, dragScene;
     local_scene::OrderCache sceneOrderCache;
     const render::Scene& displayScene() const {return moving?dragScene:gpuScene;}
+    bool allowProjectedMove = false;
+    std::function<bool(const std::vector<uint8_t>&)> preparePartialMove;
+    bool partialMoveActive() const { return moving && partialMove; }
+    bool projectedMoveActive() const { return moving && projectedMove; }
+    Vec2 projectedMoveOffset() const { return projectedOffset; }
     // A rigid drag can reuse GPU triangles; boundary bonds keep the CPU path.
     bool rigidDragPreview(Vec2* delta,std::vector<uint64_t>* keys) const {
         if(!moving||dragBaseActive||movingBoundary||!deferredDragArrows.empty()||movingSlots.empty()||dragScene.size()!=gpuScene.size())return false;
         bool first=true;
-        for(const auto& entry:movingSlots)for(size_t i:entry.second){
+        for(size_t i:movingSlots){
             if(i+2>=dragScene.size()||!scene.primitives()[i].cacheKey)return false;
             if(first){*delta=dragScene.primitives()[i+2].bounds.min-scene.primitives()[i].bounds.min;first=false;}
             keys->push_back(scene.primitives()[i].cacheKey);
@@ -58,11 +66,19 @@ public:
     }
     render::SceneBuilder builder;
     render::View renderView;
+    // GTK measures its viewport in logical pixels; the Windows canvas uses physical pixels.
+    double devicePixelsPerViewPixel = 1.;
     interaction::InputStateMachine input;
     interaction::CommandRouter router;
     // T05 cut/copy/paste: the real Win32 transport. Session owns it so every
     // clipboard command in this process publishes and reads the same format.
+#ifdef _WIN32
     selection::Win32ClipboardTransport clipboard;
+#elif defined(__linux__)
+    selection::GtkClipboardTransport clipboard;
+#else
+    selection::MemoryClipboardTransport clipboard;
+#endif
     std::vector<Entry> entries;
     std::vector<ObjectRef> selected;
     std::string status, sourcePath;
@@ -71,6 +87,8 @@ public:
     bool arcCurvatureLocked=false;double arcCurvature=0.;bool arcCurvatureMajor=false;
     int arrowHeadTier=3;
     double graphicsWidth=0;uint32_t graphicsColor=0x000000FFu;
+    bool graphicsFillSet=false;
+    uint32_t graphicsFill=0;
     bool whiteCanvas;   // OLE editor: use a white full-canvas backdrop
     uint64_t serial, viewSerial;
     size_t activeIndex, rebuilds;
@@ -95,9 +113,13 @@ public:
     double angleStepDegrees() const override {return 15;}
     double snapRadiusDevice() const override {return 10;}
     double releaseRadiusDevice() const override {return 13;}
+    double hotspotAtomPriorityPixels = 10.;
     Error submit(const Command& c,const std::string& tag) override;
     void setStatus(const std::string& x) override {status=x;}
     void reportUnsupported(const std::string& x) override {status="Unsupported: "+x;}
+#ifdef __linux__
+    bool nearAtomArtwork(Vec2 point, double radius) const;
+#endif
     ObjectId nearestAtom(const Vec2&,double) const override;
     ObjectId nearestBond(const Vec2&,double) const override;
     std::vector<ObjectRef> objectsInBox(const Box&) const override;
@@ -106,6 +128,9 @@ public:
     size_t candidateCount() const override {return candidates.size();}
     uint64_t geometrySerial() const override {return serial;}
     void refresh(bool rebuildGeometry=true);
+    void refreshDrawingPreview();
+    // Build vector primitives for a drawing-only consumer such as a placement preview.
+    Error buildScene();
     void fit();
     bool activate(size_t index);
     void cancel();
@@ -117,6 +142,7 @@ public:
     Error moveFixedLength(const std::vector<ObjectRef>& refs,Vec2 delta);
     Error undo(bool redo=false);
     Error open(const std::string& path);
+    Error openBytes(std::string bytes, const std::string& path = {});
     Error save(const std::string& path,bool cdxml=false);
     std::vector<ObjectRef> all() const;
     ObjectRef pick(Vec2 p) const;
@@ -140,12 +166,21 @@ private:
     uint64_t valenceWarningSerial=0;
     std::map<ObjectId,Box> valenceWarningBounds;
     spatial::Index objectIndex, candidateIndex;
+#ifdef __linux__
+    spatial::Index atomArtworkIndex;
+#endif
     std::vector<ObjectRef> objectRefs;
     std::vector<interaction::SnapCandidate> candidates;
     Vec2 press;
     ObjectId clickBond;
     interaction::HysteresisState bondHysteresis;
     bool selecting, moving;
+    bool projectedMove = false;
+    bool partialMove = false;
+    bool renewDragLabels = false;
+    bool dragSceneRegrouped = false;
+    std::map<ObjectRef,std::vector<size_t>> boundarySlots;
+    Vec2 projectedOffset;
     // True while a press started inside a T16 board, so the press becomes a spot
     // instead of a new plate drag.
     bool tlcSpotting;
@@ -158,12 +193,15 @@ private:
     ObjectId arrowMiddleId=kInvalidObjectId;
     std::vector<Vec2> lasso;
     std::set<ObjectRef> movingRefs;
-    std::map<ObjectRef,std::vector<size_t>> movingSlots;
+    std::vector<size_t> movingSlots;
     bool movingBoundary=false;
     std::set<ObjectRef> deferredDragArrows;
     std::vector<size_t> deferredDragSlots;
     bool dragCatalytic=false;
-    Error buildScene();
+    void refreshScenes(bool rebuildGeometry, bool rebuildHitTests);
+    bool refreshStraightBondMove(const ChangeSet& patch, bool undo=false);
+    void rebuildHitIndexes();
+    uint64_t submittedSceneGeneration=0, submittedGpuGeneration=0;
     static interaction::RouterOutcome action(void*,const interaction::ActionRequest&);
 };
 Error translateDocumentObjects(Document&,const std::vector<ObjectRef>&,Vec2);

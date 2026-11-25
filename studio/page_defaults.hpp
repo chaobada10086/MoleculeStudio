@@ -1,7 +1,10 @@
 #ifndef STUDIO_PAGE_DEFAULTS_HPP
 #define STUDIO_PAGE_DEFAULTS_HPP
+#include <array>
+#ifdef _WIN32
 #include "app_paths.hpp"
 #include <windows.h>
+#endif
 #include <cmath>
 #include <string>
 // Paper size, orientation and page counts used by new documents. The choice is
@@ -13,13 +16,21 @@ namespace pagedefaults {
 struct Values {
     double width=595.2756,height=841.8898;int across=1,down=1;bool enabled=false;
 };
+constexpr double millimeters(double points) { return points * 25.4 / 72.; }
+constexpr double points(double millimeters) { return millimeters * 72. / 25.4; }
+inline bool valid(const Values& value){
+    return std::isfinite(value.width)&&std::isfinite(value.height)&&value.width>=72&&value.width<=14400&&value.height>=72&&value.height<=14400&&value.across>=1&&value.across<=20&&value.down>=1&&value.down<=20;
+}
+struct Paper { const char* name; double widthMM, heightMM; };
+inline constexpr std::array<Paper, 6> papers{{
+    {"A4",210,297}, {"A3",297,420}, {"A5",148,210}, {"B5 (ISO)",176,250},
+    {"US Letter",215.9,279.4}, {"US Legal",215.9,355.6}
+}};
+#ifdef _WIN32
 inline std::wstring& pathOverride(){static std::wstring value;return value;}
 inline std::wstring path(){
     if(!pathOverride().empty())return pathOverride();
     return apppaths::dataFile(L"interface.ini");
-}
-inline bool valid(const Values& value){
-    return std::isfinite(value.width)&&std::isfinite(value.height)&&value.width>=72&&value.width<=14400&&value.height>=72&&value.height<=14400&&value.across>=1&&value.across<=20&&value.down>=1&&value.down<=20;
 }
 inline Values load(){
     Values value;std::wstring file=path();wchar_t text[128]={};
@@ -52,5 +63,8 @@ inline bool save(const Values& value){
     if(!ok)return false;
     current()=value;return true;
 }
+#else
+inline Values& current(){static Values value;return value;}
+#endif
 }
 #endif

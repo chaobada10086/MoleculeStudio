@@ -42,3 +42,13 @@ python tools/generate_update_manifest.py --tag v0.9.6.0.0 --core-asset MoleculeS
 安装器根据组件哈希识别可更新状态。更新仅替换清单管理且未被用户修改的旧文件；发现修改冲突则停止并回滚本批次。更新前记录备份，下载、解压或核心自检失败会恢复，异常退出后下次自动恢复。用户文档和未知文件不在替换范围内。保持上一版 Release 供排查和恢复使用。
 
 当前仓库内清单已根据实际线上发布附件生成。只有推送清单后，线上地址才存在；本地创建清单不等于已经发布。
+
+## Linux Debian 软件包
+
+Linux 版从「设置 → 检查更新」读取 `updates/linux-stable.json`。版本比较使用 Debian 的版本规则。用户选择下载后，客户端校验包大小、SHA-256、Debian 包名、版本和架构，再保存文件供系统软件包管理器安装。
+
+Linux 发布维护者应先上传各架构经过验收的 `.deb`，再用相同文件生成清单。以下命令在 Debian 或 Ubuntu 上执行，替换标签和文件名后，将生成的清单与 GitHub 附件逐项核对，再随发行变更提交。
+
+```sh
+python3 tools/generate_linux_update_manifest.py v0.2.0 moleculestudio-native_0.2.0_amd64.deb > updates/linux-stable.json
+```

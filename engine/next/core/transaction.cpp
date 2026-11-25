@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <sstream>
+#include <utility>
 
 namespace r62 {
 namespace core {
@@ -199,7 +200,7 @@ Error CommandLog::push(Transaction& transaction, const Command& command) {
     }
 
     Entry entry;
-    entry.changes = transaction.changeSet_;
+    entry.changes = std::move(transaction.changeSet_);
     entry.label = command.name();
     entry.invalidation = transaction.invalidation_;
     entry.bytes = entry.changes.byteSize();
@@ -207,7 +208,7 @@ Error CommandLog::push(Transaction& transaction, const Command& command) {
     entry.revisionAfter = document.revision() + 1;
     byteSize_ += entry.bytes;
     if (maxRun > maxRunLength_) maxRunLength_ = maxRun;
-    entries_.push_back(entry);
+    entries_.push_back(std::move(entry));
     cursor_ = entries_.size();
     transaction.committedIndex_ = cursor_;
 
