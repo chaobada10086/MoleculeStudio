@@ -1013,7 +1013,7 @@ core::CommandResult DrawCurveTool::updateGesture(core::ToolHost& host,
     if (!active_) return core::CommandResult::noChange();
     // NO DOCUMENT WORK HERE. A freehand stroke can deliver hundreds of move
     // messages; appending to a local vector is the whole cost during the drag.
-    if (raw_.size() < options_.maxPoints) raw_.push_back(pointer.position);
+    sample(pointer.position);
     publishPreview(host, host.view());
     (void)hits;
     return core::CommandResult::success(core::kInvalidateAppearance);

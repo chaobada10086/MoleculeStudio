@@ -15,7 +15,10 @@ void App::clonePreviewCheck(const std::string& dir){
         auto at=[](Vec2 p){return MAKELPARAM(int(p.x),int(p.y));};
         auto pixels=[&](){std::vector<uint8_t> p;require(gl->readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&p).ok(),"read pixels");return p;};
         render();auto initial=pixels();
-        SendMessageW(canvas,WM_LBUTTONDOWN,MK_LBUTTON|MK_CONTROL,at(start));require(cloneDragging&&cloneSource,"Ctrl down starts copy preview");
+        SendMessageW(canvas,WM_LBUTTONDOWN,MK_LBUTTON,at(start));
+        SendMessageW(canvas,WM_MOUSEMOVE,MK_LBUTTON,at(start+Vec2(10,6)));
+        SendMessageW(canvas,WM_MOUSEMOVE,MK_LBUTTON|MK_CONTROL,at(start));
+        require(cloneDragging&&cloneSource,"Ctrl during drag starts copy preview");
         render();auto zero=pixels();
 #ifdef MOLECULE_STUDIO_DX11
         dx11::Renderer reference;std::string why;require(reference.initialize(&why),"reference renderer");

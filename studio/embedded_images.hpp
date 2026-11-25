@@ -44,7 +44,7 @@ inline std::map<std::string,std::unique_ptr<Gdiplus::Metafile>>& metafileCache()
 inline Gdiplus::Metafile* metafile(const std::string& xml){
  auto& cache=metafileCache();
  auto found=cache.find(xml);if(found!=cache.end())return found->second.get();std::unique_ptr<Gdiplus::Metafile> image;
- try{tinyxml2::XMLDocument dom;if(dom.Parse(xml.c_str())!=tinyxml2::XML_SUCCESS)return nullptr;auto e=dom.RootElement();if(!e)return nullptr;std::vector<unsigned char> bytes;
+ try{tinyxml2::XMLDocument dom;if(dom.Parse(xml.c_str()+(xml.compare(0,10,"CDXML-EMF:")==0?10:0))!=tinyxml2::XML_SUCCESS)return nullptr;auto e=dom.RootElement();if(!e)return nullptr;std::vector<unsigned char> bytes;
   if(auto v=e->Attribute("CompressedEnhancedMetafile"))bytes=inflate(decode(v,true),e->UnsignedAttribute("UncompressedEnhancedMetafileSize"));
   else if(auto v=e->Attribute("EnhancedMetafile"))bytes=decode(v,false);
   if(!bytes.empty()){HENHMETAFILE emf=SetEnhMetaFileBits(UINT(bytes.size()),bytes.data());if(emf)image.reset(new Gdiplus::Metafile(emf,TRUE));}
@@ -80,7 +80,7 @@ inline Gdiplus::Image* screenImage(Gdiplus::Metafile* source,int width,int heigh
 inline void draw(Gdiplus::Graphics& g,const r62::render::Scene& scene,const r62::render::View& view,int pass=0,bool screen=false){
  using namespace r62;for(const auto& p:scene.primitives())if(p.kind==render::PrimKind::Rect&&p.text.compare(0,10,"CDXML-EMF:")==0&&p.points.size()>=4){if((pass<0&&p.z>=0)||(pass>0&&p.z<0))continue;
   if(screen){core::Box visible;for(auto point:p.points)visible.add(view.transform.toDevice(point));if(visible.max.x< -2||visible.max.y< -2||visible.min.x>view.widthPx+2||visible.min.y>view.heightPx+2)continue;}
-  auto* image=metafile(p.text.substr(10));if(!image)continue;
+  auto* image=metafile(p.text);if(!image)continue;
   Gdiplus::PointF points[3];int indices[]={0,2,3};for(int i=0;i<3;i++){auto v=p.points[indices[i]];v=(v-view.transform.center)*(view.transform.scale*view.transform.dpiScale)+view.transform.viewportCenter;points[i]=Gdiplus::PointF(float(v.x),float(v.y));}
   Gdiplus::Image* drawable=image;
   if(screen){int w=int(std::ceil(std::hypot(points[1].X-points[0].X,points[1].Y-points[0].Y)));int h=int(std::ceil(std::hypot(points[2].X-points[0].X,points[2].Y-points[0].Y)));drawable=screenImage(image,w,h);}

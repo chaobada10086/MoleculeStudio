@@ -43,7 +43,7 @@ static void checkCalculator(App& app,const std::string& dir){
             ok(!GetDlgItem(d->yieldPage,601),"redundant starting-compound selector removed");RECT keyRect;GetWindowRect(d->keyButtons[0],&keyRect);ok(keyRect.bottom-keyRect.top>=d->px(74),"yield keyboard has larger keys");
             auto& product=d->rows[1];auto& f=d->fields[1];
             SetWindowTextW(d->fields[0].mass,L"0.200");SetWindowTextW(f.mass,L"0.100");
-            ok(product.valid&&!product.yieldValid&&std::abs(product.mol-.1/product.formula.averageMass)<1e-12,"live conversion waits for manual starting amount");
+            ok(product.valid&&product.yieldValid&&std::abs(product.yield-100*product.mol/d->rows[0].mol)<1e-8,"single substrate supplies the starting amount");
             auto initial=yieldcalc::compact((.1/product.formula.averageMass)/.88*1000,14);SetWindowTextW(d->start,initial.c_str());
             ok(product.yieldValid&&std::abs(product.yield-88)<1e-8,"manual starting amount produces 88 percent");
             SendMessageW(d->startUnit,CB_SETCURSEL,1,0);d->command(603,CBN_SELCHANGE);ok(std::abs(product.yield-88)<1e-7,"starting unit switch preserves physical amount");
@@ -69,7 +69,7 @@ static void checkCalculator(App& app,const std::string& dir){
             ok(d->mass.visible==std::vector<size_t>({11,12,13,14}),"common negative deprotonated, Cl, formate and acetate ions");
             SendMessageW(d->massPage,WM_COMMAND,506,0);ok(ListView_GetItemCount(d->mass.list)==8,"expand all negative ions");
             ok(IsWindowEnabled(GetDlgItem(d->massPage,505)),"exact mass copy button enabled");
-            SendMessageW(d->massChoice,CB_SETCURSEL,1,0);SendMessageW(popup,WM_COMMAND,MAKEWPARAM(701,CBN_SELCHANGE),(LPARAM)d->massChoice);ok(d->mass.formula.plain=="C7H8"&&d->massThumbnail->source==d->rows[1].preview,"structure preview and mass switch together");
+            SendMessageW(popup,WM_COMMAND,710,0);ok(d->mass.formula.plain=="C7H8","previous structure wraps");SendMessageW(popup,WM_COMMAND,711,0);ok(d->mass.formula.plain=="C6H6","next structure wraps");SendMessageW(popup,WM_COMMAND,711,0);ok(d->mass.formula.plain=="C7H8"&&d->massThumbnail->source==d->rows[1].preview,"structure preview and mass switch together");
             notify(d->tabs,popup,0);ok(std::abs(product.yield-88)<1e-7,"yield tab values survive tab switching");
             SendMessageW(popup,WM_COMMAND,703,0);ok(d->session->doc.stats().aliveTexts==2,"one click annotates reaction");
             std::ofstream(*output+"/calculator-ui-checks.json")<<"{\"default_yield_tab\":true,\"default_keyboard\":true,\"separate_compound_cards\":true,\"bidirectional_conversion\":true,\"unit_changes_preserve_quantity\":true,\"invalid_input_clears_results\":true,\"stoichiometry\":true,\"automatic_mmol_mol\":true,\"soft_keyboard\":true,\"mass_tabs_positive_negative\":true,\"four_common_ions\":true,\"expand_ions\":true,\"exact_mass_copy_button\":true,\"one_click_annotations\":true}";

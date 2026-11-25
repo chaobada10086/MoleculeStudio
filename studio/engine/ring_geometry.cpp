@@ -102,7 +102,41 @@ bonds::BondRenderData RingGeometry::build(const BondRecord& b,const std::set<Obj
         }
         data.note="ChemDraw double: full spacing between strokes, neighbor intersections";
     }
-    if(b.order!=BondOrder::Double||b.display!=BondDisplay::Normal||b.stereo!=BondStereo::None||axes.side!=bonds::DoubleSide::Symmetric)return data;
+    // Fill the outside half of a miter where a skeleton stroke meets
+    // another stroke. Each bond owns its half so its color stays local.
+    auto finish=[&]() -> bonds::BondRenderData {
+        if(b.display==BondDisplay::Normal && axisLength>1e-6){
+            for(int end=0;end<2;++end){
+                ObjectId id=end?b.endAtom:b.beginAtom;
+                Vec2 vertex=end?z:a, inward=(end?a-z:z-a)*(1/axisLength);
+                bool centered=false;
+                for(const auto& line:data.shapes)
+                    if(line.kind==bonds::BondShapeKind::Stroke && line.points.size()==2 &&
+                       line.dashOn==0 && length(line.points[end]-vertex)<1e-6)centered=true;
+                if(!centered)continue;
+                for(auto edge:edges[id]){
+                    if(edge.second==b.id)continue;
+                    const auto* other=doc.bonds().alive(edge.second);
+                    if(!other||other->display!=BondDisplay::Normal)continue;
+                    Vec2 v=pos(edge.first)-vertex;
+                    double len=length(v);if(len<1e-6)continue;
+                    v=v*(1/len);
+                    double turn=cross(inward,v);
+                    if(std::abs(turn)<1e-6)continue;
+                    double half=opts.lineWidth*.5;
+                    double reach=half*(1+dot(inward,v))/std::abs(turn);
+                    if(reach>4*half)continue;
+                    Vec2 normal(-inward.y,inward.x);
+                    Vec2 corner=vertex+normal*(turn>0?-half:half);
+                    bonds::BondShape join;join.kind=bonds::BondShapeKind::FilledPolygon;join.fill=true;
+                    join.outline={vertex,corner,corner-inward*reach};
+                    data.shapes.push_back(join);
+                }
+            }
+        }
+        return std::move(data);
+    };
+    if(b.order!=BondOrder::Double||b.display!=BondDisplay::Normal||b.stereo!=BondStereo::None||axes.side!=bonds::DoubleSide::Symmetric)return finish();
     // Shortest alternate path, bounded to 8-membered rings / 256 local vertices.
     // No whole-document traversal on a pointer move, including acyclic 50k files.
     std::map<ObjectId,std::pair<ObjectId,int> > visited;
@@ -111,27 +145,27 @@ bonds::BondRenderData RingGeometry::build(const BondRecord& b,const std::set<Obj
         auto id=todo.front();todo.pop_front();int depth=visited[id].second;if(depth>=7)continue;
         for(auto e:edges[id])if(e.second!=b.id&&!visited.count(e.first)){visited[e.first]={id,depth+1};todo.push_back(e.first);}
     }
-    if(!visited.count(b.endAtom)||visited[b.endAtom].second<2)return data;
+    if(!visited.count(b.endAtom)||visited[b.endAtom].second<2)return finish();
     std::vector<ObjectId> path;for(ObjectId id=b.endAtom;;id=visited[id].first){path.push_back(id);if(id==b.beginAtom)break;}
-    Vec2 u=z-a;double len=length(u);if(len<1e-6)return data;u=u*(1/len);
+    Vec2 u=z-a;double len=length(u);if(len<1e-6)return finish();u=u*(1/len);
     Vec2 center;for(auto id:path)center=center+pos(id);center=center*(1.0/path.size());
     double sign=cross(u,center-a)>0?1:-1;Vec2 n(-u.y*sign,u.x*sign);
     // Only an unambiguous convex face; do not invent an inward side for crossings.
-    for(auto id:path)if(dot(pos(id)-a,n)<-1e-6)return data;
+    for(auto id:path)if(dot(pos(id)-a,n)<-1e-6)return finish();
     double spacing=bonds::multipleBondSpacing(len,opts);
     Vec2 va=pos(path[path.size()-2])-a,vz=pos(path[1])-z;
-    if(length(va)<1e-6||length(vz)<1e-6)return data;
+    if(length(va)<1e-6||length(vz)<1e-6)return finish();
     va=va*(1/length(va));vz=vz*(1/length(vz));
     // Inner line ends sit on the interior angle bisector (radius) through each
     // vertex, i.e. trimmed by spacing*cot(angle/2). This is general for every
     // ring size.
     double ca=std::abs(cross(u,va)),cz=std::abs(cross(u*(-1),vz));
-    if(ca<.1||cz<.1)return data;
+    if(ca<.1||cz<.1)return finish();
     double ta=spacing*(1+dot(u,va))/ca,tz=spacing*(1+dot(u*(-1),vz))/cz;
-    if(ta+tz>len*.8)return data;
+    if(ta+tz>len*.8)return finish();
     data.shapes.clear();bonds::BondShape outer;outer.strokeWidth=opts.lineWidth;outer.points={a,z};
     bonds::BondShape inner=outer;inner.points={a+n*spacing+u*ta,z+n*spacing-u*tz};
     data.shapes={outer,inner};data.note="T19 convex ring projection: continuous axis and inset inner double line";
-    return data;
+    return finish();
 }
 } }

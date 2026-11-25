@@ -71,6 +71,7 @@ inline bool setReg(HKEY root,const std::wstring& path,const wchar_t* name,const 
 }
 inline std::wstring exePath(){wchar_t b[32768]={};GetModuleFileNameW(nullptr,b,32768);return b;}
 inline bool registerServer(const std::wstring& exe,bool unregister){
+    if(apppaths::packaged())return true;
     std::wstring clsid=L"Software\\Classes\\CLSID\\"+guidText(kDocClsid);
     std::wstring prog=L"Software\\Classes\\"+std::wstring(kProgId);
     std::wstring progv=L"Software\\Classes\\"+std::wstring(kProgIdVerInd);
@@ -119,6 +120,7 @@ inline bool registeredFor(const std::wstring& exe){
     return rc==ERROR_SUCCESS&&_wcsicmp(application,exe.c_str())==0;
 }
 inline bool ensureRegistered(){
+    if(apppaths::packaged())return true; // MSIX declares the OLE class at installation.
     const auto exe=exePath();
     if(registeredFor(exe))return true;
     return registerServer(exe,false)&&registeredFor(exe);

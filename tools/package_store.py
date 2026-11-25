@@ -72,7 +72,7 @@ SCALES = {
     'Wide310x150Logo': (310, 150),
 }
 SCALE_FACTORS = (125, 150, 200, 400)
-TARGETSIZES = (16, 24, 32, 48, 256)
+TARGETSIZES = (16, 20, 24, 30, 32, 36, 40, 44, 48, 60, 64, 72, 80, 96, 256)
 
 
 def sha256_bytes(data):
@@ -211,10 +211,25 @@ def build_assets(icon_path, assets_dir):
             icon.resize(size, Image.Resampling.LANCZOS).save(assets_dir / name)
             made.append(name)
     for size in TARGETSIZES:
-        name = 'Square44x44Logo.targetsize-' + str(size) + '.png'
-        icon.resize((size, size), Image.Resampling.LANCZOS).save(assets_dir / name)
-        made.append(name)
+        target = icon.resize((size, size), Image.Resampling.LANCZOS)
+        for suffix in ('', '_altform-unplated', '_altform-lightunplated'):
+            name = f'Square44x44Logo.targetsize-{size}{suffix}.png'
+            target.save(assets_dir / name)
+            made.append(name)
     return made
+
+
+def build_icon_index(stage, makepri):
+    # Index only package artwork. The application has large private runtime trees.
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp) / 'resources'
+        root.mkdir()
+        shutil.copytree(stage / 'Assets', root / 'Assets')
+        shutil.copy2(stage / 'AppxManifest.xml', root / 'AppxManifest.xml')
+        config = Path(tmp) / 'config.xml'
+        subprocess.run([makepri, 'createconfig', '/cf', str(config), '/dq', 'en-US'], check=True)
+        subprocess.run([makepri, 'new', '/pr', str(root), '/cf', str(config),
+                        '/of', str(stage / 'resources.pri'), '/o'], check=True)
 
 
 def normalize_version(text):
@@ -365,6 +380,8 @@ def main(argv=None):
             return 0
 
         makeappx = resolve_tool(args.makeappx, 'makeappx', '--makeappx D:/SDK/x64/makeappx.exe')
+        makepri = Path(makeappx).with_name('makepri.exe')
+        build_icon_index(stage, str(makepri))
         command = [makeappx, 'pack', '/d', str(stage), '/p', str(args.output), '/o', '/h', 'SHA256']
         subprocess.run(command, check=True)
         if not args.output.exists():

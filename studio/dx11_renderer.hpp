@@ -225,6 +225,11 @@ public:
     int insertionRasterMissWhy()const{return insertionRasterMissWhy_;}
     void setCopyPreview(const r62::render::Scene* scene,r62::core::Vec2 offset,uint64_t token){
         if(copyScene_!=scene||copyToken_!=token){copyBatcher_.clear();copyGeneration_=copyViewKey_=0;copyTriangles_=0;copyVbCount_=0;
+            copyImageIndices_.clear();
+            if(scene) for(size_t i=0;i<scene->size();++i){
+                const auto& primitive=scene->primitives()[i];
+                if(primitive.text.compare(0,10,"CDXML-EMF:")==0)copyImageIndices_.push_back(i);
+            }
             if(!scene&&copyVb_){copyVb_->Release();copyVb_=nullptr;copyVbCapacity_=0;}}
         copyScene_=scene;copyToken_=token;copyOffset_=offset;
     }
@@ -693,8 +698,9 @@ public:
             if (!verts.empty()) drawVertices(verts);
         }
 
+        if (!contentVbCount_) rotationApplied_ = rotationSource_ == &scene;
         // 2. embedded metafiles behind the vector content
-        drawMetafiles(scene, view, -1);
+        drawMetafiles(scene, view, -1, metafileIndices_);
         // 3. vector content (translated by the pan fast path)
         if (contentVbCount_) {
             updateFrameConstants(float(w), float(h), panCached_ ? float(panShiftX_) : 0.0f, panCached_ ? float(panShiftY_) : 0.0f, float(contentZoom));
@@ -705,7 +711,7 @@ public:
             updateFrameConstants(float(w), float(h), 0.0f, 0.0f);
         }
         // 4. embedded metafiles in front of the vector content
-        drawMetafiles(scene, view, 1);
+        drawMetafiles(scene, view, 1, metafileIndices_);
         if(cacheRaster){
             if(!insertionRaster_){D3D11_TEXTURE2D_DESC desc={};msaa_->GetDesc(&desc);device_->CreateTexture2D(&desc,nullptr,&insertionRaster_);}
             if(insertionRaster_){context_->OMSetRenderTargets(0,nullptr,nullptr);context_->CopyResource(insertionRaster_,msaa_);context_->OMSetRenderTargets(1,&rtv_,nullptr);insertionRasterValid_=true;insertionRasterScene_=&scene;insertionRasterGeneration_=scene.generation();insertionRasterRevision_=revision_;insertionRasterView_=viewKey;insertionRasterContent_=contentHash;}
@@ -721,10 +727,12 @@ public:
             drawBuffer(overlayVb_, overlayVbCapacity_, overlayVbCount_ / 3);
             updateFrameConstants(float(w),float(h),0,0);
         }
+        if(copyScene_) drawMetafiles(*copyScene_,view,-1,copyImageIndices_,copyOffset_);
         if(copyScene_&&copyVbCount_){
             updateFrameConstants(float(w),float(h),float(copyOffset_.x*currentScale),float(copyOffset_.y*currentScale));
             drawBuffer(copyVb_,copyVbCapacity_,copyVbCount_/3);updateFrameConstants(float(w),float(h),0,0);
         }
+        if(copyScene_) drawMetafiles(*copyScene_,view,1,copyImageIndices_,copyOffset_);
 
         LONGLONG tDraw = tick();
         context_->ResolveSubresource(resolved_, 0, msaa_, 0, DXGI_FORMAT_B8G8R8A8_UNORM);
@@ -816,7 +824,7 @@ private:
     uint64_t insertionRasterGeneration_=0,insertionRasterRevision_=0,insertionRasterView_=0,insertionRasterContent_=0;size_t insertionRasterHits_=0;
     uint64_t revision_=0,summaryGeneration_=0,summaryKey_=0;
     bool summaryValid_=false,summaryCurves_=false;
-    std::vector<size_t> backdropIndices_,metafileIndices_;
+    std::vector<size_t> backdropIndices_,metafileIndices_,copyImageIndices_;
     ID3D11Device* device_;
     ID3D11DeviceContext* context_;
     D3D_FEATURE_LEVEL featureLevel_;
@@ -1282,16 +1290,21 @@ private:
         context_->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
         context_->Draw(triangles * 3, 0);
     }
-    void drawMetafiles(const r62::render::Scene& scene, const r62::render::View& view, int pass) {
+    void drawMetafiles(const r62::render::Scene& scene, const r62::render::View& view, int pass, const std::vector<size_t>& images, r62::core::Vec2 offset = {}) {
         using namespace r62::render; using r62::core::Vec2;
-        for (auto pi : metafileIndices_) {
+        for (auto pi : images) {
             const auto& p=scene.primitives()[pi];
             if (p.kind != PrimKind::Rect || p.text.compare(0, 10, "CDXML-EMF:") != 0 || p.points.size() < 4) continue;
             if ((pass < 0 && p.z >= 0) || (pass > 0 && p.z < 0)) continue;
+            const bool transformImage = rotationSource_ == &scene && rotationTargets_.count(p.cacheKey);
             Gdiplus::PointF pts[3];
             const int indices[3] = { 0, 2, 3 };
             for (int i = 0; i < 3; ++i) {
-                Vec2 v = p.points[indices[i]];
+                Vec2 v = p.points[indices[i]] + offset;
+                if (transformImage) {
+                    const double* m = rotationMatrix_;
+                    v = Vec2(m[0]*v.x + m[1]*v.y + m[2], m[3]*v.x + m[4]*v.y + m[5]);
+                }
                 v = (v - view.transform.center) * (view.transform.scale * view.transform.dpiScale) + view.transform.viewportCenter;
                 pts[i] = Gdiplus::PointF(float(v.x), float(v.y));
             }
@@ -1302,7 +1315,7 @@ private:
             int w = int(std::ceil(std::hypot(pts[1].X - pts[0].X, pts[1].Y - pts[0].Y)));
             int h = int(std::ceil(std::hypot(pts[2].X - pts[0].X, pts[2].Y - pts[0].Y)));
             if (w < 1 || h < 1) continue;
-            Gdiplus::Metafile* mf = embedded::metafile(p.text.substr(10));
+            Gdiplus::Metafile* mf = embedded::metafile(p.text);
             if (!mf) continue;
             // Interactive metafiles are cached as textures.  Very large on-screen
             // sizes are downsampled to a bounded texture and stretched, rather than

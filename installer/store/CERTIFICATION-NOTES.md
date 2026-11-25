@@ -2,7 +2,7 @@
 
 这份文件有两个用途，内容可直接粘贴到 Partner Center：
 
-1. **提交选项 → 受限能力**：两段理由（`runFullTrust`、`unvirtualizedResources`）
+1. **提交选项 → 受限能力**：填写 `runFullTrust` 的用途
 2. **提交选项 → 认证说明（Notes for certification）**：审查员按此验证，含 OLE 测试矩阵
 
 英文在前，便于审查；中文在后。发布包版本与清单里的能力声明必须与本文件一致。
@@ -23,33 +23,10 @@
 > administrator rights. Declaring `runFullTrust` is the documented way to package such a
 > desktop app; the app runs at medium integrity level (uap10:TrustLevel="mediumIL").
 
-### unvirtualizedResources
-
-> Used only to keep one documented desktop integration working: MoleculeStudio is an OLE
-> 2.0 document server. It writes its class registration under
-> `HKEY_CURRENT_USER\Software\Classes` (CLSID `{C000BC8C-8C39-4722-B93C-D40D3319E7B5}`,
-> ProgIDs `MoleculeStudio.Document` / `.Document.1`, plus the `Insertable` value) so that
-> Microsoft Word and PowerPoint can insert a molecule as an editable embedded object and
-> re-activate the server later. MSIX redirects such writes to a package-private hive that
-> other processes cannot see, which breaks the integration. The package declares the
-> narrowest possible scope: on Windows 11 and later only those three registry keys are
-> excluded from write virtualization (`virtualization:ExcludedKeys`); on Windows 10 the
-> package-level `desktop6:RegistryWriteVirtualization` switch is used because per-key
-> exclusion does not exist there. No other registry location is written by the app, and no
-> machine-wide (HKLM) key is touched. The package additionally registers the same COM
-> server declaratively via `windows.comServer`, so the feature does not depend on the
-> registry write alone.
-
 ### 中文对照（同上）
 
 - **runFullTrust**：原生 Win32 分子绘图程序，Direct3D 11 渲染、读写 CDXML、需要启动随包的
   Python 3.10 与本地识别模型进程。不请求管理员权限，以 mediumIL 运行。
-- **unvirtualizedResources**：本程序是 OLE 2.0 文档服务器，需要把类注册写入
-  `HKCU\Software\Classes`（CLSID、两个 ProgID、`Insertable`），Word/PowerPoint 才能把分子
-  作为可编辑嵌入对象插入并再次激活。MSIX 默认虚拟化这类写入，包外程序看不到，功能失效。
-  范围已压到最小：Windows 11 起只豁免这三个键；Windows 10 用整包开关（该系统没有按键豁免语法）。
-  程序不写其他注册表位置，不碰 HKLM；同时用 `windows.comServer` 做了声明式登记作为双保险。
-
 ---
 
 ## 2. Notes for certification (paste as-is)
@@ -76,12 +53,8 @@ The app is fully usable without them and never contacts the network unless the u
 configures a provider and presses send. The bundled local image-to-structure recognition
 (OCSR) needs no network and no key: import a PNG/PDF of a structure to test it.
 
-OLE EMBEDDING (the reason for the unvirtualizedResources capability)
-The app is an OLE 2.0 server so that Word/PowerPoint can embed an editable structure.
-Registration comes from two independent mechanisms, both declared in the package manifest:
-  (a) windows.comServer extension (ExeServer + CLSID + ProgIDs) — registered by Windows;
-  (b) the app's own registration under HKCU\Software\Classes, which only works because the
-      package excludes exactly three keys from registry write virtualization.
+OLE EMBEDDING
+Windows registers the packaged OLE server through the windows.comServer manifest extension.
 Test matrix in Microsoft Word:
   T1 copy a structure in MoleculeStudio, paste-special into Word as an object, double-click
      to edit, save both files                     -> expected: editable, round-trips
@@ -91,9 +64,6 @@ Test matrix in Microsoft Word:
   T5 same as T1 in PowerPoint
   T6 repeat T1 after uninstalling and reinstalling the package (class id is stable)
   T7 install Core only (no optional add-ons)                                   -> T1 still works
-T3 and T4 depend on the registry exemption; if a preview version under review shows them
-missing, the comServer registration alone still supports T1, T2, T5, T6.
-
 PRIVACY / NETWORK
 No telemetry. The app contacts the network only when the user enables an online AI provider
 or downloads an optional component. The privacy policy URL is provided in the listing.
@@ -122,13 +92,8 @@ AI 功能（可选，认证不需要）
 服务商按调用计费。不配置时程序完全可以离线使用，且不会主动联网。随包的本地图片识别
 （OCSR）不需要联网也不需要密钥，导入结构图片或 PDF 即可。
 
-OLE 嵌入（unvirtualizedResources 能力的用途）
-本程序是 OLE 2.0 服务器，Word/PowerPoint 可嵌入可编辑的分子结构。注册来自两条独立机制，
-都写在包清单里：
-  (a) windows.comServer 扩展（ExeServer + CLSID + ProgID），由 Windows 安装时登记；
-  (b) 程序自身写入 HKCU\Software\Classes 的注册，仅因为包豁免了这三个键的写入虚拟化才生效。
-Word 测试矩阵见英文部分 T1–T7。T3（新建对象列表）和 T4（由文件创建）依赖注册表豁免；
-若审核用的预览包在这两项缺失，comServer 登记仍能支持 T1、T2、T5、T6。
+OLE 嵌入
+Windows 按清单登记 OLE 类。Word 和 PowerPoint 的复测步骤见英文部分。
 
 隐私与联网
 无遥测。仅当用户启用在线 AI 服务商或下载可选组件时联网。隐私政策链接见商店列表。
@@ -157,4 +122,4 @@ Word 测试矩阵见英文部分 T1–T7。T3（新建对象列表）和 T4（�
 1. 商店版**没有**手动更新下载器：商店版由 Store 更新，政策 §10.2.2 禁止运行时下载并执行代码。
 2. 商店版设置保存在 `%LOCALAPPDATA%\MoleculeStudio`，与绿色版/安装器版不共享，首次安装为默认设置。
 3. 商店版不注册机器级文件关联以外的系统集成；文件关联由包清单声明，用户在「默认应用」里选择。
-4. OLE「新建对象」列表条目依赖注册表豁免（T3/T4），其余 OLE 流程由 comServer 保证。
+4. 在仅安装商店版的环境验证 Office 嵌入与重新激活。

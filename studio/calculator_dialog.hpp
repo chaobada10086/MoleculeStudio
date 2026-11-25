@@ -3,7 +3,7 @@
 #include "calculator_model.hpp"
 struct CalculatorDialog {
     Session* session=nullptr;std::vector<yieldcalc::Row> rows;
-    struct Fields {HWND mass=0,massUnit=0,amount=0,amountUnit=0,amountLabel=0,coefficient=0,role=0,result=0,include=0;bool massSource=true;int autoUnit=1;std::shared_ptr<TemplateThumbnail> thumbnail;};
+    struct Fields {HWND mass=0,massUnit=0,amount=0,amountUnit=0,amountLabel=0,coefficient=0,role=0,result=0,include=0,reference=0;bool massSource=true;int autoUnit=1;std::shared_ptr<TemplateThumbnail> thumbnail;};
     std::vector<Fields> fields;std::vector<HWND> inputs,keyButtons;
     HWND hwnd=0,tabs=0,yieldPage=0,cards=0,massPage=0,start=0,startUnit=0,startCoefficient=0,status=0,insertButton=0,annotationUnit=0,massChoice=0,lastInput=0;
     HWND massPreview=0;std::shared_ptr<TemplateThumbnail> massThumbnail;MassCalculatorDialog mass;HFONT font=0,bold=0,keyFont=0;double dpi=1;int offset=0,activeTab=0,previousStartUnit=0;bool quiet=false;
@@ -38,7 +38,7 @@ struct CalculatorDialog {
         for(size_t i=0;i<fields.size();++i){auto& f=fields[i];int x=int(i)*236-offset;auto move=[&](HWND h,int dx,int y,int w,int height){SetWindowPos(h,0,px(x+dx),px(y),px(w),px(height),SWP_NOZORDER|SWP_NOACTIVATE);};
             move(f.include,12,8,198,24);move(f.mass,12,218,132,28);move(f.massUnit,150,218,62,220);
             move(f.amountLabel,12,254,198,22);move(f.amount,12,276,132,28);move(f.amountUnit,150,276,62,220);
-            move(f.role,12,318,100,220);move(f.coefficient,166,318,46,28);move(f.result,12,348,200,24);
+            move(f.role,12,318,100,220);move(f.coefficient,166,318,46,28);move(f.result,12,348,200,24);move(f.reference,12,378,200,24);
         }
         SCROLLINFO info={};info.cbSize=sizeof(info);info.fMask=SIF_RANGE|SIF_PAGE|SIF_POS;info.nMin=0;info.nMax=std::max(729,int(rows.size())*236-13);info.nPage=730;info.nPos=offset;SetScrollInfo(cards,SB_HORZ,&info,TRUE);InvalidateRect(cards,nullptr,TRUE);
     }
@@ -68,6 +68,23 @@ struct CalculatorDialog {
         if(quiet)return;quiet=true;double initial=0,initialCoefficient=1;bool haveInitial=false;
         haveInitial=yieldcalc::number(text(start),initial,true);initial*=startFactor();
         haveInitial=yieldcalc::number(text(startCoefficient),initialCoefficient,true)&&haveInitial;
+        std::vector<size_t> reactants;
+        for(size_t i=0;i<fields.size();++i)
+            if(selection(fields[i].role)==0)reactants.push_back(i);
+        bool fromRow=false;
+        for(size_t i=0;i<fields.size();++i){
+            auto& f=fields[i];
+            bool eligible=selection(f.role)==0;
+            bool choose=eligible && reactants.size()>1;
+            ShowWindow(f.reference,choose?SW_SHOW:SW_HIDE);
+            if(!choose)SendMessageW(f.reference,BM_SETCHECK,BST_UNCHECKED,0);
+            EnableWindow(f.reference,text(start).empty());
+            if(eligible && text(start).empty() && (reactants.size()==1 || SendMessageW(f.reference,BM_GETCHECK,0,0)==BST_CHECKED)){
+                initial=rows[i].mol;
+                haveInitial=rows[i].valid && initial>0 && yieldcalc::number(text(f.coefficient),initialCoefficient,true);
+                fromRow=haveInitial;
+            }
+        }
         bool any=false;
         for(size_t i=0;i<rows.size();++i){auto& row=rows[i];auto& f=fields[i];
             row.role=selection(f.role);row.include=SendMessageW(f.include,BM_GETCHECK,0,0)==BST_CHECKED;
@@ -81,7 +98,7 @@ struct CalculatorDialog {
             else if(row.valid)result=row.role==2?L"填写起始物用量后显示产率":L"质量与物质的量已换算";
             set(f.result,result);any|=row.valid&&coefficientOk&&row.include;
         }
-        EnableWindow(insertButton,any);set(status,haveInitial?L"产率按填写的起始物用量及计量系数计算":L"填写起始物用量后显示产率");quiet=false;
+        EnableWindow(insertButton,any);set(status,fromRow?L"产率按所选原料的物质的量及计量系数计算":haveInitial?L"产率按填写的起始物用量及计量系数计算":L"填写起始物用量后显示产率");quiet=false;
     }
     void makeYieldPage(){
         yieldPage=control(hwnd,L"STATIC",L"",600,12,52,750,500,WS_CLIPCHILDREN);
@@ -103,6 +120,7 @@ struct CalculatorDialog {
             f.amount=edit(cards,base+4,0,0,132);f.amountUnit=combo(cards,base+5,0,0,62,{L"自动",L"mmol",L"mol",L"µmol"},0);
             f.role=combo(cards,base+6,0,0,100,{L"反应物",L"试剂",L"产物"},row.role);f.coefficient=edit(cards,base+7,0,0,46,yieldcalc::compact(row.coefficient));
             f.result=control(cards,L"STATIC",L"",base+8,0,0,200,36);
+            f.reference=control(cards,L"BUTTON",L"使用该原料计算产率",base+9,0,0,200,24,BS_AUTOCHECKBOX|WS_TABSTOP);
             f.thumbnail=std::make_shared<TemplateThumbnail>(row.preview);
             f.thumbnail->maxBondPixels=36*dpi;
             if(row.valid)set(f.mass,yieldcalc::compact(row.grams));renderRow(i);
@@ -115,7 +133,7 @@ struct CalculatorDialog {
         mass.hostDpi=dpi;massPage=mass.createPage(hwnd);SetWindowPos(massPage,0,px(12),px(52),px(750),px(505),SWP_NOZORDER);ShowWindow(massPage,activeTab?SW_SHOW:SW_HIDE);if(massPreview)InvalidateRect(massPreview,nullptr,TRUE);
     }
     void switchPage(){
-        activeTab=int(SendMessageW(tabs,TCM_GETCURSEL,0,0));ShowWindow(yieldPage,activeTab?SW_HIDE:SW_SHOW);ShowWindow(massPage,activeTab?SW_SHOW:SW_HIDE);ShowWindow(massChoice,activeTab?SW_SHOW:SW_HIDE);
+        activeTab=int(SendMessageW(tabs,TCM_GETCURSEL,0,0));ShowWindow(yieldPage,activeTab?SW_HIDE:SW_SHOW);ShowWindow(massPage,activeTab?SW_SHOW:SW_HIDE);ShowWindow(massChoice,activeTab?SW_SHOW:SW_HIDE);for(int id:{710,711}){ShowWindow(GetDlgItem(hwnd,id),activeTab?SW_SHOW:SW_HIDE);EnableWindow(GetDlgItem(hwnd,id),rows.size()>1);}
         ShowWindow(insertButton,activeTab?SW_HIDE:SW_SHOW);ShowWindow(annotationUnit,activeTab?SW_HIDE:SW_SHOW);ShowWindow(GetDlgItem(hwnd,704),activeTab?SW_HIDE:SW_SHOW);
         for(auto h:keyButtons)ShowWindow(h,activeTab?SW_HIDE:SW_SHOW);for(int id:{800,801})ShowWindow(GetDlgItem(hwnd,id),activeTab?SW_HIDE:SW_SHOW);ShowWindow(massPreview,activeTab?SW_SHOW:SW_HIDE);ShowWindow(GetDlgItem(hwnd,802),activeTab?SW_SHOW:SW_HIDE);if(!activeTab&&start)SetFocus(start);
     }
@@ -138,6 +156,10 @@ struct CalculatorDialog {
         if(id==603&&notification==CBN_SELCHANGE){{double value=0;const double factors[]={.001,1.,.000001};if(yieldcalc::number(text(start),value)){quiet=true;set(start,yieldcalc::compact(value*factors[previousStartUnit]/startFactor(),14));quiet=false;}}previousStartUnit=std::max(0,std::min(2,selection(startUnit)));refreshResults();return;}
         if(id<1000||size_t((id-1000)/20)>=rows.size())return;
         size_t i=size_t((id-1000)/20);int field=(id-1000)%20;auto& row=rows[i];auto& f=fields[i];
+        if(field==9&&notification==BN_CLICKED){
+            for(size_t j=0;j<fields.size();++j)if(j!=i)SendMessageW(fields[j].reference,BM_SETCHECK,BST_UNCHECKED,0);
+            refreshResults();return;
+        }
         if((field==1||field==4)&&notification==EN_CHANGE){recalculate(i,field==1);return;}
         if(field==4&&notification==EN_KILLFOCUS){renderRow(i,true);return;}
         if((field==2||field==5)&&notification==CBN_SELCHANGE){
@@ -174,7 +196,8 @@ struct CalculatorDialog {
             d->tabs=d->control(h,WC_TABCONTROLW,L"",700,12,10,750,32,WS_TABSTOP);
             for(int i=0;i<2;++i){TCITEMW item={};item.mask=TCIF_TEXT;item.pszText=(LPWSTR)(i?L"质谱计算器":L"产率计算器");SendMessageW(d->tabs,TCM_INSERTITEMW,i,(LPARAM)&item);}
             std::vector<std::wstring> choices;for(size_t i=0;i<d->rows.size();++i)choices.push_back(std::to_wstring(i+1)+L" · "+W(displayFormula(d->rows[i].formula.plain)));
-            d->massChoice=d->combo(h,701,366,13,368,choices,0);ShowWindow(d->massChoice,SW_HIDE);
+            d->massChoice=d->combo(h,701,404,13,286,choices,0);ShowWindow(d->massChoice,SW_HIDE);
+            d->control(h,L"BUTTON",L"◀",710,366,13,34,26,BS_PUSHBUTTON);d->control(h,L"BUTTON",L"▶",711,694,13,34,26,BS_PUSHBUTTON);
             d->control(h,L"STATIC",L"标注质量单位",704,20,564,100,26);d->annotationUnit=d->combo(h,702,124,560,86,{L"自动",L"g",L"mg",L"µg"},0);
             d->insertButton=d->control(h,L"BUTTON",L"插入质量和产率",703,230,560,180,32,WS_TABSTOP);
             d->control(h,L"BUTTON",L"关闭",IDCANCEL,874,560,126,32,WS_TABSTOP);
@@ -190,6 +213,7 @@ struct CalculatorDialog {
         if(!d)return FALSE;
         if(m==WM_COMMAND){int id=LOWORD(w);if(id==IDCANCEL||id==IDOK){EndDialog(h,0);return TRUE;}
             if(id>=9000&&id<9016){d->key(id-9000);return TRUE;}
+            if((id==710||id==711)&&d->rows.size()>1){int count=int(d->rows.size());int next=(d->selection(d->massChoice)+(id==710?-1:1)+count)%count;SendMessageW(d->massChoice,CB_SETCURSEL,next,0);d->createMassPage();return TRUE;}
             if(id==701&&HIWORD(w)==CBN_SELCHANGE){d->createMassPage();return TRUE;}
             if(id==703){d->refreshResults();auto error=yieldcalc::insert(*d->session,d->rows,d->selection(d->annotationUnit));SetWindowTextW(d->status,error.ok()?L"已插入结构下方 · 可继续修改后更新 · Ctrl+Z 可撤销":W(error.message).c_str());return TRUE;}
         }

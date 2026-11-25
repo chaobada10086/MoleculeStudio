@@ -1073,7 +1073,7 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         }
     } else if(phase==PointerPhase::Move){if(selecting){if(e.command.find("Lasso")==std::string::npos&&lasso.size()>1)lasso.back()=p;else lasso.push_back(p);}ghost.clear();
         if(selecting){PreviewItem x;x.primitive=PreviewPrimitive::Rect;x.points={press,p};ghost.add(x);}
-        if(moving){Vec2 delta=p-press;
+        if(moving){Vec2 delta=p-press;if(mods&kModShift){if(std::abs(delta.x)>=std::abs(delta.y))delta.y=0;else delta.x=0;}
             if(dist(p,press)<view().deviceRadiusToDocument(2))delta=Vec2();
             if(dragBaseActive){
                 doc=dragBase;
@@ -1107,10 +1107,18 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
                 // The stationary scene was copied once on mouse-down. Update only
                 // moving primitives from their original coordinates, with no drift.
                 for(const auto& entry:movingSlots)for(size_t i:entry.second){
-                    auto q=scene.primitives()[i];for(auto& v:q.points)v=v+delta;
+                    const auto& original=scene.primitives()[i];
+                    auto& q=dragScene.mutablePrimitives()[i+2];
+                    q.points=original.points;
+                    q.subpaths=original.subpaths;
+                    for(auto& v:q.points)v=v+delta;
                     for(auto& sub:q.subpaths)for(auto& v:sub.points)v=v+delta;
+                    q.bounds=original.bounds;
                     q.bounds.min=q.bounds.min+delta;q.bounds.max=q.bounds.max+delta;
-                    q.version=versionOf(q,doc.id());q.source=ObjectRef();dragScene.mutablePrimitives()[i+2]=std::move(q);
+                    uint64_t version=gpuScene.primitives()[i+2].version;
+                    const unsigned char* bytes=reinterpret_cast<const unsigned char*>(&delta);
+                    for(size_t k=0;k<sizeof(delta);++k)version=(version^bytes[k])*1099511628211ull;
+                    q.version=version;q.source=ObjectRef();
                 }
                 maskDeferred();dragScene.touch();return Error();
             }
@@ -1229,7 +1237,7 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         }
     } else if(phase==PointerPhase::Up){
         bool m=moving;moving=selecting=false;ghost.clear();
-        if(m){if(dragBaseActive){doc=dragBase;dragBaseActive=false;refresh();}Vec2 delta=p-press;if(dist(p,press)<view().deviceRadiusToDocument(2)){
+        if(m){if(dragBaseActive){doc=dragBase;dragBaseActive=false;refresh();}Vec2 delta=p-press;if(mods&kModShift){if(std::abs(delta.x)>=std::abs(delta.y))delta.y=0;else delta.x=0;}if(dist(p,press)<view().deviceRadiusToDocument(2)){
             if(!(mods&(kModShift|kModControl))){
                 const auto hit=pick(press);
                 if(!hit.valid())selected.clear();

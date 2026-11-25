@@ -75,7 +75,7 @@ struct TabHost {
     }
     void layoutTabs(float w){
         tabRects.clear();
-        tabsLeft=210.f;tabsRight=std::max(tabsLeft+80.f,w-344.f);
+        tabsLeft=210.f;tabsRight=std::max(tabsLeft+80.f,w-424.f);
         float right=tabsRight;
         listRect=RectF(right-24.f,8.f,24.f,24.f);right-=26.f;
         plusRect=RectF(right-28.f,8.f,28.f,24.f);right-=34.f;
@@ -447,7 +447,7 @@ struct TabHost {
             RegisterClassW(&wc);
             registered=true;
         }
-        hwnd=studio_i18n::createWindowEx(0,L"MoleculeStudioTabs",L"Molecule Studio 0.9.7.1.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,this);
+        hwnd=studio_i18n::createWindowEx(0,L"MoleculeStudioTabs",L"Molecule Studio 1.0.1.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,this);
         scale=GetDpiForWindow(hwnd)/96.f;
         DragAcceptFiles(hwnd,TRUE);
     }

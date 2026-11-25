@@ -185,6 +185,10 @@ public:
     void setFreehandOptions(const FreehandOptions& options) { options_ = options; }
     const FreehandOptions& freehandOptions() const { return options_; }
 
+    void sample(core::Vec2 position) {
+        if(active_ && raw_.size()<options_.maxPoints && (raw_.empty() || !(raw_.back()==position)))
+            raw_.push_back(position);
+    }
     const std::vector<core::Vec2>& rawSamples() const { return raw_; }
     const std::vector<core::Vec2>& simplified() const { return simplified_; }
     bool previewClosed() const { return previewClosed_; }

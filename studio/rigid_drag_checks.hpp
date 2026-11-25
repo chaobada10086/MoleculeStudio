@@ -9,7 +9,29 @@ void App::rigidDragCheck(const std::string& dir){
  size_t bad=0,total=0;
 #ifdef MOLECULE_STUDIO_DX11
  dx11::Renderer reference;std::string why;require(reference.initialize(&why),"reference initializes");
- for(int i=1;i<=4;++i){SendMessageW(canvas,WM_MOUSEMOVE,MK_LBUTTON,at(start+Vec2(i*9,i*5)));render();require(dx11Renderer->rotationPreviewApplied(),"GPU rigid preview applied");std::vector<uint8_t> gpu,cpu;gl->readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&gpu);auto o=s.overlay();render::RenderStats st;require(reference.draw(s.displayScene(),&o.scene(),s.renderView,&st).ok(),"reference draws CPU geometry");reference.readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&cpu);require(gpu.size()==cpu.size(),"matching viewport");for(size_t j=0;j<gpu.size();++j){bad+=std::abs(int(gpu[j])-int(cpu[j]))>8;++total;}}
+ // The clipboard regression fixture contains a solid teal patch. Track its
+ // pixels while capture is still held, independently of selection outlines.
+ const bool trackImage = std::getenv("MOLECULE_STUDIO_TRACK_CLIPBOARD_IMAGE") != nullptr;
+ auto imageCenter=[&](const std::vector<uint8_t>& pixels){
+     Vec2 sum;
+     size_t count=0;
+     for(size_t i=0;i+3<pixels.size();i+=4){
+         if(std::abs(int(pixels[i])-30)>3 || std::abs(int(pixels[i+1])-150)>3 || std::abs(int(pixels[i+2])-210)>3)continue;
+         size_t pixel=i/4, width=size_t(s.renderView.widthPx);
+         sum=sum+Vec2(pixel%width, s.renderView.heightPx-1-pixel/width);
+         ++count;
+     }
+     require(count>20,"pasted image is visible");
+     return sum*(1./count);
+ };
+ Vec2 initialCenter;
+ if(trackImage){
+     render();
+     std::vector<uint8_t> pixels;
+     gl->readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&pixels);
+     initialCenter=imageCenter(pixels);
+ }
+ for(int i=1;i<=4;++i){SendMessageW(canvas,WM_MOUSEMOVE,MK_LBUTTON,at(start+Vec2(i*9,i*5)));render();require(dx11Renderer->rotationPreviewApplied(),"GPU rigid preview applied");std::vector<uint8_t> gpu,cpu;gl->readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&gpu);if(trackImage)require(core::length(imageCenter(gpu)-initialCenter-Vec2(i*9,i*5))<2,"image pixels follow mouse before release");auto o=s.overlay();render::RenderStats st;require(reference.draw(s.displayScene(),&o.scene(),s.renderView,&st).ok(),"reference draws CPU geometry");reference.readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&cpu);require(gpu.size()==cpu.size(),"matching viewport");for(size_t j=0;j<gpu.size();++j){bad+=std::abs(int(gpu[j])-int(cpu[j]))>8;++total;}}
  require(bad<total/100,"GPU and CPU images agree within rasterization tolerance");
 #endif
  require(s.doc.digest()==before,"preview preserves document");SendMessageW(canvas,WM_LBUTTONUP,0,at(start+Vec2(36,20)));auto after=s.doc.digest();require(after!=before,"drag commits");require(s.undo().ok()&&s.doc.digest()==before,"drag undo");require(s.undo(true).ok()&&s.doc.digest()==after,"drag redo");

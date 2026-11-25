@@ -593,7 +593,7 @@ void cdxmlColorCheck(const std::string& dir);
         if(activeArrow){arrowPreset=activeArrow->family==arrows::ArrowFamily::Arc&&activeArrow->presetId!=49&&activeArrow->presetId!=57?58:activeArrow->presetId;syncArrowSurfaces();}
         for(auto& gr:templateGroups)for(auto& b:gr.items)if(b.cmd=="@addCustomTemplate")b.enabled=!s.selected.empty();
         updateInfo();syncTextControls();touched();
-        std::string title="Molecule Studio 0.9.7.1.0  ·  "+fileName+(s.dirty?" *":"");
+        std::string title="Molecule Studio 1.0.1.0  ·  "+fileName+(s.dirty?" *":"");
         if(title!=lastTitle){lastTitle=title;studio_i18n::setWindowText(h,W(title).c_str());if(host)notifyTitleChanged();}
         std::ostringstream key;key<<s.graphicsWidth<<'|'<<s.graphicsColor<<'|'<<ribbonTab<<'|'<<generationArrowStyle<<'|'<<title<<'|'<<s.activeIndex<<'|'<<info.valid<<'|'<<info.plain<<'|'<<info.mass<<'|'<<s.selected.empty()<<'|'<<shortcutContext()<<'|'<<shortcuts.generation<<'|'<<hover;
         if(key.str()!=lastChrome){lastChrome=key.str();RECT r={0,0,width,top};InvalidateRect(h,&r,FALSE);}
@@ -735,7 +735,7 @@ void cdxmlColorCheck(const std::string& dir);
          auto place=[&](const char* id){float w=quickWidth(id);if(rx-w<tabEnd+8.f)return;for(auto& b:quick)if(b.id==id){rx-=w;b.r=RectF(rx,44.f,w,28.f);rx-=4.f;}};
          if(fullW<1250.f){for(const char* id:{"fit","settings","ribbonSize","fixedLength","ribbonPin"})place(id);}
          else{for(const char* id:{"ribbonPin","fixedLength","ribbonSize","settings","fit"})place(id);}}
-        infoRect=RectF(fullW-344.f,6.f,204.f,28.f);
+        infoRect=RectF(fullW-424.f,6.f,284.f,28.f);
         for(size_t i=0;i<windowControls.size();++i)windowControls[i].r=RectF(fullW-120+float(i)*40,0,40,40);
         // Seven quick actions: three per row by the formula card, four per row
         // when the AI dock squeezes the ribbon (otherwise the row overflows).
@@ -839,9 +839,9 @@ void cdxmlColorCheck(const std::string& dir);
         SolidBrush cardAccent(cardHot?studio_ui::skinColors().strong:teal);g.FillRectangle(&cardAccent,card.X+2,card.Y+8,3.f,card.Height-16.f);
         }
         if(showCard&&info.valid){
-            txt(g,displayFormula(info.plain),RectF(card.X+11,card.Y,88,card.Height),16,studio_ui::skinColors().strong,true);
-            Pen cardDivider(studio_ui::skinColors().border,1);g.DrawLine(&cardDivider,card.X+101,card.Y+7,card.X+101,card.Y+card.Height-7);
-            txt(g,info.mass+" g/mol",RectF(card.X+107,card.Y,card.Width-113,card.Height),13.5f,cardHot?studio_ui::skinColors().strong:teal,true);
+            txt(g,displayFormula(info.plain),RectF(card.X+11,card.Y,155,card.Height),16,studio_ui::skinColors().strong,true);
+            Pen cardDivider(studio_ui::skinColors().border,1);g.DrawLine(&cardDivider,card.X+169,card.Y+7,card.X+169,card.Y+card.Height-7);
+            txt(g,info.mass+" g/mol",RectF(card.X+175,card.Y,card.Width-181,card.Height),13.5f,cardHot?studio_ui::skinColors().strong:teal,true);
         }else if(showCard){txt(g,"分子式 —   分子量 —",card,12.5f,muted,false,true);}
         if(!ribbonTab&&ribbonVisible)for(const auto& b:chemistryQuick){roundbox(g,b.r,4,hover==b.id?studio_ui::skinColors().selected:studio_ui::skinColors().hover);txt(g,b.label,b.r,12,hover==b.id?teal:ink,false,true);}
         for(auto& gr:visibleGroups()){
@@ -963,7 +963,7 @@ void cdxmlColorCheck(const std::string& dir);
     bool fastGraphicTool()const{
         if(std::getenv("MOLECULE_STUDIO_INSERT_LEGACY"))return false;
         const auto& c=s.entries[s.activeIndex].command;
-        return c.find("chooseArrowTool_")==0||c.find("chooseDrawingTool_")==0||c.find("chooseBracketTool_")==0||c=="chooseTableTool";
+        return c.find("chooseArrowTool_")==0||c.find("chooseDrawingTool_")==0||c.find("chooseBracketTool_")==0||c=="chooseTableTool"||c=="choosePenTool_DrawCurve";
     }
     void insertionPerformanceCheck(const std::string& dir);
     double lastMovePaintMs=0; bool movePreviewPending=false;Vec2 movePreviewPoint;uint32_t movePreviewModifiers=0;
@@ -1837,6 +1837,20 @@ void appendSelectionContextMenu(HMENU menu,bool structure,bool hasSelection){
 }
 
 LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetWindowLongPtrW(h,GWLP_USERDATA);if(m==WM_NCCREATE){a=(App*)((CREATESTRUCTW*)lp)->lpCreateParams;SetWindowLongPtrW(h,GWLP_USERDATA,(LONG_PTR)a);a->canvas=h;}if(!a)return DefWindowProcW(h,m,wp,lp);if(m==WM_LBUTTONDOWN||m==WM_RBUTTONDOWN||m==WM_MBUTTONDOWN||m==WM_MOUSEWHEEL||m==WM_KEYDOWN||m==WM_CHAR)a->expandPending=false;auto& s=a->s;Vec2 pixel(GET_X_LPARAM(lp),GET_Y_LPARAM(lp));uint32_t pointerModifiers=mods();if(wp&MK_CONTROL)pointerModifiers|=kModControl;if(wp&MK_SHIFT)pointerModifiers|=kModShift;
+    
+        if((m==WM_MOUSEMOVE||m==WM_LBUTTONUP) && a->down && !a->cloneDragging && s.objectDragActive() && (pointerModifiers&kModControl)){
+            auto refs=s.selected;
+            s.cancel();
+            a->movePreviewPending=false;
+            auto source=std::make_shared<Session>();
+            auto result=studioio::append(s.doc,source->doc,refs,Vec2(),nullptr);
+            if(!result.ok()){a->error(result);return 0;}
+            source->refresh();
+            a->clonePress=a->clickPoint;
+            a->cloneRefs=refs;
+            a->cloneSource=source;
+            a->cloneDragging=true;
+        }
     switch(m){case WM_SETFOCUS:if(a->textEditor.active&&!a->textEditor.closing){SetFocus(a->edit);return 0;}break;case WM_DESTROY:a->canvasDestroySeen=true;a->shutdownRenderer();return 0;case WM_SIZE:s.renderView.widthPx=std::max(1,int(LOWORD(lp)));s.renderView.heightPx=std::max(1,int(HIWORD(lp)));{auto v=s.view();v.viewportCenter=Vec2(s.renderView.widthPx*.5,s.renderView.heightPx*.5);s.setView(v);}a->updateScrollbars();return 0;
     case WM_LBUTTONDOWN:a->commitTlcClick();a->insertionPreviewPending=false;
         if(a->beginStructurePerspective(pixel))return 0;
@@ -1896,13 +1910,14 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         }
         a->movePreviewPending=false;a->marqueeBackdrop.clear();a->clickHistory=s.history.cursor();a->clickPoint=s.view().toDocument(pixel);a->lastBondClick=false;SetFocus(h);SetCapture(h);a->down=true;a->route(interaction::InputKind::PointerDown,lp);a->error(s.gesture(PointerPhase::Down,s.view().toDocument(pixel),pointerModifiers));
         if(a->cloneDragging){a->clonePress=s.view().toDocument(pixel);a->cloneDelta=Vec2();a->cloneRefs=s.selected;a->cloneSource=std::make_shared<Session>();auto e=studioio::append(s.doc,a->cloneSource->doc,a->cloneRefs,Vec2(),nullptr);if(!e.ok()){a->cloneDragging=false;a->error(e);}else a->cloneSource->refresh();}break;
-    case WM_MOUSEMOVE:if(a->virtualBondTool){a->pointerOverCanvas=true;a->pointerPixel=pixel;TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);a->virtualBondGesture(PointerPhase::Move,s.view().toDocument(pixel));a->updateCanvasCursor();return 0;}if(a->electronDragAtom!=kInvalidObjectId){a->updateElectronMarkerDrag(pixel,false);return 0;}a->updateNameLinkTip(s.view().toDocument(pixel));if(a->pan&&!std::getenv("MOLECULE_STUDIO_PAN_LEGACY")){a->pointerPixel=pixel;a->pointerOverCanvas=true;auto v=s.view();v.center=v.center-(pixel-a->panAt)*v.docPerDevice();a->panAt=pixel;s.setView(v);SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32646)));InvalidateRect(h,0,FALSE);return 0;}if(a->patternPlacing){a->pointerPixel=pixel;a->pointerOverCanvas=true;
+    case WM_MOUSEMOVE:        if(a->virtualBondTool){a->pointerOverCanvas=true;a->pointerPixel=pixel;TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);a->virtualBondGesture(PointerPhase::Move,s.view().toDocument(pixel));a->updateCanvasCursor();return 0;}if(a->electronDragAtom!=kInvalidObjectId){a->updateElectronMarkerDrag(pixel,false);return 0;}a->updateNameLinkTip(s.view().toDocument(pixel));if(a->pan&&!std::getenv("MOLECULE_STUDIO_PAN_LEGACY")){a->pointerPixel=pixel;a->pointerOverCanvas=true;auto v=s.view();v.center=v.center-(pixel-a->panAt)*v.docPerDevice();a->panAt=pixel;s.setView(v);SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32646)));InvalidateRect(h,0,FALSE);return 0;}if(a->patternPlacing){a->pointerPixel=pixel;a->pointerOverCanvas=true;
         if(std::getenv("MOLECULE_STUDIO_PATTERN_LEGACY")){if(a->patternDragging){a->patternEnd=s.view().toDocument(pixel);a->updatePatternPreview();}a->updateCanvasCursor();a->invalidate();return 0;}
         // Coalesce high-rate pointer input; placement changes only the canvas.
         if(a->patternDragging){a->patternEnd=s.view().toDocument(pixel);a->patternPreviewPending=true;}
         SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32515)));
         if(a->patternDragging||a->crosshairs)InvalidateRect(h,0,FALSE);return 0;}if(a->down&&a->fastMarquee()){a->pointerPixel=pixel;a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32512)));InvalidateRect(h,0,FALSE);return 0;}if(a->down&&s.objectDragActive()&&!a->cloneDragging&&!std::getenv("MOLECULE_STUDIO_MOVE_LEGACY")){a->pointerPixel=pixel;a->movePreviewPoint=s.view().toDocument(pixel);a->movePreviewModifiers=pointerModifiers;a->movePreviewPending=true;SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32646)));InvalidateRect(h,0,FALSE);/* Bound paint starvation under continuous mouse input. */if(a->now()-a->lastMovePaintMs>=16.0)UpdateWindow(h);return 0;}if(a->fastGraphicTool()&&!a->wrapDragging&&!a->transformDragging&&!a->tableDragPending&&!a->cloneDragging&&!a->textPlacing){
         if(!a->pointerOverCanvas){TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);}a->pointerPixel=pixel;a->pointerOverCanvas=true;a->hover.clear();a->insertionPreviewPixel=pixel;a->insertionPreviewPoint=s.view().toDocument(pixel);a->insertionPreviewModifiers=pointerModifiers;a->insertionPreviewTool=s.activeIndex;a->insertionPreviewPending=true;
+        if(a->down)if(auto pen=dynamic_cast<arrows::DrawCurveTool*>(s.entries[s.activeIndex].tool.get()))pen->sample(a->insertionPreviewPoint);
         if(a->down&&dynamic_cast<arrows::ArrowTool*>(s.entries[s.activeIndex].tool.get())){
             a->insertionPreviewPending=false;a->error(s.gesture(PointerPhase::Move,a->insertionPreviewPoint,pointerModifiers));
             a->updateCanvasCursor();InvalidateRect(h,0,FALSE);
@@ -2157,13 +2172,13 @@ LRESULT CALLBACK windowProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
     case WM_SETCURSOR:if(LOWORD(lp)==HTCLIENT){POINT p;GetCursorPos(&p);ScreenToClient(h,&p);if(!a->s.selected.empty()&&a->infoRect.Contains(p.x/a->scale,p.y/a->scale)){SetCursor(LoadCursorW(0,MAKEINTRESOURCEW(32649)));return TRUE;}}break;
     case WM_MOUSEMOVE:{TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);float x=GET_X_LPARAM(lp)/a->scale,y=GET_Y_LPARAM(lp)/a->scale;float bandHNow=a->tabBandH();if(a->ringHoldPending&&!a->ringButtonAt(x,y)&&(std::abs(x-a->ringHoldPoint.x)>8.f||std::abs(y-a->ringHoldPoint.y)>8.f)){KillTimer(h,4);a->ringHoldPending=false;}if(a->arrowHoldPending&&!a->arrowButtonAt(x,y)&&(std::abs(x-a->arrowHoldPoint.x)>8.f||std::abs(y-a->arrowHoldPoint.y)>8.f)){KillTimer(h,3);a->arrowHoldPending=false;}
         auto bandDirty=[&](){if(bandHNow>0){RECT br={0,0,a->width,int(bandHNow*a->scale)};InvalidateRect(h,&br,FALSE);}};
-        if(bandHNow>0&&y<bandHNow&&x>=210.f&&x<=a->width/a->scale-344.f){auto bandHit=a->host->hitBand(x,y);std::string band=bandHit.kind;if(band=="tab"||band=="close")band+=":"+std::to_string(bandHit.index);if(band!=a->hover){a->hideToolTip();a->hover=band;if(a->host)a->host->hover=band;bandDirty();KillTimer(h,2);if(a->host)a->host->hideTip();if(band.rfind("tab:",0)==0||band.rfind("close:",0)==0)SetTimer(h,2,450,0);}return 0;}
+        if(bandHNow>0&&y<bandHNow&&x>=210.f&&x<=a->width/a->scale-424.f){auto bandHit=a->host->hitBand(x,y);std::string band=bandHit.kind;if(band=="tab"||band=="close")band+=":"+std::to_string(bandHit.index);if(band!=a->hover){a->hideToolTip();a->hover=band;if(a->host)a->host->hover=band;bandDirty();KillTimer(h,2);if(a->host)a->host->hideTip();if(band.rfind("tab:",0)==0||band.rfind("close:",0)==0)SetTimer(h,2,450,0);}return 0;}
         if(bandHNow>0&&(a->hover=="plus"||a->hover.rfind("tab:",0)==0||a->hover.rfind("close:",0)==0)){a->hover.clear();if(a->host)a->host->hover.clear();bandDirty();KillTimer(h,2);if(a->host)a->host->hideTip();}
         std::string label;for(const auto& item:a->compactMenus)if(item.first.Contains(x,y))label="more:"+std::to_string(item.second);for(auto& gr:a->visibleGroups())for(auto& b:gr.items)if(b.r.Contains(x,y))label=b.id;for(auto& b:a->quick)if(b.r.Contains(x,y))label=b.id;if(!a->ribbonTab)for(auto& b:a->chemistryQuick)if(b.r.Contains(x,y))label=b.id;for(auto& b:a->windowControls)if(b.r.Contains(x,y))label=b.id;for(auto& b:a->ribbonTabs)if((b.arg!=3||a->aiTabVisible)&&b.r.Contains(x,y))label=b.id;if(!a->s.selected.empty()&&a->infoRect.Contains(x,y))label="molecule-info";if(a->arrowToolPreview.Contains(x,y))label="graphics.arrowTool";if(label!=a->hover){a->hideToolTip();a->hover=label;if(!label.empty())SetTimer(h,13,450,nullptr);a->invalidate(false);}return 0;}
     case WM_MOUSELEAVE:{a->hideToolTip();float bandHLeave=a->tabBandH();KillTimer(h,4);a->ringHoldPending=false;KillTimer(h,3);a->arrowHoldPending=false;a->hover.clear();if(a->host)a->host->hover.clear();KillTimer(h,2);if(a->host)a->host->hideTip();a->invalidate(false);if(bandHLeave>0){RECT br={0,0,a->width,int(bandHLeave*a->scale)};InvalidateRect(h,&br,FALSE);}return 0;}
-    case WM_LBUTTONDOWN:{float x=GET_X_LPARAM(lp)/a->scale,y=GET_Y_LPARAM(lp)/a->scale;bool expandClick=false;for(const auto& b:a->chemistryQuick)if(b.cmd=="@expandGroups"&&b.r.Contains(x,y))expandClick=true;if(!expandClick)a->expandPending=false;float bh=a->tabBandH();a->ringHoldPending=false;a->ringHoldFired=false;if(a->ringButtonAt(x,y)){a->ringHoldPending=true;a->ringHoldPoint=Vec2(x,y);SetTimer(h,4,500,0);}a->arrowHoldPending=false;a->arrowHoldFired=false;if(a->arrowButtonAt(x,y)){a->arrowHoldPending=true;a->arrowHoldPoint=Vec2(x,y);SetTimer(h,3,500,0);}bool onControl=false;for(auto& b:a->quick)if(b.r.Contains(x,y))onControl=true;for(auto& b:a->windowControls)if(b.r.Contains(x,y))onControl=true;for(auto& t:a->ribbonTabs)if((t.arg!=3||a->aiTabVisible)&&t.r.Contains(x,y))onControl=true;if(!a->s.selected.empty()&&a->infoRect.Contains(x,y))onControl=true;if(bh>0&&y<bh&&x>=210.f&&x<=a->width/a->scale-344.f){auto hit=a->host->hitBand(x,y);if(!hit.kind.empty()){KillTimer(h,2);a->host->hideTip();a->host->bandClick(hit);return 0;}}if(a->tabChild&&y<bh&&!onControl){KillTimer(h,2);a->host->hideTip();ReleaseCapture();studio_i18n::sendMessage(GetAncestor(h,GA_ROOT),WM_NCLBUTTONDOWN,HTCAPTION,0);return 0;}break;}
-    case WM_RBUTTONUP:{float x=GET_X_LPARAM(lp)/a->scale,y=GET_Y_LPARAM(lp)/a->scale;float bh=a->tabBandH();if(a->ringButtonAt(x,y)){KillTimer(h,4);a->ringHoldPending=false;a->ringMenu();return 0;}if(a->arrowButtonAt(x,y)){KillTimer(h,3);a->arrowHoldPending=false;a->arrowHoldFired=false;a->arrowMenu();a->invalidate();return 0;}if(bh>0&&y<bh&&x>=210.f&&x<=a->width/a->scale-344.f){auto hit=a->host->hitBand(x,y);if(hit.kind=="tab")a->host->selectTab(hit.index);if(hit.kind=="plus"||hit.kind=="tab")a->host->plusMenu();return 0;}break;}
-    case WM_LBUTTONUP:{float x=GET_X_LPARAM(lp)/a->scale,y=GET_Y_LPARAM(lp)/a->scale;float bh=a->tabBandH();bool ringHeld=a->ringHoldFired;a->ringHoldPending=false;a->ringHoldFired=false;KillTimer(h,4);if(ringHeld)return 0;bool arrowHeld=a->arrowHoldFired;a->arrowHoldPending=false;a->arrowHoldFired=false;KillTimer(h,3);if(arrowHeld)return 0;if(a->activateArrowPreview(x,y))return 0;if(bh>0&&y<bh&&x>=210.f&&x<=a->width/a->scale-344.f)return 0;for(const auto& item:a->compactMenus)if(item.first.Contains(x,y)){a->showRibbonGroup(item.second);return 0;}for(const auto& tab:a->ribbonTabs)if((tab.arg!=3||a->aiTabVisible)&&tab.r.Contains(x,y)){a->switchTab(tab.arg);return 0;}for(auto& b:a->windowControls)if(b.r.Contains(x,y)){a->execute(b);return 0;}for(auto& gr:a->visibleGroups())for(auto& b:gr.items)if(b.r.Contains(x,y)){if(b.id=="chooseArrowTool_Large_Solid"&&x>=b.r.GetRight()-8){a->arrowMenu();a->invalidate();}else if(b.cmd=="chooseTLCPlateTool"&&x>=b.r.GetRight()-12){a->tlcMenu();}else a->execute(b);return 0;}for(auto& b:a->quick)if(b.r.Contains(x,y)){a->execute(b);return 0;}if(!a->ribbonTab)for(auto& b:a->chemistryQuick)if(b.r.Contains(x,y)){a->execute(b);return 0;}if(a->infoRect.Contains(x,y)){a->showMassCalculator();return 0;}return 0;}
+    case WM_LBUTTONDOWN:{float x=GET_X_LPARAM(lp)/a->scale,y=GET_Y_LPARAM(lp)/a->scale;bool expandClick=false;for(const auto& b:a->chemistryQuick)if(b.cmd=="@expandGroups"&&b.r.Contains(x,y))expandClick=true;if(!expandClick)a->expandPending=false;float bh=a->tabBandH();a->ringHoldPending=false;a->ringHoldFired=false;if(a->ringButtonAt(x,y)){a->ringHoldPending=true;a->ringHoldPoint=Vec2(x,y);SetTimer(h,4,500,0);}a->arrowHoldPending=false;a->arrowHoldFired=false;if(a->arrowButtonAt(x,y)){a->arrowHoldPending=true;a->arrowHoldPoint=Vec2(x,y);SetTimer(h,3,500,0);}bool onControl=false;for(auto& b:a->quick)if(b.r.Contains(x,y))onControl=true;for(auto& b:a->windowControls)if(b.r.Contains(x,y))onControl=true;for(auto& t:a->ribbonTabs)if((t.arg!=3||a->aiTabVisible)&&t.r.Contains(x,y))onControl=true;if(!a->s.selected.empty()&&a->infoRect.Contains(x,y))onControl=true;if(bh>0&&y<bh&&x>=210.f&&x<=a->width/a->scale-424.f){auto hit=a->host->hitBand(x,y);if(!hit.kind.empty()){KillTimer(h,2);a->host->hideTip();a->host->bandClick(hit);return 0;}}if(a->tabChild&&y<bh&&!onControl){KillTimer(h,2);a->host->hideTip();ReleaseCapture();studio_i18n::sendMessage(GetAncestor(h,GA_ROOT),WM_NCLBUTTONDOWN,HTCAPTION,0);return 0;}break;}
+    case WM_RBUTTONUP:{float x=GET_X_LPARAM(lp)/a->scale,y=GET_Y_LPARAM(lp)/a->scale;float bh=a->tabBandH();if(a->ringButtonAt(x,y)){KillTimer(h,4);a->ringHoldPending=false;a->ringMenu();return 0;}if(a->arrowButtonAt(x,y)){KillTimer(h,3);a->arrowHoldPending=false;a->arrowHoldFired=false;a->arrowMenu();a->invalidate();return 0;}if(bh>0&&y<bh&&x>=210.f&&x<=a->width/a->scale-424.f){auto hit=a->host->hitBand(x,y);if(hit.kind=="tab")a->host->selectTab(hit.index);if(hit.kind=="plus"||hit.kind=="tab")a->host->plusMenu();return 0;}break;}
+    case WM_LBUTTONUP:{float x=GET_X_LPARAM(lp)/a->scale,y=GET_Y_LPARAM(lp)/a->scale;float bh=a->tabBandH();bool ringHeld=a->ringHoldFired;a->ringHoldPending=false;a->ringHoldFired=false;KillTimer(h,4);if(ringHeld)return 0;bool arrowHeld=a->arrowHoldFired;a->arrowHoldPending=false;a->arrowHoldFired=false;KillTimer(h,3);if(arrowHeld)return 0;if(a->activateArrowPreview(x,y))return 0;if(bh>0&&y<bh&&x>=210.f&&x<=a->width/a->scale-424.f)return 0;for(const auto& item:a->compactMenus)if(item.first.Contains(x,y)){a->showRibbonGroup(item.second);return 0;}for(const auto& tab:a->ribbonTabs)if((tab.arg!=3||a->aiTabVisible)&&tab.r.Contains(x,y)){a->switchTab(tab.arg);return 0;}for(auto& b:a->windowControls)if(b.r.Contains(x,y)){a->execute(b);return 0;}for(auto& gr:a->visibleGroups())for(auto& b:gr.items)if(b.r.Contains(x,y)){if(b.id=="chooseArrowTool_Large_Solid"&&x>=b.r.GetRight()-8){a->arrowMenu();a->invalidate();}else if(b.cmd=="chooseTLCPlateTool"&&x>=b.r.GetRight()-12){a->tlcMenu();}else a->execute(b);return 0;}for(auto& b:a->quick)if(b.r.Contains(x,y)){a->execute(b);return 0;}if(!a->ribbonTab)for(auto& b:a->chemistryQuick)if(b.r.Contains(x,y)){a->execute(b);return 0;}if(a->infoRect.Contains(x,y)){a->showMassCalculator();return 0;}return 0;}
     case WM_HSCROLL:case WM_VSCROLL:{
         HWND ctrl=(HWND)lp;if(!ctrl)return 0;SCROLLINFO si={};si.cbSize=sizeof(si);si.fMask=SIF_ALL;if(!GetScrollInfo(ctrl,SB_CTL,&si))return 0;int pos=si.nPos;
         switch(LOWORD(wp)){
@@ -3095,7 +3110,7 @@ static App* createEditorTab(HINSTANCE inst,HWND parent,const std::string& path,b
     App& a=*ap;
     a.tabChild=true;
     a.quitOnDestroy=false;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 0.9.7.1.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.1.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
     if(!h){delete ap;return nullptr;}
     a.scale=GetDpiForWindow(h)/96.f;
     DragAcceptFiles(h,TRUE);
@@ -3273,7 +3288,7 @@ int WINAPI WinMain(HINSTANCE inst,HINSTANCE,LPSTR,int){apppaths::applyToChildEnv
         return code;
     }
     g_currentApp=&a;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 0.9.7.1.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.1.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
     a.scale=(a.testing||shotMode||perfMode)?1.f:GetDpiForWindow(h)/96.f;{UINT dpi=GetDpiForWindow(h);olepreview::previewDpi()=dpi?dpi:96;}
     SetWindowPos(h,0,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
     studio_i18n::createWindowEx(0,L"MoleculeStudioCanvas",L"",WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS,0,0,100,100,h,0,inst,&a);

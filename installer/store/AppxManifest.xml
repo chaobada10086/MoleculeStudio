@@ -13,7 +13,6 @@
     这两个属性等价于旧写法 EntryPoint="Windows.FullTrustApplication"，但含义更明确。
   * runFullTrust 是受限能力，提交时必须在“提交选项 → 受限能力”里写理由。
   * 文件关联必须写在这里；运行时写 HKCU\Software\Classes 默认会被虚拟化，资源管理器看不到。
-  * 两个受限能力 runFullTrust 与 unvirtualizedResources 都要在提交时写理由。
 -->
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
@@ -21,9 +20,7 @@
   xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-  xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
-  xmlns:virtualization="http://schemas.microsoft.com/appx/manifest/virtualization/windows10"
-  IgnorableNamespaces="uap uap10 rescap com desktop6 virtualization">
+  IgnorableNamespaces="uap uap10 rescap com">
 
   <Identity Name="{{NAME}}" Publisher="{{PUBLISHER}}" Version="{{VERSION}}" ProcessorArchitecture="x64" />
 
@@ -33,27 +30,7 @@
     <Description>Windows x64 分子结构与反应机理绘图工具</Description>
     <Logo>Assets\StoreLogo.png</Logo>
 
-    <!--
-      ==== 注册表写入虚拟化豁免（方案 A） ====
-      MSIX 默认把 HKCU 写入重定向到本包私有 hive，包外进程（Word）读不到。
-      studio\ole_embed.hpp 的运行时自注册要真正落到 HKCU\Software\Classes，
-      才能让 Word「插入 → 对象 → 新建」列表出现条目（依赖 CLSID 的 Insertable 键），
-      并与 comServer 扩展互为备份。
-        * Windows 11+：只豁免下面三个键（virtualization:ExcludedKeys）
-        * Windows 10 2004–21H2：只能整包关闭 HKCU 写入虚拟化（desktop6）
-        * 两者都声明时：旧机用 desktop6，新机用 ExcludedKeys
-      需要受限能力 unvirtualizedResources，提交时必须在「提交选项 → 受限能力」
-      填写理由，见 installer/store/CERTIFICATION-NOTES.md。
-    -->
-    <desktop6:RegistryWriteVirtualization>disabled</desktop6:RegistryWriteVirtualization>
-    <virtualization:RegistryWriteVirtualization>
-      <virtualization:ExcludedKeys>
-        <virtualization:ExcludedKey>HKEY_CURRENT_USER\Software\Classes\CLSID\{C000BC8C-8C39-4722-B93C-D40D3319E7B5}</virtualization:ExcludedKey>
-        <virtualization:ExcludedKey>HKEY_CURRENT_USER\Software\Classes\MoleculeStudio.Document</virtualization:ExcludedKey>
-        <virtualization:ExcludedKey>HKEY_CURRENT_USER\Software\Classes\MoleculeStudio.Document.1</virtualization:ExcludedKey>
-      </virtualization:ExcludedKeys>
-    </virtualization:RegistryWriteVirtualization>
-  </Properties>
+</Properties>
 
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
@@ -99,16 +76,13 @@
           </uap:FileTypeAssociation>
         </uap:Extension>
         <!--
-          OLE 服务器登记（方案 B，Word / PowerPoint 里插入、双击编辑可编辑结构）。
-          comServer 扩展由 Windows 在安装时登记到真实注册表，对包外进程（Word）可见，
-          不依赖运行时自注册；即使注册表豁免（方案 A）被审核退回，这条仍然生效。
-          这里的 CLSID / ProgID 必须与 studio/ole_embed.hpp 里的
+          OLE 服务器由 MSIX 声明式注册。这里的 CLSID / ProgID 必须与 studio/ole_embed.hpp 里的
           kDocClsid / kProgId / kProgIdVerInd 完全一致。
         -->
         <com:Extension Category="windows.comServer">
           <com:ComServer>
             <com:ExeServer Executable="App/MoleculeStudio.exe" Arguments="-Embedding" DisplayName="Molecule Studio 2D Structure">
-              <com:Class Id="C000BC8C-8C39-4722-B93C-D40D3319E7B5" DisplayName="Molecule Studio 2D Structure" />
+              <com:Class Id="C000BC8C-8C39-4722-B93C-D40D3319E7B5" DisplayName="Molecule Studio 2D Structure" ProgId="MoleculeStudio.Document.1" VersionIndependentProgId="MoleculeStudio.Document" EnableOleDefaultHandler="true" InsertableObject="true" />
             </com:ExeServer>
             <com:ProgId Id="MoleculeStudio.Document.1" Clsid="C000BC8C-8C39-4722-B93C-D40D3319E7B5" />
             <com:ProgId Id="MoleculeStudio.Document" CurrentVersion="MoleculeStudio.Document.1" />
@@ -131,7 +105,5 @@
   <Capabilities>
     <!-- 原生 Win32 分子编辑器，必须有 full trust / mediumIL -->
     <rescap:Capability Name="runFullTrust" />
-    <!-- 方案 A：允许把 OLE 自注册写到真实 HKCU\Software\Classes，见上方豁免声明 -->
-    <rescap:Capability Name="unvirtualizedResources" />
   </Capabilities>
 </Package>

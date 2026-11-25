@@ -4,7 +4,7 @@
 
 | 文件 | 用途 | 贴到哪里 |
 | --- | --- | --- |
-| [AppxManifest.xml](AppxManifest.xml) | MSIX 清单模板（身份 / 能力 / 文件关联 / COM 服务器 / 注册表豁免） | 不直接提交，由 tools/package_store.py 渲染进包 |
+| [AppxManifest.xml](AppxManifest.xml) | MSIX 清单模板（身份 / 能力 / 文件关联 / COM 服务器） | 不直接提交，由 tools/package_store.py 渲染进包 |
 | [PRIVACY.md](PRIVACY.md) | 中英隐私声明源文件 | 发布到公开 HTTPS 页面，地址填进「属性 → 隐私政策 URL」 |
 | [../../docs/privacy.html](../../docs/privacy.html) | 可直接部署的隐私声明页面 | GitHub Pages 等静态托管 |
 | [CERTIFICATION-NOTES.md](CERTIFICATION-NOTES.md) | 受限能力理由 + 认证说明（含 OLE 测试矩阵 T1–T7） | 「提交选项 → 受限能力」与「认证说明」 |
@@ -31,7 +31,6 @@ chemistry_backend.ini 改成相对 Python 路径、生成 25 张商店图标。
 | 能力 | 为什么需要 | 审核风险 |
 | --- | --- | --- |
 | runFullTrust | 原生 Win32 + Direct3D 11 + 随包 Python 与本地识别模型，必须以 mediumIL 运行 | 低（桌面打包应用的标准做法） |
-| unvirtualizedResources | 让 OLE 2.0 服务器自注册写入真实 HKCU\Software\Classes，Word 的「新建对象」列表才看得到；Windows 11 只豁免三个键，Windows 10 走 desktop6 整包开关 | 中（需写理由；被退回后 comServer 仍支撑粘贴与双击编辑） |
 
 ## 必须保持同步的身份值
 
