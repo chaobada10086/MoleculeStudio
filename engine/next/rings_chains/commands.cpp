@@ -52,6 +52,35 @@ struct KekuleEdge {
 
 bool autoKekulizeFusedBenzene(core::Document& document, Cluster& cluster, core::ObjectId saturatedAtom, bool* complete) {
     *complete=false;
+    // A single shared edge between two saturated carbons can keep its order.
+    // Put all three double bonds on the new perimeter. Walking the connected
+    // carbon skeleton here would wrongly include saturated rings and linkers.
+    if (cluster.atoms.size() == 6 && cluster.bonds.size() == 6) {
+        size_t sharedEdge = cluster.bonds.size();
+        size_t reusedAtoms = 0;
+        bool saturated = true;
+        for (const auto& atom : cluster.atoms) {
+            if (atom.reuse == core::kInvalidObjectId) continue;
+            ++reusedAtoms;
+            const auto* old = document.atoms().alive(atom.reuse);
+            if (!old || old->element != 6) { saturated = false; break; }
+            for (const auto id : document.incidentBonds(atom.reuse)) {
+                const auto* bond = document.bonds().alive(id);
+                if (bond && (bond->order != core::BondOrder::Single ||
+                             bond->semantics == core::BondSemantics::Aromatic))
+                    saturated = false;
+            }
+        }
+        for (size_t i = 0; i < cluster.bonds.size(); ++i)
+            if (cluster.bonds[i].reuse != core::kInvalidObjectId) sharedEdge = i;
+        if (saturated && reusedAtoms == 2 && sharedEdge < cluster.bonds.size()) {
+            for (size_t i = 1; i < cluster.bonds.size(); ++i)
+                cluster.bonds[(sharedEdge + i) % 6].order =
+                    i % 2 ? core::BondOrder::Double : core::BondOrder::Single;
+            *complete = true;
+            return true;
+        }
+    }
     std::vector<core::ObjectId> nodeIds;
     std::map<core::ObjectId, int> existingNode;
     std::vector<int> clusterNode(cluster.atoms.size(), -1);
