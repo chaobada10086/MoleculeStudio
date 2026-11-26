@@ -203,7 +203,7 @@ std::vector<Group> makeTools(){std::vector<Group> v;
     auto T=[&](std::string l,std::string i,std::string c){v.back().items.push_back(Button(c,l,i,c));};
     auto A=[&](std::string l,std::string i,std::string id,int n=0){v.back().items.push_back(Button(id+std::to_string(n),l,i,"@"+id,n));};
     G("选择与编辑");T("框选","select","chooseSelectionTool_Marquee");T("套索","lasso","chooseSelectionTool_Lasso");T("橡皮","erase","chooseEdittingTool_Eraser");A("结构透视","perspective","perspective");A("撤销","undo","undo");A("重做","redo","redo");A("全选","group","all");A("复制","copy","copy");A("粘贴","paste","paste");
-    G("化学键");T("单键","bond","chooseBondTool_Solid");T("双键","double","chooseMultipleBondsTool_DoubleBond");T("三键","triple","chooseMultipleBondsTool_TripleBond");T("交叉双键","doubleEither","chooseMultipleBondsTool_DoubleEitherBond");T("实楔","wedge","chooseBondTool_Wedged");T("虚楔","hashed","chooseBondTool_Hashed_Wedged");T("空楔","hollow","chooseBondTool_Hollow_Wedged");T("虚线","dash","chooseBondTool_Dashed");T("点线","dot","chooseBondTool_DottedHydrogen");T("短线","hash","chooseBondTool_Hashed");T("粗键","bold","chooseBondTool_Bold");T("波浪","wave","chooseBondTool_Wavy");T("配位","arrow","chooseMultipleBondsTool_DativeBond");
+    G("化学键");T("单键","bond","chooseBondTool_Solid");T("双键","double","chooseMultipleBondsTool_DoubleBond");T("三键","triple","chooseMultipleBondsTool_TripleBond");T("交叉双键","doubleEither","chooseMultipleBondsTool_DoubleEitherBond");T("实楔","wedge","chooseBondTool_Wedged");T("虚楔","hashed","chooseBondTool_Hashed_Wedged");T("空楔","hollow","chooseBondTool_Hollow_Wedged");T("虚线","dash","chooseBondTool_Dashed");T("点线","dot","chooseBondTool_DottedHydrogen");T("短线","hash","chooseBondTool_Hashed");T("粗键","bold","chooseBondTool_Bold");T("波浪","wave","chooseBondTool_Wavy");T("配位","arrow","chooseMultipleBondsTool_DativeBond");v.back().items.push_back(Button("mechanism.allene","插入连烯","allene","@allene"));
     G("环与碳链");const char* names[]={"三元环","四元环","五元环","六元环","七元环","八元环"};const char* commands[]={"Cyclopropane","Cyclobutane","Cyclopentane","Cyclohexane","Cycloheptane","Cyclooctane"};for(int i=0;i<6;i++)T(names[i],"ring"+std::to_string(i+3),"chooseRingTool_"+std::string(commands[i]));T("苯环","benzene","chooseRingTool_Benzene");T("二烯环","diene","chooseRingTool_Cyclopentadiene");T("椅式 Ⅰ","chair","chooseRingTool_Chair_Cyclohexane1");T("椅式 Ⅱ","chair2","chooseRingTool_Chair_Cyclohexane2");T("曲折链","chain","chooseAlkaneTool_Snaking_Chain");
     G("图形与标注");T("箭头","arrow","chooseArrowTool_Large_Solid");T("曲线","curve","choosePenTool_DrawCurve");T("圆形","oval","chooseDrawingTool_Circle_Hollow");T("矩形","rect","chooseDrawingTool_Rectangle_Hollow");T("圆角矩形","roundRect","chooseDrawingTool_RoundRect_Hollow");T("方括号","bracket","chooseBracketTool_SquareBrackets");T("圆括号","paren","chooseBracketTool_Parenthesis");T("负电荷","minus","chooseSymbolTool_CircleMinus");T("正电荷","plus","chooseSymbolTool_CirclePlus");T("自由基","radical","chooseSymbolTool_Radical");T("编辑曲线","pen","choosePenTool_EditCurve");T("直线","bond","chooseDrawingTool_Line");T("虚线框","dottedRect","chooseDrawingTool_Rectangle_Dashed");T("圆角虚线框","roundDashed","chooseDrawingTool_RoundRect_Dashed");
     G("文字与格式");T("文字","text","chooseEdittingTool_Text");A("字体","font","font");A("颜色","color","color");A("加粗","boldText","flag",kBold);A("斜体","italic","flag",kItalic);A("下划线","under","flag",kUnderline);A("化学式","formula","flag",kFormula);A("下标","sub","flag",kSubscript);A("上标","super","flag",kSuperscript);A("左对齐","textalign0","textalign",0);A("居中","textalign1","textalign",1);A("右对齐","textalign2","textalign",2);A("字号 +","sizeUp","size",1);A("字号 −","sizeDown","size",-1);A("两端对齐","textalign3","textalign",3);
@@ -316,7 +316,7 @@ struct App : TextEditHost {
     AiWindow ai;DocumentId aiDocument=0;uint64_t aiSerial=0;std::vector<ObjectRef> aiSelection;Vec2 aiOrigin;double aiWidth=0;uint32_t aiColor=0x000000FFu;
     std::string aiContext();std::string applyAI(const std::string& bytes);void showAI(const std::string& prompt="",bool settings=false);void aiCheck(const std::string& dir);struct StepPlan { Command command; std::shared_ptr<std::vector<ObjectRef>> created=std::make_shared<std::vector<ObjectRef>>(); std::shared_ptr<bool> wrapped=std::make_shared<bool>(false); std::string detail; };
     StepPlan planMechanismStep(const Document& doc,const std::vector<ObjectRef>& selection,const std::vector<ObjectRef>& scene,int mode,int arrowStyle,bool interactive,bool keepLossStructures=false);
-    void generateMechanismStep(int mode=0,int arrowStyle=0);void reagentMenu(bool inorganic);void placeReagent(Vec2 center);void insertReactiveCenter(bool allene);void insertMechanismRole(bool base);void catalyticAction(int action);bool catalyticFold(bool expand);bool catalyticEllipse(ObjectRef ref,graphics::ShapeParams* out=nullptr);ObjectId catalyticShape=kInvalidObjectId;void insertMechanismProton();void attachMechanismHydrogen(ObjectId id);void applyMechanismElectronState(int state,bool circled=false);bool mechanismStepChecking=false;void mechanismStepCheck(const std::string& dir);bool electronStateChecking=false;void electronStateCheck(const std::string& dir);bool mechanismInferChecking=false;void mechanismInferCheck(const std::string& dir);void aiUxCheck(const std::string& dir);void skillUpdateCheck(const std::string& dir);
+    void generateMechanismStep(int mode=0,int arrowStyle=0);void reagentMenu(bool inorganic);void placeReagent(Vec2 center);bool allenePlacing=false;void insertReactiveCenter(bool allene,const Vec2* point=nullptr);void insertMechanismRole(bool base);void catalyticAction(int action);bool catalyticFold(bool expand);bool catalyticEllipse(ObjectRef ref,graphics::ShapeParams* out=nullptr);ObjectId catalyticShape=kInvalidObjectId;void insertMechanismProton();void attachMechanismHydrogen(ObjectId id);void applyMechanismElectronState(int state,bool circled=false);bool mechanismStepChecking=false;void mechanismStepCheck(const std::string& dir);bool electronStateChecking=false;void electronStateCheck(const std::string& dir);bool mechanismInferChecking=false;void mechanismInferCheck(const std::string& dir);void aiUxCheck(const std::string& dir);void skillUpdateCheck(const std::string& dir);
     void showOcsr();void showOcsrDemo();void showImageToStructure();void openImageToStructure(const std::wstring& imagePath);bool insertOcsrStructure(const std::string& cdxmlPath,const std::string& recordPath,std::wstring& error);bool copyOcsrStructure(const std::string& cdxmlPath,std::wstring& error);
     bool stereoLabelChecking=false;void stereoLabelCheck(const std::string& dir);bool uiChecking=false,chromeChecking=false,aiChecking=false,aiLiveChecking=false,textWrapChecking=false,textExtendChecking=false,ringLibraryChecking=false,templateLibraryChecking=false;void templateLibraryCheck(const std::string& dir);void ringLibraryCheck(const std::string& dir);void textExtendCheck(const std::string& dir);void settingsAiCheck(const std::string& dir);void groupDirectionCheck(const std::string& dir);void completionCheck(const std::string& dir);bool groupDirectionChecking=false,completionChecking=false;void textWrapCheck(const std::string& dir);bool clipboardChecking=false;void clipboardCheck(const std::string& dir);bool arrowShortcutChecking=false;void arrowShortcutCheck(const std::string& dir);
     bool crosshairs=false,rulers=false,splitter=false,pointerOverCanvas=false,selectionCursorReset=true;uint64_t cursorRequests=0;Vec2 pointerPixel;std::string pendingName;
@@ -571,7 +571,7 @@ void cdxmlColorCheck(const std::string& dir);
     const shortcut_hints::Context& toolHint(const Button& b,int scope)const{if(hintGeneration!=shortcuts.generation){hintCache.clear();hintGeneration=shortcuts.generation;}auto arrow=arrowCommand();std::string key=b.cmd+"|"+std::to_string(b.arg)+"|"+b.label+"|"+arrow;auto found=hintCache.find(key);if(found==hintCache.end()){std::vector<shortcut_hints::Context> contexts;for(int i=1;i<=3;++i)contexts.push_back(shortcut_hints::describe(shortcuts,b,i,arrow,arrowPresetName()));found=hintCache.insert({key,contexts}).first;}return found->second[scope-1];}
     std::string hint(const Button& b){
         std::string description=b.label;
-        if(b.cmd=="@allene")description="插入连烯：选中碳原子时从该原子接出 C=C=C；未选择时在画布中央插入。";
+        if(b.cmd=="@allene")description="点击画布插入 C=C=C，或点击碳原子从该处接出。";
         else if(b.cmd=="@carbene")description="插入卡宾：作用于选中的碳原子；未选择时插入新的卡宾碳。";
         else if(b.cmd=="@mechanismBase")description="插入通用碱 B⁻。";
         else if(b.cmd=="@mechanismNu")description="插入带负电荷和孤对电子的 Nu⁻。";
@@ -855,7 +855,7 @@ void cdxmlColorCheck(const std::string& dir);
                 if(gr.r.X<0)continue;paintRibbonGroup(g,gr.r);
                 for(auto& b:gr.items){if(b.r.X<0)continue;
                     if(b.cmd=="@generationArrowStyle"){paintGenerationStyle(g,b);continue;}
-                    bool active=(b.id=="graphics.arrowStyle"?arrowCommand():b.cmd)==s.entries[s.activeIndex].command;
+                    bool active=allenePlacing?b.cmd=="@allene":(b.id=="graphics.arrowStyle"?arrowCommand():b.cmd)==s.entries[s.activeIndex].command;
                     if(active||hover==b.id||(b.id=="graphics.arrowStyle"&&hover=="graphics.arrowTool"))roundbox(g,b.r,4,studio_ui::skinColors().selected);
                     Color c=b.enabled?(active?teal:ink):Color(255,181,188,184);
                     if(!ribbonCompact&&ribbonTab==6&&gr.name=="生成产物"){
@@ -893,7 +893,7 @@ void cdxmlColorCheck(const std::string& dir);
                     txt(g,label,RectF(preview.X+4,preview.Y+33,preview.Width-8,16),9,muted,false,true);
                 }continue;
             }
-            bool selected=(perspectiveTool?b.cmd=="@perspective":b.cmd==s.entries[s.activeIndex].command)||(b.cmd=="@autoTextLayout"&&chemcompletion::formulaLayout());
+            bool selected=(allenePlacing?b.cmd=="@allene":perspectiveTool?b.cmd=="@perspective":b.cmd==s.entries[s.activeIndex].command)||(b.cmd=="@autoTextLayout"&&chemcompletion::formulaLayout());
             if(selected)roundbox(g,b.r,4,studio_ui::skinColors().selected);else if(hover==b.id)roundbox(g,b.r,4,studio_ui::skinColors().hover);
             bool addTemplate=b.cmd=="@addCustomTemplate"&&b.enabled;if(addTemplate)roundbox(g,b.r,4,studio_ui::skinColors().selected);Color c=b.enabled?((selected||addTemplate)?teal:ink):Color(255,181,188,184);
             auto preset=arrows::presetByCommand(b.cmd);
@@ -1567,6 +1567,7 @@ void App::placeEquivalence(Vec2 point){
     updateInfo();updateCanvasCursor();invalidate();
 }
 void App::execute(const Button& b){
+    allenePlacing=false;
     if(b.cmd.compare(0,6,"choose")==0||b.cmd=="@new"||b.cmd=="@open"){elements.active=0;elements.refresh();}
     if(virtualBondTool){virtualBondTool=false;virtualBondOrigin=kInvalidObjectId;down=false;if(GetCapture()==canvas)ReleaseCapture();s.ghost.clear();}
     partialChargePlacement=0;
@@ -1639,7 +1640,12 @@ void App::execute(const Button& b){
     }
     if(b.cmd=="@inorganicReagents"||b.cmd=="@organicReagents"){reagentMenu(b.cmd=="@inorganicReagents");return;}
     if(b.cmd=="@commonIons"){ionMenu();return;}
-    if(b.cmd=="@allene"||b.cmd=="@carbene"){insertReactiveCenter(b.cmd=="@allene");return;}
+    if(b.cmd=="@allene"){
+        if(textEditor.active&&!finishText(true))return;
+        execute(Button("","","","chooseSelectionTool_Marquee"));
+        allenePlacing=true;SetFocus(canvas);updateCanvasCursor();invalidate();return;
+    }
+    if(b.cmd=="@carbene"){insertReactiveCenter(false);return;}
     if(b.cmd=="@mechanismTransfer"||b.cmd=="@mechanismDeprotonate"){if(textEditor.active&&!finishText(true))return;generateMechanismStep(b.cmd=="@mechanismTransfer"?1:2,generationArrowStyle);return;}
     if(b.cmd=="@generationArrowStyle"){hideToolTip();generationArrowStyle=b.arg;invalidate(false);return;}
     if(b.cmd=="@transitionState"){
@@ -1858,6 +1864,12 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
             a->cloneSource=source;
             a->cloneDragging=true;
         }
+    if(a->allenePlacing){
+        if(m==WM_LBUTTONDOWN){SetFocus(h);auto at=s.view().toDocument(pixel);a->insertReactiveCenter(true,&at);return 0;}
+        if(m==WM_LBUTTONUP||m==WM_LBUTTONDBLCLK)return 0;
+        if(m==WM_SETCURSOR){SetCursor(LoadCursorW(nullptr,MAKEINTRESOURCEW(32515)));return TRUE;}
+        if(m==WM_KEYDOWN&&wp==VK_ESCAPE){a->allenePlacing=false;a->updateCanvasCursor();a->invalidate();return 0;}
+    }
     if(a->elements.active){
         if(m==WM_LBUTTONDOWN){SetFocus(h);a->placeElement(s.view().toDocument(pixel));return 0;}
         if(m==WM_LBUTTONUP||m==WM_LBUTTONDBLCLK)return 0;
@@ -2215,6 +2227,7 @@ LRESULT CALLBACK windowProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
     case WM_NOTIFY:if(a->textEditor.notify((NMHDR*)lp)){if(!a->textEditor.loading&&((NMHDR*)lp)->code==EN_SELCHANGE)a->syncTextControls();return 0;}break;
     case WM_COMMAND:if(LOWORD(wp)==304||LOWORD(wp)==305){a->finishText(LOWORD(wp)==304);return 0;}if((LOWORD(wp)==401||LOWORD(wp)==402)&&(HIWORD(wp)==CBN_SELCHANGE||HIWORD(wp)==CBN_KILLFOCUS)){a->styleFromBox((HWND)lp,HIWORD(wp)==CBN_SELCHANGE);return 0;}if(LOWORD(wp)==301&&HIWORD(wp)==EN_CHANGE&&!a->textEditor.loading)a->textEditor.noteContentChange();return 0;
     case studio_i18n::languageMessage:a->elements.refresh();if(a->elements.active){auto message=studio_i18n::tr(L"元素 %s：点击画布添加或替换原子，Esc 退出");auto slot=message.find(L"%s");if(slot!=std::wstring::npos)message.replace(slot,2,W(elementpalette::Palette::symbol(a->elements.active)));a->status=U(message);}a->ai.bgValid=false;a->layout();a->invalidate();return 0;
+    case WM_APP+183:a->s.refresh();a->elements.refresh();a->invalidate();return 0;
     case WM_APP+31:a->invalidate();return 0;
     case WM_APP+40:{
         // One-shot startup fit after the window has reached its final size.

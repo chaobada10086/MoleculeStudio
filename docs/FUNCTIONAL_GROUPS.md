@@ -178,7 +178,7 @@
 | `CF3` | Common functional group; attachment at * | `*C(F)(F)F` | 5/4 | CF3 | authored |
 | `CH2Cl` | chloromethyl | `[*]CCl` | 3/2 | CH2Cl | high |
 | `CH2F` | Common functional group; attachment at * | `*CF` | 3/2 | CH2F | authored |
-| `CH2NH2` | aminomethyl | `NCC[*]` | 4/3 | C2H6N | high |
+| `CH2NH2` | aminomethyl | `NC[*]` | 3/2 | CH4N | high |
 | `CH2OH` | hydroxymethyl | `OC[*]` | 3/2 | CH3O | high |
 | `Cha` | L-cyclohexylalanine | `N[C@@H](CC1CCCCC1)C(=O)[*]` | 12/12 | C9H16NO | high |
 | `CHF2` | Common functional group; attachment at * | `*C(F)F` | 4/3 | CHF2 | authored |

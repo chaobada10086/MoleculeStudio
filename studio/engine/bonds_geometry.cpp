@@ -61,7 +61,7 @@ public:
         double head=axis.length*style.dativeHeadPercent*.01;
         if(head<=0){stroke(0,axis.length);return;}
         double stem=std::max(0.,axis.length-head),half=head*std::tan(style.dativeHeadAngle*std::acos(-1.)/180.);
-        stroke(0,stem>0?stem:axis.length);
+        stroke(0,axis.length);
         BondShape shape;shape.kind=BondShapeKind::Polyline;shape.points={point(stem,half),axis.end,point(stem,-half)};output.shapes.push_back(shape);
     }
 };

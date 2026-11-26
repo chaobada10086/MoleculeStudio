@@ -37,6 +37,15 @@ void App::toolInsertCheck(const std::string& dir){
     }
     // Fusing on a selected bond reuses the edge rather than drawing over it.
     for(const auto& command:commands){reset();ObjectId a,b,bond;s.doc.addAtom(Vec2(),6,&a);s.doc.addAtom(Vec2(s.doc.defaultBondLength(),0),6,&b);s.doc.addBond(a,b,&bond);s.refresh();s.selected={ObjectRef(ObjectKind::Bond,bond)};execute(Button("",command,"",command));const auto* preset=rings_chains::ringPresetForCommand(command);require(s.doc.stats().aliveAtoms==size_t(preset->size)&&s.doc.stats().aliveBonds==size_t(preset->size),"selected bond reuses edge: "+command);++ringCases;}
+    for(auto vector:{Vec2(40,0),Vec2(-25,35),Vec2(0,-40)}){
+        Session probe;probe.activateCommand("chooseBondTool_Wavy");
+        probe.gesture(PointerPhase::Down,Vec2());probe.gesture(PointerPhase::Move,vector);
+        require(!probe.ghost.items().empty()&&probe.ghost.items().front().points.size()>3,"wavy drag has sampled wave");
+        probe.cancel();probe.activateCommand("chooseMultipleBondsTool_DativeBond");
+        probe.gesture(PointerPhase::Down,Vec2());probe.gesture(PointerPhase::Move,vector);
+        const auto& parts=probe.ghost.items();
+        require(parts.size()==2&&length(parts[0].points.back()-parts[1].points.at(1))<1e-8,"dative shaft touches tip");
+    }
     int alleneCases=0;
     for(int mode:{0,1,2,3}){
         reset();ObjectId anchor=kInvalidObjectId;Vec2 origin(91,37);
@@ -44,6 +53,10 @@ void App::toolInsertCheck(const std::string& dir){
         else if(mode){s.doc.addAtom(origin,6,&anchor);if(mode==3){ObjectId atom,bond;s.doc.addAtom(origin-Vec2(s.doc.defaultBondLength(),0),6,&atom);s.doc.addBond(anchor,atom,&bond);}}
         s.refresh();if(mode)s.selected={ObjectRef(ObjectKind::Atom,anchor)};
         const auto before=s.doc.digest();auto count=s.doc.stats();execute(Button("","插入连烯","allene","@allene"));
+        require(allenePlacing&&s.doc.digest()==before,"arming allene leaves the canvas unchanged");
+        auto pixel=s.view().toDevice(origin);
+        SendMessageW(canvas,WM_LBUTTONDOWN,MK_LBUTTON,MAKELPARAM(int(std::round(pixel.x)),int(std::round(pixel.y))));
+        SendMessageW(canvas,WM_LBUTTONUP,0,MAKELPARAM(int(std::round(pixel.x)),int(std::round(pixel.y))));
         require(s.doc.stats().aliveAtoms==count.aliveAtoms+(mode?2:3)&&s.doc.stats().aliveBonds==count.aliveBonds+2,"allene connected atom counts");
         std::vector<ObjectId> doubled;for(const auto& atom:s.doc.atoms().records())if(atom.isAlive()&&mechanism::cumuleneCenter(s.doc,atom))doubled.push_back(atom.id);
         require(doubled.size()==1,"one allene middle carbon");auto center=doubled.front();auto links=s.doc.incidentBonds(center);std::vector<Vec2> points;

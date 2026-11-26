@@ -89,6 +89,7 @@ def compile_engine(rel):
     if 'ribbon' in rel or Path(rel).name=='window.cpp':raise RuntimeError('Old UI source: '+rel)
     src=overrides.get(rel,snap/rel); obj=engine/('_'.join(Path(rel).parts)+'.o')
     extra=(studio/'tlc_preferences.hpp').read_bytes() if rel in ('next/experimental/tools.cpp','next/integration/session.cpp','next/experimental/render_bridge.cpp') else ((studio/'tlc_cdxml_writer.inc').read_bytes() if Path(rel).name=='cdxml_writer.cpp' else b'')
+    if rel=="next/integration/session.cpp":extra+=(studio/"element_color_settings.hpp").read_bytes()
     digest=hashlib.sha256(src.read_bytes()+extra+header_digest.encode()+compiler.encode()).hexdigest()
     if '--clean-engine' in sys.argv or state.get(rel)!=digest or not obj.exists():
         result=subprocess.run([compiler]+flags+['-I'+str((snap/rel).parent),'-c',str(src),'-o',str(obj)],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace')

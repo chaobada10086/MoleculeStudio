@@ -1,10 +1,11 @@
 #pragma once
-void App::insertReactiveCenter(bool allene){
+void App::insertReactiveCenter(bool allene,const Vec2* point){
     if(textEditor.active&&!finishText(true))return;
     s.cancel();
-    auto at=s.view().center;
+    auto at=point?*point:s.view().center;
     ObjectId selected=kInvalidObjectId;
-    if(s.selected.size()==1&&s.selected.front().kind==ObjectKind::Atom&&s.doc.atoms().alive(s.selected.front().id))selected=s.selected.front().id;
+    if(point)selected=s.nearestAtom(at,s.snapRadiusDevice());
+    else if(s.selected.size()==1&&s.selected.front().kind==ObjectKind::Atom&&s.doc.atoms().alive(s.selected.front().id))selected=s.selected.front().id;
     if(selected!=kInvalidObjectId)at=s.doc.atoms().alive(selected)->position;
     auto made=std::make_shared<std::vector<ObjectRef>>();
     auto result=s.submit(Command(allene?"插入连烯":"插入卡宾",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics,

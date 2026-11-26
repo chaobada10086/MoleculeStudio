@@ -611,9 +611,9 @@
    "note": "Common functional group; attachment at *"
   },
   "CH2NH2": {
-   "atoms": 4,
-   "bonds": 3,
-   "formula": "C2H6N",
+   "atoms": 3,
+   "bonds": 2,
+   "formula": "CH4N",
    "confidence": "high",
    "note": "aminomethyl"
   },

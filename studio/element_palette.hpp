@@ -1,5 +1,5 @@
 #pragma once
-#include "app_paths.hpp"
+#include "element_color_settings.hpp"
 #include "next/core/contracts.hpp"
 #include <functional>
 #include <map>
@@ -7,25 +7,6 @@
 
 // A shared, persisted palette; the selected drawing element belongs to each tab.
 namespace elementpalette {
-struct Settings {
-    std::vector<int> pins{6,1,8,7,15,9,17,35,53,14,5};
-    std::map<int,uint32_t> colors;
-    static std::wstring path(){return apppaths::dataFile(L"interface.ini");}
-    Settings(){
-        wchar_t raw[2048]={};GetPrivateProfileStringW(L"ElementPalette",L"Pins",L"",raw,2048,path().c_str());
-        if(*raw){std::wistringstream in(raw);std::vector<int> values;int z;while(in>>z)if(z>=1&&z<=118&&std::find(values.begin(),values.end(),z)==values.end())values.push_back(z);pins=values;}
-        for(int z=1;z<=118;++z){auto key=L"Color"+std::to_wstring(z);GetPrivateProfileStringW(L"ElementPalette",key.c_str(),L"",raw,2048,path().c_str());if(*raw){wchar_t* end=nullptr;auto color=wcstoul(raw,&end,16);if(end&&!*end&&color<=0xFFFFFF)colors[z]=(uint32_t(color)<<8)|255;}}
-    }
-    bool save(){
-        std::wstring value=L"0";for(int z:pins)value+=L" "+std::to_wstring(z);
-        bool ok=WritePrivateProfileStringW(L"ElementPalette",L"Pins",value.c_str(),path().c_str())!=FALSE;
-        for(int z=1;z<=118;++z){auto key=L"Color"+std::to_wstring(z);auto found=colors.find(z);wchar_t hex[16];swprintf(hex,16,L"%06X",found==colors.end()?0:unsigned(found->second>>8));ok=(WritePrivateProfileStringW(L"ElementPalette",key.c_str(),found==colors.end()?nullptr:hex,path().c_str())!=FALSE)&&ok;}
-        return ok;
-    }
-    uint32_t color(int z)const{auto i=colors.find(z);return i==colors.end()?0x000000FFu:i->second;}
-    bool pinned(int z)const{return std::find(pins.begin(),pins.end(),z)!=pins.end();}
-};
-inline Settings& settings(){static Settings value;return value;}
 inline Gdiplus::Color rgba(uint32_t color){return Gdiplus::Color(BYTE(color),BYTE(color>>24),BYTE(color>>16),BYTE(color>>8));}
 struct Palette {
     HWND bar=nullptr,table=nullptr,owner=nullptr;float scale=1,tableScale=1;int active=0,selected=6,hover=-1,offset=0;
@@ -55,7 +36,16 @@ struct Palette {
         if(!full){
             Pen edge(skin.border,1);g.DrawLine(&edge,0.f,0.f,0.f,rc.bottom/dpi);
             RectF icon(4,5,28,28);box(g,icon,hover==0?skin.selected:skin.hover);
-            for(int row=0;row<3;++row)for(int col=0;col<5;++col)if(row==2||col==0||col==4)box(g,RectF(9.f+col*4,11.f+row*5,3,4),skin.accent);
+            // Miniature periodic table: s block, lower d block, raised p block
+            // and detached f-block line. Draw on a 24-DIP grid for a crisp silhouette.
+            const float left=6.5f,top=11.f;
+            for(int row=0;row<4;++row){
+                for(int col=0;col<8;++col){
+                    bool occupied=row==0?(col==0||col==7):row==1?(col<2||col>=5):true;
+                    if(occupied)box(g,RectF(left+col*2.9f,top+row*3.1f,2.3f,2.5f),skin.strong);
+                }
+            }
+            box(g,RectF(left+5.8f,top+13.2f,13.8f,1.7f),skin.accent);
             int cap=capacity();offset=std::max(0,std::min(offset,std::max(0,int(settings().pins.size())-cap)));
             for(int i=0;i<cap&&offset+i<int(settings().pins.size());++i){int z=settings().pins[offset+i];RectF r(4,40.f+i*30,28,28);if(active==z||hover==i+1)box(g,r,active==z?skin.selected:skin.hover);label(g,symbol(z),r,14,rgba(settings().color(z)),active==z,false);if(settings().colors.count(z))box(g,RectF(10,r.GetBottom()-3,16,2),rgba(settings().color(z)));}
             if(int(settings().pins.size())>cap){label(g,"‹",RectF(2,rc.bottom/dpi-25,16,23),17,skin.accent,false,false);label(g,"›",RectF(18,rc.bottom/dpi-25,16,23),17,skin.accent,false,false);}

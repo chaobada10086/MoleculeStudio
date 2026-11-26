@@ -425,7 +425,7 @@
   "CH2NH2": {
     "confidence": "high",
     "note": "aminomethyl",
-    "smiles": "NCC[*]"
+    "smiles": "NC[*]"
   },
   "CH2OH": {
     "confidence": "high",

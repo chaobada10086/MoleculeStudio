@@ -45,6 +45,7 @@
 #include <cmath>
 #include <cstring>
 #include <stdexcept>
+#include "../element_color_settings.hpp"
 namespace r62 { namespace integration {
 static double traceNow(){return std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now().time_since_epoch()).count();}
 static bool traceOn(){static const bool on=std::getenv("MOLECULE_STUDIO_PERF_TRACE")!=nullptr;return on;}
@@ -164,13 +165,49 @@ static Error cutDelete(void* userData,const std::vector<ObjectRef>& refs){
     return s.submit(commands::deleteObjects(refs),"cut selection");
 }
 constexpr int kAtomLabelZ=10;
-static void appendRich(const text::RichLayout& layout,ObjectRef ref,uint32_t color,uint32_t layer,int z,std::vector<render::Primitive>* out,const std::vector<uint32_t>* colors=nullptr){
+// Only complete chemical formulas are tokenized. Ordinary captions and names
+// such as Boc and Dipp retain their lettering until expanded to real atoms.
+static std::vector<uint32_t> formulaInks(const text::RichLayout& layout){
+    const auto& palette=elementpalette::settings().colors;
+    if(palette.empty())return {};
+    std::vector<uint32_t> inks(layout.glyphs.size());
+    // These catalog abbreviations spell sequences of element symbols by coincidence.
+    std::string spelling;
+    for(const auto& glyph:layout.glyphs)if(glyph.codepoint<128)spelling+=char(glyph.codepoint);
+    static const std::set<std::string> abbreviations={"BOB","NPPOC","NVOC","PBB","PCB","PNB"};
+    if(abbreviations.count(spelling))return {};
+    uint32_t previous=0, hydrideInk=0;
+    int heavyCount=0;
+    for(size_t i=0;i<inks.size();){
+        auto c=layout.glyphs[i].codepoint;
+        if((c>='0'&&c<='9')||c=='+'||c=='-'||c=='('||c==')'||c=='='||c==0x2212||(c>=0x2080&&c<=0x2089)){inks[i++]=previous;continue;}
+        if(c<'A'||c>'Z')return {};
+        size_t start=i++;
+        std::string symbol(1,char(c));
+        if(i<inks.size()){auto next=layout.glyphs[i].codepoint;if(next>='a'&&next<='z'){symbol+=char(next);++i;}}
+        int z=core::elementNumber(symbol);
+        if(z<1)return {};
+        auto found=palette.find(z);
+        previous=found==palette.end()?0:found->second;
+        if(z!=1){++heavyCount;hydrideInk=previous;}
+        std::fill(inks.begin()+start,inks.begin()+i,previous);
+    }
+    // A hydride label (NH2 or H2N) follows its heavy atom unless H has a color.
+    if(heavyCount==1&&hydrideInk&&!palette.count(1))
+        std::fill(inks.begin(),inks.end(),hydrideInk);
+    return inks;
+}
+static void appendRich(const text::RichLayout& layout,ObjectRef ref,uint32_t color,uint32_t layer,int z,std::vector<render::Primitive>* out,const std::vector<uint32_t>* colors=nullptr,bool chemical=false){
     render::Primitive p;p.kind=render::PrimKind::Polygon;p.source=ref;p.layer=render::LayerId(layer);p.z=z;
     p.style.fill=render::Paint(color,true);p.style.stroke.enabled=false;p.style.fillRule=render::FillRule::NonZero;
     // T03 v10000 expects one outer contour followed by its holes. Separate
     // disconnected glyph components (Latin letters / CJK strokes / dots), then
     // feed each containment group through the existing T03 triangulator.
-    for(const auto& glyph:layout.glyphs){if(colors&&glyph.runIndex<colors->size())p.style.fill.rgba=(*colors)[glyph.runIndex];const auto& cs=glyph.contours;
+    auto inks=chemical?formulaInks(layout):std::vector<uint32_t>{};
+    size_t index=0;
+    for(const auto& glyph:layout.glyphs){p.style.fill.rgba=colors&&glyph.runIndex<colors->size()?(*colors)[glyph.runIndex]:color;
+        if(index<inks.size()&&inks[index])p.style.fill.rgba=inks[index];
+        ++index;const auto& cs=glyph.contours;
         std::vector<double> area(cs.size());std::vector<int> parent(cs.size(),-1),depth(cs.size(),0);
         for(size_t i=0;i<cs.size();++i){double a=0;for(size_t j=0;j<cs[i].size();++j){auto x=cs[i][j],y=cs[i][(j+1)%cs[i].size()];a+=x.x*y.y-y.x*x.y;}area[i]=std::abs(a);}
         for(size_t i=0;i<cs.size();++i)for(size_t j=0;j<cs.size();++j)if(area[j]>area[i]&&!cs[i].empty()&&selection::polygonContainsPoint(cs[j],cs[i][0]))
@@ -398,7 +435,7 @@ Error Session::buildScene(){
         }
     }
     stamp(0);
-    for(const auto& label:atomLabels)if(wanted(ObjectKind::Atom,label.first)){ObjectRef ref(ObjectKind::Atom,label.first);auto colors=colorsFor(ref);uint32_t color=0x000000ff;if(auto value=static_cast<const Document&>(doc).extensions(ref).findValue("studio.color"))color=uint32_t(std::strtoull(value->c_str(),0,10));appendRich(label.second.layout,ref,color,100,kAtomLabelZ,&ps,&colors);}
+    for(const auto& label:atomLabels)if(wanted(ObjectKind::Atom,label.first)){ObjectRef ref(ObjectKind::Atom,label.first);auto colors=colorsFor(ref);uint32_t color=0x000000ff;if(auto value=static_cast<const Document&>(doc).extensions(ref).findValue("studio.color"))color=uint32_t(std::strtoull(value->c_str(),0,10));if(auto ink=static_cast<const Document&>(doc).extensions(ref).findValue("studio.color.override")){color=uint32_t(std::strtoul(ink->c_str(),nullptr,10));colors.clear();}appendRich(label.second.layout,ref,color,100,kAtomLabelZ,&ps,&colors,true);}
     // Radical electrons are geometry, not a text glyph: one filled dot for a
     // monoradical, two for a diradical. The dot is derived from atom semantics
     // every rebuild, so it follows the atom and cannot be left behind by a move.
@@ -506,13 +543,17 @@ Error Session::buildScene(){
         const auto& runs=doc.runs(t.id);captionKeyScalar(key,runs.size());
         for(const auto& run:runs){string(run.utf8);string(run.fontName);captionKeyScalar(key,run.size);captionKeyScalar(key,run.flags);}
         auto colors=colorsFor(ObjectRef(ObjectKind::Text,t.id));captionKeyScalar(key,colors.size());for(auto color:colors)captionKeyScalar(key,color);
+        for(const auto& ink:elementpalette::settings().colors){captionKeyScalar(key,ink.first);captionKeyScalar(key,ink.second);}
+        auto overrideInk=static_cast<const Document&>(doc).extensions(ObjectRef(ObjectKind::Text,t.id)).findValue("studio.color.override");
+        string(overrideInk?*overrideInk:"");
         auto& cached=captions.entries[t.id];
         if(cached.key==key){ps.insert(ps.end(),cached.primitives.begin(),cached.primitives.end());continue;}
         text::RichLayout measured;checked(text::layoutRichText(doc.runs(t.id),Vec2(),lo,&glyphs,&measured));Vec2 baseline=t.position;baseline.y-=measured.metrics.firstBaseline;if(t.format.align==1)baseline.x-=measured.metrics.width*.5;else if(t.format.align==2)baseline.x-=measured.metrics.width;
         text::RichLayout layout=std::move(measured);layout.anchor=baseline;
         if(!layout.metrics.inkBox.empty()){layout.metrics.inkBox.min=layout.metrics.inkBox.min+baseline;layout.metrics.inkBox.max=layout.metrics.inkBox.max+baseline;}
         uint32_t color=t.format.colorRGBA;if((color&255)==0)color=0x000000FF;
-        size_t start=ps.size();appendRich(layout,ObjectRef(ObjectKind::Text,t.id),color,100,10,&ps,&colors);
+        if(overrideInk){color=uint32_t(std::strtoull(overrideInk->c_str(),nullptr,10));colors.clear();}
+        size_t start=ps.size();appendRich(layout,ObjectRef(ObjectKind::Text,t.id),color,100,10,&ps,&colors,true);
         // A caption with a fixed wrap width is a TEXT BOX: the whole frame,
         // including the empty part, is the object. An invisible rectangle carries
         // that frame into picking, marquee selection and the selection overlay
@@ -604,7 +645,7 @@ Error Session::buildScene(){
     auto camera=advanced::readCamera(doc);
     for(auto& p:resolved.mutablePrimitives()){
         if(p.source.kind==ObjectKind::Arrow){auto c=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color");if(c){uint32_t rgba=uint32_t(std::strtoull(c->c_str(),0,10));p.style.stroke.rgba=rgba;p.style.fill.rgba=rgba;}}
-        if(auto color=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color.override")){uint32_t value=uint32_t(std::strtoull(color->c_str(),0,10));p.style.stroke.rgba=value;if(p.source.kind!=ObjectKind::Path&&(p.source.kind!=ObjectKind::Symbol||(!experimental::isFigureObject(doc,p.source)&&p.style.fill.rgba!=0xFFFFFFFFu)))p.style.fill.rgba=value;}
+        if(!((p.source.kind==ObjectKind::Atom&&p.z==kAtomLabelZ)||(p.source.kind==ObjectKind::Text&&p.z==10))||elementpalette::settings().colors.empty())if(auto color=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color.override")){uint32_t value=uint32_t(std::strtoull(color->c_str(),0,10));p.style.stroke.rgba=value;if(p.source.kind!=ObjectKind::Path&&(p.source.kind!=ObjectKind::Symbol||(!experimental::isFigureObject(doc,p.source)&&p.style.fill.rgba!=0xFFFFFFFFu)))p.style.fill.rgba=value;}
         if(p.source.kind!=ObjectKind::Bond)if(auto width=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.graphics.width")){double value=std::atof(width->c_str());if(value>0){p.style.strokeWidth=value;p.bounds=render::geom::computeBounds(p,value);}}
         auto z=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.z");if(z)p.z+=std::atoi(z->c_str());
         auto rotation=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.text.RotationAngle");
@@ -923,7 +964,9 @@ Error Session::gesture(PointerPhase phase,Vec2 p,uint32_t mods){
         ghost.clear();
         bonds::BondGeometryOptions bondOptions;bondOptions.lineWidth=doc.defaultLineWidth();bondOptions.boldWidth=molecular::setting(doc,"BoldWidth",2);bondOptions.hashSpacing=molecular::setting(doc,"HashSpacing",2.5);
         auto data=bonds::buildBondGeometry(bondOrigin.point,bondSnap.endpoint,preset->axes,bondOptions);
-        for(const auto& shape:data.shapes){PreviewItem q;q.points=shape.fill?shape.outline:shape.points;q.primitive=shape.fill?PreviewPrimitive::Polygon:PreviewPrimitive::Polyline;q.style.width=shape.strokeWidth;q.style.colorRGBA=graphicsColor;q.fillRGBA=graphicsColor;q.fillEnabled=shape.fill;ghost.add(q);}
+        for(const auto& shape:data.shapes){PreviewItem q;q.points=shape.fill?shape.outline:shape.points;
+            if(shape.wavyAmplitude>0)render::geom::applyWave(shape.points,false,shape.wavyAmplitude,shape.wavyWavelength,.1,&q.points);
+            q.primitive=shape.fill?PreviewPrimitive::Polygon:PreviewPrimitive::Polyline;q.style.width=shape.strokeWidth;q.style.colorRGBA=graphicsColor;q.fillRGBA=graphicsColor;q.fillEnabled=shape.fill;ghost.add(q);}
         if(phase==PointerPhase::Up){bondDrawing=false;ghost.clear();
             return submit(bonds::addBondFromSnapCommand(bondOrigin,bondSnap,preset->axes,6,0),"resolved bond");
         }

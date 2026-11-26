@@ -503,6 +503,12 @@ inline void clip(bonds::BondRenderData& data,const BondRecord& bond,const Labels
         }
         if(found){if(end)upper=support-margin;else lower=support+margin;data.clippedByLabel=true;}
     }
+    if(bond.semantics==BondSemantics::Dative&&data.clippedByLabel){
+        double from=std::max(0.,lower),to=std::min(size,upper);
+        if(to<=from){data.shapes.clear();return;}
+        for(auto& shape:data.shapes)if(shape.kind==bonds::BondShapeKind::Polyline)
+            for(auto& point:shape.points)point=data.axisBegin+direction*to+(point-data.axisEnd)*((to-from)/size);
+    }
     for(auto& shape:data.shapes){
         if(shape.kind==bonds::BondShapeKind::Stroke&&shape.points.size()==2){
             double begin=dot(shape.points[0]-data.axisBegin,direction),finish=dot(shape.points[1]-data.axisBegin,direction);
