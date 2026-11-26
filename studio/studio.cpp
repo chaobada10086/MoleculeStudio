@@ -72,6 +72,7 @@
 #include "tlc_dialog.hpp"
 using namespace Gdiplus;
 #include "ui_theme.hpp"
+#include "element_palette.hpp"
 using namespace studio;
 using r62::integration::Session;
 #include "engine/compact_radicals.hpp"
@@ -404,6 +405,8 @@ struct App : TextEditHost {
         return true;
     }
     studio::rapid_sprout::State rapidSprout;bool rapidSproutChecking=false,hoverDeleteChecking=false;
+    elementpalette::Palette elements;
+    void initializeElements();void selectElement(int z);void placeElement(Vec2 point);void recolorElement(int z);void elementPaletteCheck(const std::string& dir);
     Session s;HWND h=0,canvas=0,hbar=0,vbar=0,edit=0,apply=0,cancel=0,tip=0;HDC dc=0;HGLRC rc=0;std::unique_ptr<render::Backend> gl;compatible::Renderer* compatibleRenderer=nullptr;bool closeChecking=false,canvasDestroySeen=false,rendererReleasedBeforeCanvasDestroy=false;
 #ifdef MOLECULE_STUDIO_DX11
     dx11::Renderer* dx11Renderer=nullptr;
@@ -616,6 +619,7 @@ void cdxmlColorCheck(const std::string& dir);
     void error(Error e){if(!e.ok())status=e.message;}
     void layout(){++resizeLayouts;if(tabChild){float dpi=GetDpiForWindow(h)/96.f;if(dpi>0.25f)scale=dpi;}float bh=tabBandH();lastChrome.clear();lastStatus.clear();InvalidateRect(h,0,FALSE);RECT r;GetClientRect(h,&r);width=r.right;height=r.bottom;int reserved=ai.docked&&IsWindowVisible(ai.hwnd)?ai.dockWidth(width,scale)+int(12*scale):0;
         arrowToolPreview=RectF();
+        if(elements.bar)ShowWindow(elements.bar,(reviewEditor||nmrPage)?SW_HIDE:SW_SHOW);
         if(reviewEditor){
             top=int(32*scale);int sb=GetSystemMetricsForDpi(SM_CXVSCROLL,GetDpiForWindow(h));
             auto v=s.view();v.dpiScale=scale*96.0/72.0;s.setView(v);
@@ -711,14 +715,15 @@ void cdxmlColorCheck(const std::string& dir);
         float canvasTop=y+gh+8;
         if(quickRows>0)canvasTop=std::max(canvasTop,quickBottom+6);
         top=int(canvasTop*scale);
-        layoutTabBand();int sb=GetSystemMetricsForDpi(SM_CXVSCROLL,GetDpiForWindow(h));int ch=std::max(60,height-top-int(footerHeight()*scale)-sb);int cw=std::max(100,width-int(32*scale)-reserved-sb);
+        layoutTabBand();int sb=GetSystemMetricsForDpi(SM_CXVSCROLL,GetDpiForWindow(h));int ch=std::max(60,height-top-int(footerHeight()*scale)-sb);int ew=int(elementpalette::Palette::width*scale);int cw=std::max(100,width-int(32*scale)-reserved-sb-ew);
+        if(!elements.bar)initializeElements();elements.scale=scale;MoveWindow(elements.bar,int(16*scale)+cw,top,ew,ch,TRUE);
         // Batch children without synchronous paints during native edge tracking.
         HDWP positions=BeginDeferWindowPos(3);
         if(positions)positions=DeferWindowPos(positions,canvas,0,int(16*scale),top,cw,ch,SWP_NOZORDER|SWP_NOACTIVATE);
         if(positions)positions=DeferWindowPos(positions,hbar,0,int(16*scale),top+ch,cw,sb,SWP_NOZORDER|SWP_NOACTIVATE);
-        if(positions)positions=DeferWindowPos(positions,vbar,0,int(16*scale)+cw,top,sb,ch,SWP_NOZORDER|SWP_NOACTIVATE);
+        if(positions)positions=DeferWindowPos(positions,vbar,0,int(16*scale)+cw+ew,top,sb,ch,SWP_NOZORDER|SWP_NOACTIVATE);
         if(positions)EndDeferWindowPos(positions);
-        else {MoveWindow(canvas,int(16*scale),top,cw,ch,FALSE);MoveWindow(hbar,int(16*scale),top+ch,cw,sb,FALSE);MoveWindow(vbar,int(16*scale)+cw,top,sb,ch,FALSE);}
+        else {MoveWindow(canvas,int(16*scale),top,cw,ch,FALSE);MoveWindow(hbar,int(16*scale),top+ch,cw,sb,FALSE);MoveWindow(vbar,int(16*scale)+cw+ew,top,sb,ch,FALSE);}
         ShowWindow(hbar,SW_SHOW);ShowWindow(vbar,SW_SHOW);
         updateScrollbars(true);
         if(reserved){bool rescale=ai.dockScale!=scale;if(rescale){ai.dockScale=scale;ai.updateFont();}int dockTop=int(groupsTop*scale);MoveWindow(ai.hwnd,width-reserved,dockTop,reserved-int(12*scale),std::max(60,height-dockTop-int(footerHeight()*scale)),TRUE);if(rescale)ai.layout();}
@@ -1562,6 +1567,7 @@ void App::placeEquivalence(Vec2 point){
     updateInfo();updateCanvasCursor();invalidate();
 }
 void App::execute(const Button& b){
+    if(b.cmd.compare(0,6,"choose")==0||b.cmd=="@new"||b.cmd=="@open"){elements.active=0;elements.refresh();}
     if(virtualBondTool){virtualBondTool=false;virtualBondOrigin=kInvalidObjectId;down=false;if(GetCapture()==canvas)ReleaseCapture();s.ghost.clear();}
     partialChargePlacement=0;
     equivalencePlacement=false;
@@ -1836,6 +1842,7 @@ void appendSelectionContextMenu(HMENU menu,bool structure,bool hasSelection){
     if(structure){studio_i18n::appendMenu(menu,MF_STRING,5,L"预测核磁…");studio_i18n::appendMenu(menu,MF_STRING,6,L"结构转命名");studio_i18n::appendMenu(menu,MF_STRING,kContextBranchDirectionId,L"支链换向");}
 }
 
+#include "element_palette_actions.hpp"
 LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetWindowLongPtrW(h,GWLP_USERDATA);if(m==WM_NCCREATE){a=(App*)((CREATESTRUCTW*)lp)->lpCreateParams;SetWindowLongPtrW(h,GWLP_USERDATA,(LONG_PTR)a);a->canvas=h;}if(!a)return DefWindowProcW(h,m,wp,lp);if(m==WM_LBUTTONDOWN||m==WM_RBUTTONDOWN||m==WM_MBUTTONDOWN||m==WM_MOUSEWHEEL||m==WM_KEYDOWN||m==WM_CHAR)a->expandPending=false;auto& s=a->s;Vec2 pixel(GET_X_LPARAM(lp),GET_Y_LPARAM(lp));uint32_t pointerModifiers=mods();if(wp&MK_CONTROL)pointerModifiers|=kModControl;if(wp&MK_SHIFT)pointerModifiers|=kModShift;
     
         if((m==WM_MOUSEMOVE||m==WM_LBUTTONUP) && a->down && !a->cloneDragging && s.objectDragActive() && (pointerModifiers&kModControl)){
@@ -1851,6 +1858,13 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
             a->cloneSource=source;
             a->cloneDragging=true;
         }
+    if(a->elements.active){
+        if(m==WM_LBUTTONDOWN){SetFocus(h);a->placeElement(s.view().toDocument(pixel));return 0;}
+        if(m==WM_LBUTTONUP||m==WM_LBUTTONDBLCLK)return 0;
+        if(m==WM_SETCURSOR){SetCursor(LoadCursorW(nullptr,MAKEINTRESOURCEW(32515)));return TRUE;}
+        if(m==WM_KEYDOWN&&wp==VK_ESCAPE){a->elements.active=0;a->elements.refresh();a->invalidate();return 0;}
+        if(m==WM_KEYDOWN&&wp!=VK_SHIFT&&wp!=VK_CONTROL&&wp!=VK_MENU){a->elements.active=0;a->elements.refresh();}
+    }
     switch(m){case WM_SETFOCUS:if(a->textEditor.active&&!a->textEditor.closing){SetFocus(a->edit);return 0;}break;case WM_DESTROY:a->canvasDestroySeen=true;a->shutdownRenderer();return 0;case WM_SIZE:s.renderView.widthPx=std::max(1,int(LOWORD(lp)));s.renderView.heightPx=std::max(1,int(HIWORD(lp)));{auto v=s.view();v.viewportCenter=Vec2(s.renderView.widthPx*.5,s.renderView.heightPx*.5);s.setView(v);}a->updateScrollbars();return 0;
     case WM_LBUTTONDOWN:a->commitTlcClick();a->insertionPreviewPending=false;
         if(a->beginStructurePerspective(pixel))return 0;
@@ -2200,7 +2214,7 @@ LRESULT CALLBACK windowProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
     case WM_DROPFILES:if(a->host){a->host->dropFiles((HDROP)wp);return 0;}break;
     case WM_NOTIFY:if(a->textEditor.notify((NMHDR*)lp)){if(!a->textEditor.loading&&((NMHDR*)lp)->code==EN_SELCHANGE)a->syncTextControls();return 0;}break;
     case WM_COMMAND:if(LOWORD(wp)==304||LOWORD(wp)==305){a->finishText(LOWORD(wp)==304);return 0;}if((LOWORD(wp)==401||LOWORD(wp)==402)&&(HIWORD(wp)==CBN_SELCHANGE||HIWORD(wp)==CBN_KILLFOCUS)){a->styleFromBox((HWND)lp,HIWORD(wp)==CBN_SELCHANGE);return 0;}if(LOWORD(wp)==301&&HIWORD(wp)==EN_CHANGE&&!a->textEditor.loading)a->textEditor.noteContentChange();return 0;
-    case studio_i18n::languageMessage:a->ai.bgValid=false;a->layout();a->invalidate();return 0;
+    case studio_i18n::languageMessage:a->elements.refresh();if(a->elements.active){auto message=studio_i18n::tr(L"元素 %s：点击画布添加或替换原子，Esc 退出");auto slot=message.find(L"%s");if(slot!=std::wstring::npos)message.replace(slot,2,W(elementpalette::Palette::symbol(a->elements.active)));a->status=U(message);}a->ai.bgValid=false;a->layout();a->invalidate();return 0;
     case WM_APP+31:a->invalidate();return 0;
     case WM_APP+40:{
         // One-shot startup fit after the window has reached its final size.
@@ -2210,7 +2224,7 @@ LRESULT CALLBACK windowProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         return 0;
     }
     case WM_APP+32:a->execute(Button("","","",wp=='S'?"@save":wp=='O'?"@open":"@new"));return 0;
-    case WM_TIMER:if(wp==13){KillTimer(h,13);a->showToolTip();return 0;}if(wp==94){KillTimer(h,94);if(a->embedded&&a->oleObject){wchar_t mode[16]={};GetEnvironmentVariableW(L"MOLECULE_STUDIO_OLE_CYCLE_TEST",mode,16);if(wcscmp(mode,L"edit")==0){for(const auto& atom:a->s.doc.atoms().records())if(atom.isAlive()){a->s.doc.setElement(atom.id,atom.element==6?7:6);a->s.refresh();break;}a->s.doc.documentExtensions().set("studio.test.ole.cycle",std::to_string(GetTickCount64()));a->oleObject->markDirty();}a->finishEmbedded();}return 0;}if(wp==71){KillTimer(h,71);a->resizePending=false;if(a->canvas){a->layout();InvalidateRect(a->canvas,0,FALSE);}return 0;}if(wp==4){KillTimer(h,4);if(a->ringHoldPending){a->ringHoldPending=false;a->ringHoldFired=true;a->ringMenu();}return 0;}if(wp==3){KillTimer(h,3);if(a->arrowHoldPending){a->arrowHoldPending=false;a->arrowHoldFired=true;a->arrowMenu();a->invalidate();}return 0;}if(wp==2){KillTimer(h,2);if(a->host)a->host->showTip();return 0;}KillTimer(h,1);if(a->closeChecking){a->demo();a->render();a->s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return 0;}if(a->benchmarking){a->benchmark();PostQuitMessage(0);return 0;}if(a->testing){try{if(a->customTemplateChecking)a->customTemplateCheck(a->testOut);else if(a->tableChecking)a->tableCheck(a->testOut);else if(a->uiChecking)a->settingsAiCheck(a->testOut);else if(a->electronStateChecking)a->electronStateCheck(a->testOut);else if(a->mechanismInferChecking)a->mechanismInferCheck(a->testOut);else if(a->mechanismStepChecking)a->mechanismStepCheck(a->testOut);else if(a->aiChecking)a->aiCheck(a->testOut);else if(a->chromeChecking){if(std::getenv("MOLECULE_STUDIO_FORMAT_CHECK")){a->graphicStyleCheck(a->testOut);a->s.dirty=false;PostQuitMessage(0);}else a->chromeCheck(a->testOut);}else if(a->templateLibraryChecking)a->templateLibraryCheck(a->testOut);else if(a->ringLibraryChecking)a->ringLibraryCheck(a->testOut);else if(a->textExtendChecking)a->textExtendCheck(a->testOut);else if(a->groupDirectionChecking)a->groupDirectionCheck(a->testOut);else if(a->completionChecking)a->completionCheck(a->testOut);else if(a->stereoLabelChecking)a->stereoLabelCheck(a->testOut);else if(a->clipboardChecking)a->clipboardCheck(a->testOut);else if(a->arrowShortcutChecking)a->arrowShortcutCheck(a->testOut);else if(a->textWrapChecking){if(std::getenv("MOLECULE_STUDIO_INTEROP_RING_CHECK"))a->interopRingCheck(a->testOut);else if(std::getenv("MOLECULE_STUDIO_INSERT_CHECK"))a->insertionPerformanceCheck(a->testOut);else if(std::getenv("MOLECULE_STUDIO_PATTERN_CHECK"))a->patternPerformanceCheck(a->testOut);else if(std::getenv("MOLECULE_STUDIO_MOVE_CHECK"))a->moveCheck(a->testOut);else a->textWrapCheck(a->testOut);}else if(a->currentFixesChecking)a->currentFixesCheck(a->testOut);else if(a->toolInsertChecking)a->toolInsertCheck(a->testOut);else a->selftest();}catch(const std::exception& e){std::ofstream(a->testOut+"/failure.txt")<<e.what();PostQuitMessage(3);}return 0;}break;
+    case WM_TIMER:if(wp==13){KillTimer(h,13);a->showToolTip();return 0;}if(wp==94){KillTimer(h,94);if(a->embedded&&a->oleObject){wchar_t mode[16]={};GetEnvironmentVariableW(L"MOLECULE_STUDIO_OLE_CYCLE_TEST",mode,16);if(wcscmp(mode,L"edit")==0){for(const auto& atom:a->s.doc.atoms().records())if(atom.isAlive()){a->s.doc.setElement(atom.id,atom.element==6?7:6);a->s.refresh();break;}a->s.doc.documentExtensions().set("studio.test.ole.cycle",std::to_string(GetTickCount64()));a->oleObject->markDirty();}a->finishEmbedded();}return 0;}if(wp==71){KillTimer(h,71);a->resizePending=false;if(a->canvas){a->layout();InvalidateRect(a->canvas,0,FALSE);}return 0;}if(wp==4){KillTimer(h,4);if(a->ringHoldPending){a->ringHoldPending=false;a->ringHoldFired=true;a->ringMenu();}return 0;}if(wp==3){KillTimer(h,3);if(a->arrowHoldPending){a->arrowHoldPending=false;a->arrowHoldFired=true;a->arrowMenu();a->invalidate();}return 0;}if(wp==2){KillTimer(h,2);if(a->host)a->host->showTip();return 0;}KillTimer(h,1);if(a->closeChecking){a->demo();a->render();a->s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return 0;}if(a->benchmarking){a->benchmark();PostQuitMessage(0);return 0;}if(a->testing){try{if(a->customTemplateChecking)a->customTemplateCheck(a->testOut);else if(a->tableChecking)a->tableCheck(a->testOut);else if(a->uiChecking)a->settingsAiCheck(a->testOut);else if(a->electronStateChecking)a->electronStateCheck(a->testOut);else if(a->mechanismInferChecking)a->mechanismInferCheck(a->testOut);else if(a->mechanismStepChecking)a->mechanismStepCheck(a->testOut);else if(a->aiChecking)a->aiCheck(a->testOut);else if(a->chromeChecking){if(std::getenv("MOLECULE_STUDIO_ELEMENT_CHECK")){a->elementPaletteCheck(a->testOut);a->s.dirty=false;PostQuitMessage(0);}else if(std::getenv("MOLECULE_STUDIO_FORMAT_CHECK")){a->graphicStyleCheck(a->testOut);a->s.dirty=false;PostQuitMessage(0);}else a->chromeCheck(a->testOut);}else if(a->templateLibraryChecking)a->templateLibraryCheck(a->testOut);else if(a->ringLibraryChecking)a->ringLibraryCheck(a->testOut);else if(a->textExtendChecking)a->textExtendCheck(a->testOut);else if(a->groupDirectionChecking)a->groupDirectionCheck(a->testOut);else if(a->completionChecking)a->completionCheck(a->testOut);else if(a->stereoLabelChecking)a->stereoLabelCheck(a->testOut);else if(a->clipboardChecking)a->clipboardCheck(a->testOut);else if(a->arrowShortcutChecking)a->arrowShortcutCheck(a->testOut);else if(a->textWrapChecking){if(std::getenv("MOLECULE_STUDIO_INTEROP_RING_CHECK"))a->interopRingCheck(a->testOut);else if(std::getenv("MOLECULE_STUDIO_INSERT_CHECK"))a->insertionPerformanceCheck(a->testOut);else if(std::getenv("MOLECULE_STUDIO_PATTERN_CHECK"))a->patternPerformanceCheck(a->testOut);else if(std::getenv("MOLECULE_STUDIO_MOVE_CHECK"))a->moveCheck(a->testOut);else a->textWrapCheck(a->testOut);}else if(a->currentFixesChecking)a->currentFixesCheck(a->testOut);else if(a->toolInsertChecking)a->toolInsertCheck(a->testOut);else a->selftest();}catch(const std::exception& e){std::ofstream(a->testOut+"/failure.txt")<<e.what();PostQuitMessage(3);}return 0;}break;
     case WM_CLOSE:if(a->embedded&&!a->testing){a->finishEmbedded();return 0;}if(!a->testing&&!a->leave())return 0;
         // Destroying the clipboard owner makes Windows render every offered
         // format synchronously (WM_RENDERALLFORMATS) on this thread; a large
@@ -2233,6 +2247,7 @@ void App::screenshot(const std::string& path,bool chrome,bool statusBar){Bitmap 
 #endif
     if(transformDragging){const auto& preview=selectionTransformScene();gl->draw(preview,nullptr,s.renderView,&stats);}else if(tableDragPending&&tableDragActive){const auto& preview=tableDragScene();gl->draw(preview,nullptr,s.renderView,&stats);}else if(cloneDragging&&cloneSource){auto preview=clonePreviewOverlay(overlay.scene());gl->draw(s.gpuScene,&preview,s.renderView,&stats);}else gl->draw(s.displayScene(),&overlay.scene(),s.renderView,&stats);if(rc)glFinish();std::vector<uint8_t> px;gl->readPixels(0,0,s.renderView.widthPx,s.renderView.heightPx,&px);int w=s.renderView.widthPx,hg=s.renderView.heightPx;
     for(size_t i=0;i<px.size();i+=4)std::swap(px[i],px[i+2]);Bitmap cv(w,hg,-w*4,PixelFormat32bppARGB,px.data()+size_t(hg-1)*w*4);g.DrawImage(&cv,int(16*scale),top,w,hg);
+    if(chrome&&elements.bar&&IsWindowVisible(elements.bar)){RECT r;GetWindowRect(elements.bar,&r);MapWindowPoints(HWND_DESKTOP,h,(POINT*)&r,2);HDC target=g.GetHDC();POINT old;SetViewportOrgEx(target,r.left,r.top,&old);elements.paint(elements.bar,target,false);SetViewportOrgEx(target,old.x,old.y,nullptr);g.ReleaseHDC(target);}
     UINT n=0,sz=0;GetImageEncodersSize(&n,&sz);std::vector<uint8_t> enc(sz);auto list=(ImageCodecInfo*)enc.data();GetImageEncoders(n,sz,list);for(UINT i=0;i<n;i++)if(wcscmp(list[i].MimeType,L"image/png")==0)bitmap.Save(W(path).c_str(),&list[i].Clsid,0);
 }
 // "复制为 PNG": render exactly the selected objects (content only, current

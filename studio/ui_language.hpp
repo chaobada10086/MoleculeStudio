@@ -29,6 +29,7 @@
 #include <cwctype>
 namespace studio_i18n {
 #include "ui_language_extra.hpp"
+#include "ui_language_elements.hpp"
 inline std::wstring& pathOverride(){static std::wstring p;return p;}
 inline std::wstring path(){if(!pathOverride().empty())return pathOverride();return apppaths::dataFile(L"interface.ini");}
 inline const wchar_t* code(int i){static const wchar_t* v[]={L"zh-CN",L"zh-TW",L"en",L"ja",L"ko",L"fr",L"de",L"es",L"ru",L"pt",L"it",L"ar",L"hi",L"id",L"vi"};return v[i>=0&&i<15?i:0];}
@@ -2506,7 +2507,7 @@ inline const std::map<std::wstring,Row>& catalog(){
   static std::vector<std::vector<std::wstring>> storage;std::map<std::wstring,Row> result;
   auto parse=[&](const wchar_t* blob){const wchar_t* p=blob;const wchar_t* start=p;std::vector<std::wstring> fields;
    for(;*p;++p){if(*p==0x1f||*p==0x1e){fields.emplace_back(start,p);start=p+1;if(*p==0x1e){storage.push_back(std::move(fields));fields.clear();}}}};
-  parse(extraTranslationBlob());parse(translationBlob());
+  parse(elementTranslationBlob());parse(extraTranslationBlob());parse(translationBlob());
   for(auto& values:storage){if(values.size()!=15)continue;Row row={};for(int i=0;i<15;++i)row.text[i]=values[i].c_str();result.emplace(values[0],row);}return result;
  }();return data;
 }

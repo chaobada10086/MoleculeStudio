@@ -10,7 +10,7 @@ void App::textWrapCheck(const std::string& dir){
      GetWindowRect(canvas,&c);GetWindowRect(hbar,&horizontal);GetWindowRect(vbar,&vertical);
      require(c.right>c.left&&c.bottom>c.top,"canvas has drawable area");
      require(!IntersectRect(&overlap,&c,&horizontal)&&!IntersectRect(&overlap,&c,&vertical),"scrollbars do not cover canvas");
-     require(horizontal.top==c.bottom&&vertical.left==c.right,"scrollbars align to canvas edges");
+     require(horizontal.top==c.bottom&&vertical.left==c.right+int(elementpalette::Palette::width*scale),"scrollbars align to canvas edges");
      auto saved=s.view();auto zoomed=saved;zoomed.scale=3;s.setView(zoomed);updateScrollbars(true);
      double before=s.view().center.y;SendMessageW(h,WM_VSCROLL,SB_LINEDOWN,(LPARAM)vbar);
      require(s.view().center.y>before,"vertical native scrollbar moves view");
