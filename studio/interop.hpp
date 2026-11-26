@@ -203,7 +203,7 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
         // point at unrelated objects; the copy starts unlinked instead.
         for(auto& v:src.extensions(old).entries())if((v.key.compare(0,4,"pst.")!=0||v.key.find("pst.attr.MoleculeStudioCatalytic")==0||v.key.compare(0,30,"pst.attr.MoleculeStudioProject")==0||v.key=="pst.attr.MoleculeStudioRole"||v.key=="pst.attr.MoleculeStudioLonePairs"||
             v.key=="pst.attr.MoleculeStudioRadicalPosition"||v.key=="pst.attr.MoleculeStudioChargePosition"||
-            v.key=="pst.attr.MoleculeStudioLiteralLabel"||v.key=="pst.attr.MoleculeStudioLonePairPositions"||
+            v.key=="pst.attr.MoleculeStudioLiteralLabel"||v.key=="pst.attr.MoleculeStudioLonePairColor"||v.key=="pst.attr.MoleculeStudioLonePairPositions"||
             v.key=="pst.attr.MoleculeStudioChargeCircle"||v.key=="pst.attr.BoldWidth"||v.key=="pst.attr.IgnoreWarnings"||v.key=="pst.attr.InterpretChemically"||v.key=="pst.attr.Visible"||v.key=="pst.attr.ElementList"||v.key=="pst.attr.GenericNickname"||
             v.key=="pst.attr.GenericList"||v.key=="pst.attr.SubstituentsUpTo"||v.key=="pst.attr.SubstituentsExactly"||
             v.key=="pst.attr.UnsaturatedBonds"||v.key=="pst.attr.RingBondCount")&&!namelink::isLinkKey(v.key))dst.extensions(fresh).set(v.key,v.value);

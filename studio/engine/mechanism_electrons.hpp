@@ -178,7 +178,16 @@ inline bool hasPrintedLonePair(const core::Document& doc,core::ObjectId id){
 }
 inline int lonePairCount(const core::Document& doc,core::ObjectId id){
     auto value=doc.extensions(core::ObjectRef(core::ObjectKind::Atom,id)).findValue(lonePairKey());
-    if(value)return std::max(0,std::min(lonePairCapacity(doc,id),std::atoi(value->c_str())));
+    if(value){
+        // The main-group valence estimate does not model coordination bonds.
+        // Honour the explicit annotation on an acceptor in that case.
+        for(auto link:doc.incidentBonds(id)){
+            auto bond=doc.bonds().alive(link);
+            if(bond && bond->semantics==core::BondSemantics::Dative && bond->endAtom==id)
+                return std::max(0,std::min(4,std::atoi(value->c_str())));
+        }
+        return std::max(0,std::min(lonePairCapacity(doc,id),std::atoi(value->c_str())));
+    }
     auto role=genericRole(doc,id);
     if((role=="nucleophile"||role=="nucleophile-neutral")&&lonePairCapacity(doc,id)==1)return 1;
     return 0;

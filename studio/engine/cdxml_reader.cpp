@@ -673,7 +673,7 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
         "ExternalConnectionType", "ExternalConnectionNum", "Z", "Geometry",
         "AS", "Alkyl", "AttachedLabels", "SupersededBy",
         "MoleculeStudioChargePosition", "MoleculeStudioRadicalPosition", "MoleculeStudioLiteralLabel",
-        "MoleculeStudioLonePairPositions", "MoleculeStudioChargeCircle"
+        "MoleculeStudioLonePairColor","MoleculeStudioLonePairPositions", "MoleculeStudioChargeCircle"
     };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);
@@ -770,7 +770,7 @@ Error readNode(ReaderContext& ctx, const XMLElement* element) {
     if(const char* value=element->Attribute("MoleculeStudioPerspectiveZ"))ctx.document.extensions(ref).set("pst.attr.MoleculeStudioPerspectiveZ",value);
     if(const char* role=element->Attribute("MoleculeStudioRole"))ctx.document.extensions(ref).set("pst.attr.MoleculeStudioRole",role);
     for(const char* key:{"MoleculeStudioChargePosition","MoleculeStudioRadicalPosition","MoleculeStudioLiteralLabel",
-                        "MoleculeStudioLonePairPositions","MoleculeStudioChargeCircle","MoleculeStudioProjection","MoleculeStudioCatalyticMetal","MoleculeStudioCatalyticOxidation","MoleculeStudioCatalyticLigands","MoleculeStudioCatalyticNumerals","MoleculeStudioCatalyticFormat","MoleculeStudioCatalyticExcited"})
+                        "MoleculeStudioLonePairColor","MoleculeStudioLonePairPositions","MoleculeStudioChargeCircle","MoleculeStudioProjection","MoleculeStudioCatalyticMetal","MoleculeStudioCatalyticOxidation","MoleculeStudioCatalyticLigands","MoleculeStudioCatalyticNumerals","MoleculeStudioCatalyticFormat","MoleculeStudioCatalyticExcited"})
         if(const char* value=element->Attribute(key))ctx.document.extensions(ref).set(std::string("pst.attr.")+key,value);
 
     {std::ostringstream value;value.precision(12);value<<position.x<<' '<<position.y;ctx.document.extensions(ref).set("studio.atom.source.xy",value.str());}

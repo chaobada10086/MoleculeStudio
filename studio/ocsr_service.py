@@ -1366,7 +1366,7 @@ def _molfile_normalized(atom: dict, image_size: tuple[int, int]) -> tuple[float,
     return x, y
 
 
-def map_molfile_to_model(parsed: dict, model_atoms: list[dict], model_bonds: list[dict], image_size: tuple[int, int]) -> dict:
+def map_molfile_to_model(parsed: dict, model_atoms: list[dict], model_bonds: list[dict], image_size: tuple[int, int], *, preview=False) -> dict:
     """Map MolScribe's model atoms to the Molfile atoms explicitly.
 
     The Molfile is produced by RDKit from the same graph, but its atom order is
@@ -1422,6 +1422,18 @@ def map_molfile_to_model(parsed: dict, model_atoms: list[dict], model_bonds: lis
     if max_distance >= 1.0e5:
         raise ValueError("模型原子与 Molfile 原子的元素/缩写不一致，无法可靠映射")
     if max_distance > 0.12:
+        # A regenerated Molfile layout may have unrelated coordinates. Only for a
+        # review draft, accept the original indexing if the entire typed graph agrees.
+        if preview and all(_atom_compatible(a, b) for a, b in zip(model_atoms, parsed["atoms"])):
+            orders = {"single": 1, "double": 2, "triple": 3, "aromatic": 4}
+            predicted = {(tuple(sorted(b["endpoint_atoms"])), orders.get(b.get("bond_type")))
+                         for b in model_bonds}
+            exported = {(tuple(sorted((b["begin"], b["end"]))), b["order"])
+                        for b in parsed["bonds"] if not b.get("stereo")}
+            if predicted == exported and len(predicted) == len(parsed["bonds"]) == len(model_bonds) and predicted:
+                indices = list(range(count))
+                return {"model_to_molfile": indices, "molfile_to_model": indices,
+                        "max_normalized_distance": round(max_distance, 8), "preview_topology_only": True}
         raise ValueError(
             f"模型原子与 Molfile 坐标归一化后偏差过大（{max_distance:.4f}），"
             "无法确认索引映射"
@@ -1601,6 +1613,27 @@ def _median_bond_length(candidate: dict, default: float = 1.0) -> float:
     return lengths[len(lengths) // 2]
 
 
+def capture_structure_colors(candidate, image):
+    """Sample local ink in the same pixel coordinates as the recognised graph."""
+    from collections import Counter
+    radius = max(2, min(24, round(_median_bond_length(candidate) * .26)))
+    def sample(item, x, y, r):
+        cx, cy = round(x), round(y)
+        patch = image.crop((max(0,cx-r),max(0,cy-r),min(image.width,cx+r+1),min(image.height,cy+r+1)))
+        colors = Counter(rgb for rgb in patch.convert("RGB").getdata()
+                         if max(rgb)-min(rgb) >= 40 and min(rgb) <= 150)
+        if colors:
+            color,count = colors.most_common(1)[0]
+            if count >= 3:
+                item["ink_rgb"] = color
+    atoms = candidate["atoms"]
+    for atom in atoms:
+        sample(atom, atom["x_px"], atom["y_px"], radius)
+    for bond in candidate["bonds"]:
+        a,b = atoms[bond["begin"]],atoms[bond["end"]]
+        sample(bond,(a["x_px"]+b["x_px"])/2,(a["y_px"]+b["y_px"])/2,max(2,radius//2))
+
+
 def build_cdxml(candidate: dict) -> str:
     """Build standard CDXML from the final candidate graph.
 
@@ -1622,6 +1655,12 @@ def build_cdxml(candidate: dict) -> str:
         "BondLength": "30", "LabelFont": "3", "LabelSize": "10",
         "LineWidth": "0.6", "BondSpacing": "18",
     })
+    colors = sorted({tuple(item["ink_rgb"]) for item in atoms+bonds if item.get("ink_rgb")})
+    indexes = {rgb:str(i+2) for i,rgb in enumerate(colors)}
+    if colors:
+        table = ET.SubElement(root,"colortable")
+        for rgb in colors:
+            ET.SubElement(table,"color",{k:str(v/255) for k,v in zip("rgb",rgb)})
     fonts = ET.SubElement(root, "fonttable")
     ET.SubElement(fonts, "font", {"id": "3", "charset": "iso-8859-1", "name": "Arial"})
     page = ET.SubElement(root, "page", {"id": "1"})
@@ -1651,6 +1690,10 @@ def build_cdxml(candidate: dict) -> str:
                 attrs["LabelDisplay"] = "Shown"
             if element == 1:
                 attrs["LabelDisplay"] = "Shown"
+        if atom.get("ink_rgb"):
+            attrs["color"] = indexes[tuple(atom["ink_rgb"])]
+            if element == 6 and not alias:
+                attrs["LabelDisplay"] = "Shown"
         node = ET.SubElement(frag, "n", attrs)
         if alias:
             text = ET.SubElement(node, "t")
@@ -1678,6 +1721,8 @@ def build_cdxml(candidate: dict) -> str:
             # Writing this is what prevents a trans-looking 2D layout from
             # being silently re-interpreted as E by the reader.
             attrs["Display"] = "Wavy"
+        if bond.get("ink_rgb"):
+            attrs["color"] = indexes[tuple(bond["ink_rgb"])]
         ET.SubElement(frag, "b", attrs)
     return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="unicode")
 
@@ -2505,7 +2550,7 @@ def draw_candidate_previews(crop_path: Path, candidate: dict, raw_model: dict, o
 
 def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, int, int],
               cache: Path, records: Path, source: dict, dpi: int,
-              prepared: dict | None = None) -> dict:
+              prepared: dict | None = None, *, preview=False) -> dict:
     from PIL import Image
 
     selection_scale = 1.0
@@ -2588,7 +2633,7 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
 
     box = crop_white_box(padded)
     mapping = map_molfile_to_model(parsed, model_atoms, model_bonds,
-                                   (int(model_input_px[0]), int(model_input_px[1])))
+                                   (int(model_input_px[0]), int(model_input_px[1])), preview=preview)
     candidate = build_candidate(parsed, model_atoms, model_bonds,
                                 (padded.width, padded.height), box, mapping)
 
@@ -2606,6 +2651,7 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
         item["model_index"] = idx
         raw_model["atoms"].append(item)
 
+    capture_structure_colors(candidate,padded)
     components = candidate["components"]
     fragments = []
     for index, group in enumerate(components):
@@ -2621,6 +2667,8 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
     multi_fragment = len(components) > 1
 
     warnings_list = []
+    if mapping.get("preview_topology_only"):
+        warnings_list.append("Molfile 布局与原图不符。草稿采用模型图像坐标，已核对编号、元素和键级，仍需人工复核。")
     if selection_scale < 1.0:
         warnings_list.append(
             "图像过大已自动缩小到 %d×%d（×%.3f），细节可能丢失；"
@@ -2768,6 +2816,7 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
 
     insertable = bool(
         quality_ok
+        and not mapping.get("preview_topology_only")
         and not multi_fragment
         and not parsed.get("unsupported")
         and not parsed.get("sanitize_error")
@@ -2955,6 +3004,7 @@ def recognize(engine: OcsrEngine, page_image: Path, crop_rect: tuple[int, int, i
         "cdxml": cdxml_path,
         "record": record_path,
         "candidate": candidate_path,
+        "preview_topology_only": bool(mapping.get("preview_topology_only")),
         "confidence": confidence,
         "atoms": len(candidate["atoms"]),
         "bonds": len(candidate["bonds"]),
@@ -3090,7 +3140,7 @@ def dispatch(engine: OcsrEngine, request: ET.Element, cache: Path, records: Path
                 attribute_int(request, "target_dpi", VECTOR_CROP_DPI_DEFAULT, 72, VECTOR_CROP_DPI_MAX),
                 cache,
             )
-        result = recognize(engine, page_image, crop, cache, records, source, dpi, prepared=prepared)
+        result = recognize(engine, page_image, crop, cache, records, source, dpi, prepared=prepared, preview=request.get("preview") == "1")
         node = xml_response(True, id=rid)
         for key in ("crop", "overlay", "blend", "result", "cdxml", "record"):
             node.set(key, str(result[key]))
@@ -3099,6 +3149,7 @@ def dispatch(engine: OcsrEngine, request: ET.Element, cache: Path, records: Path
         node.set("bonds", str(result["bonds"]))
         node.set("fragments", str(result["fragments"]))
         node.set("insertable", "1" if result["insertable"] else "0")
+        node.set("preview_topology_only", "1" if result.get("preview_topology_only") else "0")
         node.set("stereo_ok", "1" if result["stereo_ok"] else "0")
         node.set("stereo_status", result.get("stereo_status", "not_verified"))
         node.set("stereo_detail", result.get("stereo_detail", ""))

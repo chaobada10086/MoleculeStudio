@@ -330,6 +330,21 @@ Error Document::validateBondReference(const BondRecord& bond) const {
     return Error::success();
 }
 
+static bool coordinationMetal(int z) {
+    return z==3 || z==4 || (z>=11 && z<=13) || (z>=19 && z<=31)
+        || (z>=37 && z<=50) || (z>=55 && z<=83) || (z>=87 && z<=116);
+}
+
+static bool orientDative(const Document& doc, BondRecord& bond) {
+    if (bond.semantics != BondSemantics::Dative) return false;
+    const auto* begin = doc.atoms().alive(bond.beginAtom);
+    const auto* end = doc.atoms().alive(bond.endAtom);
+    if (!begin || !end || !coordinationMetal(begin->element) || end->element<=0
+        || coordinationMetal(end->element)) return false;
+    std::swap(bond.beginAtom, bond.endAtom);
+    return true;
+}
+
 Error Document::addBondRecord(const BondRecord& record, ObjectId* out) {
     Error valid = validateBondReference(record);
     if (!valid.ok()) return valid;
@@ -351,7 +366,9 @@ Error Document::addBondRecord(const BondRecord& record, ObjectId* out) {
         if (prev)
             return Error(ErrorCode::DuplicateBond, "A bond between these atoms already exists");
     }
-    const ObjectId id = bonds_.push(record);
+    BondRecord oriented = record;
+    orientDative(*this, oriented);
+    const ObjectId id = bonds_.push(oriented);
     bondIndex_[key] = id;
     if (adjacency_.size() < atoms_.size()) adjacency_.resize(atoms_.size());
     adjacency_[record.beginAtom].push_back(id);
@@ -654,8 +671,9 @@ Error Document::setBondSemantics(ObjectId id, BondSemantics semantics) {
     BondRecord* bond = bonds_.mutableGet(id);
     if (!bond) return Error(ErrorCode::OutOfRange, "Bond id is out of range");
     if (!bond->isAlive()) return Error(ErrorCode::NotAlive, "Bond is deleted");
-    if (bond->semantics == semantics) return Error::success();
+    const bool changed = bond->semantics != semantics;
     bond->semantics = semantics;
+    if (!orientDative(*this, *bond) && !changed) return Error::success();
     noteTouchedBond(id);
     bumpStructure();
     return Error::success();

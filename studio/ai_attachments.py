@@ -34,9 +34,28 @@ def image_uri(raw):
     return "data:image/jpeg;base64," + base64.b64encode(output.getvalue()).decode("ascii")
 
 
+def structure_label_evidence(path):
+    """Read printed atom/group labels independently of the chemical recognizer."""
+    try:
+        import cv2
+        import numpy as np
+        from PIL import Image
+        from rapidocr_onnxruntime import RapidOCR
+        with Image.open(path) as source:
+            factor = min(4, 1400 / max(source.size))
+            size = tuple(max(1, round(side * factor)) for side in source.size)
+            pixels = cv2.cvtColor(np.asarray(source.convert("RGB").resize(size, Image.Resampling.BILINEAR)), cv2.COLOR_RGB2BGR)
+        matches, _ = RapidOCR(intra_op_num_threads=2, inter_op_num_threads=1)(pixels, use_cls=False)
+        return [word.rstrip(".,，。") for _,word,score in (matches or []) if score >= .8][:100]
+    except Exception:
+        # Label OCR is optional in compact installations.
+        return []
+
+
 class Attachments:
-    def __init__(self, request, progress=lambda message: None):
+    def __init__(self, request, progress=lambda message: None, *, include_canvas=True):
         self.pdfs = []
+        self.image_uris = {}
         self.sources = []
         self.content = []
         self.progress = progress
@@ -62,14 +81,22 @@ class Attachments:
             else:
                 if size > 12 * 1024 * 1024:
                     raise ValueError("图片超过 12 MB，请先压缩")
+                self.sources.append({'path': path, 'kind': 'image', 'origin': element.get('kind', 'upload')})
+                if not include_canvas and element.get("kind") == "canvas":
+                    continue
                 try:
                     payload = path.read_bytes()
                 except PermissionError:
                     raise ValueError("无法读取图片「" + path.name + "」：文件被占用或没有权限，请关闭占用它的程序后重试") from None
                 uri = image_uri(payload)
-                self.sources.append({'path': path, 'kind': 'image', 'origin': element.get('kind', 'upload')})
-                self.content.append({'type': 'text', 'text': '图片转结构附件编号：' + str(len(self.sources)) + '（' + path.name + '）'})
-                self.content.append({"type": "image_url", "image_url": {"url": uri}})
+                self.image_uris[len(self.sources)] = uri
+                role = '画布现状，仅供定位' if element.get('kind') == 'canvas' else '用户参考原图，按此图重建'
+                blocks = [{"type":"text","text":f"{role}，附件 {len(self.sources)}（{path.name}）"},
+                          {"type":"image_url","image_url":{"url":uri}}]
+                if element.get("kind") == "canvas":
+                    self.content[0:0] = blocks
+                else:
+                    self.content.extend(blocks)
 
     def _pdf(self, path):
         try:
@@ -111,7 +138,8 @@ class Attachments:
                 any(type(p) is not int or not 1 <= p <= count for p in pages)):
             raise ValueError(f"每次读取1–4页，页码范围为1–{count}")
         if source['kind']=='image':
-            blocks=[{'type':'text','text':'本地图片（资料）：'+str(path)}, {'type':'image_url','image_url':{'url':image_uri(path.read_bytes())}}]
+            uri = self.image_uris.get(number) or image_uri(path.read_bytes())
+            blocks=[{'type':'text','text':'本地图片（资料）：'+str(path)}, {'type':'image_url','image_url':{'url':uri}}]
             return {'attachment':number,'path':str(path),'pages':[1],'total_pages':1},blocks
         import pypdfium2 as pdfium
         blocks = []

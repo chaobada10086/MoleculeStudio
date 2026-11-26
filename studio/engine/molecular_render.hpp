@@ -498,7 +498,7 @@ inline void clip(bonds::BondRenderData& data,const BondRecord& bond,const Labels
         bool axial=std::abs(direction.x)<1e-6||std::abs(direction.y)<1e-6;
         for(const auto& glyph:label->second.layout.glyphs)for(const auto& contour:glyph.contours){
             std::vector<Vec2> polygon;polygon.reserve(contour.size());for(Vec2 vertex:contour)polygon.push_back(vertex+anchor);
-            if(!axial){polygon=retainHalfPlane(polygon,data.axisBegin,normal,center-corridor,true);polygon=retainHalfPlane(polygon,data.axisBegin,normal,center+corridor,false);}
+            if(!axial && bond.semantics!=BondSemantics::Dative){polygon=retainHalfPlane(polygon,data.axisBegin,normal,center-corridor,true);polygon=retainHalfPlane(polygon,data.axisBegin,normal,center+corridor,false);}
             for(Vec2 vertex:polygon){double along=dot(vertex-data.axisBegin,direction);support=end?std::min(support,along):std::max(support,along);found=true;}
         }
         if(found){if(end)upper=support-margin;else lower=support+margin;data.clippedByLabel=true;}
@@ -506,8 +506,14 @@ inline void clip(bonds::BondRenderData& data,const BondRecord& bond,const Labels
     if(bond.semantics==BondSemantics::Dative&&data.clippedByLabel){
         double from=std::max(0.,lower),to=std::min(size,upper);
         if(to<=from){data.shapes.clear();return;}
-        for(auto& shape:data.shapes)if(shape.kind==bonds::BondShapeKind::Polyline)
-            for(auto& point:shape.points)point=data.axisBegin+direction*to+(point-data.axisEnd)*((to-from)/size);
+        // Lay out the shaft and solid head together on the visible axis.
+        const Vec2 start=data.axisBegin+direction*from;
+        const double ratio=(to-from)/size;
+        for(auto& shape:data.shapes){
+            for(auto& point:shape.points)point=start+(point-data.axisBegin)*ratio;
+            for(auto& point:shape.outline)point=start+(point-data.axisBegin)*ratio;
+        }
+        return;
     }
     for(auto& shape:data.shapes){
         if(shape.kind==bonds::BondShapeKind::Stroke&&shape.points.size()==2){

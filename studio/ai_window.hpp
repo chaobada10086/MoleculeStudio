@@ -17,6 +17,17 @@ struct AiWindow {
     static const int configMessageId=727,configButtonId=728;
     std::function<void()> openSettings,dockChanged,configurationChanged;
     HANDLE process=0,job=0;
+    ULONGLONG drawingStarted=0, displayedSeconds=0;
+    bool timingDrawing=false;
+    void updateElapsed(bool force=false){
+        if(!timingDrawing)return;
+        const auto seconds=(GetTickCount64()-drawingStarted)/1000;
+        if(!force && seconds==displayedSeconds)return;
+        displayedSeconds=seconds;
+        const auto remainder=seconds%60;
+        set(729,"耗时 "+std::to_string(seconds/60)+":"+(remainder<10?"0":"")+std::to_string(remainder));
+    }
+    void finishElapsed(){updateElapsed();timingDrawing=false;}
     std::wstring directory,resultPath,storageOverride,imagePath,screenshotPath;std::string lastProgress,pendingPrompt,imageName,imageMime;bool testMode=false,modelsMode=false,pluginLogged=false;
     static std::string legacyDefaultPreset(){return "你是 Molecule Studio 的化学绘图助手。\n\n理解用户意图，调用绘图工具将要求完整落实到可编辑画布。真实化合物优先查询可靠数据库，保持化学结构与立体信息准确。\n\n反应式与多步流程应清晰对齐，结构、箭头、条件和编号保持合适间距。优先使用组合绘图和自动排版工具。\n\n使用简洁中文说明完成内容；遇到关键歧义再询问，不能将失败描述为已完成。";}
     static std::string defaultPreset(){return legacyDefaultPreset()+"\n\n反应条件与绘图风格（可按个人习惯修改）：\n试剂与当量放在箭头上方，用 draw_reaction / draw_scheme 的 reagents 数组，每个试剂一项；默认一个试剂一行，超过四项时每行两项。溶剂、温度、反应时间、气体保护放在 conditions_below，用换行分组。箭头保持紧凑，避免把全部条件挤成一长行。\n条件文字默认自动排化学下标，电荷和同位素上标用 ^ 明确指定，例如 SO4^2-、^13CH3OH；不要把 0.5 equiv、25 °C、2 h 中的数字变成下标。可用 formula_layout=false 保留原文字，用 reagents_per_line 或显式换行调整分行，用 arrow_length 指定箭头长度。用户本轮要求优先于此预设。";}
@@ -81,8 +92,8 @@ struct AiWindow {
         }catch(const std::exception& e){bitmap.reset();if(stream)stream->Release();if(copy)GlobalFree(copy);CloseClipboard();if(!path.empty())DeleteFileW(path.c_str());log(std::string("未粘贴：")+e.what());return false;}
     }
     static std::string protect(const std::string& bytes,bool encrypt){DATA_BLOB in={DWORD(bytes.size()),(BYTE*)bytes.data()},out={};BOOL ok=encrypt?CryptProtectData(&in,L"Molecule Studio API",0,0,0,CRYPTPROTECT_UI_FORBIDDEN,&out):CryptUnprotectData(&in,0,0,0,0,CRYPTPROTECT_UI_FORBIDDEN,&out);if(!ok)throw std::runtime_error("无法读取或保存 Windows 加密的 API 密钥");std::string result((char*)out.pbData,out.cbData);SecureZeroMemory(out.pbData,out.cbData);LocalFree(out.pbData);return result;}
-    void log(const std::string& text){
-        chat.append(text);
+    void log(const std::string& text,const std::wstring& image=L""){
+        chat.append(text,image);
         auto box=GetDlgItem(hwnd,710);std::wstring value=W(text+"\r\n\r\n");studio_i18n::sendMessage(box,EM_SETSEL,-1,-1);
         CHARFORMAT2W fmt={};fmt.cbSize=sizeof(fmt);fmt.dwMask=CFM_COLOR|CFM_BOLD;fmt.crTextColor=text.find("你：")==0?RGB(24,117,112):RGB(48,64,76);fmt.dwEffects=text.find("你：")==0?CFE_BOLD:0;
         studio_i18n::sendMessage(box,EM_SETCHARFORMAT,SCF_SELECTION,(LPARAM)&fmt);studio_i18n::sendMessage(box,EM_REPLACESEL,FALSE,(LPARAM)value.c_str());studio_i18n::sendMessage(box,EM_SCROLLCARET,0,0);
@@ -101,7 +112,7 @@ struct AiWindow {
         set(723,"模型 · "+get(704));if(configurationChanged)configurationChanged();
     }
     void cleanup(){if(!resultPath.empty()){DeleteFileW(resultPath.c_str());auto status=resultPath.substr(0,resultPath.size()-4)+L".status";DeleteFileW(status.c_str());resultPath.clear();}if(!screenshotPath.empty()){DeleteFileW(screenshotPath.c_str());screenshotPath.clear();}}
-    void stop(bool announce=true){if(process){TerminateProcess(process,4);WaitForSingleObject(process,500);CloseHandle(process);process=0;if(job){CloseHandle(job);job=0;}if(IsWindow(hwnd)){KillTimer(hwnd,1);busy(false);if(announce)log("已取消，本轮没有修改画布。");}}cleanup();}
+    void stop(bool announce=true){finishElapsed();if(process){TerminateProcess(process,4);WaitForSingleObject(process,500);CloseHandle(process);process=0;if(job){CloseHandle(job);job=0;}if(IsWindow(hwnd)){KillTimer(hwnd,1);busy(false);if(announce)log("已取消，本轮没有修改画布。");}}cleanup();}
     void load(){
         if(storageOverride.empty()){wchar_t local[32768]={};GetEnvironmentVariableW(L"LOCALAPPDATA",local,32768);directory=std::wstring(local)+L"\\MoleculeStudio";CreateDirectoryW(directory.c_str(),0);directory+=L"\\AI";}else directory=storageOverride;CreateDirectoryW(directory.c_str(),0);
         try{tinyxml2::XMLDocument xml;auto bytes=chemservice::read(directory+L"\\settings.xml");if(xml.Parse(bytes.c_str())==tinyxml2::XML_SUCCESS)if(auto root=xml.RootElement()){if(auto p=root->FirstChildElement("preset")){if(p->GetText()&&strlen(p->GetText())<=24000)preset=p->GetText();if(preset==legacyDefaultPreset())preset=defaultPreset();}if(auto e=root->Attribute("endpoint"))set(702,e);if(auto m=root->Attribute("model"))set(704,m);if(root->BoolAttribute("remember")){auto key=protect(chemservice::read(directory+L"\\credential.bin"),false);set(706,key);SecureZeroMemory(&key[0],key.size());CheckDlgButton(hwnd,707,BST_CHECKED);}if(root->BoolAttribute("advanced"))CheckDlgButton(hwnd,725,BST_CHECKED);}}catch(const std::exception&){}
@@ -138,7 +149,15 @@ struct AiWindow {
         if(testing)apiStatus=fetchingModels?"正在获取模型…":"正在测试连接…";
         try{
             if(get(706).empty())throw std::runtime_error("请先填写 API Key");
-            pendingPrompt=get(711);if(!testing&&pendingPrompt.empty())throw std::runtime_error("请输入绘图要求");
+            pendingPrompt=get(711);
+            if(!testing){
+                auto typed=W(pendingPrompt);
+                if(typed.find_first_not_of(L" \t\r\n\u3000\ufffc") == std::wstring::npos){
+                    if(imagePath.empty())throw std::runtime_error("请粘贴或上传参考图，或输入绘图要求。");
+                    pendingPrompt="绘制这个结构";
+                }
+                drawingStarted=GetTickCount64();timingDrawing=true;updateElapsed(true);
+            }
             if(!testing&&!fetchingModels&&IsDlgButtonChecked(hwnd,719)==BST_CHECKED&&capture){GUID shotGuid;CoCreateGuid(&shotGuid);wchar_t shotName[64];StringFromGUID2(shotGuid,shotName,64);screenshotPath=directory+L"\\"+shotName+L".png";bool ok=false;try{ok=capture(screenshotPath);}catch(...){ok=false;}if(!ok){screenshotPath.clear();log("画布截图失败，本轮只发送文字与对象信息。");}}
             std::string base=testing?"<request/>":context();tinyxml2::XMLDocument xml;if(xml.Parse(base.c_str())!=tinyxml2::XML_SUCCESS)throw std::runtime_error("无法生成文档概况");auto root=xml.RootElement();root->SetAttribute("mode",fetchingModels?"models":testing?"test":"draw");root->SetAttribute("advanced",IsDlgButtonChecked(hwnd,725)==BST_CHECKED?"1":"0");
             auto add=[&](const char* name,const std::string& value){auto e=xml.NewElement(name);e->SetText(value.c_str());root->InsertEndChild(e);};add("endpoint",get(702));add("model",get(704));add("key",get(706));add("prompt",pendingPrompt);add("preset",preset);if(!testing&&!fetchingModels){if(!imagePath.empty()){auto e=xml.NewElement("image");e->SetAttribute("path",U(imagePath).c_str());e->SetAttribute("mime",imageMime.empty()?"image/png":imageMime.c_str());e->SetAttribute("kind","upload");root->InsertEndChild(e);}if(!screenshotPath.empty()){auto e=xml.NewElement("image");e->SetAttribute("path",U(screenshotPath).c_str());e->SetAttribute("mime","image/png");e->SetAttribute("kind","canvas");root->InsertEndChild(e);}}
@@ -150,11 +169,12 @@ struct AiWindow {
             BOOL created=CreateProcessW(0,&command[0],0,0,TRUE,CREATE_NO_WINDOW|CREATE_SUSPENDED,0,dir.c_str(),&si,&pi);CloseHandle(read);if(sink!=INVALID_HANDLE_VALUE)CloseHandle(sink);if(!created){CloseHandle(write);throw std::runtime_error("无法启动随附的 Python，请检查 chemistry_backend.ini");}
             process=pi.hProcess;SetPriorityClass(process,BELOW_NORMAL_PRIORITY_CLASS);job=CreateJobObjectW(0,0);if(job){JOBOBJECT_EXTENDED_LIMIT_INFORMATION limits={};limits.BasicLimitInformation.LimitFlags=JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;SetInformationJobObject(job,JobObjectExtendedLimitInformation,&limits,sizeof(limits));AssignProcessToJobObject(job,process);}ResumeThread(pi.hThread);CloseHandle(pi.hThread);
             DWORD sent=0;BOOL written=WriteFile(write,request.data(),DWORD(request.size()),&sent,0);CloseHandle(write);SecureZeroMemory(&request[0],request.size());if(!written||sent!=request.size()){stop(false);throw std::runtime_error("AI 请求发送失败");}
-            testMode=testing;modelsMode=fetchingModels;lastProgress.clear();busy(true);if(!testing){log("你："+pendingPrompt);set(711,"");}SetTimer(hwnd,1,250,0);
+            testMode=testing;modelsMode=fetchingModels;lastProgress.clear();busy(true);if(!testing){log("你："+pendingPrompt+(imageName.empty()?"":"\n📎 "+imageName),imageMime=="application/pdf"?L"":imagePath);set(711,"");}SetTimer(hwnd,1,250,0);
         }catch(const std::exception& e){stop(false);apiStatus=std::string("未开始：")+e.what();log(apiStatus);}
     }
     void poll(){
         if(!process)return;
+        updateElapsed();
         
         try{auto text=chemservice::read(resultPath.substr(0,resultPath.size()-4)+L".status",FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE);if(text!=lastProgress){lastProgress=text;set(715,text);}}catch(const std::exception&){}
         if(WaitForSingleObject(process,0)!=WAIT_OBJECT_0)return;
@@ -167,6 +187,7 @@ struct AiWindow {
             for(auto source=root->FirstChildElement("source");source;source=source->NextSiblingElement("source")){std::string text="来源：PubChem CID ";text+=source->Attribute("cid")?source->Attribute("cid"):"";text+=" · ";text+=source->Attribute("formula")?source->Attribute("formula"):"";text+="\r\n";text+=source->Attribute("source")?source->Attribute("source"):"";log(text);}
             if(!testMode){history.push_back({"user",pendingPrompt});history.push_back({"assistant",reply});while(history.size()>10)history.erase(history.begin());}
         }catch(const std::exception& e){if(testMode)apiStatus=std::string("连接未完成：")+e.what();log(std::string("本轮未应用：")+e.what());if(!testMode){try{auto bytes=chemservice::read(resultPath);tinyxml2::XMLDocument failed;if(failed.Parse(bytes.c_str())==tinyxml2::XML_SUCCESS&&failed.RootElement()&&std::string(failed.RootElement()->Name())=="result"&&failed.RootElement()->BoolAttribute("ok")&&failed.RootElement()->FirstChildElement("actions")&&failed.RootElement()->FirstChildElement("actions")->FirstChildElement()){auto saved=directory+L"\\last-unapplied-result.xml";chemservice::write(saved,bytes);log("失败结果已保留："+U(saved));}}catch(...){}if(get(711).empty())set(711,pendingPrompt);}}
+        finishElapsed();
         cleanup();
     }
     int dockWidth(int available,float scale)const{return std::min(int(332*scale),std::max(int(300*scale),int(available*.28)));}
@@ -209,7 +230,8 @@ struct AiWindow {
         move(709,m,promptY-px(23),w-2*m,px(20));move(711,m,promptY,w-2*m,promptH);
         int attach=promptY+promptH+px(4);move(719,m,attach,px(86),px(24));move(725,m+px(90),attach,px(150),px(24));int actionsX=m+px(GetDlgItem(hwnd,725)?244:90);move(717,actionsX,attach,px(48),px(24));move(724,actionsX+px(52),attach,px(66),px(24));move(718,actionsX+px(122),attach,px(44),px(24));
         if(narrow){move(717,m,attach+px(28),px(48),px(24));move(724,m+px(54),attach+px(28),px(66),px(24));move(718,m+px(126),attach+px(28),px(44),px(24));}
-        int actions=h-px(58);move(714,m,actions,px(70),px(30));move(713,w-m-px(172),actions,px(64),px(30));move(712,w-m-px(100),actions,px(100),px(30));move(715,m,h-px(23),w-2*m,px(19));
+        int actions=h-px(58);move(714,m,actions,px(70),px(30));move(713,w-m-px(172),actions,px(64),px(30));move(712,w-m-px(100),actions,px(100),px(30));move(715,m,h-px(23),w-2*m-px(90),px(19));
+        move(729,w-m-px(88),h-px(23),px(88),px(19));
         for(int id:{701,702,703,704,705,706,707,708,716})ShowWindow(GetDlgItem(hwnd,id),SW_HIDE);
         EnableWindow(GetDlgItem(hwnd,721),!paneLocked);bgValid=false;chat.reflow();if(!sizing)RedrawWindow(hwnd,nullptr,nullptr,RDW_INVALIDATE|RDW_ALLCHILDREN);
     }
@@ -239,7 +261,13 @@ struct AiWindow {
         EndPaint(hwnd,&ps);
     }
     static LRESULT CALLBACK promptProc(HWND h,UINT m,WPARAM w,LPARAM l,UINT_PTR,DWORD_PTR data){
-        auto self=(AiWindow*)data;if(m==WM_PASTE&&clipboardImageAvailable()){self->pasteImage();return 0;}
+        auto self=(AiWindow*)data;
+        bool ctrlPaste=m==WM_KEYDOWN && w=='V' && (GetKeyState(VK_CONTROL)&0x8000);
+        bool shiftPaste=m==WM_KEYDOWN && w==VK_INSERT && (GetKeyState(VK_SHIFT)&0x8000);
+        if((m==WM_PASTE||ctrlPaste||shiftPaste)&&clipboardImageAvailable()){
+            self->pasteImage();return 0;
+        }
+        if(m==WM_CHAR && w==22 && clipboardImageAvailable())return 0;
         if(m==WM_KEYDOWN&&w==VK_RETURN&&(GetKeyState(VK_CONTROL)&0x8000)){self->start(false);return 0;}
         if(m==WM_CHAR&&w==10)return 0;return DefSubclassProc(h,m,w,l);
     }
@@ -261,7 +289,7 @@ struct AiWindow {
             else if(id==726){if(!self->paneLocked&&!self->docked)self->toggleDock();self->paneLocked=!self->paneLocked;self->set(726,self->paneLocked?"已固定":"固定");self->layout();}
             else if(id==721)self->toggleDock();else if(id==722||id==IDCANCEL)self->hide();
             else if(id==716)self->start(true,true);else if(id==712)self->start(false);else if(id==708)self->start(true);else if(id==713)self->stop();else if(id==724)self->pasteImage();else if(id==717)self->chooseImage();else if(id==718)self->clearImage();
-            else if(id==714){self->history.clear();self->set(710,"");self->clearImage();self->log("新对话\n描述结构、反应条件或排版要求，也可以上传图片作为参考。");}return 0;}
+            else if(id==714){self->set(729,"");self->history.clear();self->set(710,"");self->clearImage();self->log("新对话\n描述结构、反应条件或排版要求，也可以上传图片作为参考。");}return 0;}
         // Settings saves write the AI controls directly (WM_SETTEXT does not raise EN_CHANGE),
         // so re-evaluate the banner whenever the pane is activated or shown again.
         case WM_ACTIVATE:case WM_SHOWWINDOW:self->refreshConfiguration();return 0;
@@ -288,7 +316,7 @@ struct AiWindow {
         child(L"BUTTON",L"获取模型",WS_TABSTOP,716);child(L"STATIC",L"API Key",0,705);child(L"EDIT",L"",WS_TABSTOP|ES_AUTOHSCROLL|ES_PASSWORD,706);child(L"BUTTON",L"记住密钥",WS_TABSTOP|BS_AUTOCHECKBOX,707);child(L"BUTTON",L"测试连接",WS_TABSTOP,708);
         child(L"STATIC",L"",0,709);child(L"BUTTON",L"附画布截图",WS_TABSTOP|BS_AUTOCHECKBOX,719);if(advancedAvailable())child(L"BUTTON",L"高级绘图",WS_TABSTOP|BS_AUTOCHECKBOX,725);
         child(L"RICHEDIT50W",L"",ES_MULTILINE|ES_READONLY|ES_AUTOVSCROLL|WS_VSCROLL,710);child(L"RICHEDIT50W",L"",WS_TABSTOP|ES_MULTILINE|ES_AUTOVSCROLL|ES_WANTRETURN|WS_VSCROLL,711);
-        child(L"BUTTON",L"发送并绘制",WS_TABSTOP|BS_OWNERDRAW,712);child(L"BUTTON",L"取消",WS_TABSTOP|BS_OWNERDRAW,713);child(L"BUTTON",L"新对话",WS_TABSTOP|BS_OWNERDRAW,714);child(L"BUTTON",L"上传",WS_TABSTOP|BS_OWNERDRAW,717);child(L"BUTTON",L"粘贴图片",WS_TABSTOP|BS_OWNERDRAW,724);child(L"BUTTON",L"清除",WS_TABSTOP|BS_OWNERDRAW,718);child(L"STATIC",L"",0,715);
+        child(L"BUTTON",L"发送并绘制",WS_TABSTOP|BS_OWNERDRAW,712);child(L"BUTTON",L"取消",WS_TABSTOP|BS_OWNERDRAW,713);child(L"BUTTON",L"新对话",WS_TABSTOP|BS_OWNERDRAW,714);child(L"BUTTON",L"上传",WS_TABSTOP|BS_OWNERDRAW,717);child(L"BUTTON",L"粘贴图片",WS_TABSTOP|BS_OWNERDRAW,724);child(L"BUTTON",L"清除",WS_TABSTOP|BS_OWNERDRAW,718);child(L"STATIC",L"",SS_ENDELLIPSIS,715);child(L"STATIC",L"",SS_RIGHT,729);
         chat.create(hwnd,730);child(L"BUTTON",L"固定",WS_TABSTOP|BS_OWNERDRAW,726);child(L"BUTTON",L"设置",WS_TABSTOP|BS_OWNERDRAW,720);child(L"BUTTON",L"停靠右侧",WS_TABSTOP|BS_OWNERDRAW,721);child(L"BUTTON",L"收起",WS_TABSTOP|BS_OWNERDRAW,722);child(L"STATIC",L"模型 · auto",0,723);
         // Task 7: passive warning + one-click route to 设置 → AI 与 API. IDs 727/728 were unused
         // by the AI pane (701-708/716 are the hidden API fields, 709-726 the visible chrome).

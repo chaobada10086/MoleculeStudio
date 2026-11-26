@@ -22,6 +22,8 @@ import xml.etree.ElementTree as ET
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
 _ACTIVE_API_KEY = ""
+DRAW_REQUEST_TIMEOUT_SECONDS = 300
+REFERENCE_REQUEST_TIMEOUT_SECONDS = 600
 ADVANCED_TIMEOUT_SECONDS = 1800
 ADVANCED_PLAN_CALLS = 120
 ADVANCED_FIX_CALLS = 48
@@ -110,6 +112,8 @@ from ai_scene import EditingTools, extra_tools, validate_xml_strings, mechanism_
 SYSTEM += "\n" + MECHANISM_GUIDE
 
 TOOLS = [
+    tool("correct_coordination_candidate", "依据用户原图核对当前 OCSR 候选并提交。只填需要修改的项目，编号从1开始。atom_edits 每项为 '编号 标签 电荷 孤对数'，显式碳写 [C]；bond_edits 每项为 '起点 终点 键级'，方向按供体到受体，键级 1/2/3/dative，删除写 remove。", {"atom_edits":{"type":"array","items":STR},"bond_edits":{"type":"array","items":STR}}, ["atom_edits","bond_edits"]),
+    tool("trace_coordination_structure", "从已查看的配合物原图逐点描绘。当 OCSR 漏掉金属、缩写或配位箭头时按可见证据修正。atoms 逐项写 '符号 x y [形式电荷 [孤对数]]'，显式碳写 [C]。包括隐式碳顶点和缩写，每条 bonds 写 '起点编号 终点编号 键级'。编号从1开始，键级1/2/3/dative，配位键从供体指向受体。保持原图比例，普通键长约30。", {"atoms":{"type":"array","items":STR},"bonds":{"type":"array","items":STR}, **POS}, ["atoms","bonds"]),
     tool("lookup_compound", "联网查询 PubChem 化合物结构，使用英文名称或 CAS 号。返回 CID、分子式、立体 SMILES、来源。", {"name": STR}, ["name"]),
     tool("draw_compound", "绘制本轮 lookup_compound 已确认的 CID，保留立体化学，可编辑且可撤销。", {"cid": {"type": "integer"}, **POS, **STYLE, **LAYOUT}, ["cid"]),
     tool("draw_smiles", "绘制用户提供的 SMILES 或用户明确请求的假想结构。真实已命名分子应检索数据库。", {"smiles": STR, "keep_explicit_hydrogens":{"type":"boolean","description":"保留输入 SMILES 中单独列出的 [H] 原子，供电子箭头绑定"},
@@ -186,7 +190,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
-def request_json(url, payload=None, key=None, timeout=55):
+def request_json(url, payload=None, key=None, timeout=55, *, retry=True):
     headers = {"Accept": "application/json", "User-Agent": "MoleculeStudio/0.9.4"}
     if key:
         headers["Authorization"] = "Bearer " + key
@@ -195,7 +199,7 @@ def request_json(url, payload=None, key=None, timeout=55):
         headers["Content-Type"] = "application/json"
     request = urllib.request.Request(url, data=data, headers=headers)
     try:
-        attempts = 2 if url == "https://api.commandcode.ai/provider/v1/chat/completions" else 1
+        attempts = 2 if retry and url == "https://api.commandcode.ai/provider/v1/chat/completions" else 1
         for attempt in range(attempts):
             try:
                 with urllib.request.build_opener(NoRedirect()).open(request, timeout=timeout) as response:
@@ -540,6 +544,116 @@ class DrawingTools(EditingTools):
                 raise ValueError("请先使用 lookup_compound 确认该 CID")
             item = self.compounds[cid]
             return self.molecule(item["smiles"], args, item)
+        if name == "correct_coordination_candidate":
+            if not getattr(self, "coordination_candidate", None):
+                raise ValueError("当前没有配合物候选")
+            from chemistry_open import Chem
+            root = ET.fromstring(self.coordination_candidate)
+            atoms = list(root.iter("n"))
+            atom_ids = [n.get("id") for n in atoms]
+            fragment = root.find(".//fragment")
+            bonds = {frozenset((b.get("B"), b.get("E"))): b for b in fragment.findall("b")}
+            next_id = max(int(n.get("id","0")) for n in root.iter()) + 1
+            elements = {Chem.GetPeriodicTable().GetElementSymbol(i):str(i) for i in range(1,119)}
+            if any(not isinstance(args[k],list) or len(args[k]) > 600 or any(not isinstance(v,str) for v in args[k])
+                   for k in ("atom_edits","bond_edits")):
+                raise ValueError("修订列表格式无效")
+            for edit in args["atom_edits"]:
+                index,label,charge,pairs = edit.split()
+                label = label.strip().rstrip(".,，。")
+                if label.isascii() and label.isdecimal() and 1 <= int(label) <= 118:
+                    label = Chem.GetPeriodicTable().GetElementSymbol(int(label))
+                if label != "[C]" and label.startswith("[") and label.endswith("]"):
+                    label = label[1:-1]
+                if label.startswith(":") and label[1:] in elements and int(pairs) > 0:
+                    label = label[1:]
+                if not 1 <= int(index) <= len(atoms) or abs(int(charge)) > 8 or not 0 <= int(pairs) <= 4:
+                    raise ValueError("无效的原子编号、电荷或孤对数")
+                atom = atoms[int(index)-1]
+                if label != "[C]" and not re.fullmatch(r"[A-Za-z][A-Za-z0-9()]{0,19}",label):
+                    raise ValueError("无效原子标签："+label[:30])
+                explicit = label == "[C]"
+                label = "C" if explicit else label
+                atom.attrib.update(Element=elements.get(label,"6"), NodeType="Element" if label in elements else "Nickname",
+                                   Charge=str(int(charge)), MoleculeStudioLonePairs=str(int(pairs)))
+                for text in atom.findall("t"):
+                    atom.remove(text)
+                if label != "C" or explicit:
+                    ET.SubElement(ET.SubElement(atom,"t"),"s").text = label
+            for edit in args["bond_edits"]:
+                start,end,order = edit.split()
+                a,b = int(start),int(end)
+                if not (1 <= a <= len(atoms) and 1 <= b <= len(atoms)) or a == b or order not in ("1","2","3","dative","remove"):
+                    raise ValueError("无效的键编号或类型")
+                endpoints = atom_ids[a-1], atom_ids[b-1]
+                key = frozenset(endpoints)
+                if order == "remove":
+                    fragment.remove(bonds.pop(key))
+                    continue
+                if key not in bonds:
+                    bonds[key] = ET.SubElement(fragment,"b",id=str(next_id))
+                    next_id += 1
+                bonds[key].attrib.update(B=endpoints[0], E=endpoints[1], Order=order)
+            apply_printed_pairs(root,getattr(self,"printed_labels",[]))
+            orient_coordination_bonds(root)
+            node = ET.Element("molecule",x=str(self.molecules*120),y="0")
+            node.text = ET.tostring(root,encoding="unicode")
+            created = self.record_creation(node)
+            self.actions.append(node)
+            self.molecules += 1
+            return {"staged":True, **created}
+        if name == "trace_coordination_structure":
+            from chemistry_open import Chem
+            atoms, bonds = args["atoms"], args["bonds"]
+            if not isinstance(atoms, list) or not 2 <= len(atoms) <= 400 or not isinstance(bonds, list) or not 1 <= len(bonds) <= 600:
+                raise ValueError("原子或键数量超出范围")
+            root = ET.Element("CDXML", BondLength="30")
+            fragment = ET.SubElement(ET.SubElement(root, "page", id="10001"), "fragment", id="10002")
+            table = Chem.GetPeriodicTable()
+            elements = {table.GetElementSymbol(i): str(i) for i in range(1,119)}
+            for i, entry in enumerate(atoms, 1):
+                fields = str(entry).split()
+                if not 3 <= len(fields) <= 5:
+                    raise ValueError("原子项需要标签、x、y，可附形式电荷及孤对数")
+                label, x, y = fields[:3]
+                explicit = label == "[C]"
+                if explicit:
+                    label = "C"
+                if not re.fullmatch(r"[A-Za-z][A-Za-z0-9()]{0,19}",label) or not all(math.isfinite(float(v)) and abs(float(v)) <= 10000 for v in (x,y)):
+                    raise ValueError("无效原子标签或坐标")
+                n = ET.SubElement(fragment,"n",id=str(i),p=x+" "+y)
+                if label in elements:
+                    n.set("Element",elements[label])
+                else:
+                    n.set("NodeType","Nickname")
+                if len(fields) >= 4:
+                    charge = int(fields[3])
+                    if abs(charge) > 8:
+                        raise ValueError("无效形式电荷")
+                    n.set("Charge",str(charge))
+                if len(fields) == 5:
+                    pairs = int(fields[4])
+                    if not 0 <= pairs <= 4:
+                        raise ValueError("无效孤对数")
+                    n.set("MoleculeStudioLonePairs",str(pairs))
+                if label != "C" or explicit:
+                    ET.SubElement(ET.SubElement(n,"t"),"s").text = label
+            seen = set()
+            for i, entry in enumerate(bonds):
+                start,end,order = str(entry).split()
+                a,b = int(start),int(end)
+                pair = tuple(sorted((a,b)))
+                if not 1 <= pair[0] < pair[1] <= len(atoms) or pair in seen or order not in ("1","2","3","dative"):
+                    raise ValueError("无效或重复的键")
+                seen.add(pair)
+                ET.SubElement(fragment,"b",id=str(len(atoms)+i+1),B=str(a),E=str(b),Order=order)
+            orient_coordination_bonds(root)
+            node = ET.Element("molecule",x=str(number(args,"x",self.molecules*120)),y=str(number(args,"y",0)))
+            node.text = ET.tostring(root,encoding="unicode")
+            created = self.record_creation(node)
+            self.actions.append(node)
+            self.molecules += 1
+            return {"staged":True, **created}
         if name == "draw_smiles":
             return self.molecule(args["smiles"], args)
         if name == "recognize_and_draw_structure":
@@ -688,8 +802,9 @@ def _append_plugins(result, plugins):
         ET.SubElement(result, "plugin", {key: str(value) for key, value in status.items()})
 
 
-def _advanced_tool_names():
-    return {item["function"]["name"] for item in TOOLS}
+def drawing_tool_catalog(attachments):
+    from ai_attachments import PDF_TOOL
+    return TOOLS + [PDF_TOOL] if attachments is not None else list(TOOLS)
 
 
 def _advanced_scene(request, limit=600):
@@ -702,9 +817,7 @@ def _advanced_scene(request, limit=600):
 
 
 def _advanced_execute(engine, items, limit, progress, attachments=None, deadline=None):
-    names = _advanced_tool_names()
-    if attachments is not None:
-        names.add("read_pdf_pages")
+    names = {entry["function"]["name"] for entry in drawing_tool_catalog(attachments)}
     if getattr(engine, "whole_scheme", False):
         names &= SCHEME_TOOLS
     results = []
@@ -953,6 +1066,28 @@ def missing_arrow_message(engine):
             '本轮未生成机理箭头，画布没有新增绘图操作。')
 
 
+def single_structure_upload(request, prompt):
+    uploads = [(i, image) for i,image in enumerate(request.findall("image"),1)
+               if image.get("kind","upload") == "upload"]
+    if len(uploads) != 1:
+        return None
+    index,image = uploads[0]
+    if image.get("mime") == "application/pdf" or Path(image.get("path","")).suffix.lower()==".pdf":
+        return None
+    # In a single-image request, “这个” or an omitted object refers to the upload.
+    target = r"(?:这[个张幅](?:图(?:片)?|结构|分子|配合物)?|它|图中(?:的)?(?:结构|分子|配合物))"
+    verb = r"(?:绘制|画(?:出(?:来)?)?|临摹|重绘)(?:一下)?"
+    if re.fullmatch(
+        rf"(?:请)?(?:帮我)?(?:(?:把)?{target}(?:也|再)?{verb}|(?:也|再)?{verb}(?:{target})?)(?:吧|一下)?[。！! ]*",
+        re.sub(r"\s+", "", prompt)):
+        return index
+    if re.fullmatch(
+        r"(?:请|帮我)?(?:绘制|画出(?:来)?|画|临摹|重绘)(?:一下)?(?:这[个张幅]|图中(?:的)?)?(?:分子|金属|图片|图)?(?:结构|配合物)(?:结构)?[。！! ]*"
+        r"|(?:please )?(?:draw|trace|redraw) (?:this|the) (?:structure|complex)[.! ]*", prompt, re.I):
+        return index
+    return None
+
+
 def run_advanced(request, progress=lambda message: None):
     """Plan with DSH, execute locally, then let DSH verify and correct."""
     import ai_dsh
@@ -966,6 +1101,9 @@ def run_advanced(request, progress=lambda message: None):
     prompt = request.findtext("prompt", "").strip()
     if not prompt or len(prompt) > 6000:
         raise ValueError("请输入 1–6000 字的绘图要求")
+    if single_structure_upload(request,prompt) is not None:
+        progress("高级绘图：调用基础参考图绘制流程…")
+        return run_basic(request,progress)
     model_name = request.findtext("model", "").strip()
     if model_name in ("", "auto", "自动"):
         try:
@@ -980,7 +1118,7 @@ def run_advanced(request, progress=lambda message: None):
             base_url = dsh_proxy.start_adapter(endpoint, key, model_name).url
         except Exception as exc:
             raise ValueError("高级绘图无法启动本地协议适配器：" + str(exc)[:300])
-    from ai_attachments import Attachments, PDF_TOOL
+    from ai_attachments import Attachments
     attachments = Attachments(request, progress)
     def plan_turn(task):
         if use_harness:
@@ -1003,7 +1141,7 @@ def run_advanced(request, progress=lambda message: None):
     arrow_request = configure_arrow_request(engine, request)
     engine.whole_scheme = whole_mechanism_request(engine, request)
     arrow_guide = (WHOLE_SCHEME_GUIDE if engine.whole_scheme else ARROW_CALL_GUIDE) if arrow_request else ""
-    schema = [item["function"] for item in (TOOLS + [PDF_TOOL])]
+    schema = [item["function"] for item in drawing_tool_catalog(attachments)]
     if engine.whole_scheme and attachments.sources and "临摹" in prompt:
         arrow_guide += "\n" + COPY_GUIDE
     if engine.whole_scheme:
@@ -1043,6 +1181,7 @@ def run_advanced(request, progress=lambda message: None):
         + json.dumps(_advanced_scene(request), ensure_ascii=False) + "\n\n"
         "可用工具（只能使用这些名称，参数遵循 JSON Schema）：\n"
         + json.dumps(schema, ensure_ascii=False) + "\n\n"
+        "如果整项任务适合基础绘图（例如参考图复原、单步反应、催化循环或需要逐次调用工具），可直接委托完整原始请求，返回 {\"workflow\":\"basic\",\"plan\":[]}。宿主将执行基础流程并返回原生画布动作。\n"
         "输出格式示例：\n"
         '{"plan":[{"tool":"draw_smiles","args":{"smiles":"c1ccccc1","x":0,"y":0}}],"message":"给用户的简短说明"}\n'
         f"限制：本次高级绘图总时间上限 {ADVANCED_TIMEOUT_SECONDS} 秒，规划最多 {ADVANCED_PLAN_CALLS} 个调用；坐标单位为 pt；不要编造工具。结构优先用 draw_smiles / draw_compound / "
@@ -1052,6 +1191,9 @@ def run_advanced(request, progress=lambda message: None):
     plan = ai_dsh.extract_object(text, ("plan",))
     if not plan or not isinstance(plan.get("plan"), list):
         raise ValueError("高级绘图没有生成可执行的绘图步骤，请重试或关闭高级绘图")
+    if plan.get("workflow") == "basic" and not plan["plan"]:
+        progress("高级绘图：调用基础绘图流程…")
+        return run_basic(request,progress,plugins)
     progress("高级绘图：正在执行绘图步骤…")
     results = _advanced_execute(engine, plan.get("plan", []), ADVANCED_PLAN_CALLS, progress, attachments, deadline=deadline)
     message = str(plan.get("message") or "")[:4000]
@@ -1102,7 +1244,88 @@ def run_advanced(request, progress=lambda message: None):
     return result
 
 
+COORDINATION_METALS = ({3, 4, 11, 12, 13} | set(range(19, 32)) | set(range(37, 51))
+                       | set(range(55, 84)) | set(range(87, 117)))
+
+
+def orient_coordination_bonds(root):
+    atoms = {n.get("id"): n for n in root.iter("n")}
+    elements = {i: int(n.get("Element", "6")) for i, n in atoms.items()}
+    bonds = list(root.iter("b"))
+    ligand_orders = {}
+    for bond in bonds:
+        a, b = bond.get("B"), bond.get("E")
+        if elements.get(a) in COORDINATION_METALS or elements.get(b) in COORDINATION_METALS:
+            continue
+        for i in (a, b):
+            ligand_orders.setdefault(i, []).append(bond.get("Order", "1"))
+    for bond in bonds:
+        a, b = bond.get("B"), bond.get("E")
+        if elements.get(a) in COORDINATION_METALS:
+            a, b = b, a
+        if a not in atoms or elements[a] in COORDINATION_METALS or elements.get(b) not in COORDINATION_METALS:
+            continue
+        order = bond.get("Order", "1")
+        # Neutral imine and tertiary amine N already have three ligand bond orders.
+        # An extra plain single line to the metal represents lone-pair donation.
+        infer = (order == "1" and not bond.get("Display") and elements[a] == 7
+                 and atoms[a].get("Charge", "0") == "0"
+                 and sorted(ligand_orders.get(a, [])) in (["1","2"], ["1","1","1"]))
+        if infer or order == "dative":
+            bond.attrib.update(B=a, E=b, Order="dative")
+
+
+def apply_printed_pairs(root, labels):
+    from chemistry_open import Chem
+    nodes = list(root.iter("n"))
+    for word in labels:
+        match = re.fullmatch(r"(:[A-Z][a-z]?|[A-Z][a-z]?:)",word)
+        if not match:
+            continue
+        symbol = word.strip(":")
+        hosts = [a for a in nodes if Chem.GetPeriodicTable().GetElementSymbol(int(a.get("Element","6"))) == symbol]
+        if len(hosts)==1:
+            host = hosts[0]
+            host.set("MoleculeStudioLonePairs","1")
+            host.set("MoleculeStudioLonePairPositions","0 "+("-0.94" if word.startswith(":") else "0.94")+" 0")
+            host.set("MoleculeStudioLonePairColor","255")
+
+
+def review_coordination(engine, payload, endpoint, key, progress):
+    usage = 0
+    progress("正在复核参考图、配位键和取代基…")
+    try:
+        response = request_json(endpoint + "/chat/completions", payload, key, timeout=REFERENCE_REQUEST_TIMEOUT_SECONDS, retry=False)
+        if not isinstance(response,dict):
+            raise ValueError("接口未返回消息对象")
+        tokens = (response.get("usage") or {}).get("total_tokens",0)
+        if type(tokens) is int:
+            usage += tokens
+        choice = response["choices"][0]
+        content = choice["message"].get("content")
+        if not isinstance(content,str) or not content.strip():
+            raise ValueError("回复没有修订内容")
+        edits = json.loads(re.sub(r"^```(?:json)?\s*|\s*```$", "", content.strip()))
+        if isinstance(edits,dict) and edits.get("uncertain"):
+            raise ValueError("模型未能确定原图的连接或标注")
+        if not isinstance(edits,dict) or set(edits)!={"atom_edits","bond_edits"}:
+            raise ValueError("缺少 atom_edits 或 bond_edits")
+        engine.call("correct_coordination_candidate",edits)
+        return True, usage, "复核已完成，已按修订绘制可编辑配合物。"
+    except (ValueError, KeyError, IndexError, TypeError, AttributeError, OSError):
+        engine.call("correct_coordination_candidate",{"atom_edits":[],"bond_edits":[]})
+        return False, usage, "⚠ 需要人工复核：本次复核未通过。已绘入本地识别的可编辑候选，结构可能有误，请核对配位键、形式电荷和取代基。"
+
+
 def run(request, progress=lambda message: None):
+    if request.get("mode","draw") == "draw" and not request.findtext("prompt","").replace("\ufffc","").strip():
+        if any(image.get("kind","upload") == "upload" for image in request.findall("image")):
+            prompt_node = request.find("prompt")
+            if prompt_node is None:
+                prompt_node = ET.SubElement(request,"prompt")
+            prompt_node.text = "绘制这个结构"
+        else:
+            raise ValueError("请粘贴或上传参考图，或输入绘图要求。")
     key = request.findtext("key", "").strip()
     if not key or len(key) > 512 or any(c.isspace() for c in key):
         raise ValueError("请填写有效的 API Key")
@@ -1110,6 +1333,11 @@ def run(request, progress=lambda message: None):
     _ACTIVE_API_KEY = key
     if request.get("advanced") == "1" and request.get("mode", "draw") == "draw":
         return run_advanced(request, progress)
+    return run_basic(request,progress)
+
+
+def run_basic(request, progress, plugins=None):
+    key = request.findtext("key","").strip()
     endpoint = endpoint_url(request.findtext("endpoint", "https://api.deepseek.com"))
     progress("正在连接 AI 服务…")
     mode = request.get("mode", "draw")
@@ -1127,7 +1355,8 @@ def run(request, progress=lambda message: None):
         raise ValueError("请输入 1–6000 字的绘图要求")
     context = dict(request.find("context").attrib) if request.find("context") is not None else {}
     context["selected"] = int(context.get("selected", 0))
-    plugins = load_plugins(request)
+    if plugins is None:
+        plugins = load_plugins(request)
     engine = DrawingTools(context, progress)
     engine.load_scene(request.find("scene"))
     preset = request.findtext("preset", "")
@@ -1143,11 +1372,15 @@ def run(request, progress=lambda message: None):
         for item in list(history)[-10:]:
             if item.get("role") in ("user", "assistant"):
                 messages.append({"role": item.get("role"), "content": (item.text or "")[:6000]})
-    from ai_attachments import Attachments, PDF_TOOL
-    attachments = Attachments(request, progress)
+    from ai_attachments import Attachments
+    upload = single_structure_upload(request, prompt)
+    single_trace = upload is not None
+    attachments = Attachments(request, progress, include_canvas=not single_trace)
     engine.attachments = attachments
     messages.append(attachments.user_message(prompt))
-    request_tools = TOOLS + [PDF_TOOL]
+    request_tools = drawing_tool_catalog(attachments)
+    if single_trace:
+        messages[0]['content'] += f"\n本轮目标为附件{upload}的单一结构。先读取整幅原图的 OCSR 候选 (regions=[[0,0,1,1]], stage=false)，与用户原图比对。对于配合物，用 trace_coordination_structure 提交修正后的键表。复核供体方向、环闭合和取代基缩写。"
     cycle_request = bool(re.search(r'催化循环|催化.{0,12}循环|机理循环|catalytic cycles?', prompt, re.I) and re.search(r'画|绘|生成|draw|create',prompt,re.I) and not re.search(r'如何|怎么|how to',prompt,re.I))
     cycle_retry = False
     if cycle_request:
@@ -1209,6 +1442,31 @@ def run(request, progress=lambda message: None):
     for turn in range(1024):
         progress("AI 正在规划绘图…" if turn == 0 else "AI 正在检查工具结果…")
         payload = {"model": model, "messages": messages, "tools": request_tools, "tool_choice": "auto", "max_tokens": 4096, "stream": False}
+        if single_trace and turn == 0 and 'recognize_regions' in offered:
+            args = {"attachment":upload, "regions":[[0,0,1,1]], "stage":False}
+            try:
+                candidate = engine.call("recognize_regions",args)
+            except (ValueError, OSError) as exc:
+                candidate = {"error":str(exc)[:500]}
+            messages.append({"role":"user","content":"本地整图识别候选（需对照原图核对；candidate_atoms 的 element 是原子序数）："+json.dumps(candidate,ensure_ascii=False)})
+            region = next(iter(candidate.get("regions",[])), {})
+            layout_draft = region.get("preview_topology_only", False)
+            if ((layout_draft or any(int(atom["element"]) in COORDINATION_METALS for atom in region.get("candidate_atoms",[])))
+                    and all(not display and order in ("1","2","3","dative") for _,_,order,display in region["candidate_bonds"])):
+                from chemistry_open import Chem
+                from ai_attachments import structure_label_evidence
+                labels = structure_label_evidence(attachments.sources[upload-1]["path"])
+                engine.printed_labels = labels
+                progress(f"已读取参考图，识别到 {region['atoms']} 个结构节点、{region['bonds']} 条键，正在核对配合物…")
+                payload["messages"] = [
+                    {"role":"system","content":"核对单一配合物的 OCSR 结果。重点看原图的金属、配位箭头、供体形式电荷、显式碳、孤对和缩写；原子序数是十进制数。普通键以原图实际线条为准，保留已识别的双键位置，禁止自行重排共振式。将配位单键改为 dative 时，逐一核对供体是否真的印有正号。文字 OCR 的末尾句点属于噪声，取代基只用图上可见的字母。不要推测不可见信息。"},
+                    {"role":"user","content":[{"type":"text","text":prompt+" 独立文字识别（须核对）："+json.dumps(labels,ensure_ascii=False)+" 候选节点按顺序从1编号："+json.dumps({"atoms":[[i,a["label"] or Chem.GetPeriodicTable().GetElementSymbol(int(a["element"])),a["charge"],a["xy"]] for i,a in enumerate(region["candidate_atoms"],1)],"bonds":[b[:3] for b in region["candidate_bonds"]]},ensure_ascii=False,separators=(",",":"))}] +
+                        attachments.read_pages({"attachment":upload,"pages":[1]})[1]}]
+                schema = next(t["function"] for t in request_tools if t["function"]["name"]=="correct_coordination_candidate")
+                payload["messages"][0]["content"] += " 以单个 JSON 对象返回工具参数，不输出解释。"+schema["description"]+' 示例格式 {"atom_edits":[],"bond_edits":[]}。如果无法判读请返回 {"uncertain":"原因"}。'
+                payload["response_format"] = {"type":"json_object"}
+                payload.pop("tools")
+                payload.pop("tool_choice")
         if copy_scheme and turn == 0 and any(t["function"]["name"]=="recognize_regions" for t in request_tools):
             payload["tool_choice"] = {"type":"function","function":{"name":"recognize_regions"}}
         if urllib.parse.urlsplit(endpoint).hostname == "api.deepseek.com":
@@ -1219,10 +1477,24 @@ def run(request, progress=lambda message: None):
                                        or (endpoint == "https://api.commandcode.ai/provider/v1" and model == "deepseek/deepseek-v4.1-flash"))
         if long_scheme:
             payload["max_tokens"] = 32768
-        if long_scheme or payload.get("thinking",{}).get("type")=="enabled":
+        if single_trace:
+            payload["max_tokens"] = 16384
+            if endpoint == "https://api.commandcode.ai/provider/v1" and model.startswith("deepseek/"):
+                payload["thinking"] = {"type":"disabled"}
+                payload["reasoning_effort"] = "low"
+            if turn == 0 and "tools" not in payload:
+                reviewed, tokens, reply = review_coordination(engine,payload,endpoint,key,progress)
+                usage += tokens
+                if layout_draft and reviewed:
+                    reply += " ⚠ 需要人工复核：已采用原图识别坐标，请核对中心元素、电荷和连接关系。"
+                if not reviewed or layout_draft:
+                    result.set("partial","true")
+                return finish(reply)
+            response = request_json(endpoint + "/chat/completions", payload, key, timeout=REFERENCE_REQUEST_TIMEOUT_SECONDS)
+        elif long_scheme or payload.get("thinking",{}).get("type")=="enabled":
             response = request_json(endpoint + "/chat/completions", payload, key, timeout=300 if long_scheme else 120)
         else:
-            response = request_json(endpoint + "/chat/completions", payload, key)
+            response = request_json(endpoint + "/chat/completions", payload, key, timeout=DRAW_REQUEST_TIMEOUT_SECONDS)
         if not isinstance(response, dict):
             raise ValueError("AI 服务返回了无效的响应格式，请重试或检查模型接口")
         usage_data = response.get("usage")
@@ -1235,6 +1507,12 @@ def run(request, progress=lambda message: None):
         message = choices[0]["message"]
         calls = message.get("tool_calls") or []
         if not calls:
+            if single_trace and not engine.actions:
+                result.set("partial","true")
+                if getattr(engine, "coordination_candidate", None):
+                    engine.call("correct_coordination_candidate", {"atom_edits": [], "bond_edits": []})
+                    return finish("⚠ 需要人工复核：模型没有提交修订。已绘入本地识别的可编辑候选，请对照原图核对。")
+                return finish("本轮未绘入结构。"+(message.get("content") or "模型没有提交可编辑的原子和键。")[:1200])
             if cycle_request and not any(action.tag=='catalytic_cycle' for action in engine.actions):
                 if not cycle_retry:
                     cycle_retry=True
@@ -1254,7 +1532,14 @@ def run(request, progress=lambda message: None):
                         continue
                     result.set('partial','true')
                     message={**message,'content':'未生成含结构和反应箭头的完整反应式。'}
-            reply = (message.get("content") or "本轮未生成绘图动作。")[:12000]
+            reply = (message.get("content") or "").strip()[:12000]
+            if not reply:
+                if engine.actions:
+                    reply = f"本轮已提交 {len(engine.actions)} 个绘图动作。"
+                else:
+                    result.set("partial", "true")
+                    reply = "模型结束了本轮回复，但没有返回说明，也没有提交可编辑的绘图动作。"
+
             feedback = missing_arrow_feedback(engine) if arrow_request else ""
             if whole_scheme and feedback:
                 feedback = "当前没有完整可提交的机理。请根据题面用 draw_scheme 一次提交；若工具已有失败草稿，请用 revise_scheme_plan 修正所报步骤。"
@@ -1293,6 +1578,10 @@ def run(request, progress=lambda message: None):
                     if whole_scheme and name == "recognize_regions":
                         args = {**args, "stage": False}
                     value = arrow_tool_result(engine, name, engine.call(name, args))
+                    if single_trace and name == "correct_coordination_candidate" and len(calls)==1:
+                        return finish("已根据参考图绘制可编辑配合物，请核对配位键和取代基。")
+                    if single_trace and name == "trace_coordination_structure" and len(calls)==1:
+                        return finish(f"已按参考图绘制可编辑结构，包含 {len(args['atoms'])} 个节点和 {len(args['bonds'])} 条键。")
                     if whole_scheme and value.get("verified_target") and name in ("draw_scheme", "revise_scheme_plan"):
                         count = sum(len(row["electron_refs"]) for row in value["steps"])
                         return finish(f"已一次绘制 {len(value['steps'])} 步机理、{count} 支电子箭头，末步与提交的目标结构一致。")

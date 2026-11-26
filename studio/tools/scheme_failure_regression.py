@@ -28,8 +28,9 @@ class SchemeFailures(unittest.TestCase):
             engine.call('draw_smiles', {'smiles': PROBLEM, 'layout': layout})
             xml = engine.actions[0].text; root = ET.fromstring(xml)
             self.assertEqual(identity(one_molecule(xml, max_atoms=400)), identity(Chem.MolFromSmiles(PROBLEM)))
-            # Only the potentially stereogenic double is crossed, not the carbonyls.
-            self.assertEqual(len([b for b in root.iter('b') if b.get('Display') == 'Wavy']), 1)
+            # The AI drawing uses a plain double and records the unspecified stereo explicitly.
+            self.assertEqual(len(root.findall('.//b[@Order="2"][@MoleculeStudioUnspecifiedEZ="yes"]')), 1)
+            self.assertFalse(root.findall('.//b[@Display="Wavy"]'))
 
     def test_explicit_ez_and_tetrahedral_stereo_are_retained(self):
         for smiles in ('F/C=C/F', 'F/C=C\\F', 'C[C@H](O)/C=C/C', 'C[C@@H](O)/C=C\\C'):

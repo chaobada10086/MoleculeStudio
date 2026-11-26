@@ -175,6 +175,49 @@ def service_session(base):
         stderr.close()
 
 
+def tidy_benzene_rings(root):
+    """Fit isolated benzene hexagons to their observed positions in the drawing."""
+    from rdkit import Chem
+    for fragment in root.iter("fragment"):
+        nodes = fragment.findall("n")
+        index = {node.get("id"): i for i,node in enumerate(nodes)}
+        graph = Chem.RWMol()
+        for _ in nodes:
+            graph.AddAtom(Chem.Atom(6))
+        edges = {}
+        for bond in fragment.findall("b"):
+            a,b = index.get(bond.get("B")),index.get(bond.get("E"))
+            if a is None or b is None or a==b or graph.GetBondBetweenAtoms(a,b):
+                continue
+            graph.AddBond(a,b,Chem.BondType.SINGLE)
+            edges[frozenset((a,b))] = bond
+        rings = Chem.GetSymmSSSR(graph)
+        info = graph.GetRingInfo()
+        for ring in rings:
+            ids = list(ring)
+            if len(ids)!=6 or any(info.NumAtomRings(i)!=1 for i in ids):
+                continue
+            if any(nodes[i].get("Element","6")!="6" or nodes[i].get("NodeType","Element")!="Element" for i in ids):
+                continue
+            bonds = [edges[frozenset((i,ids[j-1]))] for j,i in enumerate(ids)]
+            orders = [b.get("Order","1") for b in bonds]
+            if orders not in (["1","2"]*3,["2","1"]*3,["1.5"]*6) or any(b.get("Display") for b in bonds):
+                continue
+            points = [complex(*map(float,nodes[i].get("p","0 0").split())) for i in ids]
+            center = sum(points)/6
+            area = sum(((p-center).conjugate()*(points[(j+1)%6]-center)).imag for j,p in enumerate(points))
+            turn = math.copysign(math.pi/3,area)
+            unit = [complex(math.cos(j*turn),math.sin(j*turn)) for j in range(6)]
+            fit = sum((p-center)*u.conjugate() for p,u in zip(points,unit))/6
+            if abs(fit)<1e-6 or any(abs(p-center-fit*u)>.35*abs(fit) for p,u in zip(points,unit)):
+                continue
+            angle = round(math.atan2(fit.imag,fit.real)/(math.pi/12))*math.pi/12
+            axis = abs(fit)*complex(math.cos(angle),math.sin(angle))
+            for i,u in zip(ids,unit):
+                pos = center+axis*u
+                nodes[i].set("p",f"{pos.real:.8f} {pos.imag:.8f}")
+
+
 def _load_cdxml(result, records):
     path = Path(result.get('cdxml') or '')
     try:
@@ -187,6 +230,7 @@ def _load_cdxml(result, records):
     atoms = list(root.iter('n'))
     if root.tag != 'CDXML' or not 1 <= len(atoms) <= 400:
         raise ValueError('识别结构为空或超过 400 原子')
+    tidy_benzene_rings(root)
     return root, atoms
 
 
@@ -238,12 +282,12 @@ def _detect(request, source, page, min_score=0.35, max_regions=120):
     return _parse_detect(response)
 
 
-def _recognize(request, source, page, crop, rendered):
+def _recognize(request, source, page, crop, rendered, preview=False):
     width, height = int(rendered.get('width')), int(rendered.get('height'))
     x, y, w, h = crop
     return request({'op': 'recognize', 'page_image': rendered.get('image'),
                     'crop_x': str(round(x * width)), 'crop_y': str(round(y * height)),
-                    'crop_w': str(round(w * width)), 'crop_h': str(round(h * height)),
+                    'preview': '1' if preview else '0', 'crop_w': str(round(w * width)), 'crop_h': str(round(h * height)),
                     'source_kind': source['kind'], 'source_path': str(source['path']),
                     'page': str(page), 'dpi': '300', 'vector': '1', 'target_dpi': '600'})
 
@@ -303,6 +347,7 @@ def detect_regions(engine, attachments, args, base):
 
 
 def recognize_regions(engine, attachments, args, base, number, style):
+    engine.coordination_candidate = None
     source_id, source, page = _resolve_source(attachments, args)
     records = base / 'recognition_records'
     explicit = args.get('regions')
@@ -348,7 +393,7 @@ def recognize_regions(engine, attachments, args, base, number, style):
         engine.progress('正在批量识别 ' + str(len(regions)) + ' 个结构（模型只加载一次）…')
         for index, crop in enumerate(regions, 1):
             try:
-                response = _recognize(request, source, page, crop, rendered)
+                response = _recognize(request, source, page, crop, rendered, preview=not stage)
                 root, atoms = _load_cdxml(response, records)
                 region_warnings = [n.text for n in response.findall('warning') if n.text]
                 # Derive the reusable structure from the checked native drawing.
@@ -359,13 +404,24 @@ def recognize_regions(engine, attachments, args, base, number, style):
                         spec = 'smiles:' + identity(one_molecule(ET.tostring(root,encoding='unicode'),max_atoms=400))
                     except (ValueError, RuntimeError) as exc:
                         region_warnings.append('候选结构不能直接用作反应物：'+str(exc)[:120])
+                graph = {}
+                if not stage and len(atoms) <= 150 and len(regions) <= 4:
+                    nodes = list(root.iter('n'))
+                    indices = {n.get('id'): i for i, n in enumerate(nodes, 1)}
+                    graph = {'candidate_atoms': [
+                        {'element': n.get('Element','6'), 'xy': n.get('p'),
+                         'label': ''.join(n.itertext()).strip(), 'charge': n.get('Charge','0')}
+                        for n in nodes],
+                        'candidate_bonds': [[indices[b.get('B')], indices[b.get('E')], b.get('Order','1'), b.get('Display','')]
+                                            for b in root.iter('b')]}
                 results.append({
-                    'spec': spec,
+                    **graph, 'spec': spec,
                     'index': index,
                     'crop': [round(v, 6) for v in crop],
                     'confidence': response.get('confidence') or '',
                     'atoms': len(atoms),
                     'bonds': len(list(root.iter('b'))),
+                    'preview_topology_only': response.get('preview_topology_only') == '1',
                     'stereo_status': response.get('stereo_status') or '',
                     'insertable': response.get('insertable') == '1',
                     'warnings': region_warnings,
@@ -398,6 +454,8 @@ def recognize_regions(engine, attachments, args, base, number, style):
         except Exception:
             engine.scene, engine.created_count, engine.molecules, engine.actions = snapshot
             raise
+    if not stage and len(results) == 1 and results[0].get('candidate_atoms'):
+        engine.coordination_candidate = ET.tostring(results[0]['_root'], encoding='unicode')
     for item in results:
         item.pop('_root', None)
     output = {

@@ -475,6 +475,8 @@ Error Session::buildScene(){
             }
         }
         if(mechanism::hasPrintedLonePair(doc,atom.id))continue;
+        if(auto ink=static_cast<const Document&>(doc).extensions(ref).findValue("pst.attr.MoleculeStudioLonePairColor"))
+            color=uint32_t(std::strtoull(ink->c_str(),nullptr,10));
         for(int pair=0;pair<mechanism::lonePairCount(doc,atom.id);++pair){double radius=mechanism::lonePairDotRadius(radicalEm);
             const auto label=atomLabels.find(atom.id);
             const auto* layout=label==atomLabels.end()?nullptr:&label->second.layout;

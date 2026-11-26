@@ -1,6 +1,61 @@
 #pragma once
 void App::aiCheck(const std::string& dir){
     auto require=[&](bool value,const char* why){std::ofstream(dir+"/ai-check-progress.txt",std::ios::app)<<why<<": "<<(value?"pass":"FAIL")<<"\n";if(!value)throw std::runtime_error(why);};
+    if(GetFileAttributesW(W(dir+"/dative-input.cdxml").c_str())!=INVALID_FILE_ATTRIBUTES){
+        require(s.open(dir+"/dative-input.cdxml").ok(),"open coordination fixture");
+        std::vector<ObjectId> links;
+        for(const auto& b:s.doc.bonds().records())if(b.isAlive()){
+            int a=s.doc.atoms().alive(b.beginAtom)->element,e=s.doc.atoms().alive(b.endAtom)->element;
+            if((a==7&&e==21)||(a==21&&e==7))links.push_back(b.id);
+        }
+        require(links.size()==4,"four nitrogen ligands");
+        const auto original=s.doc.digest();
+        require(s.submit(bonds::applyBondPresetCommand(links,"chooseMultipleBondsTool_DativeBond"),"replace bond").ok(),"apply palette preset");
+        for(auto id:links){
+            const auto& b=*s.doc.bonds().alive(id);
+            require(b.semantics==BondSemantics::Dative && s.doc.atoms().alive(b.endAtom)->element==21,"arrow points at Sc");
+        }
+        require(s.undo().ok() && s.doc.digest()==original,"undo restores original bonds");
+        require(s.undo(true).ok() && s.save(dir+"/dative-result.cdxml",true).ok(),"redo and save");
+        const auto id=links.front();
+        const auto& bond=*s.doc.bonds().alive(id);
+        const Vec2 middle=(s.doc.atoms().alive(bond.beginAtom)->position+s.doc.atoms().alive(bond.endAtom)->position)*0.5;
+        require(s.activateCommand("chooseBondTool_Solid"),"activate single bond tool");
+        auto click=[&](){return s.gesture(PointerPhase::Down,middle).ok() && s.gesture(PointerPhase::Up,middle).ok();};
+        require(click() && s.doc.bonds().alive(id)->semantics==BondSemantics::Normal &&
+                s.doc.bonds().alive(id)->order==BondOrder::Single,"first click replaces dative with plain single");
+        require(s.save(dir+"/single-result.cdxml",true).ok(),"save converted single bond");
+        require(click() && s.doc.bonds().alive(id)->order==BondOrder::Double,"second click advances ordinary single");
+        require(s.undo().ok() && s.undo().ok() && s.doc.bonds().alive(id)->semantics==BondSemantics::Dative,
+                "two undos restore coordination arrow");
+        s.dirty=false;PostQuitMessage(0);return;
+    }
+    auto reference = W(dir+"/coordination.png");
+    if(aiLiveChecking && GetFileAttributesW(reference.c_str())!=INVALID_FILE_ATTRIBUTES){
+        ai.storageOverride=W(dir+"/settings");
+        showAI("");
+        ai.imagePath=reference;
+        ai.imageMime="image/png";
+        ai.imageName="剪贴板图片";
+        CheckDlgButton(ai.hwnd,719,BST_CHECKED);
+        ai.start(false);
+        require(ai.process!=0 && ai.pendingPrompt=="绘制这个结构","image-only request launched with default instruction");
+        require(!ai.chat.messages.empty() && ai.chat.messages.back().preview,"sent message has a thumbnail");
+        require(ai.chat.messages.back().preview->GetHeight()<=180,"thumbnail size bounded");
+        require(ai.timingDrawing && !ai.get(729).empty(),"elapsed time visible at drawing start");
+        while(ai.process){
+            MSG msg;
+            while(PeekMessageW(&msg,0,0,0,PM_REMOVE)){TranslateMessage(&msg);DispatchMessageW(&msg);}
+            ai.poll();MsgWaitForMultipleObjects(0,0,FALSE,25,QS_ALLINPUT);
+        }
+        require(!ai.timingDrawing && ai.displayedSeconds>0 && !ai.get(729).empty(),"elapsed time advanced and stopped after apply");
+        chemservice::write(W(dir+"/transcript.txt"),ai.get(710)+"\r\n"+ai.get(729));
+        require(s.doc.stats().aliveAtoms>0,"editable structure applied");
+        require(s.save(dir+"/coordination-result.cdxml",true).ok(),"save coordination drawing");
+        ai.clearImage();
+        require(std::any_of(ai.chat.messages.begin(),ai.chat.messages.end(),[](const ChatTranscript::Message& m){return bool(m.preview);}),"thumbnail survives attachment clearing");
+        s.dirty=false;PostQuitMessage(0);return;
+    }
     if(GetFileAttributesW(W(dir+"/mechanism-plan.xml").c_str())!=INVALID_FILE_ATTRIBUTES){
         s.dirty=false;execute(Button("","新建","","@new"));s.selected.clear();
         ObjectId carbon,bromine,bond;

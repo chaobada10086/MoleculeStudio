@@ -4,7 +4,7 @@
 // full-size 32bpp GDI+ surface, re-measure and re-rasterise every message and then alpha-blend
 // the whole viewport on each WM_PAINT, so a window move/uncover/resize cost hundreds of ms.
 struct ChatTranscript {
-    struct Message {std::wstring role,text;bool localizable=false;};
+    struct Message {std::wstring role,text;bool localizable=false;std::shared_ptr<Bitmap> preview;};
     struct Item {RectF bounds,body;size_t index;};
     HWND hwnd=nullptr;float scale=1;int selected=-1;int scroll=0,total=0;std::vector<Message> messages;std::vector<Item> items;
     HDC mem=nullptr;HBITMAP dib=nullptr;HGDIOBJ old=nullptr;int cacheW=0,cacheH=0,cacheScroll=-1;float cacheScale=0;bool cacheValid=false;
@@ -22,12 +22,24 @@ struct ChatTranscript {
         old=SelectObject(mem,dib);cacheW=w;cacheH=h;
     }
     void clear(){messages.clear();scroll=0;reflow(true);}
-    void append(const std::string& raw){
+    void append(const std::string& raw,const std::wstring& image=L""){
         std::string body=raw;std::wstring role=L"状态";
         if(body.compare(0,strlen("你："),"你：")==0){role=L"你";body.erase(0,strlen("你："));}
         else if(body.compare(0,strlen("AI："),"AI：")==0){role=L"AI 助手";body.erase(0,strlen("AI："));}
         else if(messages.empty())role=L"AI 助手";
-        Message next;next.role=role;next.text=W(body);next.localizable=raw.compare(0,strlen("你："),"你：")!=0&&raw.compare(0,strlen("AI："),"AI：")!=0;messages.push_back(next);if(selected>=int(messages.size()))selected=-1;if(messages.size()>300)messages.erase(messages.begin());reflow(true);
+        Message next;
+        if(!image.empty()){
+            Bitmap source(image.c_str());
+            if(source.GetLastStatus()==Ok && source.GetWidth() && source.GetHeight()){
+                float ratio=std::min(1.f,180.f/std::max(source.GetWidth(),source.GetHeight()));
+                auto thumbnail=std::make_shared<Bitmap>(std::max(1,int(source.GetWidth()*ratio)),std::max(1,int(source.GetHeight()*ratio)),PixelFormat32bppARGB);
+                Graphics graphics(thumbnail.get());
+                graphics.SetInterpolationMode(InterpolationModeHighQualityBicubic);
+                if(graphics.DrawImage(&source,0,0,int(thumbnail->GetWidth()),int(thumbnail->GetHeight()))==Ok)next.preview=thumbnail;
+            }
+        }
+        layoutWidth=-1;
+        next.role=role;next.text=W(body);next.localizable=raw.compare(0,strlen("你："),"你：")!=0&&raw.compare(0,strlen("AI："),"AI：")!=0;messages.push_back(next);if(selected>=int(messages.size()))selected=-1;if(messages.size()>300)messages.erase(messages.begin());reflow(true);
     }
     // Measure once per (width, scale, message count); scrolling and pure height changes reuse it.
     void measure(){
@@ -37,7 +49,8 @@ struct ChatTranscript {
             const auto& message=messages[i];auto shown=message.localizable?studio_i18n::tr(message.text):message.text;bool user=message.role==L"你";float bubble=std::max(110.f,width-44),textWidth=bubble-24;
             RectF measured;g.MeasureString(shown.c_str(),int(shown.size()),&font,RectF(0,0,textWidth,1000000),&format,&measured);
             float height=std::max(20.f,measured.Height)+46;float x=user?width-12-bubble:12;
-            items.push_back({RectF(x,y,bubble,height),RectF(x+12,y+31,textWidth,height-40),i});y+=height+12;
+            float previewHeight=message.preview?std::min(1.f,textWidth/message.preview->GetWidth())*message.preview->GetHeight()+8:0;
+            items.push_back({RectF(x,y,bubble,height+previewHeight),RectF(x+12,y+31,textWidth,height-40),i});y+=height+previewHeight+12;
         }
         total=int((y+4)*scale);layoutWidth=r.right;layoutCount=messages.size();layoutScale=scale;
     }
@@ -59,6 +72,10 @@ struct ChatTranscript {
             bool chosen=int(item.index)==selected;studio_ui::round(g,item.bounds,10,chosen?Color(255,224,244,240):user?Color(255,220,239,234):status?Color(255,235,240,242):Color(255,255,255,255));
             studio_ui::label(g,message.role,RectF(item.bounds.X+12,item.bounds.Y+5,item.bounds.Width-24,23),11,user?studio_ui::accent():studio_ui::muted(),true);
             auto shown=message.localizable?studio_i18n::tr(message.text):message.text;SolidBrush text(status?studio_ui::muted():studio_ui::ink());g.DrawString(shown.c_str(),int(shown.size()),&font,item.body,&format,&text);
+            if(message.preview){
+                float ratio=std::min(1.f,item.body.Width/message.preview->GetWidth());
+                g.DrawImage(message.preview.get(),RectF(item.body.X,item.body.GetBottom()+4,message.preview->GetWidth()*ratio,message.preview->GetHeight()*ratio));
+            }
         }}
         GdiFlush();cacheScroll=scroll;cacheScale=scale;cacheValid=true;
     }

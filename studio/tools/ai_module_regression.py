@@ -15,6 +15,43 @@ from ai_attachments import Attachments
 from ai_ocsr_bridge import _resolve_source
 
 
+class ReferenceRouting(unittest.TestCase):
+    def test_imine_donors_point_into_scandium(self):
+        root = ET.fromstring('<fragment><n id="m" Element="21"/><n id="n" Element="7"/>'
+            '<n id="c1"/><n id="c2"/><n id="o" Element="8"/><n id="n2" Element="7"/>'
+            '<b B="m" E="n"/><b B="n" E="c1" Order="2"/><b B="c2" E="n"/>'
+            '<b B="m" E="o" Order="dative"/><b B="m" E="n2" Order="1"/></fragment>')
+        ai.orient_coordination_bonds(root)
+        self.assertEqual([(b.get("B"), b.get("E")) for b in root.findall('b[@Order="dative"]')],
+                         [("n","m"), ("o","m")])
+        self.assertEqual(root.findall("b")[-1].get("Order"), "1")
+
+    def test_layout_draft_requires_same_indexed_graph(self):
+        from ocsr_service import map_molfile_to_model
+        atoms = [{"atom_symbol": symbol, "x": 0.1*i, "y": 0.5} for i, symbol in enumerate(("C","N"))]
+        parsed = {"atoms": [{"element": n, "x": 20, "y": 30} for n in (6,7)],
+                  "bonds": [{"begin": 0, "end": 1, "order": 1}]}
+        bonds = [{"endpoint_atoms": [0,1], "bond_type": "single"}]
+        args = (parsed, atoms, bonds, (100,100))
+        with self.assertRaises(ValueError):
+            map_molfile_to_model(*args)
+        self.assertTrue(map_molfile_to_model(*args, preview=True)["preview_topology_only"])
+        bonds[0]["bond_type"] = "double"
+        with self.assertRaises(ValueError):
+            map_molfile_to_model(*args, preview=True)
+
+    def test_conversational_image_requests(self):
+        request = ET.fromstring('<request><image kind="canvas"/><image path="sc.png"/></request>')
+        for prompt in ("把这个也画出来", "这张图也画一下吧", "请帮我画一下", "画出这个结构", "绘制这个结构"):
+            with self.subTest(prompt=prompt):
+                self.assertEqual(ai.single_structure_upload(request, prompt), 2)
+        for prompt in ("为什么没有生成绘图", "别把这个画出来", "画出反应式", "把这个也画出来并标出机理"):
+            with self.subTest(prompt=prompt):
+                self.assertIsNone(ai.single_structure_upload(request, prompt))
+        ET.SubElement(request, "image", path="second.png")
+        self.assertIsNone(ai.single_structure_upload(request, "把这个也画出来"))
+
+
 class BaseTools(unittest.TestCase):
     def setUp(self):
         self.engine = ai.DrawingTools({'selected': 0, 'bond_length': 14.4, 'font': 'Arial'})
@@ -24,6 +61,43 @@ class BaseTools(unittest.TestCase):
         serialized = lambda value: ([ET.tostring(n) for n in value[0]], value[1:])
         with self.assertRaises(ValueError): self.engine.call(name, args)
         self.assertEqual(serialized(before), serialized((self.engine.actions, self.engine.scene, self.engine.context)))
+
+    def test_single_coordination_review_and_editable_fallback(self):
+        self.engine.coordination_candidate = (
+            '<CDXML><page><fragment><n id="10" p="0 0" Element="7"/>'
+            '<n id="12" p="30 0" Element="50"/><b id="20" B="10" E="12" Order="1"/>'
+            '</fragment></page></CDXML>')
+        def response(content):
+            return {"choices":[{"message":{"content":content}}]}
+        for replies, expected, count, order in (
+            ([response('{"atom_edits":[],"bond_edits":["1 2 dative"]}')],True,1,"dative"),
+            ([response("")],False,1,"1"),
+            ([response('{"uncertain":"键型"}')],False,1,"1"),
+            ([response('{"atom_edits":[],"bond_edits":["1 99 1"]}')],False,1,"1"),
+            ([ValueError("timeout")],False,1,"1")):
+            with self.subTest(expected=expected,count=count), patch.object(ai,"request_json",side_effect=replies) as api:
+                progress=[]
+                before=len(self.engine.actions)
+                reviewed,_,message=ai.review_coordination(self.engine,{"messages":[]},"endpoint","key",progress.append)
+                self.assertEqual((reviewed,api.call_count,len(self.engine.actions)-before),(expected,count,1))
+                self.assertEqual(len(progress),1)
+                self.assertFalse(api.call_args.kwargs["retry"])
+                if not reviewed:
+                    self.assertIn("需要人工复核",message)
+                self.assertEqual(ET.fromstring(self.engine.actions[-1].text).find(".//b").get("Order"),order)
+
+    def test_coordination_edits_preserve_atom_ids_and_bond_direction(self):
+        self.engine.coordination_candidate = (
+            '<CDXML><page><fragment><n id="10" p="10 0" Element="50"/>'
+            '<n id="15" p="40 0" Element="7" Charge="1" NumHydrogens="0"/>'
+            '<b id="20" B="10" E="15" Order="1"/></fragment></page></CDXML>')
+        self.unchanged_on_error("correct_coordination_candidate", {"atom_edits":[], "bond_edits":["3 1 dative"]})
+        self.engine.call("correct_coordination_candidate",
+                         {"atom_edits":["2 N 0 0","1 Sn 0 1"], "bond_edits":["2 1 dative"]})
+        root = ET.fromstring(self.engine.actions[0].text)
+        self.assertEqual(root.find(".//b").attrib, {"id":"20","B":"15","E":"10","Order":"dative"})
+        self.assertEqual(root.find('.//n[@id="15"]').get("NumHydrogens"), "0")
+        self.assertEqual(root.find('.//n[@id="10"]').get("MoleculeStudioLonePairs"), "1")
 
     def test_page_updates_keep_previous_values(self):
         self.engine.call('set_page_layout', {'width_mm': 300, 'height_mm': 400, 'across': 2})
@@ -94,6 +168,22 @@ def blank_pdf(path):
     path.write_bytes(data)
 
 
+class ReferenceInk(unittest.TestCase):
+    def test_local_ink_colors_do_not_spread_across_bonds(self):
+        from PIL import Image, ImageDraw
+        from ocsr_service import capture_structure_colors
+        image = Image.new("RGB",(100,40),"white")
+        draw = ImageDraw.Draw(image)
+        draw.line((10,20,90,20),fill="black",width=2)
+        draw.rectangle((8,17,13,23),fill="#008000")
+        draw.rectangle((88,17,92,23),fill="#0000FF")
+        graph = {"atoms":[{"x_px":x,"y_px":20} for x in (10,50,90)],
+                 "bonds":[{"begin":i,"end":i+1,"length_px":40} for i in (0,1)]}
+        capture_structure_colors(graph,image)
+        self.assertEqual([a.get("ink_rgb") for a in graph["atoms"]],[(0,128,0),None,(0,0,255)])
+        self.assertTrue(all("ink_rgb" not in b for b in graph["bonds"]))
+
+
 class AttachmentNumbers(unittest.TestCase):
     def test_mixed_image_pdf_numbers_and_page_bounds(self):
         from PIL import Image
@@ -105,13 +195,31 @@ class AttachmentNumbers(unittest.TestCase):
             attachments = Attachments(request)
             result, blocks = attachments.read_pages({'attachment': 2, 'pages': [1]})
             self.assertEqual(result['attachment'], 2); self.assertTrue(blocks)
-            with self.assertRaises(ValueError): attachments.read_pages({'attachment': 1, 'pages': [1]})
+            image_page, blocks = attachments.read_pages({'attachment': 1, 'pages': [1]})
+            self.assertEqual(image_page['attachment'], 1)
+            self.assertEqual(blocks[-1]['type'], 'image_url')
+            with self.assertRaises(ValueError): attachments.read_pages({'attachment': 1, 'pages': [2]})
             self.assertEqual(_resolve_source(attachments, {'attachment': 2, 'page': 1})[0], 2)
             with self.assertRaises(ValueError): _resolve_source(attachments, {'attachment': 2, 'page': 2})
 
 
 class AdvancedExecution(unittest.TestCase):
     def engine(self): return ai.DrawingTools({'selected': 0, 'bond_length': 14.4})
+
+    def test_advanced_can_delegate_original_task_before_drawing(self):
+        request = ET.fromstring('<request advanced="1"><key>offline</key><model>offline</model><prompt>在左边写字</prompt></request>')
+        response = {"choices":[{"message":{"role":"assistant","tool_calls":[{"id":"a","function":{"name":"add_text","arguments":json.dumps({"x":0,"y":0,"text":"左"})}}]}}]}
+        with patch('ai_dsh.available',return_value=True), patch('ai_dsh.run_task',return_value='{"plan":[],"workflow":"basic"}') as planner, patch.object(ai,'request_json',side_effect=[response,{"choices":[{"message":{"content":"完成"}}]}]):
+            result = ai.run(request)
+        self.assertEqual(planner.call_count,1)
+        self.assertEqual([action.tag for action in result.find("actions")],["add_text"])
+
+    def test_image_only_advanced_uses_reference_workflow(self):
+        request = ET.fromstring('<request advanced="1"><key>offline</key><image kind="upload" path="sample.png"/><image kind="canvas" path="canvas.png"/></request>')
+        with patch.object(ai,"run_basic",return_value="shared") as basic, patch("ai_dsh.run_task",side_effect=AssertionError):
+            self.assertEqual(ai.run(request),"shared")
+        self.assertIs(basic.call_args.args[0],request)
+        self.assertEqual(request.findtext("prompt"),"绘制这个结构")
 
     def test_failures_cannot_report_success_without_actions(self):
         engine = self.engine()

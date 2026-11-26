@@ -91,7 +91,7 @@ std::string App::applyAI(const std::string& bytes){
     const Vec2 planOrigin=actions->FirstChildElement("catalytic_cycle")&&actions->FirstChildElement("page")&&s.all().empty()?Vec2(originalPage.x+24,originalPage.y+24):aiOrigin;
     if(s.doc.id()!=aiDocument||s.serial!=aiSerial)throw std::runtime_error("等待期间文档已更改，本轮绘图未应用。请按当前文档重新发送。");
     struct CycleBranch {int edge;std::string role,label,partnerRef;Vec2 pos;};
-    struct Operation {std::map<int,CatalyticMetal> metals;std::vector<CycleBranch> branches;std::string kind,style,text,handle,font,sourceRef,targetRef;int arrowStyle=0;bool keepLossStructures=false,circled=false,clockwise=true;double radiusX=85,radiusY=65;aiobjects::Selector selector;std::vector<Vec2> points;std::vector<uint8_t> kinds;Vec2 from,to;double angle=0,factor=1,gap=30,bend=.35,head=3.2;bool route=true,fishhook=false;bool closed=false,filled=false,bold=false,italic=false,hasBold=false,hasItalic=false,hasText=false;uint32_t fill=0;double width=0,size=10;uint32_t color=0;bool setWidth=false,setColor=false;std::shared_ptr<Session> molecule;double pageWidth=0,pageHeight=0;int pageAcross=1,pageDown=1;};std::vector<Operation> plan;
+    struct Operation {std::map<int,CatalyticMetal> metals;std::vector<CycleBranch> branches;std::string kind,style,text,handle,font,sourceRef,targetRef;int arrowStyle=0;bool keepLossStructures=false,circled=false,clockwise=true;bool sourcePalette=false;double radiusX=85,radiusY=65;aiobjects::Selector selector;std::vector<Vec2> points;std::vector<uint8_t> kinds;Vec2 from,to;double angle=0,factor=1,gap=30,bend=.35,head=3.2;bool route=true,fishhook=false;bool closed=false,filled=false,bold=false,italic=false,hasBold=false,hasItalic=false,hasText=false;uint32_t fill=0;double width=0,size=10;uint32_t color=0;bool setWidth=false,setColor=false;std::shared_ptr<Session> molecule;double pageWidth=0,pageHeight=0;int pageAcross=1,pageDown=1;};std::vector<Operation> plan;
     auto scalar=[](const tinyxml2::XMLElement* e,const char* key,double fallback,double low,double high){auto value=e->Attribute(key);if(!value)return fallback;char* end=0;double n=std::strtod(value,&end);if(end==value||!end||*end||!std::isfinite(n)||n<low||n>high){std::ostringstream error;error<<"AI 数值参数无效："<<e->Name()<<"."<<key<<"="<<value<<"（允许范围 "<<low<<" 至 "<<high<<"）";throw std::runtime_error(error.str());}return n;};
     for(auto e=actions->FirstChildElement();e;e=e->NextSiblingElement()){
         Operation p;p.kind=e->Name();p.selector=aiobjects::selector(e);if(auto handle=e->Attribute("handle"))p.handle=handle;if(p.handle.size()>50)throw std::runtime_error("AI 对象句柄过长");p.width=aiWidth;p.color=aiColor;p.setWidth=e->Attribute("width")!=nullptr;p.setColor=e->Attribute("color")!=nullptr;
@@ -102,7 +102,9 @@ std::string App::applyAI(const std::string& bytes){
         p.from=planOrigin+Vec2(scalar(e,"x",0,-200000,200000),scalar(e,"y",0,-200000,200000));p.to=planOrigin+Vec2(scalar(e,"x2",0,-200000,200000),scalar(e,"y2",0,-200000,200000));
         if(p.kind=="molecule"){
             p.molecule=std::make_shared<Session>();auto err=persistence::readCdxml(e->GetText()?e->GetText():"",p.molecule->doc);if(!err.ok())throw std::runtime_error("AI 结构导入失败："+err.message);
-            auto& d=p.molecule->doc;if(!d.atoms().size()||d.atoms().size()>400||d.texts().size()||d.arrows().size()||d.paths().size()||d.symbols().size()||d.bioShapes().size()||d.orbitals().size()||d.tables().size()||d.brackets().size())throw std::runtime_error("AI 分子数据含有不支持的对象或超过原子数上限");
+            auto& d=p.molecule->doc;
+            for(auto ref:p.molecule->all()){auto ink=static_cast<const Document&>(d).extensions(ref).findValue("studio.color");if(ink&&*ink!="255"){p.sourcePalette=true;break;}}
+            if(!d.atoms().size()||d.atoms().size()>400||d.texts().size()||d.arrows().size()||d.paths().size()||d.symbols().size()||d.bioShapes().size()||d.orbitals().size()||d.tables().size()||d.brackets().size())throw std::runtime_error("AI 分子数据含有不支持的对象或超过原子数上限");
             Box bounds;for(const auto& a:d.atoms().records())if(a.isAlive())bounds.add(a.position);Vec2 center=(bounds.min+bounds.max)*.5;double factor=s.doc.defaultBondLength()/std::max(.1,d.defaultBondLength());
             for(const auto& a:d.atoms().records())if(a.isAlive())d.setAtomPosition(a.id,p.from+(a.position-center)*factor);
         }else if(p.kind=="draw_shape"){
@@ -359,7 +361,13 @@ std::string App::applyAI(const std::string& bytes){
             else if(p.kind=="move_selection")e=r62::integration::translateDocumentObjects(c.document,selection,p.from);
             else if(p.kind=="style_selection"){for(auto ref:studioio::expanded(c.document,selection)){e=graphic_style::apply(c.document,ref,p.width,p.color,p.setWidth,p.setColor);if(!e.ok())break;}}
             if(!e.ok())return fail(e);
-            if(p.kind!="duplicate_objects"&&p.kind!="mechanism_step"&&p.kind!="mechanism_symbol"&&p.kind!="catalytic_cycle")for(auto ref:refs){e=graphic_style::apply(c.document,ref,p.width,p.color,p.width>0,true);if(!e.ok())return fail(e);}inserted->insert(inserted->end(),refs.begin(),refs.end());aiobjects::created(registry,p.handle,refs,p.molecule?&p.molecule->doc:nullptr);
+            if(p.kind!="duplicate_objects"&&p.kind!="mechanism_step"&&p.kind!="mechanism_symbol"&&p.kind!="catalytic_cycle")for(auto ref:refs){
+                uint32_t ink=p.color;
+                if(p.sourcePalette && !p.setColor){
+                    auto source=static_cast<const Document&>(c.document).extensions(ref).findValue("studio.color");
+                    if(source)ink=uint32_t(std::strtoull(source->c_str(),nullptr,10));
+                }
+                e=graphic_style::apply(c.document,ref,p.width,ink,p.width>0,true);if(!e.ok())return fail(e);}inserted->insert(inserted->end(),refs.begin(),refs.end());aiobjects::created(registry,p.handle,refs,p.molecule?&p.molecule->doc:nullptr);
         }
         // Centre only the objects this turn created. Edits/moves applied to the user's existing
         // selection stay exactly where the AI asked for them; the whole turn moves together so a

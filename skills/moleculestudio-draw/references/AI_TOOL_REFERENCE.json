@@ -2,8 +2,66 @@
   "application": "MoleculeStudio 0.95",
   "revision": "2026-11-18",
   "plugin_version": "1.9.0",
-  "count": 56,
+  "count": 58,
   "functions": [
+    {
+      "name": "correct_coordination_candidate",
+      "description": "依据用户原图核对当前 OCSR 候选并提交。只填需要修改的项目，编号从1开始。atom_edits 每项为 '编号 标签 电荷 孤对数'，显式碳写 [C]；bond_edits 每项为 '起点 终点 键级'，方向按供体到受体，键级 1/2/3/dative，删除写 remove。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "atom_edits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bond_edits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "atom_edits",
+          "bond_edits"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "trace_coordination_structure",
+      "description": "从已查看的配合物原图逐点描绘。当 OCSR 漏掉金属、缩写或配位箭头时按可见证据修正。atoms 逐项写 '符号 x y [形式电荷 [孤对数]]'，显式碳写 [C]。包括隐式碳顶点和缩写，每条 bonds 写 '起点编号 终点编号 键级'。编号从1开始，键级1/2/3/dative，配位键从供体指向受体。保持原图比例，普通键长约30。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "atoms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bonds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "atoms",
+          "bonds"
+        ],
+        "additionalProperties": false
+      }
+    },
     {
       "name": "lookup_compound",
       "description": "联网查询 PubChem 化合物结构，使用英文名称或 CAS 号。返回 CID、分子式、立体 SMILES、来源。",

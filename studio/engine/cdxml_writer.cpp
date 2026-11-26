@@ -212,6 +212,7 @@ const char* displayToCdxml(core::BondDisplay display) {
 }
 
 const char* orderToCdxml(core::BondOrder order, core::BondSemantics semantics) {
+    if (semantics == core::BondSemantics::Dative) return "dative";
     // A Kekule ring has explicit alternating 1/2 orders; its aromatic flag
     // must not replace the DOUBLE edges with 1.5 in a mixed-order ring.
     (void)semantics;

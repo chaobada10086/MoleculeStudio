@@ -376,6 +376,7 @@ core::Command reverseBondDirectionCommand(const std::vector<core::ObjectId>& bon
 // Guide-derived click behaviours
 // ---------------------------------------------------------------------------
 BondAxes nextClickAxes(const BondAxes& current) {
+    if (current.semantics == core::BondSemantics::Dative) return BondAxes();
     BondAxes next = current;
     // GUIDE 2448-2449: the single bond tool click advances single -> double and
     // then repositions the two lines on later clicks.

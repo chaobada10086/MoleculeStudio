@@ -1,7 +1,7 @@
 # MoleculeStudio AI 绘图工具（当前版）
 
 适配 MoleculeStudio 0.95，绘图增强插件 1.9.0，更新于 2026-11-18。
-基础工具 32 个，插件工具 24 个，合计 56 个；完整参数由实际函数 schema 生成在 AI_TOOL_REFERENCE.json，运行时提示词也从同一套 schema 生成。
+基础工具 34 个，插件工具 24 个，合计 58 个；完整参数由实际函数 schema 生成在 AI_TOOL_REFERENCE.json，运行时提示词也从同一套 schema 生成。
 
 ## 使用流程
 
@@ -43,6 +43,8 @@ AI 可以绘制、查询、移动、缩放、旋转、复制、删除、排版�
 
 | 函数 | 用途 |
 |---|---|
+| `correct_coordination_candidate` | 依据用户原图核对当前 OCSR 候选并提交。只填需要修改的项目，编号从1开始。atom_edits 每项为 '编号 标签 电荷 孤对数'，显式碳写 [C]；bond_edits 每项为 '起点 终点 键级'，方向按供体到受体，键级 1/2/3/dative，删除写 remove。 |
+| `trace_coordination_structure` | 从已查看的配合物原图逐点描绘。当 OCSR 漏掉金属、缩写或配位箭头时按可见证据修正。atoms 逐项写 '符号 x y [形式电荷 [孤对数]]'，显式碳写 [C]。包括隐式碳顶点和缩写，每条 bonds 写 '起点编号 终点编号 键级'。编号从1开始，键级1/2/3/dative，配位键从供体指向受体。保持原图比例，普通键长约30。 |
 | `lookup_compound` | 联网查询 PubChem 化合物结构，使用英文名称或 CAS 号。返回 CID、分子式、立体 SMILES、来源。 |
 | `draw_compound` | 绘制本轮 lookup_compound 已确认的 CID，保留立体化学，可编辑且可撤销。 |
 | `draw_smiles` | 绘制用户提供的 SMILES 或用户明确请求的假想结构。真实已命名分子应检索数据库。 |

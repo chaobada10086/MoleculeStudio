@@ -14,6 +14,7 @@ from rdkit import Chem
 class OcsrRuntime(unittest.TestCase):
     def make_runtime(self, root):
         runtime = root/'portable 带空格/runtime'
+        (runtime/'venv/Lib/site-packages').mkdir(parents=True)
         (runtime/'venv/Scripts').mkdir(parents=True)
         (runtime/'venv/Scripts/python.exe').touch()
         base = runtime/'python/cpython-3.10-windows-x86_64-none'
@@ -22,16 +23,15 @@ class OcsrRuntime(unittest.TestCase):
         (runtime/'venv/pyvenv.cfg').write_text('home = C:\\deleted\\old-version\ninclude-system-site-packages = false\n', encoding='utf-8')
         return runtime, base
 
-    def test_moved_venv_home_is_repaired(self):
+    def test_moved_runtime_uses_bundled_interpreter(self):
         with tempfile.TemporaryDirectory() as directory:
             runtime, base = self.make_runtime(Path(directory))
-            python = bridge.prepare_runtime(runtime)
-            self.assertEqual(python, runtime/'venv/Scripts/python.exe')
-            text = (runtime/'venv/pyvenv.cfg').read_text(encoding='utf-8')
-            self.assertIn('home = '+str(base.resolve()), text)
-            self.assertIn('include-system-site-packages = false', text)
-            with patch.object(Path, 'replace', side_effect=AssertionError('unnecessary rewrite')):
-                bridge.prepare_runtime(runtime)
+            cfg = runtime/'venv/pyvenv.cfg'
+            original = cfg.read_bytes()
+            python, site = bridge.prepare_runtime(runtime)
+            self.assertEqual(python, base/'python.exe')
+            self.assertEqual(site, runtime/'venv/Lib/site-packages')
+            self.assertEqual(cfg.read_bytes(),original)
 
     def test_missing_stdlib_has_explicit_error(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -42,7 +42,7 @@ class OcsrRuntime(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root/'ocsr_service.py').write_text('import sys\nsys.stderr.write("missing_test_dependency\\n")\nsys.exit(7)\n', encoding='utf-8')
-            with patch.object(bridge, 'prepare_runtime', return_value=Path(sys.executable)):
+            with patch.object(bridge, 'prepare_runtime', return_value=(Path(sys.executable),root/"site-packages")):
                 with self.assertRaises(bridge.OcsrServiceError) as error:
                     with bridge.service_session(root): pass
             self.assertIn('missing_test_dependency', str(error.exception))
@@ -53,8 +53,8 @@ class OcsrRuntime(unittest.TestCase):
     def test_startup_handshake_and_python_environment_isolation(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)/'应用 带空格'; root.mkdir()
-            (root/'ocsr_service.py').write_text('import sys,os,xml.etree.ElementTree as E\nassert not os.environ.get("PYTHONHOME")\nassert not os.environ.get("PYTHONPATH")\nfor line in sys.stdin:\n r=E.fromstring(line);print(E.tostring(E.Element("response",{"ok":"1","id":r.get("id",""),"pong":"1"}),encoding="unicode"),flush=True)\n', encoding='utf-8')
-            with patch.object(bridge, 'prepare_runtime', return_value=Path(sys.executable)), patch.dict(os.environ, {'PYTHONHOME':'C:\\wrong', 'PYTHONPATH':'C:\\wrong'}):
+            (root/'ocsr_service.py').write_text('import sys,os,xml.etree.ElementTree as E\nassert not os.environ.get("PYTHONHOME")\nassert os.environ["PYTHONPATH"]==os.path.join(os.getcwd(),"site-packages")\nfor line in sys.stdin:\n r=E.fromstring(line);print(E.tostring(E.Element("response",{"ok":"1","id":r.get("id",""),"pong":"1"}),encoding="unicode"),flush=True)\n', encoding='utf-8')
+            with patch.object(bridge, 'prepare_runtime', return_value=(Path(sys.executable),root/"site-packages")), patch.dict(os.environ, {'PYTHONHOME':'C:\\wrong', 'PYTHONPATH':'C:\\wrong'}):
                 with bridge.service_session(root) as request:
                     response = request({'op':'ping','id':'real-after-startup'})
                     self.assertEqual(response.get('id'), 'real-after-startup')
