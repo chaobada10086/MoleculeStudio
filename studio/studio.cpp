@@ -2172,7 +2172,7 @@ LRESULT CALLBACK windowProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         // Never allocate or rasterize a full-screen bitmap behind the GL child.
         // Paint the ribbon, status bar and narrow canvas margins separately.
         RECT corner={};
-        if(a->hbar&&a->vbar){RECT hb,vb;GetWindowRect(a->hbar,&hb);GetWindowRect(a->vbar,&vb);corner=RECT{vb.left,hb.top,vb.right,hb.bottom};MapWindowPoints(HWND_DESKTOP,h,(POINT*)&corner,2);}
+        if(a->hbar&&a->vbar){RECT hb,vb;GetWindowRect(a->hbar,&hb);GetWindowRect(a->vbar,&vb);corner=RECT{hb.right,hb.top,vb.right,hb.bottom};MapWindowPoints(HWND_DESKTOP,h,(POINT*)&corner,2);}
         RECT bands[]={{0,0,a->width,a->top},{0,a->height-int(a->footerHeight()*a->scale),a->width,a->height},
             {0,a->top,int(16*a->scale),a->height-int(a->footerHeight()*a->scale)},
             {a->width-int(16*a->scale),a->top,a->width,a->height-int(a->footerHeight()*a->scale)},corner};
