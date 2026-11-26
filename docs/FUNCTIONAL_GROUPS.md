@@ -10,8 +10,8 @@
 
 | 项目 | 数量 |
 | --- | --- |
-| 授权源数据条目（nicknames.src.json） | 391 |
-| 编译进编辑器目录（nickname_catalog.hpp） | 383 |
+| 授权源数据条目（nicknames.src.json） | 414 |
+| 编译进编辑器目录（nickname_catalog.hpp） | 406 |
 | 未编译条目（独立分子，无连接点） | 8 |
 
 未编译条目（只作为结构参考保留在源数据中，不参与补全）：
@@ -101,22 +101,29 @@
 | `Aze` | L-azetidine-2-carboxylic acid | `O=C([*])[C@@H]1CCN1` | 7/7 | C4H6NO | high |
 | `B(OH)2` | Common functional group; attachment at * | `*B(O)O` | 4/3 | H2BO2 | authored |
 | `B(Oi-Pr)2` | Authored metal-centred alkoxide attachment group | `[*][B](OC(C)C)OC(C)C` | 10/9 | C6H14BO2 | high |
+| `Baam` | anthranilamide-protected boron; B-bound | `[*]B1Nc2ccccc2C(=O)N1` | 12/13 | C7H6BN2O | high |
 | `bAla` | beta-alanine (3-aminopropanoic acid) | `NCCC(=O)[*]` | 6/5 | C3H6NO | high |
 | `bArg` | beta3-homoarginine residue | `N[C@@H](CCCNC(=N)N)CC(=O)[*]` | 13/12 | C7H15N4O | medium |
 | `bAsn` | beta3-asparagine; C3 stereochemistry left unspecified | `NC(=O)CC(N)CC(=O)[*]` | 10/9 | C5H9N2O2 | medium |
 | `bAsp` | beta3-homoaspartic acid residue | `N[C@@H](CC(=O)O)CC(=O)[*]` | 10/9 | C5H8NO3 | medium |
+| `Bcat` | catecholato boron; B-bound | `[*]B1Oc2ccccc2O1` | 10/11 | C6H4BO2 | high |
 | `bCys` | beta3-cysteine; C3 stereochemistry left unspecified | `NC(CS)CC(=O)[*]` | 8/7 | C4H8NOS | medium |
+| `Bdan` | 1,8-diaminonaphthalene-protected boron; B-bound | `[*]B1Nc2cccc3cccc(N1)c23` | 14/16 | C10H8BN2 | high |
 | `Benzoyl` | benzoyl | `c1ccccc1C(=O)[*]` | 9/9 | C7H5O | high |
 | `Benzyl` | benzyl | `[*]Cc1ccccc1` | 8/8 | C7H7 | high |
+| `BF3K` | potassium organotrifluoroborate; B-bound; explicit K+ counterion | `[*][B-](F)(F)F.[K+]` | 6/4 | BF3K | high |
 | `bGln` | beta3-homoglutamine residue | `N[C@@H](CCC(N)=O)CC(=O)[*]` | 11/10 | C6H11N2O2 | medium |
 | `bGlu` | beta3-glutamic acid; C3 stereochemistry left unspecified | `OC(=O)CCC(N)CC(=O)[*]` | 11/10 | C6H10NO3 | medium |
 | `bHis` | beta3-homohistidine residue | `N[C@@H](Cc1c[nH]cn1)CC(=O)[*]` | 12/12 | C7H10N3O | medium |
+| `Bhoc` | benzhydryloxycarbonyl | `[*]C(=O)OC(c1ccccc1)c1ccccc1` | 17/18 | C14H11O2 | high |
 | `bIle` | beta3-isoleucine; C3 stereochemistry left unspecified | `CCC(C)C(N)CC(=O)[*]` | 10/9 | C7H14NO | medium |
 | `Bip` | biphenyl-4-sulfonyl; supplied Zhihu abbreviation table | `[*]S(=O)(=O)c1ccc(-c2ccccc2)cc1` | 16/17 | C12H9O2S | high |
 | `bLeu` | beta3-homoleucine residue | `N[C@@H](CC(C)C)CC(=O)[*]` | 10/9 | C7H14NO | medium |
 | `bLys` | beta3-lysine; C3 stereochemistry left unspecified | `NCCCCC(N)CC(=O)[*]` | 11/10 | C7H15N2O | medium |
 | `bMet` | beta3-homomethionine residue | `N[C@@H](CCSC)CC(=O)[*]` | 10/9 | C6H12NOS | medium |
+| `BMIDA` | N-methyliminodiacetato boron; B-bound; charge-separated B-/N+ single-bond representation of N-to-B donation | `[*][B-]12OC(=O)C[N+]1(C)CC(=O)O2` | 12/13 | C5H7BNO4 | high |
 | `Bn` | benzyl | `[*]Cc1ccccc1` | 8/8 | C7H7 | high |
+| `Bneop` | neopentyl glycolato boron; B-bound | `[*]B1OCC(C)(C)CO1` | 9/9 | C5H10BO2 | high |
 | `BOB` | 4-benzyloxybutyryl; supplied Zhihu abbreviation table | `[*]C(=O)CCCOCc1ccccc1` | 14/14 | C11H13O2 | high |
 | `Boc` | tert-butoxycarbonyl | `CC(C)(C)OC(=O)[*]` | 8/7 | C5H9O2 | high |
 | `BOM` | benzyloxymethyl | `c1ccccc1COC[*]` | 10/10 | C8H9O | high |
@@ -208,12 +215,15 @@
 | `Dab` | L-2,4-diaminobutyric acid residue | `N[C@@H](CCN)C(=O)[*]` | 8/7 | C4H9N2O | high |
 | `Dap` | L-2,3-diaminopropionic acid residue | `N[C@@H](CN)C(=O)[*]` | 7/6 | C3H7N2O | high |
 | `Dcpm` | dicyclopropylmethyl; supplied Zhihu abbreviation table | `[*]C(C1CC1)C1CC1` | 8/9 | C7H11 | high |
+| `Dde` | 1-(4,4-dimethyl-2,6-dioxocyclohex-1-ylidene)ethyl; attaches to the protected amine N | `[*]C(C)=C1C(=O)CC(C)(C)CC1=O` | 13/13 | C10H13O2 | high |
 | `Ddz` | 2-(3,5-dimethoxyphenyl)propan-2-yloxycarbonyl | `[*]C(=O)OC(C)(C)c1cc(OC)cc(OC)c1` | 17/17 | C12H15O4 | high |
 | `DEAE` | 2-(diethylamino)ethyl | `CCN(CC)CC[*]` | 8/7 | C6H14N | high |
 | `Dec` | n-decyl | `CCCCCCCCCC[*]` | 11/10 | C10H21 | high |
 | `DEIPS` | diethylisopropylsilyl | `CC[Si](CC)(C(C)C)[*]` | 9/8 | C7H17Si | high |
+| `Dep` | 2,6-diethylphenyl | `[*]c1c(CC)cccc1CC` | 11/11 | C10H13 | high |
 | `Dha` | dehydroalanine | `C=C(N)C(=O)[*]` | 6/5 | C3H4NO | high |
 | `DIBAL` | diisobutylaluminium (DIBAL-H without its hydride; Al-bound reagent shorthand) | `[*][Al](CC(C)C)CC(C)C` | 10/9 | C8H18Al | medium |
+| `Dipp` | 2,6-diisopropylphenyl | `[*]c1c(C(C)C)cccc1C(C)C` | 13/13 | C12H17 | high |
 | `DMB` | 2,4-dimethoxybenzyl | `COc1ccc(C[*])c(OC)c1` | 12/12 | C9H11O2 | high |
 | `DMIPS` | dimethylisopropylsilyl | `C[Si](C)(C(C)C)[*]` | 7/6 | C5H13Si | high |
 | `DMPS` | dimethylphenylsilyl | `C[Si](C)(c1ccccc1)[*]` | 10/10 | C8H11Si | medium |
@@ -225,6 +235,7 @@
 | `Dpr` | L-2,3-diaminopropionic acid | `N[C@@H](CN)C(=O)[*]` | 7/6 | C3H7N2O | high |
 | `DTBMS` | di-tert-butylmethylsilyl | `[*][Si](C)(C(C)(C)C)C(C)(C)C` | 11/10 | C9H21Si | medium |
 | `DTBS` | di-tert-butylsilyl (Si-H retained) | `[*][SiH](C(C)(C)C)C(C)(C)C` | 10/9 | C8H19Si | medium |
+| `EE` | 1-ethoxyethyl; stereochemistry unspecified | `[*]C(C)OCC` | 6/5 | C4H9O | high |
 | `EOM` | ethoxymethyl; supplied Zhihu abbreviation table | `[*]COCC` | 5/4 | C3H7O | high |
 | `Et` | ethyl | `CC[*]` | 3/2 | C2H5 | high |
 | `Fmoc` | 9-fluorenylmethoxycarbonyl | `O=C(OCC1c2ccccc2c2ccccc21)[*]` | 18/20 | C15H11O2 | high |
@@ -258,6 +269,7 @@
 | `Im` | imidazol-1-yl | `[*]n1ccnc1` | 6/6 | C3H3N2 | medium |
 | `iPr` | isopropyl | `CC(C)[*]` | 4/3 | C3H7 | high |
 | `Iva` | isovaleryl (3-methylbutanoyl) | `CC(C)CC(=O)[*]` | 7/6 | C5H9O | high |
+| `ivDde` | 1-(4,4-dimethyl-2,6-dioxocyclohex-1-ylidene)-3-methylbutyl; attaches to the protected amine N | `[*]C(CC(C)C)=C1C(=O)CC(C)(C)CC1=O` | 16/16 | C13H19O2 | high |
 | `Lac` | lactyl (2-hydroxypropanoyl) | `CC(O)C(=O)[*]` | 6/5 | C3H5O2 | medium |
 | `Leu` | L-leucine residue | `N[C@@H](CC(C)C)C(=O)[*]` | 9/8 | C6H12NO | high |
 | `Li` | lithium (organolithium, Li-bound) | `[*][Li]` | 2/1 | Li | high |
@@ -267,6 +279,7 @@
 | `MeAla` | N-methyl-L-alanine residue | `CN[C@@H](C)C(=O)[*]` | 7/6 | C4H8NO | medium |
 | `MEM` | 2-methoxyethoxymethyl | `COCCOC[*]` | 7/6 | C4H9O2 | high |
 | `Mes` | mesityl (2,4,6-trimethylphenyl) | `[*]c1c(C)cc(C)cc1C` | 10/10 | C9H11 | high |
+| `Mes*` | 2,4,6-tri-tert-butylphenyl; star is part of the nickname, not a radical | `[*]c1c(C(C)(C)C)cc(C(C)(C)C)cc1C(C)(C)C` | 19/19 | C18H29 | high |
 | `Met` | L-methionine | `CSCC[C@H](N)C(=O)[*]` | 9/8 | C5H10NOS | high |
 | `MgBr` | magnesium bromide (Grignard, Mg-bound) | `[*][Mg]Br` | 3/2 | BrMg | high |
 | `MgCl` | magnesium chloride (Grignard, Mg-bound) | `[*][Mg]Cl` | 3/2 | ClMg | high |
@@ -311,10 +324,12 @@
 | `NO2` | Common functional group; attachment at * | `*[N+](=O)[O-]` | 4/3 | NO2 | authored |
 | `Nos` | 4-nitrobenzenesulfonyl; distinct from ortho-Ns; supplied Zhihu abbreviation table | `[*]S(=O)(=O)c1ccc([N+](=O)[O-])cc1` | 13/13 | C6H4NO4S | high |
 | `Np` | 1-naphthyl | `[*]c1cccc2ccccc12` | 11/12 | C10H7 | medium |
+| `NPPOC` | 2-(2-nitrophenyl)propoxycarbonyl; stereochemistry unspecified | `[*]C(=O)OCC(C)c1ccccc1[N+](=O)[O-]` | 16/16 | C10H10NO4 | high |
 | `nPr` | n-propyl | `CCC[*]` | 4/3 | C3H7 | high |
 | `Nps` | 2-nitrophenylsulfenyl | `[O-][N+](=O)c1ccccc1S[*]` | 11/11 | C6H4NO2S | medium |
 | `Ns` | 2-nitrobenzenesulfonyl (nosyl) | `[*]S(=O)(=O)c1ccccc1[N+](=O)[O-]` | 13/13 | C6H4NO4S | high |
 | `Nva` | L-norvaline | `CCC[C@H](N)C(=O)[*]` | 8/7 | C5H10NO | high |
+| `NVOC` | 4,5-dimethoxy-2-nitrobenzyloxycarbonyl | `[*]C(=O)OCc1cc(OC)c(OC)cc1[N+](=O)[O-]` | 18/18 | C10H10NO6 | high |
 | `o-Tolyl` | 2-methylphenyl | `[*]c1ccccc1C` | 8/8 | C7H7 | high |
 | `OAc` | acetoxy | `CC(=O)O[*]` | 5/4 | C2H3O2 | high |
 | `OBn` | benzyloxy | `c1ccccc1CO[*]` | 9/9 | C7H7O | high |
@@ -343,7 +358,9 @@
 | `OTMS` | Common functional group; attachment at * | `*O[Si](C)(C)C` | 6/5 | C3H9OSi | authored |
 | `OTs` | tosyloxy | `Cc1ccc(S(=O)(=O)O[*])cc1` | 12/12 | C7H7O3S | high |
 | `p-Tolyl` | 4-methylphenyl | `[*]c1ccc(C)cc1` | 8/8 | C7H7 | high |
+| `PBB` | 4-bromobenzyl | `[*]Cc1ccc(Br)cc1` | 9/9 | C7H6Br | high |
 | `Pbf` | 2,2,4,6,7-pentamethyldihydrobenzofuran-5-sulfonyl | `CC1(C)Cc2c(C)c(S(=O)(=O)[*])c(C)c(C)c2O1` | 18/19 | C13H17O3S | medium |
+| `PCB` | 4-chlorobenzyl | `[*]Cc1ccc(Cl)cc1` | 9/9 | C7H6Cl | high |
 | `Pcp` | pentachlorophenyl | `[*]c1c(Cl)c(Cl)c(Cl)c(Cl)c1Cl` | 12/12 | C6Cl5 | medium |
 | `Pen` | L-penicillamine residue | `N[C@@H](C(C)(C)S)C(=O)[*]` | 9/8 | C5H10NOS | high |
 | `Pfp` | pentafluorophenyl | `[*]c1c(F)c(F)c(F)c(F)c1F` | 12/12 | C6F5 | high |
@@ -357,7 +374,9 @@
 | `Pip` | piperidin-1-yl | `[*]N1CCCCC1` | 7/7 | C5H10N | medium |
 | `Piv` | pivaloyl | `CC(C)(C)C(=O)[*]` | 7/6 | C5H9O | high |
 | `PMB` | 4-methoxybenzyl | `COc1ccc(C[*])cc1` | 10/10 | C8H9O | high |
+| `PMBM` | 4-methoxybenzyloxymethyl | `[*]COCc1ccc(OC)cc1` | 12/12 | C9H11O2 | high |
 | `Pmc` | 2,2,5,7,8-pentamethylchroman-6-sulfonyl | `CC1(C)CCc2c(C)c(S(=O)(=O)[*])c(C)c(C)c2O1` | 19/20 | C14H19O3S | medium |
+| `PMP` | 4-methoxyphenyl; not PMB (4-methoxybenzyl) | `[*]c1ccc(OC)cc1` | 9/9 | C7H7O | high |
 | `PNB` | 4-nitrobenzyl | `[O-][N+](=O)c1ccc(C[*])cc1` | 11/11 | C7H6NO2 | high |
 | `PNZ` | 4-nitrobenzyloxycarbonyl; supplied Zhihu abbreviation table | `[*]C(=O)OCc1ccc([N+](=O)[O-])cc1` | 14/14 | C8H6NO4 | high |
 | `PO3H2` | phosphono | `[*]P(=O)(O)O` | 5/4 | H2O3P | high |
@@ -386,6 +405,7 @@
 | `SEt` | ethylthio | `CCS[*]` | 4/3 | C2H5S | high |
 | `SH` | Common functional group; attachment at * | `*S` | 2/1 | HS | authored |
 | `Sia` | 1,2-dimethylpropyl (secondary isoamyl); visually checked against supplied PDF | `[*]C(C)C(C)C` | 6/5 | C5H11 | high |
+| `SiPh3` | triphenylsilyl; explicit synonym of TPS | `[*][Si](c1ccccc1)(c1ccccc1)c1ccccc1` | 20/22 | C18H15Si | high |
 | `SMe` | methylthio | `CS[*]` | 3/2 | CH3S | high |
 | `SnBu3` | tributylstannyl | `[*][Sn](CCCC)(CCCC)CCCC` | 14/13 | C12H27Sn | high |
 | `SO2CF3` | Common functional group; attachment at * | `*S(=O)(=O)C(F)(F)F` | 8/7 | CF3O2S | authored |
@@ -409,6 +429,7 @@
 | `TBDMS` | tert-butyldimethylsilyl | `[*][Si](C)(C)C(C)(C)C` | 8/7 | C6H15Si | high |
 | `TBDPS` | tert-butyldiphenylsilyl | `CC(C)(C)[Si](c1ccccc1)(c1ccccc1)[*]` | 18/19 | C16H19Si | high |
 | `TBS` | tert-butyldimethylsilyl | `CC(C)(C)[Si](C)(C)[*]` | 8/7 | C6H15Si | high |
+| `Tbt` | 2,4,6-tris[bis(trimethylsilyl)methyl]phenyl | `[*]c1c(C([Si](C)(C)C)[Si](C)(C)C)cc(C([Si](C)(C)C)[Si](C)(C)C)cc1C([Si](C)(C)C)[Si](C)(C)C` | 34/34 | C27H59Si6 | high |
 | `tBu` | tert-butyl | `C(C)(C)C[*]` | 5/4 | C4H9 | high |
 | `Tce` | 2,2,2-trichloroethyl | `ClC(Cl)(Cl)C[*]` | 6/5 | C2H2Cl3 | medium |
 | `Tcp` | 2,4,5-trichlorophenyl | `[*]c1c(Cl)cc(Cl)c(Cl)c1` | 10/10 | C6H2Cl3 | medium |
@@ -427,12 +448,14 @@
 | `Ti(Oi-Pr)3` | Authored metal-centred alkoxide attachment group | `[*][Ti](OC(C)C)(OC(C)C)OC(C)C` | 14/13 | C9H21O3Ti | high |
 | `Ti(Ot-Bu)3` | Authored metal-centred alkoxide attachment group | `[*][Ti](OC(C)(C)C)(OC(C)(C)C)OC(C)(C)C` | 17/16 | C12H27O3Ti | high |
 | `Tic` | L-1,2,3,4-tetrahydroisoquinoline-3-carboxylic acid | `O=C([*])[C@@H]1Cc2ccccc2CN1` | 13/14 | C10H10NO | medium |
+| `Tipp` | 2,4,6-triisopropylphenyl | `[*]c1c(C(C)C)cc(C(C)C)cc1C(C)C` | 16/16 | C15H23 | high |
 | `TIPS` | triisopropylsilyl | `CC(C)[Si](C(C)C)(C(C)C)[*]` | 11/10 | C9H21Si | high |
 | `Tle` | L-tert-leucine residue | `N[C@@H](C(C)(C)C)C(=O)[*]` | 9/8 | C6H12NO | high |
 | `Tmob` | 2,4,6-trimethoxybenzyl | `COc1cc(OC)c(C[*])c(OC)c1` | 14/14 | C10H13O3 | medium |
 | `TMS` | trimethylsilyl | `C[Si](C)(C)[*]` | 5/4 | C3H9Si | high |
 | `TNP` | 2,4,6-trinitrophenyl (picryl) | `[O-][N+](=O)c1cc([N+](=O)[O-])cc([N+](=O)[O-])c1[*]` | 16/16 | C6H2N3O6 | medium |
 | `Tos` | p-toluenesulfonyl (tosyl) | `Cc1ccc(S(=O)(=O)[*])cc1` | 11/11 | C7H7O2S | high |
+| `TPS` | triphenylsilyl | `[*][Si](c1ccccc1)(c1ccccc1)c1ccccc1` | 20/22 | C18H15Si | high |
 | `Tr` | trityl (triphenylmethyl) | `[*]C(c1ccccc1)(c1ccccc1)c1ccccc1` | 20/22 | C19H15 | high |
 | `trans-Cinnamyl` | (E)-cinnamyl | `[*]C/C=C/c1ccccc1` | 10/10 | C9H9 | high |
 | `Trit` | trityl | `c1ccccc1C(c1ccccc1)(c1ccccc1)[*]` | 20/22 | C19H15 | high |
@@ -447,4 +470,4 @@
 | `Zr(Oi-Pr)3` | Authored metal-centred alkoxide attachment group | `[*][Zr](OC(C)C)(OC(C)C)OC(C)C` | 14/13 | C9H21O3Zr | high |
 | `Zr(Ot-Bu)3` | Authored metal-centred alkoxide attachment group | `[*][Zr](OC(C)(C)C)(OC(C)(C)C)OC(C)(C)C` | 17/16 | C12H27O3Zr | high |
 
-<!-- generated by studio/tools/build_functional_groups_doc.py; catalog-count=383; source-count=391 -->
+<!-- generated by studio/tools/build_functional_groups_doc.py; catalog-count=406; source-count=414 -->

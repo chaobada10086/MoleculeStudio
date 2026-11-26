@@ -53,6 +53,9 @@ void App::completionCheck(const std::string& dir){
         ++checks;
     };
     // Spelling (dictionary) and typography (counts, charges, isotopes, radicals).
+    commit("dipp","Dipp","0000","Dipp spelling");
+    commit("Mes*","Mes*","0000","supermesityl star is not a radical");
+    commit("bmida","BMIDA","00000","MIDA boron spelling");
     commit("so42-","SO42-","00-++","sulfate");
     commit("fe3+","Fe3+","00++","iron charge");
     commit("NH4+","NH4+","00-+","ammonium");

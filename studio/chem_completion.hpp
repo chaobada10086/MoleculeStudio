@@ -420,6 +420,8 @@ inline std::vector<Segment> segments(const std::string& label,bool force=false){
     for(const std::string mark:{std::string("·"),std::string("•")})if(ascii.size()>=mark.size()&&ascii.compare(ascii.size()-mark.size(),mark.size(),mark)==0){ascii.resize(ascii.size()-mark.size());unicodeRadical="·";break;}
     for(unsigned char c:ascii)if(c<32||c>126)return out;   // unrecognized foreign glyphs: leave untouched
     auto custom=savedFormat(label);if(custom.size()==label.size()){for(size_t i=0;i<label.size();++i)out.push_back({label.substr(i,1),(custom[i]-'0')%4==1?-1:(custom[i]-'0')%4==2?1:0});return out;}
+    // A registered star-bearing nickname (Mes*) is not a radical label.
+    if(ascii.find('*')!=std::string::npos&&nickdata::find(ascii)&&unicodeRadical.empty())return {{ascii,0}};
     std::string text=ascii,magnitude,sign,radical=unicodeRadical;
     if(text.size()>2){auto tail=text.substr(text.size()-2);
         if(tail==".+"||tail==".-"||tail=="+."||tail=="-."){

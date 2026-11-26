@@ -154,6 +154,18 @@
     "note": "Common functional group; attachment at *",
     "smiles": "*B(O)O"
   },
+  "BF3K": {
+    "confidence": "high",
+    "note": "potassium organotrifluoroborate; B-bound; explicit K+ counterion",
+    "smiles": "[*][B-](F)(F)F.[K+]",
+    "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
+  },
+  "BMIDA": {
+    "confidence": "high",
+    "note": "N-methyliminodiacetato boron; B-bound; charge-separated B-/N+ single-bond representation of N-to-B donation",
+    "smiles": "[*][B-]12OC(=O)C[N+]1(C)CC(=O)O2",
+    "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
+  },
   "BOB": {
     "confidence": "high",
     "note": "4-benzyloxybutyryl; supplied Zhihu abbreviation table",
@@ -170,6 +182,24 @@
     "smiles": "ClC(Cl)(Cl)OC(=O)OC(Cl)(Cl)Cl",
     "standalone": true
   },
+  "Baam": {
+    "confidence": "high",
+    "note": "anthranilamide-protected boron; B-bound",
+    "smiles": "[*]B1Nc2ccccc2C(=O)N1",
+    "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
+  },
+  "Bcat": {
+    "confidence": "high",
+    "note": "catecholato boron; B-bound",
+    "smiles": "[*]B1Oc2ccccc2O1",
+    "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
+  },
+  "Bdan": {
+    "confidence": "high",
+    "note": "1,8-diaminonaphthalene-protected boron; B-bound",
+    "smiles": "[*]B1Nc2cccc3cccc(N1)c23",
+    "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
+  },
   "Benzoyl": {
     "confidence": "high",
     "note": "benzoyl",
@@ -180,6 +210,12 @@
     "note": "benzyl",
     "smiles": "[*]Cc1ccccc1"
   },
+  "Bhoc": {
+    "confidence": "high",
+    "note": "benzhydryloxycarbonyl",
+    "smiles": "[*]C(=O)OC(c1ccccc1)c1ccccc1",
+    "source": "https://pubs.rsc.org/en/content/articlehtml/2023/cs/d2cs00049k"
+  },
   "Bip": {
     "confidence": "high",
     "note": "biphenyl-4-sulfonyl; supplied Zhihu abbreviation table",
@@ -189,6 +225,12 @@
     "confidence": "high",
     "note": "benzyl",
     "smiles": "[*]Cc1ccccc1"
+  },
+  "Bneop": {
+    "confidence": "high",
+    "note": "neopentyl glycolato boron; B-bound",
+    "smiles": "[*]B1OCC(C)(C)CO1",
+    "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
   },
   "Boc": {
     "confidence": "high",
@@ -605,6 +647,12 @@
     "note": "dicyclopropylmethyl; supplied Zhihu abbreviation table",
     "smiles": "[*]C(C1CC1)C1CC1"
   },
+  "Dde": {
+    "confidence": "high",
+    "note": "1-(4,4-dimethyl-2,6-dioxocyclohex-1-ylidene)ethyl; attaches to the protected amine N",
+    "smiles": "[*]C(C)=C1C(=O)CC(C)(C)CC1=O",
+    "source": "https://www.sigmaaldrich.com/deepweb/assets/sigmaaldrich/product/documents/178/274/6-fmocweb.pdf"
+  },
   "Ddz": {
     "confidence": "high",
     "note": "2-(3,5-dimethoxyphenyl)propan-2-yloxycarbonyl",
@@ -615,10 +663,22 @@
     "note": "n-decyl",
     "smiles": "CCCCCCCCCC[*]"
   },
+  "Dep": {
+    "confidence": "high",
+    "note": "2,6-diethylphenyl",
+    "smiles": "[*]c1c(CC)cccc1CC",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4581995/"
+  },
   "Dha": {
     "confidence": "high",
     "note": "dehydroalanine",
     "smiles": "C=C(N)C(=O)[*]"
+  },
+  "Dipp": {
+    "confidence": "high",
+    "note": "2,6-diisopropylphenyl",
+    "smiles": "[*]c1c(C(C)C)cccc1C(C)C",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4581995/"
   },
   "Dpm": {
     "confidence": "high",
@@ -629,6 +689,12 @@
     "confidence": "high",
     "note": "L-2,3-diaminopropionic acid",
     "smiles": "N[C@@H](CN)C(=O)[*]"
+  },
+  "EE": {
+    "confidence": "high",
+    "note": "1-ethoxyethyl; stereochemistry unspecified",
+    "smiles": "[*]C(C)OCC",
+    "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
   },
   "EOM": {
     "confidence": "high",
@@ -811,6 +877,12 @@
     "note": "mesityl (2,4,6-trimethylphenyl)",
     "smiles": "[*]c1c(C)cc(C)cc1C"
   },
+  "Mes*": {
+    "confidence": "high",
+    "note": "2,4,6-tri-tert-butylphenyl; star is part of the nickname, not a radical",
+    "smiles": "[*]c1c(C(C)(C)C)cc(C(C)(C)C)cc1C(C)(C)C",
+    "source": "https://pubmed.ncbi.nlm.nih.gov/26337397/"
+  },
   "Met": {
     "confidence": "high",
     "note": "L-methionine",
@@ -940,6 +1012,18 @@
     "confidence": "authored",
     "note": "Common functional group; attachment at *",
     "smiles": "*[N+](=O)[O-]"
+  },
+  "NPPOC": {
+    "confidence": "high",
+    "note": "2-(2-nitrophenyl)propoxycarbonyl; stereochemistry unspecified",
+    "smiles": "[*]C(=O)OCC(C)c1ccccc1[N+](=O)[O-]",
+    "source": "https://pubs.acs.org/doi/10.1021/acs.joc.1c03006"
+  },
+  "NVOC": {
+    "confidence": "high",
+    "note": "4,5-dimethoxy-2-nitrobenzyloxycarbonyl",
+    "smiles": "[*]C(=O)OCc1cc(OC)c(OC)cc1[N+](=O)[O-]",
+    "source": "https://www.sigmaaldrich.com/US/en/substance/45dimethoxy2nitrobenzylchloroformate2756442855005"
   },
   "Nal": {
     "confidence": "high",
@@ -1106,10 +1190,34 @@
     "note": "Common functional group; attachment at *",
     "smiles": "*OC(C)(C)C"
   },
+  "PBB": {
+    "confidence": "high",
+    "note": "4-bromobenzyl",
+    "smiles": "[*]Cc1ccc(Br)cc1",
+    "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
+  },
+  "PCB": {
+    "confidence": "high",
+    "note": "4-chlorobenzyl",
+    "smiles": "[*]Cc1ccc(Cl)cc1",
+    "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
+  },
   "PMB": {
     "confidence": "high",
     "note": "4-methoxybenzyl",
     "smiles": "COc1ccc(C[*])cc1"
+  },
+  "PMBM": {
+    "confidence": "high",
+    "note": "4-methoxybenzyloxymethyl",
+    "smiles": "[*]COCc1ccc(OC)cc1",
+    "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
+  },
+  "PMP": {
+    "confidence": "high",
+    "note": "4-methoxyphenyl; not PMB (4-methoxybenzyl)",
+    "smiles": "[*]c1ccc(OC)cc1",
+    "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
   },
   "PNB": {
     "confidence": "high",
@@ -1301,6 +1409,12 @@
     "note": "L-serine",
     "smiles": "N[C@@H](CO)C(=O)[*]"
   },
+  "SiPh3": {
+    "confidence": "high",
+    "note": "triphenylsilyl; explicit synonym of TPS",
+    "smiles": "[*][Si](c1ccccc1)(c1ccccc1)c1ccccc1",
+    "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
+  },
   "Sia": {
     "confidence": "high",
     "note": "1,2-dimethylpropyl (secondary isoamyl); visually checked against supplied PDF",
@@ -1377,6 +1491,18 @@
     "note": "2,4,6-trinitrophenyl (picryl)",
     "smiles": "[O-][N+](=O)c1cc([N+](=O)[O-])cc([N+](=O)[O-])c1[*]"
   },
+  "TPS": {
+    "confidence": "high",
+    "note": "triphenylsilyl",
+    "smiles": "[*][Si](c1ccccc1)(c1ccccc1)c1ccccc1",
+    "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
+  },
+  "Tbt": {
+    "confidence": "high",
+    "note": "2,4,6-tris[bis(trimethylsilyl)methyl]phenyl",
+    "smiles": "[*]c1c(C([Si](C)(C)C)[Si](C)(C)C)cc(C([Si](C)(C)C)[Si](C)(C)C)cc1C([Si](C)(C)C)[Si](C)(C)C",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4581995/"
+  },
   "Tce": {
     "confidence": "medium",
     "note": "2,2,2-trichloroethyl",
@@ -1421,6 +1547,12 @@
     "confidence": "medium",
     "note": "L-1,2,3,4-tetrahydroisoquinoline-3-carboxylic acid",
     "smiles": "O=C([*])[C@@H]1Cc2ccccc2CN1"
+  },
+  "Tipp": {
+    "confidence": "high",
+    "note": "2,4,6-triisopropylphenyl",
+    "smiles": "[*]c1c(C(C)C)cc(C(C)C)cc1C(C)C",
+    "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4581995/"
   },
   "Tle": {
     "confidence": "high",
@@ -1708,6 +1840,12 @@
     "confidence": "high",
     "note": "isopropyl",
     "smiles": "CC(C)[*]"
+  },
+  "ivDde": {
+    "confidence": "high",
+    "note": "1-(4,4-dimethyl-2,6-dioxocyclohex-1-ylidene)-3-methylbutyl; attaches to the protected amine N",
+    "smiles": "[*]C(CC(C)C)=C1C(=O)CC(C)(C)CC1=O",
+    "source": "https://www.sigmaaldrich.com/deepweb/assets/sigmaaldrich/product/documents/178/274/6-fmocweb.pdf"
   },
   "m-Tolyl": {
     "confidence": "high",

@@ -207,7 +207,7 @@ struct AiWindow {
         int contentTop=header+configH;
         chat.scale=scale;move(730,m,contentTop,w-2*m,std::max(px(30),promptY-contentTop-px(26)));move(710,m,contentTop,w-2*m,std::max(px(30),promptY-contentTop-px(26)));ShowWindow(GetDlgItem(hwnd,710),SW_HIDE);
         move(709,m,promptY-px(23),w-2*m,px(20));move(711,m,promptY,w-2*m,promptH);
-        int attach=promptY+promptH+px(4);move(719,m,attach,px(86),px(24));move(725,m+px(90),attach,px(150),px(24));move(717,m+px(244),attach,px(48),px(24));move(724,m+px(296),attach,px(66),px(24));move(718,m+px(366),attach,px(44),px(24));
+        int attach=promptY+promptH+px(4);move(719,m,attach,px(86),px(24));move(725,m+px(90),attach,px(150),px(24));int actionsX=m+px(GetDlgItem(hwnd,725)?244:90);move(717,actionsX,attach,px(48),px(24));move(724,actionsX+px(52),attach,px(66),px(24));move(718,actionsX+px(122),attach,px(44),px(24));
         if(narrow){move(717,m,attach+px(28),px(48),px(24));move(724,m+px(54),attach+px(28),px(66),px(24));move(718,m+px(126),attach+px(28),px(44),px(24));}
         int actions=h-px(58);move(714,m,actions,px(70),px(30));move(713,w-m-px(172),actions,px(64),px(30));move(712,w-m-px(100),actions,px(100),px(30));move(715,m,h-px(23),w-2*m,px(19));
         for(int id:{701,702,703,704,705,706,707,708,716})ShowWindow(GetDlgItem(hwnd,id),SW_HIDE);
@@ -286,7 +286,7 @@ struct AiWindow {
         auto child=[&](const wchar_t* cls,const wchar_t* title,DWORD style,int id){auto c=studio_i18n::createWindowEx(0,cls,title,WS_CHILD|WS_VISIBLE|style,0,0,1,1,hwnd,(HMENU)(INT_PTR)id,wc.hInstance,0);if(id==704)studio_i18n::protect(c);return c;};
         child(L"STATIC",L"API 地址",0,701);child(L"EDIT",L"https://api.deepseek.com",WS_TABSTOP|ES_AUTOHSCROLL,702);child(L"STATIC",L"模型",0,703);child(L"COMBOBOX",L"",WS_TABSTOP|CBS_DROPDOWN|CBS_AUTOHSCROLL|WS_VSCROLL,704);studio_i18n::sendDlgItemMessage(hwnd,704,CB_ADDSTRING,0,(LPARAM)L"auto");set(704,"auto");studio_i18n::sendDlgItemMessage(hwnd,704,CB_LIMITTEXT,120,0);
         child(L"BUTTON",L"获取模型",WS_TABSTOP,716);child(L"STATIC",L"API Key",0,705);child(L"EDIT",L"",WS_TABSTOP|ES_AUTOHSCROLL|ES_PASSWORD,706);child(L"BUTTON",L"记住密钥",WS_TABSTOP|BS_AUTOCHECKBOX,707);child(L"BUTTON",L"测试连接",WS_TABSTOP,708);
-        child(L"STATIC",L"",0,709);child(L"BUTTON",L"附画布截图",WS_TABSTOP|BS_AUTOCHECKBOX,719);child(L"BUTTON",L"高级绘图",WS_TABSTOP|BS_AUTOCHECKBOX,725);
+        child(L"STATIC",L"",0,709);child(L"BUTTON",L"附画布截图",WS_TABSTOP|BS_AUTOCHECKBOX,719);if(advancedAvailable())child(L"BUTTON",L"高级绘图",WS_TABSTOP|BS_AUTOCHECKBOX,725);
         child(L"RICHEDIT50W",L"",ES_MULTILINE|ES_READONLY|ES_AUTOVSCROLL|WS_VSCROLL,710);child(L"RICHEDIT50W",L"",WS_TABSTOP|ES_MULTILINE|ES_AUTOVSCROLL|ES_WANTRETURN|WS_VSCROLL,711);
         child(L"BUTTON",L"发送并绘制",WS_TABSTOP|BS_OWNERDRAW,712);child(L"BUTTON",L"取消",WS_TABSTOP|BS_OWNERDRAW,713);child(L"BUTTON",L"新对话",WS_TABSTOP|BS_OWNERDRAW,714);child(L"BUTTON",L"上传",WS_TABSTOP|BS_OWNERDRAW,717);child(L"BUTTON",L"粘贴图片",WS_TABSTOP|BS_OWNERDRAW,724);child(L"BUTTON",L"清除",WS_TABSTOP|BS_OWNERDRAW,718);child(L"STATIC",L"",0,715);
         chat.create(hwnd,730);child(L"BUTTON",L"固定",WS_TABSTOP|BS_OWNERDRAW,726);child(L"BUTTON",L"设置",WS_TABSTOP|BS_OWNERDRAW,720);child(L"BUTTON",L"停靠右侧",WS_TABSTOP|BS_OWNERDRAW,721);child(L"BUTTON",L"收起",WS_TABSTOP|BS_OWNERDRAW,722);child(L"STATIC",L"模型 · auto",0,723);
@@ -296,7 +296,6 @@ struct AiWindow {
         SetWindowSubclass(GetDlgItem(hwnd,711),promptProc,1,(DWORD_PTR)this);studio_i18n::sendDlgItemMessage(hwnd,706,EM_SETLIMITTEXT,512,0);studio_i18n::sendDlgItemMessage(hwnd,711,EM_EXLIMITTEXT,0,6000);studio_i18n::sendDlgItemMessage(hwnd,710,EM_EXLIMITTEXT,0,200000);
         updateFont();load();layout();busy(false);CheckDlgButton(hwnd,719,BST_CHECKED);syncImageStatus();refreshConfiguration();
         log("从一个想法开始\n\n绘制分子与反应式、整理多步流程，或按元素修改画布。\n例如：画出阿司匹林，在结构下方添加名称。\n\nAPI 与模型可在右上角“设置”中配置。");
-        if(!advancedAvailable())log("\n提示：未安装 AI 高级，高级绘图不可用；基础对话与绘图不受影响。");
         }
         if(!prompt.empty())set(711,prompt);
         if(reveal){ShowWindow(hwnd,docked?SW_SHOW:SW_SHOWNORMAL);if(dockChanged)dockChanged();if(!docked)SetForegroundWindow(hwnd);SetFocus(GetDlgItem(hwnd,711));}
