@@ -33,6 +33,9 @@ inline std::string ascii(std::string value){
 inline const Entry* find(const std::string& value,int* charge=nullptr,bool* explicitCharge=nullptr){
     auto text=ascii(value);int q=0;bool explicitQ=false;
     if(!text.empty()&&(text.back()=='+'||text.back()=='-')){q=text.back()=='+'?1:-1;explicitQ=true;text.pop_back();}
+    // MeS has sulfur at the attachment point. Mes and MES denote other structures.
+    if(text=="MeS")text="SMe";
+    else if(text=="Mes"||text=="MES"||text=="mes")return nullptr;
     text.erase(std::remove(text.begin(),text.end(),'-'),text.end());
     for(auto& c:text)if(c>='A'&&c<='Z')c=char(c+32);
     for(const auto& entry:entries()){

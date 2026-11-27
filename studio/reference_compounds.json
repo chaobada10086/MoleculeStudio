@@ -1,0 +1,287 @@
+{
+  "BSA": {
+    "smiles": "C/C(=N\\[Si](C)(C)C)/O[Si](C)(C)C",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/6913588",
+    "title": "N,O-bis(trimethylsilyl)acetamide"
+  },
+  "C10H20(1-alkene)": {
+    "smiles": "C=CCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C10H20(cycloalkane)": {
+    "smiles": "C1CCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C11H22(1-alkene)": {
+    "smiles": "C=CCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C11H22(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C12H24(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C12H24(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C13H26(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C13H26(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C14H28(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C14H28(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C15H30(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C15H30(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C16H32(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C16H32(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C17H34(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C17H34(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C18H36(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C18H36(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C19H38(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C19H38(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C20H40(1-alkene)": {
+    "smiles": "C=CCCCCCCCCCCCCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C20H40(cycloalkane)": {
+    "smiles": "C1CCCCCCCCCCCCCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C2H4(1-alkene)": {
+    "smiles": "C=C",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C3H6(1-alkene)": {
+    "smiles": "C=CC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C3H6(cycloalkane)": {
+    "smiles": "C1CC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C4H8(1-alkene)": {
+    "smiles": "C=CCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C4H8(cycloalkane)": {
+    "smiles": "C1CCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C5H10(1-alkene)": {
+    "smiles": "C=CCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C5H10(cycloalkane)": {
+    "smiles": "C1CCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C6H12(1-alkene)": {
+    "smiles": "C=CCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C6H12(cycloalkane)": {
+    "smiles": "C1CCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C7H14(1-alkene)": {
+    "smiles": "C=CCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C7H14(cycloalkane)": {
+    "smiles": "C1CCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C8H16(1-alkene)": {
+    "smiles": "C=CCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C8H16(cycloalkane)": {
+    "smiles": "C1CCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "C9H18(1-alkene)": {
+    "smiles": "C=CCCCCCCC",
+    "source": "explicit structural formula",
+    "title": "linear terminal alkene"
+  },
+  "C9H18(cycloalkane)": {
+    "smiles": "C1CCCCCCCC1",
+    "source": "explicit structural formula",
+    "title": "unsubstituted monocyclic alkane"
+  },
+  "CoA": {
+    "smiles": "CC(C)(COP(=O)(O)OP(=O)(O)OC[C@@H]1[C@H]([C@H]([C@@H](O1)N2C=NC3=C(N=CN=C32)N)O)OP(=O)(O)O)[C@H](C(=O)NCCC(=O)NCCS)O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/87642",
+    "title": "Coenzyme A"
+  },
+  "DMB(solvent)": {
+    "smiles": "COC1=CC(=CC=C1)OC",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/9025",
+    "title": "1,3-Dimethoxybenzene"
+  },
+  "LCSPDP": {
+    "smiles": "O=C1CCC(=O)N1OC(=O)CCCCCNC(=O)CCSSc1ccccn1",
+    "source": "https://www.thermofisher.com/order/catalog/product/21651",
+    "title": "LC-SPDP"
+  },
+  "Mur": {
+    "smiles": "C[C@H](C(=O)O)O[C@H]1[C@@H]([C@H](OC([C@@H]1N)O)CO)O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/441038",
+    "title": "Muramic acid"
+  },
+  "Neu": {
+    "smiles": "C1[C@@H]([C@H]([C@@H](OC1(C(=O)O)O)[C@@H]([C@@H](CO)O)O)N)O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/441037",
+    "title": "Neuraminic acid"
+  },
+  "PMP(base)": {
+    "smiles": "CC1(CCCC(N1C)(C)C)C",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/6603",
+    "title": "Pempidine"
+  },
+  "Quin(quinoline)": {
+    "smiles": "C1=CC=C2C(=C1)C=CC=N2",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/7047",
+    "title": "Quinoline"
+  },
+  "Quin(quinuclidine)": {
+    "smiles": "C1CN2CCC1CC2",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/7527",
+    "title": "Quinuclidine"
+  },
+  "S8": {
+    "smiles": "S1SSSSSSS1",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/66348",
+    "title": "Cyclooctasulfur"
+  },
+  "SMCC": {
+    "smiles": "C1CC(CCC1CN2C(=O)C=CC2=O)C(=O)ON3C(=O)CCC3=O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/125175",
+    "title": "Succinimidyl 4-(N-maleimidomethyl)cyclohexanecarboxylate"
+  },
+  "SMPT": {
+    "smiles": "CC(C1=CC=C(C=C1)C(=O)ON2C(=O)CCC2=O)SSC3=CC=CC=N3",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/130706",
+    "title": "4-Succinimidyloxycarbonyl-alpha-methyl-alpha(2-pyridyldithio)toluene"
+  },
+  "SPDP": {
+    "smiles": "C1CC(=O)N(C1=O)OC(=O)CCSSC2=CC=CC=N2",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/100682",
+    "title": "N-Succinimidyl 3-(2-pyridyldithio)propionate"
+  },
+  "TFP(phosphine)": {
+    "smiles": "C1=COC(=C1)P(C2=CC=CO2)C3=CC=CO3",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/521585",
+    "title": "Tris(furan-2-yl)phosphane"
+  },
+  "TPP(porphyrin)": {
+    "smiles": "C1=CC=C(C=C1)C2=C3C=CC(=C(C4=NC(=C(C5=CC=C(N5)C(=C6C=CC2=N6)C7=CC=CC=C7)C8=CC=CC=C8)C=C4)C9=CC=CC=C9)N3",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/86280046",
+    "title": "Tetraphenylporphyrin"
+  },
+  "Tfa(amide)": {
+    "smiles": "C(=O)(C(F)(F)F)N",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/67717",
+    "title": "Trifluoroacetamide"
+  },
+  "mA(N6)": {
+    "smiles": "CNC1=C2C(=NC=N1)N(C=N2)[C@H]3[C@@H]([C@@H]([C@H](O3)CO)O)O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/102175",
+    "title": "N6-Methyladenosine"
+  },
+  "mC(5)": {
+    "smiles": "CC1=CN(C(=O)N=C1N)[C@H]2[C@@H]([C@@H]([C@H](O2)CO)O)O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/92918",
+    "title": "5-Methylcytidine"
+  },
+  "mG(N7)": {
+    "smiles": "CN1C=[N+](C2=C1C(=O)NC(=N2)N)[C@H]3[C@@H]([C@@H]([C@H](O3)CO)O)O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/135445750",
+    "title": "7-Methylguanosine"
+  },
+  "mU(5)": {
+    "smiles": "CC1=CN(C(=O)NC1=O)[C@H]2[C@@H]([C@@H]([C@H](O2)CO)O)O",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/445408",
+    "title": "5-Methyluridine"
+  }
+}

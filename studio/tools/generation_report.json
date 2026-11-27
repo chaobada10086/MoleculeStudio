@@ -1,38 +1,38 @@
 {
  "source": "nicknames.src.json",
- "count": 396,
+ "count": 653,
  "rejected": [
   [
    "BTC",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ],
   [
    "Edc",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ],
   [
    "THF",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ],
   [
    "dC",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ],
   [
    "dT",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ],
   [
    "rA",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ],
   [
    "rG",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ],
   [
    "rU",
-   "standalone molecule not supported by the editor"
+   "whole molecule excluded from single-attachment catalogue"
   ]
  ],
  "entries": {
@@ -50,6 +50,13 @@
    "confidence": "medium",
    "note": "2,4-dichlorobenzyloxycarbonyl (2,4-diCl-Z)"
   },
+  "2-6Clb": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C7H5Cl2",
+   "confidence": "high",
+   "note": "(2,6-dichlorophenyl)methyl"
+  },
   "2-6DCZ": {
    "atoms": 13,
    "bonds": 13,
@@ -63,6 +70,20 @@
    "formula": "C10H7",
    "confidence": "high",
    "note": "2-naphthyl (beta)"
+  },
+  "2Abz": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C7H6NO",
+   "confidence": "high",
+   "note": "2-aminobenzoyl"
+  },
+  "2BZ": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C8H6BrO2",
+   "confidence": "high",
+   "note": "[(2-bromophenyl)methoxy]carbonyl"
   },
   "2CZ": {
    "atoms": 12,
@@ -85,12 +106,40 @@
    "confidence": "high",
    "note": "2-hydroxyphenyl"
   },
+  "2Pip": {
+   "atoms": 7,
+   "bonds": 7,
+   "formula": "C5H10N",
+   "confidence": "high",
+   "note": "2-piperidinyl"
+  },
   "3Py": {
    "atoms": 7,
    "bonds": 7,
    "formula": "C5H4N",
    "confidence": "high",
    "note": "pyridin-3-yl"
+  },
+  "4-Tosyl": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C7H7O2S",
+   "confidence": "high",
+   "note": "tosyl (4-methylbenzenesulfonyl)"
+  },
+  "4Abz": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C7H6NO",
+   "confidence": "high",
+   "note": "4-aminobenzoyl"
+  },
+  "4BZ": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C8H6BrO2",
+   "confidence": "high",
+   "note": "[(4-bromophenyl)methoxy]carbonyl"
   },
   "4CZ": {
    "atoms": 12,
@@ -105,6 +154,13 @@
    "formula": "C5H4N",
    "confidence": "high",
    "note": "pyridin-4-yl"
+  },
+  "Aac": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C2H4NO",
+   "confidence": "high",
+   "note": "2-amino-2-oxoethyl"
   },
   "Aad": {
    "atoms": 11,
@@ -148,12 +204,40 @@
    "confidence": "high",
    "note": "acetoxy (attached through O)"
   },
+  "Aca": {
+   "atoms": 13,
+   "bonds": 12,
+   "formula": "C10H20NO",
+   "confidence": "high",
+   "note": "2-aminodecanoyl"
+  },
+  "Ace": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C2H3O",
+   "confidence": "high",
+   "note": "Common functional group"
+  },
+  "Acetyl": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C2H3O",
+   "confidence": "high",
+   "note": "Common functional group"
+  },
   "Acm": {
    "atoms": 6,
    "bonds": 5,
    "formula": "C3H6NO",
    "confidence": "high",
    "note": "acetamidomethyl (Cys protection)"
+  },
+  "Acr": {
+   "atoms": 15,
+   "bonds": 17,
+   "formula": "C13H8N",
+   "confidence": "high",
+   "note": "acridin-9-yl"
   },
   "Ad": {
    "atoms": 11,
@@ -162,12 +246,26 @@
    "confidence": "high",
    "note": "1-adamantyl"
   },
+  "Adc": {
+   "atoms": 12,
+   "bonds": 14,
+   "formula": "C10H15O",
+   "confidence": "high",
+   "note": "adamantan-1-yloxy"
+  },
   "Adoc": {
    "atoms": 14,
    "bonds": 16,
    "formula": "C11H15O2",
    "confidence": "medium",
    "note": "1-adamantyloxycarbonyl"
+  },
+  "Aet": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C2H6N",
+   "confidence": "high",
+   "note": "2-aminoethyl"
   },
   "Ahx": {
    "atoms": 9,
@@ -211,12 +309,47 @@
    "confidence": "high",
    "note": "allyl"
   },
+  "Am": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C5H11",
+   "confidence": "high",
+   "note": "n-pentyl"
+  },
+  "Amoc": {
+   "atoms": 19,
+   "bonds": 21,
+   "formula": "C16H11O2",
+   "confidence": "high",
+   "note": "(9-anthracenylmethoxy)carbonyl"
+  },
   "An": {
    "atoms": 9,
    "bonds": 9,
    "formula": "C7H7O",
    "confidence": "high",
    "note": "4-methoxyphenyl (p-anisyl); supplied Zhihu abbreviation table"
+  },
+  "Aoc": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "C6H11O2",
+   "confidence": "high",
+   "note": "(1,1-dimethylpropoxy)carbonyl"
+  },
+  "Apm": {
+   "atoms": 12,
+   "bonds": 11,
+   "formula": "C7H12NO3",
+   "confidence": "high",
+   "note": "2-aminoheptanedioic acid residue"
+  },
+  "App": {
+   "atoms": 15,
+   "bonds": 15,
+   "formula": "C11H14NO2",
+   "confidence": "high",
+   "note": "4-amino-3-hydroxy-5-phenylpentanoyl"
   },
   "Arg": {
    "atoms": 12,
@@ -239,12 +372,26 @@
    "confidence": "high",
    "note": "L-aspartic acid residue"
   },
+  "Asu": {
+   "atoms": 13,
+   "bonds": 12,
+   "formula": "C8H14NO3",
+   "confidence": "high",
+   "note": "2-aminooctanedioic acid residue"
+  },
   "Aze": {
    "atoms": 7,
    "bonds": 7,
    "formula": "C4H6NO",
    "confidence": "high",
    "note": "L-azetidine-2-carboxylic acid"
+  },
+  "Azoc": {
+   "atoms": 21,
+   "bonds": 22,
+   "formula": "C16H15N2O2",
+   "confidence": "high",
+   "note": "[1-methyl-1-[4-(phenylazo)phenyl]ethoxy]carbonyl"
   },
   "B(OH)2": {
    "atoms": 4,
@@ -274,6 +421,13 @@
    "confidence": "high",
    "note": "4-benzyloxybutyryl; supplied Zhihu abbreviation table"
   },
+  "BOC": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C5H9O2",
+   "confidence": "high",
+   "note": "(1,1-dimethylethoxy)carbonyl"
+  },
   "BOM": {
    "atoms": 10,
    "bonds": 10,
@@ -281,12 +435,54 @@
    "confidence": "high",
    "note": "benzyloxymethyl"
   },
+  "BPS": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C16H19Si",
+   "confidence": "high",
+   "note": "tert-butyldiphenylsilyl"
+  },
+  "BTC(CAS)": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C8H7OS",
+   "confidence": "high",
+   "note": "[(phenylmethyl)thio]carbonyl"
+  },
   "Baam": {
    "atoms": 12,
    "bonds": 13,
    "formula": "C7H6BN2O",
    "confidence": "high",
    "note": "anthranilamide-protected boron; B-bound"
+  },
+  "Bac": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C2H2BrO",
+   "confidence": "high",
+   "note": "bromoacetyl"
+  },
+  "Bal": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C3H6NO",
+   "confidence": "high",
+   "note": "beta-alanyl"
+  },
+  "Bam": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C8H8NO",
+   "confidence": "high",
+   "note": "(benzoylamino)methyl"
+  },
+  "Bas": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "C4H6NO3",
+   "confidence": "high",
+   "note": "beta-aspartyl"
   },
   "Bcat": {
    "atoms": 10,
@@ -316,6 +512,13 @@
    "confidence": "high",
    "note": "benzyl"
   },
+  "Beoc": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C3H4BrO2",
+   "confidence": "high",
+   "note": "(2-bromoethoxy)carbonyl"
+  },
   "Bhoc": {
    "atoms": 17,
    "bonds": 18,
@@ -323,12 +526,33 @@
    "confidence": "high",
    "note": "benzhydryloxycarbonyl"
   },
+  "Bic": {
+   "atoms": 14,
+   "bonds": 15,
+   "formula": "C9H6NO3",
+   "confidence": "high",
+   "note": "(5-benzisoxazolylmethoxy)carbonyl"
+  },
   "Bip": {
    "atoms": 16,
    "bonds": 17,
    "formula": "C12H9O2S",
    "confidence": "high",
    "note": "biphenyl-4-sulfonyl; supplied Zhihu abbreviation table"
+  },
+  "Bly": {
+   "atoms": 10,
+   "bonds": 9,
+   "formula": "C6H13N2O",
+   "confidence": "high",
+   "note": "3,6-diaminohexanoyl"
+  },
+  "Bmv": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C10H9O",
+   "confidence": "high",
+   "note": "1-methyl-3-oxo-3-phenyl-1-propenyl"
   },
   "Bn": {
    "atoms": 8,
@@ -344,12 +568,26 @@
    "confidence": "high",
    "note": "neopentyl glycolato boron; B-bound"
   },
+  "Bnps": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C6H3BrNO2S",
+   "confidence": "high",
+   "note": "(3-bromo-2-nitrophenyl)thio"
+  },
   "Boc": {
    "atoms": 8,
    "bonds": 7,
    "formula": "C5H9O2",
    "confidence": "high",
    "note": "tert-butoxycarbonyl"
+  },
+  "Bocae": {
+   "atoms": 11,
+   "bonds": 10,
+   "formula": "C7H14NO2",
+   "confidence": "high",
+   "note": "2-[(tert-butoxycarbonyl)amino]ethyl"
   },
   "Bpin": {
    "atoms": 10,
@@ -379,12 +617,40 @@
    "confidence": "high",
    "note": "benzotriazol-1-yl"
   },
+  "Btm": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C8H9S",
+   "confidence": "high",
+   "note": "[(phenylmethyl)thio]methyl"
+  },
   "Bu": {
    "atoms": 5,
    "bonds": 4,
    "formula": "C4H9",
    "confidence": "high",
    "note": "n-butyl"
+  },
+  "Bua": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C4H7O",
+   "confidence": "high",
+   "note": "butanoyl"
+  },
+  "Bum": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C5H10NO",
+   "confidence": "high",
+   "note": "[(2-methyl-1-oxopropyl)amino]methyl"
+  },
+  "Bux": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C4H8NO2",
+   "confidence": "high",
+   "note": "4-amino-3-hydroxybutanoyl"
   },
   "Bz": {
    "atoms": 9,
@@ -399,6 +665,20 @@
    "formula": "C8H7O2",
    "confidence": "medium",
    "note": "benzoyloxymethyl"
+  },
+  "Bza": {
+   "atoms": 10,
+   "bonds": 11,
+   "formula": "C7H5N2",
+   "confidence": "high",
+   "note": "1H-benzimidazol-2-yl"
+  },
+  "Bzh": {
+   "atoms": 14,
+   "bonds": 15,
+   "formula": "C13H11",
+   "confidence": "high",
+   "note": "diphenylmethyl"
   },
   "Bzl": {
    "atoms": 8,
@@ -582,6 +862,13 @@
    "confidence": "medium",
    "note": "n-nonyl, linear isomer assumed"
   },
+  "CBz": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C8H7O2",
+   "confidence": "high",
+   "note": "(phenylmethoxy)carbonyl"
+  },
   "CCl3": {
    "atoms": 5,
    "bonds": 4,
@@ -624,6 +911,13 @@
    "confidence": "high",
    "note": "hydroxymethyl"
   },
+  "CH3": {
+   "atoms": 2,
+   "bonds": 1,
+   "formula": "CH3",
+   "confidence": "high",
+   "note": "methyl"
+  },
   "CHF2": {
    "atoms": 4,
    "bonds": 3,
@@ -644,6 +938,13 @@
    "formula": "CN",
    "confidence": "high",
    "note": "cyano"
+  },
+  "CO2Bn": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C8H7O2",
+   "confidence": "high",
+   "note": "(phenylmethoxy)carbonyl"
   },
   "CO2Et": {
    "atoms": 6,
@@ -694,6 +995,13 @@
    "confidence": "high",
    "note": "chlorocarbonyl"
   },
+  "COMe": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C2H3O",
+   "confidence": "high",
+   "note": "Common functional group"
+  },
   "CON3": {
    "atoms": 6,
    "bonds": 5,
@@ -707,6 +1015,13 @@
    "formula": "CH2NO",
    "confidence": "high",
    "note": "carbamoyl"
+  },
+  "CONHEt": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C3H6NO",
+   "confidence": "high",
+   "note": "(ethylamino)carbonyl"
   },
   "CONHMe": {
    "atoms": 5,
@@ -757,12 +1072,33 @@
    "confidence": "authored",
    "note": "Common functional group; attachment at *"
   },
+  "Cac": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C3H3O3",
+   "confidence": "high",
+   "note": "carboxyacetyl"
+  },
   "Cap": {
    "atoms": 8,
    "bonds": 7,
    "formula": "C6H11O",
    "confidence": "medium",
    "note": "caproyl (n-hexanoyl)"
+  },
+  "Cbm": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "CH2NO",
+   "confidence": "high",
+   "note": "aminocarbonyl"
+  },
+  "Cbs": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C6H4ClO2S",
+   "confidence": "high",
+   "note": "(4-chlorophenyl)sulfonyl"
   },
   "Cbz": {
    "atoms": 11,
@@ -771,12 +1107,40 @@
    "confidence": "high",
    "note": "benzyloxycarbonyl"
   },
+  "Cdf": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C2ClF2O",
+   "confidence": "high",
+   "note": "chlorodifluoroacetyl"
+  },
+  "Ceoc": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C3H4ClO2",
+   "confidence": "high",
+   "note": "(2-chloroethoxy)carbonyl"
+  },
   "Cha": {
    "atoms": 12,
    "bonds": 12,
    "formula": "C9H16NO",
    "confidence": "high",
    "note": "L-cyclohexylalanine"
+  },
+  "Chc": {
+   "atoms": 9,
+   "bonds": 9,
+   "formula": "C7H11O",
+   "confidence": "high",
+   "note": "cyclohexylcarbonyl"
+  },
+  "Chp": {
+   "atoms": 8,
+   "bonds": 8,
+   "formula": "C7H13",
+   "confidence": "high",
+   "note": "cycloheptyl"
   },
   "Chx": {
    "atoms": 7,
@@ -785,6 +1149,13 @@
    "confidence": "high",
    "note": "cyclohexyl; alias of Cy; supplied Zhihu abbreviation table"
   },
+  "Chxa": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C8H13O",
+   "confidence": "high",
+   "note": "cyclohexylacetyl"
+  },
   "Cit": {
    "atoms": 12,
    "bonds": 11,
@@ -792,12 +1163,33 @@
    "confidence": "high",
    "note": "L-citrulline residue"
   },
+  "Cm": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C2H3O2",
+   "confidence": "high",
+   "note": "carboxymethyl"
+  },
   "Cp": {
    "atoms": 6,
    "bonds": 6,
    "formula": "C5H5",
    "confidence": "medium",
    "note": "cyclopentadienyl (eta-1 C-bound; coordination to metals is shown separately)"
+  },
+  "Cpc": {
+   "atoms": 8,
+   "bonds": 8,
+   "formula": "C6H9O",
+   "confidence": "high",
+   "note": "cyclopentylcarbonyl"
+  },
+  "Cpe": {
+   "atoms": 6,
+   "bonds": 6,
+   "formula": "C5H9",
+   "confidence": "high",
+   "note": "cyclopentyl"
   },
   "Cpm": {
    "atoms": 5,
@@ -812,6 +1204,13 @@
    "formula": "C6H11",
    "confidence": "high",
    "note": "cyclohexyl"
+  },
+  "Cya": {
+   "atoms": 10,
+   "bonds": 9,
+   "formula": "C3H6NO4S",
+   "confidence": "high",
+   "note": "cysteic acid residue"
   },
   "Cys": {
    "atoms": 7,
@@ -848,12 +1247,26 @@
    "confidence": "high",
    "note": "2,4-dimethoxybenzyl"
   },
+  "DMB(CAS)": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C9H11",
+   "confidence": "high",
+   "note": "(3,4-dimethylphenyl)methyl"
+  },
   "DMIPS": {
    "atoms": 7,
    "bonds": 6,
    "formula": "C5H13Si",
    "confidence": "high",
    "note": "dimethylisopropylsilyl"
+  },
+  "DMPM": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C9H11O2",
+   "confidence": "high",
+   "note": "3,4-dimethoxybenzyl"
   },
   "DMPS": {
    "atoms": 10,
@@ -869,12 +1282,75 @@
    "confidence": "high",
    "note": "4,4'-dimethoxytrityl"
   },
+  "DNAA(3'-O)": {
+   "atoms": 19,
+   "bonds": 21,
+   "formula": "C10H12N5O3",
+   "confidence": "high",
+   "note": "DNAA, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "DNAA(5'-O)": {
+   "atoms": 19,
+   "bonds": 21,
+   "formula": "C10H12N5O3",
+   "confidence": "high",
+   "note": "DNAA, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "DNAC(3'-O)": {
+   "atoms": 17,
+   "bonds": 18,
+   "formula": "C9H12N3O4",
+   "confidence": "high",
+   "note": "DNAC, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "DNAC(5'-O)": {
+   "atoms": 17,
+   "bonds": 18,
+   "formula": "C9H12N3O4",
+   "confidence": "high",
+   "note": "DNAC, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "DNAG(3'-O)": {
+   "atoms": 20,
+   "bonds": 22,
+   "formula": "C10H12N5O4",
+   "confidence": "high",
+   "note": "DNAG, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "DNAG(5'-O)": {
+   "atoms": 20,
+   "bonds": 22,
+   "formula": "C10H12N5O4",
+   "confidence": "high",
+   "note": "DNAG, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "DNAT(3'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C10H13N2O5",
+   "confidence": "high",
+   "note": "DNAT, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "DNAT(5'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C10H13N2O5",
+   "confidence": "high",
+   "note": "DNAT, 5'-O attachment; nucleoside, no phosphate"
+  },
   "DNP": {
    "atoms": 13,
    "bonds": 13,
    "formula": "C6H3N2O4",
    "confidence": "high",
    "note": "2,4-dinitrophenyl"
+  },
+  "DNPS": {
+   "atoms": 14,
+   "bonds": 14,
+   "formula": "C6H3N2O4S",
+   "confidence": "high",
+   "note": "(2,4-dinitrophenyl)thio"
   },
   "DNS": {
    "atoms": 17,
@@ -889,6 +1365,20 @@
    "formula": "C6H15Si",
    "confidence": "medium",
    "note": "diisopropylsilyl"
+  },
+  "DPS": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C16H19Si",
+   "confidence": "high",
+   "note": "tert-butyldiphenylsilyl"
+  },
+  "DPTBS": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C16H19OSi",
+   "confidence": "high",
+   "note": "tert-butoxydiphenylsilyl"
   },
   "DTBMS": {
    "atoms": 11,
@@ -911,12 +1401,33 @@
    "confidence": "high",
    "note": "L-2,4-diaminobutyric acid residue"
   },
+  "Dan": {
+   "atoms": 17,
+   "bonds": 18,
+   "formula": "C12H12NO2S",
+   "confidence": "high",
+   "note": "5-(dimethylamino)naphthalene-1-sulfonyl (dansyl)"
+  },
+  "Dansyl": {
+   "atoms": 17,
+   "bonds": 18,
+   "formula": "C12H12NO2S",
+   "confidence": "high",
+   "note": "5-(dimethylamino)naphthalene-1-sulfonyl (dansyl)"
+  },
   "Dap": {
    "atoms": 7,
    "bonds": 6,
    "formula": "C3H7N2O",
    "confidence": "high",
    "note": "L-2,3-diaminopropionic acid residue"
+  },
+  "Dbpoc": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "C4H5Br2O2",
+   "confidence": "high",
+   "note": "(2,2-dibromopropoxy)carbonyl"
   },
   "Dcpm": {
    "atoms": 8,
@@ -939,12 +1450,26 @@
    "confidence": "high",
    "note": "2-(3,5-dimethoxyphenyl)propan-2-yloxycarbonyl"
   },
+  "De": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C6H14N",
+   "confidence": "high",
+   "note": "2-(diethylamino)ethyl"
+  },
   "Dec": {
    "atoms": 11,
    "bonds": 10,
    "formula": "C10H21",
    "confidence": "high",
    "note": "n-decyl"
+  },
+  "Dec(CAS)": {
+   "atoms": 12,
+   "bonds": 11,
+   "formula": "C10H19O",
+   "confidence": "high",
+   "note": "1-oxodecyl"
   },
   "Dep": {
    "atoms": 11,
@@ -960,12 +1485,40 @@
    "confidence": "high",
    "note": "dehydroalanine"
   },
+  "Dip": {
+   "atoms": 11,
+   "bonds": 10,
+   "formula": "C8H15O2",
+   "confidence": "high",
+   "note": "[2-methyl-1-(1-methylethyl)propoxy]carbonyl"
+  },
   "Dipp": {
    "atoms": 13,
    "bonds": 13,
    "formula": "C12H17",
    "confidence": "high",
    "note": "2,6-diisopropylphenyl"
+  },
+  "Dmb": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C9H11O2",
+   "confidence": "high",
+   "note": "2,4-dimethoxybenzyl"
+  },
+  "Dmoc": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C3H6NO2",
+   "confidence": "high",
+   "note": "[(dimethylamino)oxy]carbonyl"
+  },
+  "Dmt": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C15H15O2",
+   "confidence": "high",
+   "note": "bis(4-methoxyphenyl)methyl"
   },
   "Dpm": {
    "atoms": 14,
@@ -974,12 +1527,26 @@
    "confidence": "high",
    "note": "diphenylmethyl (benzhydryl)"
   },
+  "Dpp": {
+   "atoms": 17,
+   "bonds": 18,
+   "formula": "C12H10O3P",
+   "confidence": "high",
+   "note": "diphenoxyphosphinyl"
+  },
   "Dpr": {
    "atoms": 7,
    "bonds": 6,
    "formula": "C3H7N2O",
    "confidence": "high",
    "note": "L-2,3-diaminopropionic acid"
+  },
+  "Dsu": {
+   "atoms": 14,
+   "bonds": 13,
+   "formula": "C8H15N2O3",
+   "confidence": "high",
+   "note": "2,7-diaminooctanedioic acid residue"
   },
   "EE": {
    "atoms": 6,
@@ -995,12 +1562,89 @@
    "confidence": "high",
    "note": "ethoxymethyl; supplied Zhihu abbreviation table"
   },
+  "Eac": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C3H6NO",
+   "confidence": "high",
+   "note": "(ethylamino)carbonyl"
+  },
+  "Eoc": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C3H5O2",
+   "confidence": "high",
+   "note": "ethoxycarbonyl"
+  },
   "Et": {
    "atoms": 3,
    "bonds": 2,
    "formula": "C2H5",
    "confidence": "high",
    "note": "ethyl"
+  },
+  "Ethyl": {
+   "atoms": 3,
+   "bonds": 2,
+   "formula": "C2H5",
+   "confidence": "high",
+   "note": "ethyl"
+  },
+  "FRNAA(3'-O)": {
+   "atoms": 20,
+   "bonds": 22,
+   "formula": "C10H11FN5O3",
+   "confidence": "high",
+   "note": "FRNAA, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "FRNAA(5'-O)": {
+   "atoms": 20,
+   "bonds": 22,
+   "formula": "C10H11FN5O3",
+   "confidence": "high",
+   "note": "FRNAA, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "FRNAC(3'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H11FN3O4",
+   "confidence": "high",
+   "note": "FRNAC, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "FRNAC(5'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H11FN3O4",
+   "confidence": "high",
+   "note": "FRNAC, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "FRNAG(3'-O)": {
+   "atoms": 21,
+   "bonds": 23,
+   "formula": "C10H11FN5O4",
+   "confidence": "high",
+   "note": "FRNAG, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "FRNAG(5'-O)": {
+   "atoms": 21,
+   "bonds": 23,
+   "formula": "C10H11FN5O4",
+   "confidence": "high",
+   "note": "FRNAG, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "FRNAU(3'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H10FN2O5",
+   "confidence": "high",
+   "note": "FRNAU, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "FRNAU(5'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H10FN2O5",
+   "confidence": "high",
+   "note": "FRNAU, 5'-O attachment; nucleoside, no phosphate"
   },
   "Fmoc": {
    "atoms": 18,
@@ -1016,12 +1660,54 @@
    "confidence": "high",
    "note": "formyl"
   },
+  "Formyl": {
+   "atoms": 3,
+   "bonds": 2,
+   "formula": "CHO",
+   "confidence": "high",
+   "note": "formyl"
+  },
+  "Ft": {
+   "atoms": 13,
+   "bonds": 14,
+   "formula": "C9H6NO2",
+   "confidence": "high",
+   "note": "(1,3-dihydro-1,3-dioxo-2H-isoindol-2-yl)methyl"
+  },
+  "Ggu": {
+   "atoms": 10,
+   "bonds": 9,
+   "formula": "C5H8NO3",
+   "confidence": "high",
+   "note": "gamma-glutamyl"
+  },
   "Gla": {
    "atoms": 13,
    "bonds": 12,
    "formula": "C6H8NO5",
    "confidence": "medium",
    "note": "gamma-carboxy-L-glutamic acid (C-gamma stereochemistry unspecified)"
+  },
+  "Glc": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C2H3O2",
+   "confidence": "high",
+   "note": "glycolyl"
+  },
+  "Glc(alpha-D)": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C6H11O5",
+   "confidence": "high",
+   "note": "alpha-D-glucopyranosyl, attached at C1"
+  },
+  "Glc(beta-D)": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C6H11O5",
+   "confidence": "high",
+   "note": "beta-D-glucopyranosyl, attached at C1"
   },
   "Gln": {
    "atoms": 10,
@@ -1036,6 +1722,13 @@
    "formula": "C5H6NO2",
    "confidence": "high",
    "note": "L-pyroglutamyl (5-oxo-L-prolyl) residue"
+  },
+  "Glt": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "C5H7O3",
+   "confidence": "high",
+   "note": "4-carboxy-1-oxobutyl"
   },
   "Glu": {
    "atoms": 10,
@@ -1071,6 +1764,13 @@
    "formula": "C6H13",
    "confidence": "high",
    "note": "n-hexyl"
+  },
+  "Hex(CAS)": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C6H11O",
+   "confidence": "high",
+   "note": "1-oxohexyl"
   },
   "Hippuryl": {
    "atoms": 13,
@@ -1114,6 +1814,13 @@
    "confidence": "high",
    "note": "L-homoserine residue"
   },
+  "Hva": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C5H9O2",
+   "confidence": "high",
+   "note": "2-hydroxypentanoyl"
+  },
   "Hyl": {
    "atoms": 11,
    "bonds": 10,
@@ -1127,6 +1834,20 @@
    "formula": "C5H8NO2",
    "confidence": "medium",
    "note": "trans-4-hydroxy-L-proline"
+  },
+  "IPDMS": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C5H13Si",
+   "confidence": "high",
+   "note": "dimethylisopropylsilyl"
+  },
+  "Igl": {
+   "atoms": 14,
+   "bonds": 15,
+   "formula": "C11H12NO",
+   "confidence": "high",
+   "note": "2-indanylglycine residue"
   },
   "Ile": {
    "atoms": 9,
@@ -1142,12 +1863,40 @@
    "confidence": "medium",
    "note": "imidazol-1-yl"
   },
+  "Ioc": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C5H9O2",
+   "confidence": "high",
+   "note": "(2-methylpropoxy)carbonyl"
+  },
+  "Ipa": {
+   "atoms": 11,
+   "bonds": 10,
+   "formula": "C9H17O",
+   "confidence": "high",
+   "note": "7-methyl-1-oxooctyl"
+  },
+  "Ips": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C6H4IO2S",
+   "confidence": "high",
+   "note": "(4-iodophenyl)sulfonyl"
+  },
   "Iva": {
    "atoms": 7,
    "bonds": 6,
    "formula": "C5H9O",
    "confidence": "high",
    "note": "isovaleryl (3-methylbutanoyl)"
+  },
+  "Kpc": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C6H8NO2",
+   "confidence": "high",
+   "note": "(6-oxo-2-piperidinyl)carbonyl"
   },
   "Lac": {
    "atoms": 6,
@@ -1177,6 +1926,20 @@
    "confidence": "high",
    "note": "L-lysine"
   },
+  "MDIPS": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "C7H17Si",
+   "confidence": "high",
+   "note": "methyldiisopropylsilyl"
+  },
+  "MDPS": {
+   "atoms": 15,
+   "bonds": 16,
+   "formula": "C13H13Si",
+   "confidence": "high",
+   "note": "methyldiphenylsilyl"
+  },
   "MEM": {
    "atoms": 7,
    "bonds": 6,
@@ -1191,12 +1954,26 @@
    "confidence": "medium",
    "note": "4-methoxytrityl"
   },
+  "MOB": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C8H9O",
+   "confidence": "high",
+   "note": "(4-methoxyphenyl)methyl"
+  },
   "MOM": {
    "atoms": 4,
    "bonds": 3,
    "formula": "C2H5O",
    "confidence": "high",
    "note": "methoxymethyl"
+  },
+  "MOS": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C7H7O3S",
+   "confidence": "high",
+   "note": "(4-methoxyphenyl)sulfonyl"
   },
   "MPM": {
    "atoms": 10,
@@ -1205,12 +1982,47 @@
    "confidence": "high",
    "note": "4-methoxybenzyl"
   },
+  "MPM(PDF)": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C8H9OS",
+   "confidence": "high",
+   "note": "methoxy(phenylthio)methyl"
+  },
   "MTM": {
    "atoms": 4,
    "bonds": 3,
    "formula": "C2H5S",
    "confidence": "high",
    "note": "methylthiomethyl"
+  },
+  "Maa": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C2H3OS",
+   "confidence": "high",
+   "note": "mercaptoacetyl"
+  },
+  "Mal": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C4H3O3",
+   "confidence": "high",
+   "note": "3-carboxy-1-oxo-2-propenyl"
+  },
+  "Mbh": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C15H15O2",
+   "confidence": "high",
+   "note": "bis(4-methoxyphenyl)methyl"
+  },
+  "Mbs": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C7H7O3S",
+   "confidence": "high",
+   "note": "4-methoxybenzenesulfonyl"
   },
   "Me": {
    "atoms": 2,
@@ -1226,6 +2038,13 @@
    "confidence": "medium",
    "note": "N-methyl-L-alanine residue"
   },
+  "MeOe": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C3H5O2",
+   "confidence": "high",
+   "note": "2-methoxy-2-oxoethyl"
+  },
   "Mes": {
    "atoms": 10,
    "bonds": 10,
@@ -1240,12 +2059,33 @@
    "confidence": "high",
    "note": "2,4,6-tri-tert-butylphenyl; star is part of the nickname, not a radical"
   },
+  "Mesityl": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C9H11",
+   "confidence": "high",
+   "note": "mesityl (2,4,6-trimethylphenyl)"
+  },
+  "Mesyl": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "CH3O2S",
+   "confidence": "high",
+   "note": "methylsulfonyl"
+  },
   "Met": {
    "atoms": 9,
    "bonds": 8,
    "formula": "C5H10NOS",
    "confidence": "high",
    "note": "L-methionine"
+  },
+  "Methoxy": {
+   "atoms": 3,
+   "bonds": 2,
+   "formula": "CH3O",
+   "confidence": "high",
+   "note": "methoxy"
   },
   "MgBr": {
    "atoms": 3,
@@ -1268,6 +2108,20 @@
    "confidence": "high",
    "note": "magnesium iodide (Grignard, Mg-bound)"
   },
+  "Mhoc": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C8H13O2",
+   "confidence": "high",
+   "note": "[(1-methylcyclohexyl)oxy]carbonyl"
+  },
+  "Mhp": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C6H10NO2",
+   "confidence": "high",
+   "note": "3-hydroxy-4-methylproline residue"
+  },
   "Mmt": {
    "atoms": 22,
    "bonds": 24,
@@ -1289,6 +2143,13 @@
    "confidence": "high",
    "note": "3-mercaptopropionyl"
   },
+  "Mpt": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C2H6PS",
+   "confidence": "high",
+   "note": "dimethylphosphinothioyl"
+  },
   "Ms": {
    "atoms": 5,
    "bonds": 4,
@@ -1302,6 +2163,34 @@
    "formula": "C4H7O4S",
    "confidence": "medium",
    "note": "2-(methylsulfonyl)ethyloxycarbonyl"
+  },
+  "Msi": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "CH3OS",
+   "confidence": "high",
+   "note": "methylsulfinyl"
+  },
+  "Msp": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C7H7O2S",
+   "confidence": "high",
+   "note": "4-(methylsulfonyl)phenyl"
+  },
+  "Mtos": {
+   "atoms": 16,
+   "bonds": 16,
+   "formula": "C9H11O5S",
+   "confidence": "high",
+   "note": "(2,4,6-trimethoxyphenyl)sulfonyl"
+  },
+  "Mtp": {
+   "atoms": 9,
+   "bonds": 9,
+   "formula": "C7H7S",
+   "confidence": "high",
+   "note": "4-(methylthio)phenyl"
   },
   "Mts": {
    "atoms": 13,
@@ -1323,6 +2212,13 @@
    "formula": "C14H27O",
    "confidence": "high",
    "note": "myristoyl (n-tetradecanoyl)"
+  },
+  "Mz": {
+   "atoms": 21,
+   "bonds": 22,
+   "formula": "C15H13N2O3",
+   "confidence": "high",
+   "note": "[[4-[(4-methoxyphenyl)azo]phenyl]methoxy]carbonyl"
   },
   "N3": {
    "atoms": 4,
@@ -1358,6 +2254,13 @@
    "formula": "C5H10NO2",
    "confidence": "high",
    "note": "tert-butoxycarbonylamino"
+  },
+  "NHCO": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "CH2NO",
+   "confidence": "high",
+   "note": "N-linked formamido group"
   },
   "NHCbz": {
    "atoms": 12,
@@ -1401,6 +2304,20 @@
    "confidence": "authored",
    "note": "Common functional group; attachment at *"
   },
+  "NHZ": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C8H8NO2",
+   "confidence": "high",
+   "note": "[(phenylmethoxy)carbonyl]amino"
+  },
+  "NMe": {
+   "atoms": 3,
+   "bonds": 2,
+   "formula": "CH4N",
+   "confidence": "high",
+   "note": "Common functional group"
+  },
   "NMe2": {
    "atoms": 4,
    "bonds": 3,
@@ -1436,6 +2353,13 @@
    "confidence": "high",
    "note": "4,5-dimethoxy-2-nitrobenzyloxycarbonyl"
   },
+  "Nabs": {
+   "atoms": 23,
+   "bonds": 25,
+   "formula": "C16H11N2O3S",
+   "confidence": "high",
+   "note": "[4-[(4-hydroxy-1-naphthalenyl)azo]phenyl]sulfonyl"
+  },
   "Nal": {
    "atoms": 16,
    "bonds": 17,
@@ -1443,12 +2367,54 @@
    "confidence": "high",
    "note": "L-3-(1-naphthyl)alanine residue"
   },
+  "Nf": {
+   "atoms": 17,
+   "bonds": 16,
+   "formula": "C4F9O2S",
+   "confidence": "high",
+   "note": "nonafluorobutanesulfonyl"
+  },
+  "Ng": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C7H6NO3",
+   "confidence": "high",
+   "note": "2-methoxy-4-nitrophenyl"
+  },
+  "Ngu": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "CH3N4O2",
+   "confidence": "high",
+   "note": "[imino(nitroamino)methyl]amino"
+  },
+  "Nis": {
+   "atoms": 13,
+   "bonds": 13,
+   "formula": "C6H4NO4S",
+   "confidence": "high",
+   "note": "(4-nitrophenyl)sulfonyl"
+  },
   "Nle": {
    "atoms": 9,
    "bonds": 8,
    "formula": "C6H12NO",
    "confidence": "high",
    "note": "L-norleucine residue"
+  },
+  "Nm": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C6H4NO2",
+   "confidence": "high",
+   "note": "3-nitrophenyl"
+  },
+  "No": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C6H4NO2",
+   "confidence": "high",
+   "note": "2-nitrophenyl"
   },
   "Nos": {
    "atoms": 13,
@@ -1464,6 +2430,27 @@
    "confidence": "medium",
    "note": "1-naphthyl"
   },
+  "Np(CAS)": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C6H4NO2",
+   "confidence": "high",
+   "note": "4-nitrophenyl"
+  },
+  "Npe": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C8H8NO2",
+   "confidence": "high",
+   "note": "2-nitro-1-phenylethyl"
+  },
+  "Nphe": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C9H10NO",
+   "confidence": "high",
+   "note": "N-benzylglycine residue (C-terminal attachment)"
+  },
   "Nps": {
    "atoms": 11,
    "bonds": 11,
@@ -1477,6 +2464,13 @@
    "formula": "C6H4NO4S",
    "confidence": "high",
    "note": "2-nitrobenzenesulfonyl (nosyl)"
+  },
+  "Ns(CAS)": {
+   "atoms": 14,
+   "bonds": 14,
+   "formula": "C6H4NO5S",
+   "confidence": "high",
+   "note": "2-nitro-4-sulfophenyl"
   },
   "Nva": {
    "atoms": 8,
@@ -1540,6 +2534,76 @@
    "formula": "CH3O",
    "confidence": "high",
    "note": "methoxy"
+  },
+  "OMeRNAA(3'-O)": {
+   "atoms": 21,
+   "bonds": 23,
+   "formula": "C11H14N5O4",
+   "confidence": "high",
+   "note": "OMeRNAA, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAA(5'-O)": {
+   "atoms": 21,
+   "bonds": 23,
+   "formula": "C11H14N5O4",
+   "confidence": "high",
+   "note": "OMeRNAA, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAC(3'-O)": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C10H14N3O5",
+   "confidence": "high",
+   "note": "OMeRNAC, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAC(5'-O)": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C10H14N3O5",
+   "confidence": "high",
+   "note": "OMeRNAC, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAG(3'-O)": {
+   "atoms": 22,
+   "bonds": 24,
+   "formula": "C11H14N5O5",
+   "confidence": "high",
+   "note": "OMeRNAG, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAG(5'-O)": {
+   "atoms": 22,
+   "bonds": 24,
+   "formula": "C11H14N5O5",
+   "confidence": "high",
+   "note": "OMeRNAG, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAT(3'-O)": {
+   "atoms": 20,
+   "bonds": 21,
+   "formula": "C11H15N2O6",
+   "confidence": "high",
+   "note": "OMeRNAT, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAT(5'-O)": {
+   "atoms": 20,
+   "bonds": 21,
+   "formula": "C11H15N2O6",
+   "confidence": "high",
+   "note": "OMeRNAT, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAU(3'-O)": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C10H13N2O6",
+   "confidence": "high",
+   "note": "OMeRNAU, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "OMeRNAU(5'-O)": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C10H13N2O6",
+   "confidence": "high",
+   "note": "OMeRNAU, 5'-O attachment; nucleoside, no phosphate"
   },
   "OMs": {
    "atoms": 6,
@@ -1632,6 +2696,20 @@
    "confidence": "high",
    "note": "n-octyl"
   },
+  "Oct(CAS)": {
+   "atoms": 10,
+   "bonds": 9,
+   "formula": "C8H15O",
+   "confidence": "high",
+   "note": "1-oxooctyl"
+  },
+  "OiBu": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C4H9O",
+   "confidence": "high",
+   "note": "isobutoxy"
+  },
   "OiPr": {
    "atoms": 5,
    "bonds": 4,
@@ -1652,6 +2730,13 @@
    "formula": "C18H33O",
    "confidence": "medium",
    "note": "oleoyl, Z (cis) double bond"
+  },
+  "Ole(CAS)": {
+   "atoms": 20,
+   "bonds": 19,
+   "formula": "C18H33O",
+   "confidence": "high",
+   "note": "1-oxo-9-octadecenyl"
   },
   "Orn": {
    "atoms": 9,
@@ -1716,6 +2801,13 @@
    "confidence": "high",
    "note": "4-nitrobenzyloxycarbonyl; supplied Zhihu abbreviation table"
   },
+  "PO2": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "H2O3P",
+   "confidence": "high",
+   "note": "phosphono"
+  },
   "PO3H2": {
    "atoms": 5,
    "bonds": 4,
@@ -1730,12 +2822,47 @@
    "confidence": "high",
    "note": "diphenylphosphino"
   },
+  "PPi": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "O6P2-3",
+   "confidence": "high",
+   "note": "pyrophosphate (triply charged P-linked form)"
+  },
+  "PTMSE": {
+   "atoms": 13,
+   "bonds": 13,
+   "formula": "C11H17Si",
+   "confidence": "high",
+   "note": "2-phenyl-2-trimethylsilylethyl"
+  },
+  "Pa": {
+   "atoms": 11,
+   "bonds": 10,
+   "formula": "C9H17O",
+   "confidence": "high",
+   "note": "1-oxononyl"
+  },
+  "Pal": {
+   "atoms": 18,
+   "bonds": 17,
+   "formula": "C16H31O",
+   "confidence": "high",
+   "note": "1-oxohexadecyl"
+  },
   "Pbf": {
    "atoms": 18,
    "bonds": 19,
    "formula": "C13H17O3S",
    "confidence": "medium",
    "note": "2,2,4,6,7-pentamethyldihydrobenzofuran-5-sulfonyl"
+  },
+  "Pbp": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C6Br5",
+   "confidence": "high",
+   "note": "pentabromophenyl"
   },
   "Pcp": {
    "atoms": 12,
@@ -1751,6 +2878,13 @@
    "confidence": "high",
    "note": "L-penicillamine residue"
   },
+  "Pf": {
+   "atoms": 20,
+   "bonds": 23,
+   "formula": "C19H13",
+   "confidence": "high",
+   "note": "9-phenylfluoren-9-yl"
+  },
   "Pfp": {
    "atoms": 12,
    "bonds": 12,
@@ -1764,6 +2898,13 @@
    "formula": "C6H5",
    "confidence": "high",
    "note": "phenyl"
+  },
+  "PhSO2": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C6H5O2S",
+   "confidence": "high",
+   "note": "benzenesulfonyl"
   },
   "Phe": {
    "atoms": 12,
@@ -1793,6 +2934,20 @@
    "confidence": "high",
    "note": "phthaloyl"
   },
+  "Pht(CAS)": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C8H5O3",
+   "confidence": "high",
+   "note": "2-carboxybenzoyl"
+  },
+  "Pic": {
+   "atoms": 8,
+   "bonds": 8,
+   "formula": "C6H6N",
+   "confidence": "high",
+   "note": "4-pyridinylmethyl"
+  },
   "Pip": {
    "atoms": 7,
    "bonds": 7,
@@ -1800,7 +2955,21 @@
    "confidence": "medium",
    "note": "piperidin-1-yl"
   },
+  "Pipoc": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C6H10NO2",
+   "confidence": "high",
+   "note": "(1-piperidinyloxy)carbonyl"
+  },
   "Piv": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C5H9O",
+   "confidence": "high",
+   "note": "pivaloyl"
+  },
+  "Pivaloyl": {
    "atoms": 7,
    "bonds": 6,
    "formula": "C5H9O",
@@ -1813,6 +2982,27 @@
    "formula": "C14H19O3S",
    "confidence": "medium",
    "note": "2,2,5,7,8-pentamethylchroman-6-sulfonyl"
+  },
+  "Pnb": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C7H6NO2",
+   "confidence": "high",
+   "note": "(4-nitrophenyl)methyl"
+  },
+  "Poc": {
+   "atoms": 9,
+   "bonds": 9,
+   "formula": "C6H9O2",
+   "confidence": "high",
+   "note": "(cyclopentyloxy)carbonyl"
+  },
+  "Ppt": {
+   "atoms": 15,
+   "bonds": 16,
+   "formula": "C12H10PS",
+   "confidence": "high",
+   "note": "diphenylphosphinothioyl"
   },
   "Pr": {
    "atoms": 4,
@@ -1828,12 +3018,117 @@
    "confidence": "high",
    "note": "L-proline"
   },
+  "Ptc": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C7H6NS",
+   "confidence": "high",
+   "note": "(phenylamino)thioxomethyl"
+  },
   "Pv": {
    "atoms": 7,
    "bonds": 6,
    "formula": "C5H9O",
    "confidence": "high",
    "note": "pivaloyl"
+  },
+  "Py(CAS)": {
+   "atoms": 7,
+   "bonds": 7,
+   "formula": "C5H4N",
+   "confidence": "high",
+   "note": "2-pyridinyl"
+  },
+  "Pyl": {
+   "atoms": 18,
+   "bonds": 18,
+   "formula": "C12H20N3O2",
+   "confidence": "high",
+   "note": "L-Pyrrolysine residue (C-terminal attachment)"
+  },
+  "Pz": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C14H11N2O2",
+   "confidence": "high",
+   "note": "[[4-(phenylazo)phenyl]methoxy]carbonyl"
+  },
+  "QC": {
+   "atoms": 12,
+   "bonds": 13,
+   "formula": "C9H5ClN",
+   "confidence": "high",
+   "note": "5-chloro-8-quinolinyl"
+  },
+  "Qu": {
+   "atoms": 11,
+   "bonds": 12,
+   "formula": "C9H6N",
+   "confidence": "high",
+   "note": "8-quinolinyl"
+  },
+  "Qxc": {
+   "atoms": 13,
+   "bonds": 14,
+   "formula": "C9H5N2O",
+   "confidence": "high",
+   "note": "2-quinoxalinylcarbonyl"
+  },
+  "RNAA(3'-O)": {
+   "atoms": 20,
+   "bonds": 22,
+   "formula": "C10H12N5O4",
+   "confidence": "high",
+   "note": "RNAA, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "RNAA(5'-O)": {
+   "atoms": 20,
+   "bonds": 22,
+   "formula": "C10H12N5O4",
+   "confidence": "high",
+   "note": "RNAA, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "RNAC(3'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H12N3O5",
+   "confidence": "high",
+   "note": "RNAC, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "RNAC(5'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H12N3O5",
+   "confidence": "high",
+   "note": "RNAC, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "RNAG(3'-O)": {
+   "atoms": 21,
+   "bonds": 23,
+   "formula": "C10H12N5O5",
+   "confidence": "high",
+   "note": "RNAG, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "RNAG(5'-O)": {
+   "atoms": 21,
+   "bonds": 23,
+   "formula": "C10H12N5O5",
+   "confidence": "high",
+   "note": "RNAG, 5'-O attachment; nucleoside, no phosphate"
+  },
+  "RNAU(3'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H11N2O6",
+   "confidence": "high",
+   "note": "RNAU, 3'-O attachment; nucleoside, no phosphate"
+  },
+  "RNAU(5'-O)": {
+   "atoms": 18,
+   "bonds": 19,
+   "formula": "C9H11N2O6",
+   "confidence": "high",
+   "note": "RNAU, 5'-O attachment; nucleoside, no phosphate"
   },
   "SCF3": {
    "atoms": 6,
@@ -1947,6 +3242,20 @@
    "confidence": "high",
    "note": "sarcosine (N-methylglycine)"
   },
+  "Sbz": {
+   "atoms": 13,
+   "bonds": 13,
+   "formula": "C7H5O4S",
+   "confidence": "high",
+   "note": "2-sulfobenzoyl"
+  },
+  "Scm": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C2H3O2S",
+   "confidence": "high",
+   "note": "(carboxymethyl)thio"
+  },
   "SePh": {
    "atoms": 8,
    "bonds": 8,
@@ -1989,6 +3298,13 @@
    "confidence": "high",
    "note": "tributylstannyl"
   },
+  "Spg": {
+   "atoms": 9,
+   "bonds": 9,
+   "formula": "C6H10NO",
+   "confidence": "high",
+   "note": "1-aminocyclopentanecarbonyl"
+  },
   "Sta": {
    "atoms": 12,
    "bonds": 11,
@@ -2002,6 +3318,13 @@
    "formula": "C4H4NO2",
    "confidence": "high",
    "note": "succinimidyl (N-hydroxysuccinimidyl)"
+  },
+  "Suc": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C4H5O3",
+   "confidence": "high",
+   "note": "3-carboxy-1-oxopropyl"
   },
   "TBDMS": {
    "atoms": 8,
@@ -2017,12 +3340,33 @@
    "confidence": "high",
    "note": "tert-butyldiphenylsilyl"
   },
+  "TBMPS": {
+   "atoms": 14,
+   "bonds": 14,
+   "formula": "C11H17OSi",
+   "confidence": "high",
+   "note": "tert-butylmethoxyphenylsilyl"
+  },
   "TBS": {
    "atoms": 8,
    "bonds": 7,
    "formula": "C6H15Si",
    "confidence": "high",
    "note": "tert-butyldimethylsilyl"
+  },
+  "TBT": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C5H9N4",
+   "confidence": "high",
+   "note": "1-tert-butyl-1H-tetrazol-5-yl"
+  },
+  "TBZ": {
+   "atoms": 9,
+   "bonds": 9,
+   "formula": "C7H5S",
+   "confidence": "high",
+   "note": "phenylthioxomethyl"
   },
   "TDS": {
    "atoms": 10,
@@ -2066,6 +3410,13 @@
    "confidence": "high",
    "note": "trimethylsilyl"
   },
+  "TMSE": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C5H13Si",
+   "confidence": "high",
+   "note": "2-trimethylsilylethyl"
+  },
   "TNP": {
    "atoms": 16,
    "bonds": 16,
@@ -2080,12 +3431,40 @@
    "confidence": "high",
    "note": "triphenylsilyl"
   },
+  "TSE": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C5H13Si",
+   "confidence": "high",
+   "note": "2-trimethylsilylethyl"
+  },
+  "Tac": {
+   "atoms": 14,
+   "bonds": 14,
+   "formula": "C8H8NO3S",
+   "confidence": "high",
+   "note": "[[(4-methylphenyl)sulfonyl]amino]carbonyl"
+  },
+  "Tbs": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C6H15Si",
+   "confidence": "high",
+   "note": "(1,1-dimethylethyl)dimethylsilyl"
+  },
   "Tbt": {
    "atoms": 34,
    "bonds": 34,
    "formula": "C27H59Si6",
    "confidence": "high",
    "note": "2,4,6-tris[bis(trimethylsilyl)methyl]phenyl"
+  },
+  "Tcboc": {
+   "atoms": 11,
+   "bonds": 10,
+   "formula": "C5H6Cl3O2",
+   "confidence": "high",
+   "note": "(2,2,2-trichloro-1,1-dimethylethoxy)carbonyl"
   },
   "Tce": {
    "atoms": 6,
@@ -2101,12 +3480,26 @@
    "confidence": "medium",
    "note": "2,4,5-trichlorophenyl"
   },
+  "Tec": {
+   "atoms": 16,
+   "bonds": 16,
+   "formula": "C10H11O4S",
+   "confidence": "high",
+   "note": "[2-[(4-methylphenyl)sulfonyl]ethoxy]carbonyl"
+  },
   "Teoc": {
    "atoms": 10,
    "bonds": 9,
    "formula": "C6H13O2Si",
    "confidence": "high",
    "note": "2-(trimethylsilyl)ethoxycarbonyl"
+  },
+  "Teoc(CAS)": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "C3H2Cl3O2",
+   "confidence": "high",
+   "note": "(2,2,2-trichloroethoxy)carbonyl"
   },
   "Tf": {
    "atoms": 8,
@@ -2122,6 +3515,13 @@
    "confidence": "high",
    "note": "2,2,2-trifluoroethyl"
   },
+  "Tfp": {
+   "atoms": 9,
+   "bonds": 8,
+   "formula": "C3HF4O",
+   "confidence": "high",
+   "note": "2,2,3,3-tetrafluoro-1-oxopropyl"
+  },
   "Th": {
    "atoms": 6,
    "bonds": 6,
@@ -2136,12 +3536,26 @@
    "confidence": "high",
    "note": "thexyl (2,3-dimethylbutan-2-yl)"
   },
+  "Thi": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C7H8NOS",
+   "confidence": "high",
+   "note": "thiophen-3-ylalanine residue"
+  },
   "Thr": {
    "atoms": 8,
    "bonds": 7,
    "formula": "C4H8NO2",
    "confidence": "high",
    "note": "L-threonine"
+  },
+  "Thz": {
+   "atoms": 8,
+   "bonds": 8,
+   "formula": "C4H6NOS",
+   "confidence": "high",
+   "note": "Timonacic, (S)- residue (C-terminal attachment)"
   },
   "Tic": {
    "atoms": 13,
@@ -2164,6 +3578,13 @@
    "confidence": "high",
    "note": "L-tert-leucine residue"
   },
+  "Tmb": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C10H13",
+   "confidence": "high",
+   "note": "(2,4,6-trimethylphenyl)methyl"
+  },
   "Tmob": {
    "atoms": 14,
    "bonds": 14,
@@ -2177,6 +3598,13 @@
    "formula": "C7H7O2S",
    "confidence": "high",
    "note": "p-toluenesulfonyl (tosyl)"
+  },
+  "Tosa": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C7H8NO2S",
+   "confidence": "high",
+   "note": "[(4-methylphenyl)sulfonyl]amino"
   },
   "Tr": {
    "atoms": 20,
@@ -2205,6 +3633,13 @@
    "formula": "C11H11N2O",
    "confidence": "high",
    "note": "L-tryptophan"
+  },
+  "Trs": {
+   "atoms": 21,
+   "bonds": 23,
+   "formula": "C19H15S",
+   "confidence": "high",
+   "note": "(triphenylmethyl)thio"
   },
   "Trt": {
    "atoms": 20,
@@ -2241,12 +3676,75 @@
    "confidence": "high",
    "note": "vinyl"
   },
+  "Vinyl": {
+   "atoms": 3,
+   "bonds": 2,
+   "formula": "C2H3",
+   "confidence": "high",
+   "note": "vinyl"
+  },
+  "Xan": {
+   "atoms": 15,
+   "bonds": 17,
+   "formula": "C13H9O",
+   "confidence": "high",
+   "note": "9H-xanthen-9-yl"
+  },
+  "Xyl": {
+   "atoms": 9,
+   "bonds": 9,
+   "formula": "C8H9",
+   "confidence": "high",
+   "note": "2,6-dimethylphenyl"
+  },
+  "Xyl(alpha-D)": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C5H9O4",
+   "confidence": "high",
+   "note": "alpha-D-xylopyranosyl, attached at C1"
+  },
+  "Xyl(beta-D)": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C5H9O4",
+   "confidence": "high",
+   "note": "beta-D-xylopyranosyl, attached at C1"
+  },
+  "Z": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C8H7O2",
+   "confidence": "high",
+   "note": "(phenylmethoxy)carbonyl"
+  },
   "ZNO2": {
    "atoms": 14,
    "bonds": 14,
    "formula": "C8H6NO4",
    "confidence": "high",
    "note": "4-nitrobenzyloxycarbonyl"
+  },
+  "Za": {
+   "atoms": 12,
+   "bonds": 12,
+   "formula": "C8H8NO2",
+   "confidence": "high",
+   "note": "[(phenylmethoxy)carbonyl]amino"
+  },
+  "Zae": {
+   "atoms": 14,
+   "bonds": 14,
+   "formula": "C10H12NO2",
+   "confidence": "high",
+   "note": "2-[(benzyloxycarbonyl)amino]ethyl"
+  },
+  "Zoa": {
+   "atoms": 15,
+   "bonds": 15,
+   "formula": "C10H9O4",
+   "confidence": "high",
+   "note": "[[(phenylmethoxy)carbonyl]oxy]acetyl"
   },
   "aIle": {
    "atoms": 9,
@@ -2381,6 +3879,27 @@
    "confidence": "medium",
    "note": "beta3-valine; C3 stereochemistry left unspecified"
   },
+  "c-Bu": {
+   "atoms": 5,
+   "bonds": 5,
+   "formula": "C4H7",
+   "confidence": "high",
+   "note": "cyclobutyl"
+  },
+  "c-But": {
+   "atoms": 5,
+   "bonds": 5,
+   "formula": "C4H7",
+   "confidence": "high",
+   "note": "cyclobutyl"
+  },
+  "c-Butyl": {
+   "atoms": 5,
+   "bonds": 5,
+   "formula": "C4H7",
+   "confidence": "high",
+   "note": "cyclobutyl"
+  },
   "c-C3H5": {
    "atoms": 4,
    "bonds": 4,
@@ -2423,7 +3942,77 @@
    "confidence": "high",
    "note": "cyclooctyl"
   },
+  "c-Heptyl": {
+   "atoms": 8,
+   "bonds": 8,
+   "formula": "C7H13",
+   "confidence": "high",
+   "note": "cycloheptyl"
+  },
+  "c-Hexyl": {
+   "atoms": 7,
+   "bonds": 7,
+   "formula": "C6H11",
+   "confidence": "high",
+   "note": "cyclohexyl"
+  },
   "c-Hx": {
+   "atoms": 7,
+   "bonds": 7,
+   "formula": "C6H11",
+   "confidence": "high",
+   "note": "cyclohexyl"
+  },
+  "c-Pentyl": {
+   "atoms": 6,
+   "bonds": 6,
+   "formula": "C5H9",
+   "confidence": "high",
+   "note": "cyclopentyl"
+  },
+  "c-Pr": {
+   "atoms": 4,
+   "bonds": 4,
+   "formula": "C3H5",
+   "confidence": "high",
+   "note": "cyclopropyl"
+  },
+  "c-Pro": {
+   "atoms": 4,
+   "bonds": 4,
+   "formula": "C3H5",
+   "confidence": "high",
+   "note": "cyclopropyl"
+  },
+  "c-Propyl": {
+   "atoms": 4,
+   "bonds": 4,
+   "formula": "C3H5",
+   "confidence": "high",
+   "note": "cyclopropyl"
+  },
+  "cBu": {
+   "atoms": 5,
+   "bonds": 5,
+   "formula": "C4H7",
+   "confidence": "high",
+   "note": "cyclobutyl"
+  },
+  "cButyl": {
+   "atoms": 5,
+   "bonds": 5,
+   "formula": "C4H7",
+   "confidence": "high",
+   "note": "cyclobutyl"
+  },
+  "cHeptyl": {
+   "atoms": 8,
+   "bonds": 8,
+   "formula": "C7H13",
+   "confidence": "high",
+   "note": "cycloheptyl"
+  },
+  "cHexyl": {
    "atoms": 7,
    "bonds": 7,
    "formula": "C6H11",
@@ -2436,6 +4025,34 @@
    "formula": "C6H11",
    "confidence": "high",
    "note": "cyclohexyl"
+  },
+  "cPentyl": {
+   "atoms": 6,
+   "bonds": 6,
+   "formula": "C5H9",
+   "confidence": "high",
+   "note": "cyclopentyl"
+  },
+  "cPr": {
+   "atoms": 4,
+   "bonds": 4,
+   "formula": "C3H5",
+   "confidence": "high",
+   "note": "cyclopropyl"
+  },
+  "cPropyl": {
+   "atoms": 4,
+   "bonds": 4,
+   "formula": "C3H5",
+   "confidence": "high",
+   "note": "cyclopropyl"
+  },
+  "cinnamyl": {
+   "atoms": 10,
+   "bonds": 10,
+   "formula": "C9H9",
+   "confidence": "high",
+   "note": "(E)-cinnamyl"
   },
   "cyclobutyl": {
    "atoms": 5,
@@ -2472,6 +4089,20 @@
    "confidence": "high",
    "note": "cyclopropyl"
   },
+  "dU(3'-O)": {
+   "atoms": 17,
+   "bonds": 18,
+   "formula": "C9H11N2O5",
+   "confidence": "high",
+   "note": "dU, 3'-O attachment; no phosphate"
+  },
+  "dU(5'-O)": {
+   "atoms": 17,
+   "bonds": 18,
+   "formula": "C9H11N2O5",
+   "confidence": "high",
+   "note": "dU, 5'-O attachment; no phosphate"
+  },
   "i-Am": {
    "atoms": 6,
    "bonds": 5,
@@ -2492,6 +4123,13 @@
    "formula": "C4H9O",
    "confidence": "high",
    "note": "isobutoxy"
+  },
+  "i-BuO(CAS)": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C4H7O",
+   "confidence": "high",
+   "note": "2-methyl-1-oxopropyl"
   },
   "i-C3H7": {
    "atoms": 4,
@@ -2521,6 +4159,20 @@
    "confidence": "high",
    "note": "isopropyl"
   },
+  "i-Pro": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C3H7",
+   "confidence": "high",
+   "note": "1-methylethyl"
+  },
+  "i-Propyl": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C3H7",
+   "confidence": "high",
+   "note": "1-methylethyl"
+  },
   "iAm": {
    "atoms": 6,
    "bonds": 5,
@@ -2549,6 +4201,13 @@
    "confidence": "high",
    "note": "1-(4,4-dimethyl-2,6-dioxocyclohex-1-ylidene)-3-methylbutyl; attaches to the protected amine N"
   },
+  "lBop": {
+   "atoms": 16,
+   "bonds": 17,
+   "formula": "C13H11O2",
+   "confidence": "high",
+   "note": "2-benzyloxyphenoxy"
+  },
   "m-Tolyl": {
    "atoms": 8,
    "bonds": 8,
@@ -2569,6 +4228,20 @@
    "formula": "C4H9",
    "confidence": "high",
    "note": "n-butyl"
+  },
+  "n-But": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C4H9",
+   "confidence": "high",
+   "note": "sec-butyl"
+  },
+  "n-Butyl": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C4H9",
+   "confidence": "high",
+   "note": "sec-butyl"
   },
   "n-C3H7": {
    "atoms": 4,
@@ -2591,7 +4264,42 @@
    "confidence": "high",
    "note": "n-pentyl"
   },
+  "n-Heptyl": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C7H15",
+   "confidence": "high",
+   "note": "n-heptyl, linear isomer assumed"
+  },
+  "n-Hexyl": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C6H13",
+   "confidence": "high",
+   "note": "n-hexyl"
+  },
+  "n-Pentyl": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C5H11",
+   "confidence": "high",
+   "note": "n-pentyl"
+  },
   "n-Pr": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C3H7",
+   "confidence": "high",
+   "note": "n-propyl"
+  },
+  "n-Pro": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C3H7",
+   "confidence": "high",
+   "note": "n-propyl"
+  },
+  "n-Propyl": {
    "atoms": 4,
    "bonds": 3,
    "formula": "C3H7",
@@ -2612,7 +4320,42 @@
    "confidence": "high",
    "note": "n-butyl"
   },
+  "nButyl": {
+   "atoms": 5,
+   "bonds": 4,
+   "formula": "C4H9",
+   "confidence": "high",
+   "note": "sec-butyl"
+  },
+  "nHeptyl": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C7H15",
+   "confidence": "high",
+   "note": "n-heptyl, linear isomer assumed"
+  },
+  "nHexyl": {
+   "atoms": 7,
+   "bonds": 6,
+   "formula": "C6H13",
+   "confidence": "high",
+   "note": "n-hexyl"
+  },
+  "nPentyl": {
+   "atoms": 6,
+   "bonds": 5,
+   "formula": "C5H11",
+   "confidence": "high",
+   "note": "n-pentyl"
+  },
   "nPr": {
+   "atoms": 4,
+   "bonds": 3,
+   "formula": "C3H7",
+   "confidence": "high",
+   "note": "n-propyl"
+  },
+  "nPropyl": {
    "atoms": 4,
    "bonds": 3,
    "formula": "C3H7",
@@ -2646,6 +4389,20 @@
    "formula": "C7H7",
    "confidence": "high",
    "note": "4-methylphenyl"
+  },
+  "p-Tos": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C7H7O2S",
+   "confidence": "high",
+   "note": "tosyl (4-methylbenzenesulfonyl)"
+  },
+  "p-Tosyl": {
+   "atoms": 11,
+   "bonds": 11,
+   "formula": "C7H7O2S",
+   "confidence": "high",
+   "note": "tosyl (4-methylbenzenesulfonyl)"
   },
   "pGlu": {
    "atoms": 9,
@@ -2682,12 +4439,47 @@
    "confidence": "high",
    "note": "O-phospho-L-tyrosine residue"
   },
+  "picryl": {
+   "atoms": 16,
+   "bonds": 16,
+   "formula": "C6H2N3O6",
+   "confidence": "high",
+   "note": "picryl"
+  },
   "pin": {
    "atoms": 9,
    "bonds": 8,
    "formula": "C6H13O2",
    "confidence": "medium",
    "note": "pinacol O-ether (pinacolato O-linked); for the boronate use Bpin"
+  },
+  "pyrazol-1-yl": {
+   "atoms": 6,
+   "bonds": 6,
+   "formula": "C3H3N2",
+   "confidence": "high",
+   "note": "pyrazol-1-yl"
+  },
+  "pyrazol-3-yl": {
+   "atoms": 6,
+   "bonds": 6,
+   "formula": "C3H3N2",
+   "confidence": "high",
+   "note": "pyrazol-3-yl"
+  },
+  "rT(3'-O)": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C10H13N2O6",
+   "confidence": "high",
+   "note": "rT, 3'-O attachment; no phosphate"
+  },
+  "rT(5'-O)": {
+   "atoms": 19,
+   "bonds": 20,
+   "formula": "C10H13N2O6",
+   "confidence": "high",
+   "note": "rT, 5'-O attachment; no phosphate"
   },
   "s-Am": {
    "atoms": 6,
@@ -2751,6 +4543,13 @@
    "formula": "C5H9O2",
    "confidence": "high",
    "note": "tert-butoxycarbonyl"
+  },
+  "t-Boc": {
+   "atoms": 8,
+   "bonds": 7,
+   "formula": "C5H9O2",
+   "confidence": "high",
+   "note": "(1,1-dimethylethoxy)carbonyl"
   },
   "t-Bu": {
    "atoms": 5,

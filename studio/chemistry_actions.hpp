@@ -267,6 +267,7 @@ void App::collapseGroups(){
  }catch(const std::exception& e){status=e.what();invalidate(false);}
 }
 void App::expandGroups(){
+ if(textEditor.active&&!finishText(true))return;
  if(catalyticFold(true))return;
  std::vector<ObjectId> methyls;bool otherGroups=false;std::vector<studio::explicit_hydrogens::Plan> hydrogenPlans;bool otherHydrides=false;
  for(auto id:functional_groups::selection(s)){auto a=s.doc.atoms().alive(id);auto label=s.doc.atomLabel(id);auto links=s.doc.incidentBonds(id);bool named=label=="Me"||label=="CH3"||label=="H3C";bool methyl=a&&a->element==6&&!a->semantics.charge&&!a->semantics.radical&&!a->semantics.isotope&&links.size()==1&&s.doc.bonds().alive(links.front())->order==BondOrder::Single&&(named||((label.empty()||label=="C")&&(a->semantics.implicitHydrogens<0||a->semantics.implicitHydrogens==3)));
@@ -278,12 +279,46 @@ void App::expandGroups(){
  }return CommandResult::success();}),"甲基分级展开");error(e);if(e.ok()){s.selected=selected;s.selected.insert(s.selected.end(),made->begin(),made->end());status="甲基已分级展开：线端 → CH3 → 显式 C—H";}invalidate();return;}
  if(expandPending&&!otherGroups&&expandDocument==s.doc.id()&&expandDigest==s.doc.digest()&&expandSelection==s.selected){expandPending=false;chemistryAction("clean");invalidate();return;}
  expandPending=false;if(s.selected.empty()){status="请先选中要展开的结构";invalidate(false);return;}const auto retainedSelection=studioio::expanded(s.doc,s.selected);
- try{std::vector<functional_groups::Expansion> plans;for(auto id:functional_groups::selection(s))if(!functional_groups::definition(s.doc,id).empty())plans.push_back(functional_groups::prepareExpansion(s.doc,id));
- for(auto ref:studioio::expanded(s.doc,s.selected))if(ref.kind==ObjectKind::Text)if(const auto* compound=compounddata::find(s.doc.plainText(ref.id))){auto text=s.doc.texts().alive(ref.id);plans.push_back(functional_groups::prepareCompound(s.doc,compound->fragment,text->position+Vec2(text->size*.35,-text->size*.35),kInvalidObjectId,ref.id));}
- if(plans.empty()){status="选中结构没有可展开的官能团缩写";invalidate(false);return;}
- const auto originalDigest=s.doc.digest();Document prepared=s.doc;std::vector<ObjectRef> preview;std::set<ObjectId> metalCenters;for(const auto& p:plans){size_t start=preview.size();functional_groups::applyExpansion(prepared,p,preview);if(p.metalLigands&&preview.size()>start)metalCenters.insert(preview[start].id);}bool cleaned=false;auto ce=cleanExpandedGeometry(h,prepared,preview,&cleaned,metalCenters);if(!ce.ok()){error(ce);invalidate();return;}std::vector<Vec2> positions;for(auto ref:preview)if(ref.kind==ObjectKind::Atom)positions.push_back(prepared.atoms().alive(ref.id)->position);
+ try{
+ std::unique_ptr<Document> resolved;
+ std::vector<functional_groups::Expansion> plans;
+ std::vector<ObjectId> attachedMolecules;
+ for(auto id:functional_groups::selection(s)){
+     auto definition=functional_groups::definition(s.doc,id);
+     if(definition.empty())continue;
+     auto label=s.doc.atomLabel(id);
+     auto compound=compounddata::find(label);
+     if(compound&&(compound->standalone||(chemcompletion::ambiguousGroups().count(chemcompletion::foldCase(label))&&groupchoice::standaloneChoice(label)))&&!s.doc.incidentBonds(id).empty()&&definition==compounddata::find(label)->fragment&&!s.doc.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.compound.anchor")){
+         attachedMolecules.push_back(id);continue;
+     }
+     plans.push_back(functional_groups::prepareExpansion(resolved?*resolved:s.doc,id));
+ }
+
+ for(auto ref:studioio::expanded(s.doc,s.selected))if(ref.kind==ObjectKind::Text)if(const auto* compound=compounddata::find(s.doc.plainText(ref.id)))if(compounddata::canonical(s.doc.plainText(ref.id))==s.doc.plainText(ref.id)){auto text=s.doc.texts().alive(ref.id);plans.push_back(functional_groups::prepareCompound(s.doc,compound->fragment,text->position+Vec2(text->size*.35,-text->size*.35),kInvalidObjectId,ref.id));}
+ const bool skippedMolecules=!plans.empty()&&!attachedMolecules.empty();
+ if(plans.empty())for(auto id:attachedMolecules){
+         const auto key=chemcompletion::foldCase(s.doc.atomLabel(id));auto family=chemcompletion::ambiguousGroups().find(key);
+         if(family==chemcompletion::ambiguousGroups().end()||std::none_of(family->second.begin(),family->second.end(),[](const std::string& option){return option[0]!='#'&&!groupchoice::standaloneChoice(option);}))continue;
+         auto choice=groupchoice::choose(h,key,false,true,true);
+         if(choice.empty()){status="已取消官能团展开";invalidate(false);return;}
+         if(!resolved)resolved.reset(new Document(s.doc));
+         functional_groups::checked(nicknames::apply(*resolved,id,choice));
+     plans.push_back(functional_groups::prepareExpansion(*resolved,id));
+ }
+ if(plans.empty()){status=attachedMolecules.empty()?"选中结构没有可展开的官能团缩写":"完整分子没有取代基连接点，请单独放置后展开";invalidate(false);return;}
+ const auto originalDigest=s.doc.digest();Document prepared=s.doc;std::vector<ObjectRef> preview;std::set<ObjectId> metalCenters;for(const auto& p:plans){size_t start=preview.size();functional_groups::applyExpansion(prepared,p,preview);if(p.metalLigands&&preview.size()>start)metalCenters.insert(preview[start].id);}
+ std::vector<ObjectRef> originals;
+ for(const auto& plan:plans){
+     if(plan.target!=kInvalidObjectId)originals.emplace_back(ObjectKind::Atom,plan.target);
+     else if(plan.text!=kInvalidObjectId)originals.emplace_back(ObjectKind::Text,plan.text);
+ }
+ const auto before=studio::analyze(resolved?*resolved:s.doc,originals),after=studio::analyze(prepared,preview);
+ if(before.valid&&after.valid&&before.plain!=after.plain)throw std::runtime_error("展开前后分子式不一致（"+before.plain+" → "+after.plain+"），已保留原结构");
+ const auto invalid=studio::validation::overValentAtoms(prepared);
+ for(auto ref:preview)if(ref.kind==ObjectKind::Atom&&std::find(invalid.begin(),invalid.end(),ref.id)!=invalid.end())throw std::runtime_error("展开会导致原子价态超限，已保留原结构");
+ bool cleaned=false;auto ce=cleanExpandedGeometry(h,prepared,preview,&cleaned,metalCenters);if(!ce.ok()){error(ce);invalidate();return;}std::vector<Vec2> positions;for(auto ref:preview)if(ref.kind==ObjectKind::Atom)positions.push_back(prepared.atoms().alive(ref.id)->position);
  auto inserted=std::make_shared<std::vector<ObjectRef>>();auto e=s.submit(Command("官能团展开",kInvalidateStructure|kInvalidateGeometry|kInvalidateSemantics,[plans,inserted,positions,originalDigest](CommandContext& c){try{if(c.document.digest()!=originalDigest)return CommandResult::fail(ErrorCode::RevisionConflict,"结构已改变，请重新展开");inserted->clear();for(const auto& p:plans)functional_groups::applyExpansion(c.document,p,*inserted);size_t i=0;for(auto ref:*inserted)if(ref.kind==ObjectKind::Atom){if(i>=positions.size())return CommandResult::fail(ErrorCode::InvalidGeometry,"展开原子映射不完整");auto e=c.document.setAtomPosition(ref.id,positions[i++]);if(!e.ok())return CommandResult::fail(e.code,e.message);}return CommandResult::success();}catch(const std::exception& e){return CommandResult::fail(ErrorCode::InvalidArgument,e.what());}}),"官能团展开");error(e);
- if(e.ok()){s.selected=*inserted;for(auto ref:retainedSelection)if(((ref.kind==ObjectKind::Atom&&s.doc.atoms().alive(ref.id))||(ref.kind==ObjectKind::Bond&&s.doc.bonds().alive(ref.id)))&&std::find(s.selected.begin(),s.selected.end(),ref)==s.selected.end())s.selected.push_back(ref);expandPending=std::none_of(plans.begin(),plans.end(),[](const functional_groups::Expansion& p){return p.intermediate;});expandDocument=s.doc.id();expandDigest=s.doc.digest();expandSelection=s.selected;status="所选官能团已分级展开并自动整理 · 可撤销";}invalidate();
+ if(e.ok()){s.selected=*inserted;for(auto ref:retainedSelection)if(((ref.kind==ObjectKind::Atom&&s.doc.atoms().alive(ref.id))||(ref.kind==ObjectKind::Bond&&s.doc.bonds().alive(ref.id)))&&std::find(s.selected.begin(),s.selected.end(),ref)==s.selected.end())s.selected.push_back(ref);expandPending=std::none_of(plans.begin(),plans.end(),[](const functional_groups::Expansion& p){return p.intermediate;});expandDocument=s.doc.id();expandDigest=s.doc.digest();expandSelection=s.selected;status=skippedMolecules?"已展开选中的取代基；无连接点的完整分子已保留原标签":"所选官能团已分级展开并自动整理 · 可撤销";}invalidate();
  }catch(const std::exception& e){status=e.what();invalidate(false);}
 }
 

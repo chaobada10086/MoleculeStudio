@@ -9,6 +9,12 @@
     "note": "2,4-dichlorobenzyloxycarbonyl (2,4-diCl-Z)",
     "smiles": "[*]C(=O)OCc1ccc(Cl)cc1Cl"
   },
+  "2-6Clb": {
+    "confidence": "high",
+    "note": "(2,6-dichlorophenyl)methyl",
+    "smiles": "*Cc1c(Cl)cccc1Cl",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "2-6DCZ": {
     "confidence": "medium",
     "note": "2,6-dichlorobenzyloxycarbonyl (2,6-diCl-Z)",
@@ -18,6 +24,18 @@
     "confidence": "high",
     "note": "2-naphthyl (beta)",
     "smiles": "[*]c1ccc2ccccc2c1"
+  },
+  "2Abz": {
+    "confidence": "high",
+    "note": "2-aminobenzoyl",
+    "smiles": "*C(=O)c1ccccc1N",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "2BZ": {
+    "confidence": "high",
+    "note": "[(2-bromophenyl)methoxy]carbonyl",
+    "smiles": "*C(=O)OCc1ccccc1Br",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "2CZ": {
     "confidence": "medium",
@@ -34,10 +52,34 @@
     "note": "2-hydroxyphenyl",
     "smiles": "[*]c1ccccc1O"
   },
+  "2Pip": {
+    "confidence": "high",
+    "note": "2-piperidinyl",
+    "smiles": "*C1CCCCN1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "3Py": {
     "confidence": "high",
     "note": "pyridin-3-yl",
     "smiles": "[*]c1cccnc1"
+  },
+  "4-Tosyl": {
+    "confidence": "high",
+    "note": "tosyl (4-methylbenzenesulfonyl)",
+    "smiles": "*S(=O)(=O)c1ccc(C)cc1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "4Abz": {
+    "confidence": "high",
+    "note": "4-aminobenzoyl",
+    "smiles": "*C(=O)c1ccc(N)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "4BZ": {
+    "confidence": "high",
+    "note": "[(4-bromophenyl)methoxy]carbonyl",
+    "smiles": "*C(=O)OCc1ccc(Br)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "4CZ": {
     "confidence": "medium",
@@ -48,6 +90,12 @@
     "confidence": "high",
     "note": "pyridin-4-yl",
     "smiles": "[*]c1ccncc1"
+  },
+  "Aac": {
+    "confidence": "high",
+    "note": "2-amino-2-oxoethyl",
+    "smiles": "*CC(N)=O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Aad": {
     "confidence": "high",
@@ -79,20 +127,56 @@
     "note": "acetoxy (attached through O)",
     "smiles": "CC(=O)O[*]"
   },
+  "Aca": {
+    "confidence": "high",
+    "note": "2-aminodecanoyl",
+    "smiles": "*C(=O)C(N)CCCCCCCC",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
+  "Ace": {
+    "confidence": "high",
+    "note": "Common functional group",
+    "smiles": "*C(C)=O",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "Acetyl": {
+    "confidence": "high",
+    "note": "Common functional group",
+    "smiles": "*C(C)=O",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "Acm": {
     "confidence": "high",
     "note": "acetamidomethyl (Cys protection)",
     "smiles": "CC(=O)NC[*]"
+  },
+  "Acr": {
+    "confidence": "high",
+    "note": "acridin-9-yl",
+    "smiles": "*c1c2ccccc2nc2ccccc12",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Ad": {
     "confidence": "high",
     "note": "1-adamantyl",
     "smiles": "[*]C12CC3CC(CC(C3)C1)C2"
   },
+  "Adc": {
+    "confidence": "high",
+    "note": "adamantan-1-yloxy",
+    "smiles": "*OC12CC3CC(CC(C3)C1)C2",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Adoc": {
     "confidence": "medium",
     "note": "1-adamantyloxycarbonyl",
     "smiles": "[*]C(=O)OC12CC3CC(CC(C3)C1)C2"
+  },
+  "Aet": {
+    "confidence": "high",
+    "note": "2-aminoethyl",
+    "smiles": "*CCN",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Ahx": {
     "confidence": "high",
@@ -124,10 +208,40 @@
     "note": "allyl",
     "smiles": "C=CC[*]"
   },
+  "Am": {
+    "confidence": "high",
+    "note": "n-pentyl",
+    "smiles": "*CCCCC",
+    "source": "参考缩写表.pdf p.1"
+  },
+  "Amoc": {
+    "confidence": "high",
+    "note": "(9-anthracenylmethoxy)carbonyl",
+    "smiles": "*C(=O)OCc1c2ccccc2cc2ccccc12",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "An": {
     "confidence": "high",
     "note": "4-methoxyphenyl (p-anisyl); supplied Zhihu abbreviation table",
     "smiles": "[*]c1ccc(OC)cc1"
+  },
+  "Aoc": {
+    "confidence": "high",
+    "note": "(1,1-dimethylpropoxy)carbonyl",
+    "smiles": "*C(=O)OC(C)(C)CC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Apm": {
+    "confidence": "high",
+    "note": "2-aminoheptanedioic acid residue",
+    "smiles": "*C(=O)C(N)CCCCC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
+  "App": {
+    "confidence": "high",
+    "note": "4-amino-3-hydroxy-5-phenylpentanoyl",
+    "smiles": "*C(=O)CC(O)C(N)Cc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
   },
   "Arg": {
     "confidence": "high",
@@ -144,10 +258,22 @@
     "note": "L-aspartic acid residue",
     "smiles": "N[C@@H](CC(=O)O)C(=O)[*]"
   },
+  "Asu": {
+    "confidence": "high",
+    "note": "2-aminooctanedioic acid residue",
+    "smiles": "*C(=O)C(N)CCCCCC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
   "Aze": {
     "confidence": "high",
     "note": "L-azetidine-2-carboxylic acid",
     "smiles": "O=C([*])[C@@H]1CCN1"
+  },
+  "Azoc": {
+    "confidence": "high",
+    "note": "[1-methyl-1-[4-(phenylazo)phenyl]ethoxy]carbonyl",
+    "smiles": "*C(=O)OC(C)(C)c1ccc(N=Nc2ccccc2)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "B(OH)2": {
     "confidence": "authored",
@@ -171,10 +297,22 @@
     "note": "4-benzyloxybutyryl; supplied Zhihu abbreviation table",
     "smiles": "[*]C(=O)CCCOCc1ccccc1"
   },
+  "BOC": {
+    "confidence": "high",
+    "note": "(1,1-dimethylethoxy)carbonyl",
+    "smiles": "*C(=O)OC(C)(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "BOM": {
     "confidence": "high",
     "note": "benzyloxymethyl",
     "smiles": "c1ccccc1COC[*]"
+  },
+  "BPS": {
+    "confidence": "high",
+    "note": "tert-butyldiphenylsilyl",
+    "smiles": "*[Si](c1ccccc1)(c1ccccc1)C(C)(C)C",
+    "source": "参考缩写表.pdf p.3"
   },
   "BTC": {
     "confidence": "medium",
@@ -182,11 +320,41 @@
     "smiles": "ClC(Cl)(Cl)OC(=O)OC(Cl)(Cl)Cl",
     "standalone": true
   },
+  "BTC(CAS)": {
+    "confidence": "high",
+    "note": "[(phenylmethyl)thio]carbonyl",
+    "smiles": "*C(=O)SCc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Baam": {
     "confidence": "high",
     "note": "anthranilamide-protected boron; B-bound",
     "smiles": "[*]B1Nc2ccccc2C(=O)N1",
     "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
+  },
+  "Bac": {
+    "confidence": "high",
+    "note": "bromoacetyl",
+    "smiles": "*C(=O)CBr",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Bal": {
+    "confidence": "high",
+    "note": "beta-alanyl",
+    "smiles": "*C(=O)CCN",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
+  "Bam": {
+    "confidence": "high",
+    "note": "(benzoylamino)methyl",
+    "smiles": "*CNC(=O)c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Bas": {
+    "confidence": "high",
+    "note": "beta-aspartyl",
+    "smiles": "*C(=O)CC(N)C(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
   },
   "Bcat": {
     "confidence": "high",
@@ -210,16 +378,40 @@
     "note": "benzyl",
     "smiles": "[*]Cc1ccccc1"
   },
+  "Beoc": {
+    "confidence": "high",
+    "note": "(2-bromoethoxy)carbonyl",
+    "smiles": "*C(=O)OCCBr",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Bhoc": {
     "confidence": "high",
     "note": "benzhydryloxycarbonyl",
     "smiles": "[*]C(=O)OC(c1ccccc1)c1ccccc1",
     "source": "https://pubs.rsc.org/en/content/articlehtml/2023/cs/d2cs00049k"
   },
+  "Bic": {
+    "confidence": "high",
+    "note": "(5-benzisoxazolylmethoxy)carbonyl",
+    "smiles": "*C(=O)OCc1ccc2oncc2c1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Bip": {
     "confidence": "high",
     "note": "biphenyl-4-sulfonyl; supplied Zhihu abbreviation table",
     "smiles": "[*]S(=O)(=O)c1ccc(-c2ccccc2)cc1"
+  },
+  "Bly": {
+    "confidence": "high",
+    "note": "3,6-diaminohexanoyl",
+    "smiles": "*C(=O)CC(N)CCCN",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
+  "Bmv": {
+    "confidence": "high",
+    "note": "1-methyl-3-oxo-3-phenyl-1-propenyl",
+    "smiles": "*C(C)=CC(=O)c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Bn": {
     "confidence": "high",
@@ -232,10 +424,22 @@
     "smiles": "[*]B1OCC(C)(C)CO1",
     "source": "https://pubs.rsc.org/en/content/getauthorversionpdf/d0py01507e"
   },
+  "Bnps": {
+    "confidence": "high",
+    "note": "(3-bromo-2-nitrophenyl)thio",
+    "smiles": "*Sc1cccc(Br)c1[N+](=O)[O-]",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Boc": {
     "confidence": "high",
     "note": "tert-butoxycarbonyl",
     "smiles": "CC(C)(C)OC(=O)[*]"
+  },
+  "Bocae": {
+    "confidence": "high",
+    "note": "2-[(tert-butoxycarbonyl)amino]ethyl",
+    "smiles": "*CCNC(=O)OC(C)(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Bpin": {
     "confidence": "high",
@@ -257,10 +461,34 @@
     "note": "benzotriazol-1-yl",
     "smiles": "[*]n1nnc2ccccc12"
   },
+  "Btm": {
+    "confidence": "high",
+    "note": "[(phenylmethyl)thio]methyl",
+    "smiles": "*CSCc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Bu": {
     "confidence": "high",
     "note": "n-butyl",
     "smiles": "CCCC[*]"
+  },
+  "Bua": {
+    "confidence": "high",
+    "note": "butanoyl",
+    "smiles": "*C(=O)CCC",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
+  "Bum": {
+    "confidence": "high",
+    "note": "[(2-methyl-1-oxopropyl)amino]methyl",
+    "smiles": "*CNC(=O)C(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Bux": {
+    "confidence": "high",
+    "note": "4-amino-3-hydroxybutanoyl",
+    "smiles": "*C(=O)CC(O)CN",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
   },
   "Bz": {
     "confidence": "high",
@@ -271,6 +499,18 @@
     "confidence": "medium",
     "note": "benzoyloxymethyl",
     "smiles": "c1ccccc1C(=O)OC[*]"
+  },
+  "Bza": {
+    "confidence": "high",
+    "note": "1H-benzimidazol-2-yl",
+    "smiles": "*c1nc2ccccc2[nH]1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Bzh": {
+    "confidence": "high",
+    "note": "diphenylmethyl",
+    "smiles": "*C(c1ccccc1)c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Bzl": {
     "confidence": "high",
@@ -402,6 +642,12 @@
     "note": "n-nonyl, linear isomer assumed",
     "smiles": "CCCCCCCCC[*]"
   },
+  "CBz": {
+    "confidence": "high",
+    "note": "(phenylmethoxy)carbonyl",
+    "smiles": "*C(=O)OCc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "CCl3": {
     "confidence": "high",
     "note": "trichloromethyl",
@@ -432,6 +678,12 @@
     "note": "hydroxymethyl",
     "smiles": "OC[*]"
   },
+  "CH3": {
+    "confidence": "high",
+    "note": "methyl",
+    "smiles": "*C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "CHF2": {
     "confidence": "authored",
     "note": "Common functional group; attachment at *",
@@ -446,6 +698,12 @@
     "confidence": "high",
     "note": "cyano",
     "smiles": "N#C[*]"
+  },
+  "CO2Bn": {
+    "confidence": "high",
+    "note": "(phenylmethoxy)carbonyl",
+    "smiles": "*C(=O)OCc1ccccc1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "CO2Et": {
     "confidence": "high",
@@ -482,6 +740,12 @@
     "note": "chlorocarbonyl",
     "smiles": "O=C(Cl)[*]"
   },
+  "COMe": {
+    "confidence": "high",
+    "note": "Common functional group",
+    "smiles": "*C(C)=O",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "CON3": {
     "confidence": "high",
     "note": "acyl azide (charge separation required by the azide)",
@@ -491,6 +755,12 @@
     "confidence": "high",
     "note": "carbamoyl",
     "smiles": "NC(=O)[*]"
+  },
+  "CONHEt": {
+    "confidence": "high",
+    "note": "(ethylamino)carbonyl",
+    "smiles": "*C(=O)NCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "CONHMe": {
     "confidence": "high",
@@ -527,35 +797,101 @@
     "note": "Common functional group; attachment at *",
     "smiles": "*C(=O)OC(C)(C)C"
   },
+  "Cac": {
+    "confidence": "high",
+    "note": "carboxyacetyl",
+    "smiles": "*C(=O)CC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Cap": {
     "confidence": "medium",
     "note": "caproyl (n-hexanoyl)",
     "smiles": "CCCCCC(=O)[*]"
+  },
+  "Cbm": {
+    "confidence": "high",
+    "note": "aminocarbonyl",
+    "smiles": "*C(N)=O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Cbs": {
+    "confidence": "high",
+    "note": "(4-chlorophenyl)sulfonyl",
+    "smiles": "*S(=O)(=O)c1ccc(Cl)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Cbz": {
     "confidence": "high",
     "note": "benzyloxycarbonyl",
     "smiles": "[*]C(=O)OCc1ccccc1"
   },
+  "Cdf": {
+    "confidence": "high",
+    "note": "chlorodifluoroacetyl",
+    "smiles": "*C(=O)C(F)(F)Cl",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Ceoc": {
+    "confidence": "high",
+    "note": "(2-chloroethoxy)carbonyl",
+    "smiles": "*C(=O)OCCCl",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Cha": {
     "confidence": "high",
     "note": "L-cyclohexylalanine",
     "smiles": "N[C@@H](CC1CCCCC1)C(=O)[*]"
+  },
+  "Chc": {
+    "confidence": "high",
+    "note": "cyclohexylcarbonyl",
+    "smiles": "*C(=O)C1CCCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Chp": {
+    "confidence": "high",
+    "note": "cycloheptyl",
+    "smiles": "*C1CCCCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Chx": {
     "confidence": "high",
     "note": "cyclohexyl; alias of Cy; supplied Zhihu abbreviation table",
     "smiles": "[*]C1CCCCC1"
   },
+  "Chxa": {
+    "confidence": "high",
+    "note": "cyclohexylacetyl",
+    "smiles": "*C(=O)CC1CCCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Cit": {
     "confidence": "high",
     "note": "L-citrulline residue",
     "smiles": "N[C@@H](CCCNC(N)=O)C(=O)[*]"
   },
+  "Cm": {
+    "confidence": "high",
+    "note": "carboxymethyl",
+    "smiles": "*CC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Cp": {
     "confidence": "medium",
     "note": "cyclopentadienyl (eta-1 C-bound; coordination to metals is shown separately)",
     "smiles": "[*]C1C=CC=C1"
+  },
+  "Cpc": {
+    "confidence": "high",
+    "note": "cyclopentylcarbonyl",
+    "smiles": "*C(=O)C1CCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Cpe": {
+    "confidence": "high",
+    "note": "cyclopentyl",
+    "smiles": "*C1CCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Cpm": {
     "confidence": "medium",
@@ -566,6 +902,12 @@
     "confidence": "high",
     "note": "cyclohexyl",
     "smiles": "C1CCCCC1[*]"
+  },
+  "Cya": {
+    "confidence": "high",
+    "note": "cysteic acid residue",
+    "smiles": "*C(=O)C(N)CS(=O)(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
   },
   "Cys": {
     "confidence": "high",
@@ -592,10 +934,22 @@
     "note": "2,4-dimethoxybenzyl",
     "smiles": "COc1ccc(C[*])c(OC)c1"
   },
+  "DMB(CAS)": {
+    "confidence": "high",
+    "note": "(3,4-dimethylphenyl)methyl",
+    "smiles": "*Cc1ccc(C)c(C)c1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "DMIPS": {
     "confidence": "high",
     "note": "dimethylisopropylsilyl",
     "smiles": "C[Si](C)(C(C)C)[*]"
+  },
+  "DMPM": {
+    "confidence": "high",
+    "note": "3,4-dimethoxybenzyl",
+    "smiles": "*Cc1ccc(OC)c(OC)c1",
+    "source": "https://github.com/Actelion/openchemlib/blob/master/src/main/java/com/actelion/research/chem/NamedSubstituents.java"
   },
   "DMPS": {
     "confidence": "medium",
@@ -607,10 +961,64 @@
     "note": "4,4'-dimethoxytrityl",
     "smiles": "[*]C(c1ccccc1)(c1ccc(OC)cc1)c1ccc(OC)cc1"
   },
+  "DNAA(3'-O)": {
+    "confidence": "high",
+    "note": "DNAA, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1C[C@H](n2cnc3c(N)ncnc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "DNAA(5'-O)": {
+    "confidence": "high",
+    "note": "DNAA, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(N)ncnc32)C[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "DNAC(3'-O)": {
+    "confidence": "high",
+    "note": "DNAC, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1C[C@H](n2ccc(N)nc2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "DNAC(5'-O)": {
+    "confidence": "high",
+    "note": "DNAC, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(N)nc2=O)C[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "DNAG(3'-O)": {
+    "confidence": "high",
+    "note": "DNAG, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1C[C@H](n2cnc3c(=O)[nH]c(N)nc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "DNAG(5'-O)": {
+    "confidence": "high",
+    "note": "DNAG, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(=O)[nH]c(N)nc32)C[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "DNAT(3'-O)": {
+    "confidence": "high",
+    "note": "DNAT, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1C[C@H](n2cc(C)c(=O)[nH]c2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "DNAT(5'-O)": {
+    "confidence": "high",
+    "note": "DNAT, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cc(C)c(=O)[nH]c2=O)C[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
   "DNP": {
     "confidence": "high",
     "note": "2,4-dinitrophenyl",
     "smiles": "[*]c1ccc([N+](=O)[O-])cc1[N+](=O)[O-]"
+  },
+  "DNPS": {
+    "confidence": "high",
+    "note": "(2,4-dinitrophenyl)thio",
+    "smiles": "*Sc1ccc([N+](=O)[O-])cc1[N+](=O)[O-]",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "DNS": {
     "confidence": "high",
@@ -621,6 +1029,18 @@
     "confidence": "medium",
     "note": "diisopropylsilyl",
     "smiles": "[*][SiH](C(C)C)C(C)C"
+  },
+  "DPS": {
+    "confidence": "high",
+    "note": "tert-butyldiphenylsilyl",
+    "smiles": "*[Si](c1ccccc1)(c1ccccc1)C(C)(C)C",
+    "source": "参考缩写表.pdf p.11"
+  },
+  "DPTBS": {
+    "confidence": "high",
+    "note": "tert-butoxydiphenylsilyl",
+    "smiles": "*[Si](OC(C)(C)C)(c1ccccc1)c1ccccc1",
+    "source": "https://github.com/Actelion/openchemlib/blob/master/src/main/java/com/actelion/research/chem/NamedSubstituents.java"
   },
   "DTBMS": {
     "confidence": "medium",
@@ -637,10 +1057,28 @@
     "note": "L-2,4-diaminobutyric acid residue",
     "smiles": "N[C@@H](CCN)C(=O)[*]"
   },
+  "Dan": {
+    "confidence": "high",
+    "note": "5-(dimethylamino)naphthalene-1-sulfonyl (dansyl)",
+    "smiles": "*S(=O)(=O)c1cccc2c(N(C)C)cccc12",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "Dansyl": {
+    "confidence": "high",
+    "note": "5-(dimethylamino)naphthalene-1-sulfonyl (dansyl)",
+    "smiles": "*S(=O)(=O)c1cccc2c(N(C)C)cccc12",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "Dap": {
     "confidence": "high",
     "note": "L-2,3-diaminopropionic acid residue",
     "smiles": "N[C@@H](CN)C(=O)[*]"
+  },
+  "Dbpoc": {
+    "confidence": "high",
+    "note": "(2,2-dibromopropoxy)carbonyl",
+    "smiles": "*C(=O)OCC(C)(Br)Br",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Dcpm": {
     "confidence": "high",
@@ -658,10 +1096,22 @@
     "note": "2-(3,5-dimethoxyphenyl)propan-2-yloxycarbonyl",
     "smiles": "[*]C(=O)OC(C)(C)c1cc(OC)cc(OC)c1"
   },
+  "De": {
+    "confidence": "high",
+    "note": "2-(diethylamino)ethyl",
+    "smiles": "*CCN(CC)CC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Dec": {
     "confidence": "high",
     "note": "n-decyl",
     "smiles": "CCCCCCCCCC[*]"
+  },
+  "Dec(CAS)": {
+    "confidence": "high",
+    "note": "1-oxodecyl",
+    "smiles": "*C(=O)CCCCCCCCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Dep": {
     "confidence": "high",
@@ -674,21 +1124,57 @@
     "note": "dehydroalanine",
     "smiles": "C=C(N)C(=O)[*]"
   },
+  "Dip": {
+    "confidence": "high",
+    "note": "[2-methyl-1-(1-methylethyl)propoxy]carbonyl",
+    "smiles": "*C(=O)OC(C(C)C)C(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Dipp": {
     "confidence": "high",
     "note": "2,6-diisopropylphenyl",
     "smiles": "[*]c1c(C(C)C)cccc1C(C)C",
     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4581995/"
   },
+  "Dmb": {
+    "confidence": "high",
+    "note": "2,4-dimethoxybenzyl",
+    "smiles": "*Cc1ccc(OC)cc1OC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "Dmoc": {
+    "confidence": "high",
+    "note": "[(dimethylamino)oxy]carbonyl",
+    "smiles": "*C(=O)ON(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Dmt": {
+    "confidence": "high",
+    "note": "bis(4-methoxyphenyl)methyl",
+    "smiles": "*C(c1ccc(OC)cc1)c1ccc(OC)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Dpm": {
     "confidence": "high",
     "note": "diphenylmethyl (benzhydryl)",
     "smiles": "c1ccccc1C(c1ccccc1)[*]"
   },
+  "Dpp": {
+    "confidence": "high",
+    "note": "diphenoxyphosphinyl",
+    "smiles": "*P(=O)(Oc1ccccc1)Oc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Dpr": {
     "confidence": "high",
     "note": "L-2,3-diaminopropionic acid",
     "smiles": "N[C@@H](CN)C(=O)[*]"
+  },
+  "Dsu": {
+    "confidence": "high",
+    "note": "2,7-diaminooctanedioic acid residue",
+    "smiles": "*C(=O)C(N)CCCCC(N)C(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
   },
   "EE": {
     "confidence": "high",
@@ -701,16 +1187,82 @@
     "note": "ethoxymethyl; supplied Zhihu abbreviation table",
     "smiles": "[*]COCC"
   },
+  "Eac": {
+    "confidence": "high",
+    "note": "(ethylamino)carbonyl",
+    "smiles": "*C(=O)NCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Edc": {
     "confidence": "medium",
     "note": "1-ethyl-3-(3-dimethylaminopropyl)carbodiimide",
     "smiles": "CCN=C=NCCCN(C)C",
     "standalone": true
   },
+  "Eoc": {
+    "confidence": "high",
+    "note": "ethoxycarbonyl",
+    "smiles": "*C(=O)OCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Et": {
     "confidence": "high",
     "note": "ethyl",
     "smiles": "CC[*]"
+  },
+  "Ethyl": {
+    "confidence": "high",
+    "note": "ethyl",
+    "smiles": "*CC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "FRNAA(3'-O)": {
+    "confidence": "high",
+    "note": "FRNAA, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](F)[C@H](n2cnc3c(N)ncnc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "FRNAA(5'-O)": {
+    "confidence": "high",
+    "note": "FRNAA, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(N)ncnc32)[C@H](F)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "FRNAC(3'-O)": {
+    "confidence": "high",
+    "note": "FRNAC, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](F)[C@H](n2ccc(N)nc2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "FRNAC(5'-O)": {
+    "confidence": "high",
+    "note": "FRNAC, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(N)nc2=O)[C@H](F)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "FRNAG(3'-O)": {
+    "confidence": "high",
+    "note": "FRNAG, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](F)[C@H](n2cnc3c(=O)[nH]c(N)nc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "FRNAG(5'-O)": {
+    "confidence": "high",
+    "note": "FRNAG, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(=O)[nH]c(N)nc32)[C@H](F)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "FRNAU(3'-O)": {
+    "confidence": "high",
+    "note": "FRNAU, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](F)[C@H](n2ccc(=O)[nH]c2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "FRNAU(5'-O)": {
+    "confidence": "high",
+    "note": "FRNAU, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(=O)[nH]c2=O)[C@H](F)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
   },
   "Fmoc": {
     "confidence": "high",
@@ -722,10 +1274,46 @@
     "note": "formyl",
     "smiles": "O=C[*]"
   },
+  "Formyl": {
+    "confidence": "high",
+    "note": "formyl",
+    "smiles": "*C=O",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "Ft": {
+    "confidence": "high",
+    "note": "(1,3-dihydro-1,3-dioxo-2H-isoindol-2-yl)methyl",
+    "smiles": "*CN1C(=O)c2ccccc2C1=O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Ggu": {
+    "confidence": "high",
+    "note": "gamma-glutamyl",
+    "smiles": "*C(=O)CCC(N)C(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
   "Gla": {
     "confidence": "medium",
     "note": "gamma-carboxy-L-glutamic acid (C-gamma stereochemistry unspecified)",
     "smiles": "O=C([*])[C@@H](N)C(C(=O)O)CC(=O)O"
+  },
+  "Glc": {
+    "confidence": "high",
+    "note": "glycolyl",
+    "smiles": "*C(=O)CO",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
+  "Glc(alpha-D)": {
+    "confidence": "high",
+    "note": "alpha-D-glucopyranosyl, attached at C1",
+    "smiles": "*[C@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
+    "source": "https://iupac.qmul.ac.uk/2carb/"
+  },
+  "Glc(beta-D)": {
+    "confidence": "high",
+    "note": "beta-D-glucopyranosyl, attached at C1",
+    "smiles": "*[C@@H]1O[C@H](CO)[C@@H](O)[C@H](O)[C@H]1O",
+    "source": "https://iupac.qmul.ac.uk/2carb/"
   },
   "Gln": {
     "confidence": "high",
@@ -736,6 +1324,12 @@
     "confidence": "high",
     "note": "L-pyroglutamyl (5-oxo-L-prolyl) residue",
     "smiles": "[*]C(=O)[C@@H]1CCC(=O)N1"
+  },
+  "Glt": {
+    "confidence": "high",
+    "note": "4-carboxy-1-oxobutyl",
+    "smiles": "*C(=O)CCCC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Glu": {
     "confidence": "high",
@@ -761,6 +1355,12 @@
     "confidence": "high",
     "note": "n-hexyl",
     "smiles": "CCCCCC[*]"
+  },
+  "Hex(CAS)": {
+    "confidence": "high",
+    "note": "1-oxohexyl",
+    "smiles": "*C(=O)CCCCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Hippuryl": {
     "confidence": "high",
@@ -792,6 +1392,12 @@
     "note": "L-homoserine residue",
     "smiles": "N[C@@H](CCO)C(=O)[*]"
   },
+  "Hva": {
+    "confidence": "high",
+    "note": "2-hydroxypentanoyl",
+    "smiles": "*C(=O)C(O)CCC",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
   "Hyl": {
     "confidence": "medium",
     "note": "L-5-hydroxylysine (2S,5R) residue",
@@ -801,6 +1407,18 @@
     "confidence": "medium",
     "note": "trans-4-hydroxy-L-proline",
     "smiles": "O=C([*])[C@@H]1C[C@@H](O)CN1"
+  },
+  "IPDMS": {
+    "confidence": "high",
+    "note": "dimethylisopropylsilyl",
+    "smiles": "*[Si](C)(C)C(C)C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "Igl": {
+    "confidence": "high",
+    "note": "2-indanylglycine residue",
+    "smiles": "*C(=O)C(N)C1Cc2ccccc2C1",
+    "source": "https://patents.google.com/patent/WO2019166411A1/en"
   },
   "Ile": {
     "confidence": "high",
@@ -812,10 +1430,34 @@
     "note": "imidazol-1-yl",
     "smiles": "[*]n1ccnc1"
   },
+  "Ioc": {
+    "confidence": "high",
+    "note": "(2-methylpropoxy)carbonyl",
+    "smiles": "*C(=O)OCC(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Ipa": {
+    "confidence": "high",
+    "note": "7-methyl-1-oxooctyl",
+    "smiles": "*C(=O)CCCCCC(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Ips": {
+    "confidence": "high",
+    "note": "(4-iodophenyl)sulfonyl",
+    "smiles": "*S(=O)(=O)c1ccc(I)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Iva": {
     "confidence": "high",
     "note": "isovaleryl (3-methylbutanoyl)",
     "smiles": "CC(C)CC(=O)[*]"
+  },
+  "Kpc": {
+    "confidence": "high",
+    "note": "(6-oxo-2-piperidinyl)carbonyl",
+    "smiles": "*C(=O)C1CCCC(=O)N1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Lac": {
     "confidence": "medium",
@@ -837,6 +1479,18 @@
     "note": "L-lysine",
     "smiles": "N[C@@H](CCCCN)C(=O)[*]"
   },
+  "MDIPS": {
+    "confidence": "high",
+    "note": "methyldiisopropylsilyl",
+    "smiles": "*[Si](C)(C(C)C)C(C)C",
+    "source": "https://github.com/Actelion/openchemlib/blob/master/src/main/java/com/actelion/research/chem/NamedSubstituents.java"
+  },
+  "MDPS": {
+    "confidence": "high",
+    "note": "methyldiphenylsilyl",
+    "smiles": "*[Si](C)(c1ccccc1)c1ccccc1",
+    "source": "https://github.com/Actelion/openchemlib/blob/master/src/main/java/com/actelion/research/chem/NamedSubstituents.java"
+  },
   "MEM": {
     "confidence": "high",
     "note": "2-methoxyethoxymethyl",
@@ -847,20 +1501,62 @@
     "note": "4-methoxytrityl",
     "smiles": "COc1ccc(C(c2ccccc2)(c2ccccc2)[*])cc1"
   },
+  "MOB": {
+    "confidence": "high",
+    "note": "(4-methoxyphenyl)methyl",
+    "smiles": "*Cc1ccc(OC)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "MOM": {
     "confidence": "high",
     "note": "methoxymethyl",
     "smiles": "COC[*]"
+  },
+  "MOS": {
+    "confidence": "high",
+    "note": "(4-methoxyphenyl)sulfonyl",
+    "smiles": "*S(=O)(=O)c1ccc(OC)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "MPM": {
     "confidence": "high",
     "note": "4-methoxybenzyl",
     "smiles": "COc1ccc(C[*])cc1"
   },
+  "MPM(PDF)": {
+    "confidence": "high",
+    "note": "methoxy(phenylthio)methyl",
+    "smiles": "*C(OC)Sc1ccccc1",
+    "source": "参考缩写表.pdf p.17"
+  },
   "MTM": {
     "confidence": "high",
     "note": "methylthiomethyl",
     "smiles": "CSC[*]"
+  },
+  "Maa": {
+    "confidence": "high",
+    "note": "mercaptoacetyl",
+    "smiles": "*C(=O)CS",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
+  "Mal": {
+    "confidence": "high",
+    "note": "3-carboxy-1-oxo-2-propenyl",
+    "smiles": "*C(=O)C=CC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Mbh": {
+    "confidence": "high",
+    "note": "bis(4-methoxyphenyl)methyl",
+    "smiles": "*C(c1ccc(OC)cc1)c1ccc(OC)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Mbs": {
+    "confidence": "high",
+    "note": "4-methoxybenzenesulfonyl",
+    "smiles": "*S(=O)(=O)c1ccc(OC)cc1",
+    "source": "https://books.rsc.org/books/edited-volume/1482/chapter/954458/"
   },
   "Me": {
     "confidence": "high",
@@ -871,6 +1567,12 @@
     "confidence": "medium",
     "note": "N-methyl-L-alanine residue",
     "smiles": "CN[C@@H](C)C(=O)[*]"
+  },
+  "MeOe": {
+    "confidence": "high",
+    "note": "2-methoxy-2-oxoethyl",
+    "smiles": "*CC(=O)OC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Mes": {
     "confidence": "high",
@@ -883,10 +1585,28 @@
     "smiles": "[*]c1c(C(C)(C)C)cc(C(C)(C)C)cc1C(C)(C)C",
     "source": "https://pubmed.ncbi.nlm.nih.gov/26337397/"
   },
+  "Mesityl": {
+    "confidence": "high",
+    "note": "mesityl (2,4,6-trimethylphenyl)",
+    "smiles": "*c1c(C)cc(C)cc1C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "Mesyl": {
+    "confidence": "high",
+    "note": "methylsulfonyl",
+    "smiles": "*S(C)(=O)=O",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "Met": {
     "confidence": "high",
     "note": "L-methionine",
     "smiles": "CSCC[C@H](N)C(=O)[*]"
+  },
+  "Methoxy": {
+    "confidence": "high",
+    "note": "methoxy",
+    "smiles": "*OC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "MgBr": {
     "confidence": "high",
@@ -903,6 +1623,18 @@
     "note": "magnesium iodide (Grignard, Mg-bound)",
     "smiles": "[*][Mg]I"
   },
+  "Mhoc": {
+    "confidence": "high",
+    "note": "[(1-methylcyclohexyl)oxy]carbonyl",
+    "smiles": "*C(=O)OC1(C)CCCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Mhp": {
+    "confidence": "high",
+    "note": "3-hydroxy-4-methylproline residue",
+    "smiles": "*C(=O)C1NCC(C)C1O",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
   "Mmt": {
     "confidence": "high",
     "note": "4-methoxytrityl (monomethoxytrityl)",
@@ -918,6 +1650,12 @@
     "note": "3-mercaptopropionyl",
     "smiles": "SCC(=O)[*]"
   },
+  "Mpt": {
+    "confidence": "high",
+    "note": "dimethylphosphinothioyl",
+    "smiles": "*P(C)(C)=S",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Ms": {
     "confidence": "high",
     "note": "methanesulfonyl",
@@ -927,6 +1665,30 @@
     "confidence": "medium",
     "note": "2-(methylsulfonyl)ethyloxycarbonyl",
     "smiles": "CS(=O)(=O)CCOC(=O)[*]"
+  },
+  "Msi": {
+    "confidence": "high",
+    "note": "methylsulfinyl",
+    "smiles": "*S(C)=O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Msp": {
+    "confidence": "high",
+    "note": "4-(methylsulfonyl)phenyl",
+    "smiles": "*c1ccc(S(C)(=O)=O)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Mtos": {
+    "confidence": "high",
+    "note": "(2,4,6-trimethoxyphenyl)sulfonyl",
+    "smiles": "*S(=O)(=O)c1c(OC)cc(OC)cc1OC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Mtp": {
+    "confidence": "high",
+    "note": "4-(methylthio)phenyl",
+    "smiles": "*c1ccc(SC)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Mts": {
     "confidence": "high",
@@ -942,6 +1704,12 @@
     "confidence": "high",
     "note": "myristoyl (n-tetradecanoyl)",
     "smiles": "CCCCCCCCCCCCCC(=O)[*]"
+  },
+  "Mz": {
+    "confidence": "high",
+    "note": "[[4-[(4-methoxyphenyl)azo]phenyl]methoxy]carbonyl",
+    "smiles": "*C(=O)OCc1ccc(N=Nc2ccc(OC)cc2)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "N3": {
     "confidence": "high",
@@ -967,6 +1735,12 @@
     "confidence": "high",
     "note": "tert-butoxycarbonylamino",
     "smiles": "[*]NC(=O)OC(C)(C)C"
+  },
+  "NHCO": {
+    "confidence": "high",
+    "note": "N-linked formamido group",
+    "smiles": "*NC=O",
+    "source": "condensed structural formula"
   },
   "NHCbz": {
     "confidence": "high",
@@ -998,6 +1772,18 @@
     "note": "Common functional group; attachment at *",
     "smiles": "*NS(=O)(=O)c1ccc(C)cc1"
   },
+  "NHZ": {
+    "confidence": "high",
+    "note": "[(phenylmethoxy)carbonyl]amino",
+    "smiles": "*NC(=O)OCc1ccccc1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "NMe": {
+    "confidence": "high",
+    "note": "Common functional group",
+    "smiles": "*NC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "NMe2": {
     "confidence": "high",
     "note": "dimethylamino",
@@ -1025,15 +1811,57 @@
     "smiles": "[*]C(=O)OCc1cc(OC)c(OC)cc1[N+](=O)[O-]",
     "source": "https://www.sigmaaldrich.com/US/en/substance/45dimethoxy2nitrobenzylchloroformate2756442855005"
   },
+  "Nabs": {
+    "confidence": "high",
+    "note": "[4-[(4-hydroxy-1-naphthalenyl)azo]phenyl]sulfonyl",
+    "smiles": "*S(=O)(=O)c1ccc(N=Nc2ccc(O)c3ccccc23)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Nal": {
     "confidence": "high",
     "note": "L-3-(1-naphthyl)alanine residue",
     "smiles": "N[C@@H](Cc1cccc2ccccc12)C(=O)[*]"
   },
+  "Nf": {
+    "confidence": "high",
+    "note": "nonafluorobutanesulfonyl",
+    "smiles": "*S(=O)(=O)C(F)(F)C(F)(F)C(F)(F)C(F)(F)F",
+    "source": "参考缩写表.pdf p.19"
+  },
+  "Ng": {
+    "confidence": "high",
+    "note": "2-methoxy-4-nitrophenyl",
+    "smiles": "*c1ccc([N+](=O)[O-])cc1OC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Ngu": {
+    "confidence": "high",
+    "note": "[imino(nitroamino)methyl]amino",
+    "smiles": "*NC(=N)N[N+](=O)[O-]",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Nis": {
+    "confidence": "high",
+    "note": "(4-nitrophenyl)sulfonyl",
+    "smiles": "*S(=O)(=O)c1ccc([N+](=O)[O-])cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Nle": {
     "confidence": "high",
     "note": "L-norleucine residue",
     "smiles": "N[C@@H](CCCC)C(=O)[*]"
+  },
+  "Nm": {
+    "confidence": "high",
+    "note": "3-nitrophenyl",
+    "smiles": "*c1cccc([N+](=O)[O-])c1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "No": {
+    "confidence": "high",
+    "note": "2-nitrophenyl",
+    "smiles": "*c1ccccc1[N+](=O)[O-]",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Nos": {
     "confidence": "high",
@@ -1045,6 +1873,24 @@
     "note": "1-naphthyl",
     "smiles": "[*]c1cccc2ccccc12"
   },
+  "Np(CAS)": {
+    "confidence": "high",
+    "note": "4-nitrophenyl",
+    "smiles": "*c1ccc([N+](=O)[O-])cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Npe": {
+    "confidence": "high",
+    "note": "2-nitro-1-phenylethyl",
+    "smiles": "*C(C[N+](=O)[O-])c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Nphe": {
+    "confidence": "high",
+    "note": "N-benzylglycine residue (C-terminal attachment)",
+    "smiles": "*C(=O)CNCc1ccccc1",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/122706533"
+  },
   "Nps": {
     "confidence": "medium",
     "note": "2-nitrophenylsulfenyl",
@@ -1054,6 +1900,12 @@
     "confidence": "high",
     "note": "2-nitrobenzenesulfonyl (nosyl)",
     "smiles": "[*]S(=O)(=O)c1ccccc1[N+](=O)[O-]"
+  },
+  "Ns(CAS)": {
+    "confidence": "high",
+    "note": "2-nitro-4-sulfophenyl",
+    "smiles": "*c1ccc(S(=O)(=O)O)cc1[N+](=O)[O-]",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Nva": {
     "confidence": "high",
@@ -1099,6 +1951,66 @@
     "confidence": "high",
     "note": "methoxy",
     "smiles": "CO[*]"
+  },
+  "OMeRNAA(3'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAA, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](OC)[C@H](n2cnc3c(N)ncnc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAA(5'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAA, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(N)ncnc32)[C@H](OC)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAC(3'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAC, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](OC)[C@H](n2ccc(N)nc2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAC(5'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAC, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(N)nc2=O)[C@H](OC)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAG(3'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAG, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](OC)[C@H](n2cnc3c(=O)[nH]c(N)nc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAG(5'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAG, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(=O)[nH]c(N)nc32)[C@H](OC)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAT(3'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAT, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](OC)[C@H](n2cc(C)c(=O)[nH]c2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAT(5'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAT, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cc(C)c(=O)[nH]c2=O)[C@H](OC)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAU(3'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAU, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](OC)[C@H](n2ccc(=O)[nH]c2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "OMeRNAU(5'-O)": {
+    "confidence": "high",
+    "note": "OMeRNAU, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(=O)[nH]c2=O)[C@H](OC)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
   },
   "OMs": {
     "confidence": "high",
@@ -1165,6 +2077,18 @@
     "note": "n-octyl",
     "smiles": "CCCCCCCC[*]"
   },
+  "Oct(CAS)": {
+    "confidence": "high",
+    "note": "1-oxooctyl",
+    "smiles": "*C(=O)CCCCCCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "OiBu": {
+    "confidence": "high",
+    "note": "isobutoxy",
+    "smiles": "*OCC(C)C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "OiPr": {
     "confidence": "authored",
     "note": "Common functional group; attachment at *",
@@ -1179,6 +2103,12 @@
     "confidence": "medium",
     "note": "oleoyl, Z (cis) double bond",
     "smiles": "CCCCCCCC/C=C\\CCCCCCCC(=O)[*]"
+  },
+  "Ole(CAS)": {
+    "confidence": "high",
+    "note": "1-oxo-9-octadecenyl",
+    "smiles": "*C(=O)CCCCCCCC=CCCCCCCCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Orn": {
     "confidence": "high",
@@ -1229,6 +2159,12 @@
     "note": "4-nitrobenzyloxycarbonyl; supplied Zhihu abbreviation table",
     "smiles": "[*]C(=O)OCc1ccc([N+](=O)[O-])cc1"
   },
+  "PO2": {
+    "confidence": "high",
+    "note": "phosphono",
+    "smiles": "*P(=O)(O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "PO3H2": {
     "confidence": "high",
     "note": "phosphono",
@@ -1239,10 +2175,40 @@
     "note": "diphenylphosphino",
     "smiles": "[*]P(c1ccccc1)c1ccccc1"
   },
+  "PPi": {
+    "confidence": "high",
+    "note": "pyrophosphate (triply charged P-linked form)",
+    "smiles": "*P(=O)([O-])OP(=O)([O-])[O-]",
+    "source": "https://github.com/Actelion/openchemlib/blob/master/src/main/java/com/actelion/research/chem/NamedSubstituents.java"
+  },
+  "PTMSE": {
+    "confidence": "high",
+    "note": "2-phenyl-2-trimethylsilylethyl",
+    "smiles": "*CC(c1ccccc1)[Si](C)(C)C",
+    "source": "参考缩写表.pdf p.21"
+  },
+  "Pa": {
+    "confidence": "high",
+    "note": "1-oxononyl",
+    "smiles": "*C(=O)CCCCCCCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Pal": {
+    "confidence": "high",
+    "note": "1-oxohexadecyl",
+    "smiles": "*C(=O)CCCCCCCCCCCCCCC",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Pbf": {
     "confidence": "medium",
     "note": "2,2,4,6,7-pentamethyldihydrobenzofuran-5-sulfonyl",
     "smiles": "CC1(C)Cc2c(C)c(S(=O)(=O)[*])c(C)c(C)c2O1"
+  },
+  "Pbp": {
+    "confidence": "high",
+    "note": "pentabromophenyl",
+    "smiles": "*c1c(Br)c(Br)c(Br)c(Br)c1Br",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Pcp": {
     "confidence": "medium",
@@ -1254,6 +2220,12 @@
     "note": "L-penicillamine residue",
     "smiles": "N[C@@H](C(C)(C)S)C(=O)[*]"
   },
+  "Pf": {
+    "confidence": "high",
+    "note": "9-phenylfluoren-9-yl",
+    "smiles": "*C1(c2ccccc2)c2ccccc2-c2ccccc21",
+    "source": "参考缩写表.pdf p.20"
+  },
   "Pfp": {
     "confidence": "high",
     "note": "pentafluorophenyl",
@@ -1263,6 +2235,12 @@
     "confidence": "high",
     "note": "phenyl",
     "smiles": "[*]c1ccccc1"
+  },
+  "PhSO2": {
+    "confidence": "high",
+    "note": "benzenesulfonyl",
+    "smiles": "*S(=O)(=O)c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Phe": {
     "confidence": "high",
@@ -1284,20 +2262,62 @@
     "note": "phthaloyl",
     "smiles": "[*]N1C(=O)c2ccccc2C1=O"
   },
+  "Pht(CAS)": {
+    "confidence": "high",
+    "note": "2-carboxybenzoyl",
+    "smiles": "*C(=O)c1ccccc1C(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Pic": {
+    "confidence": "high",
+    "note": "4-pyridinylmethyl",
+    "smiles": "*Cc1ccncc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Pip": {
     "confidence": "medium",
     "note": "piperidin-1-yl",
     "smiles": "[*]N1CCCCC1"
+  },
+  "Pipoc": {
+    "confidence": "high",
+    "note": "(1-piperidinyloxy)carbonyl",
+    "smiles": "*C(=O)ON1CCCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Piv": {
     "confidence": "high",
     "note": "pivaloyl",
     "smiles": "CC(C)(C)C(=O)[*]"
   },
+  "Pivaloyl": {
+    "confidence": "high",
+    "note": "pivaloyl",
+    "smiles": "*C(=O)C(C)(C)C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "Pmc": {
     "confidence": "medium",
     "note": "2,2,5,7,8-pentamethylchroman-6-sulfonyl",
     "smiles": "CC1(C)CCc2c(C)c(S(=O)(=O)[*])c(C)c(C)c2O1"
+  },
+  "Pnb": {
+    "confidence": "high",
+    "note": "(4-nitrophenyl)methyl",
+    "smiles": "*Cc1ccc([N+](=O)[O-])cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Poc": {
+    "confidence": "high",
+    "note": "(cyclopentyloxy)carbonyl",
+    "smiles": "*C(=O)OC1CCCC1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Ppt": {
+    "confidence": "high",
+    "note": "diphenylphosphinothioyl",
+    "smiles": "*P(=S)(c1ccccc1)c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Pr": {
     "confidence": "high",
@@ -1309,10 +2329,100 @@
     "note": "L-proline",
     "smiles": "O=C([*])[C@@H]1CCCN1"
   },
+  "Ptc": {
+    "confidence": "high",
+    "note": "(phenylamino)thioxomethyl",
+    "smiles": "*C(=S)Nc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Pv": {
     "confidence": "high",
     "note": "pivaloyl",
     "smiles": "CC(C)(C)C(=O)[*]"
+  },
+  "Py(CAS)": {
+    "confidence": "high",
+    "note": "2-pyridinyl",
+    "smiles": "*c1ccccn1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Pyl": {
+    "confidence": "high",
+    "note": "L-Pyrrolysine residue (C-terminal attachment)",
+    "smiles": "*C(=O)[C@@H](N)CCCCNC(=O)[C@@H]1N=CC[C@H]1C",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/5460671"
+  },
+  "Pz": {
+    "confidence": "high",
+    "note": "[[4-(phenylazo)phenyl]methoxy]carbonyl",
+    "smiles": "*C(=O)OCc1ccc(N=Nc2ccccc2)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "QC": {
+    "confidence": "high",
+    "note": "5-chloro-8-quinolinyl",
+    "smiles": "*c1ccc(Cl)c2cccnc12",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Qu": {
+    "confidence": "high",
+    "note": "8-quinolinyl",
+    "smiles": "*c1cccc2cccnc12",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Qxc": {
+    "confidence": "high",
+    "note": "2-quinoxalinylcarbonyl",
+    "smiles": "*C(=O)c1cnc2ccccc2n1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "RNAA(3'-O)": {
+    "confidence": "high",
+    "note": "RNAA, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](O)[C@H](n2cnc3c(N)ncnc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "RNAA(5'-O)": {
+    "confidence": "high",
+    "note": "RNAA, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(N)ncnc32)[C@H](O)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "RNAC(3'-O)": {
+    "confidence": "high",
+    "note": "RNAC, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](O)[C@H](n2ccc(N)nc2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "RNAC(5'-O)": {
+    "confidence": "high",
+    "note": "RNAC, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(N)nc2=O)[C@H](O)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "RNAG(3'-O)": {
+    "confidence": "high",
+    "note": "RNAG, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](O)[C@H](n2cnc3c(=O)[nH]c(N)nc32)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "RNAG(5'-O)": {
+    "confidence": "high",
+    "note": "RNAG, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cnc3c(=O)[nH]c(N)nc32)[C@H](O)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "RNAU(3'-O)": {
+    "confidence": "high",
+    "note": "RNAU, 3'-O attachment; nucleoside, no phosphate",
+    "smiles": "*O[C@H]1[C@@H](O)[C@H](n2ccc(=O)[nH]c2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "RNAU(5'-O)": {
+    "confidence": "high",
+    "note": "RNAU, 5'-O attachment; nucleoside, no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(=O)[nH]c2=O)[C@H](O)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
   },
   "SCF3": {
     "confidence": "authored",
@@ -1394,6 +2504,18 @@
     "note": "sarcosine (N-methylglycine)",
     "smiles": "CNCC(=O)[*]"
   },
+  "Sbz": {
+    "confidence": "high",
+    "note": "2-sulfobenzoyl",
+    "smiles": "*C(=O)c1ccccc1S(=O)(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Scm": {
+    "confidence": "high",
+    "note": "(carboxymethyl)thio",
+    "smiles": "*SCC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "SePh": {
     "confidence": "high",
     "note": "phenylselenyl",
@@ -1425,6 +2547,12 @@
     "note": "tributylstannyl",
     "smiles": "[*][Sn](CCCC)(CCCC)CCCC"
   },
+  "Spg": {
+    "confidence": "high",
+    "note": "1-aminocyclopentanecarbonyl",
+    "smiles": "*C(=O)C1(N)CCCC1",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
   "Sta": {
     "confidence": "medium",
     "note": "statine, (3S,4S)-4-amino-3-hydroxy-6-methylheptanoic acid",
@@ -1434,6 +2562,12 @@
     "confidence": "high",
     "note": "succinimidyl (N-hydroxysuccinimidyl)",
     "smiles": "[*]N1C(=O)CCC1=O"
+  },
+  "Suc": {
+    "confidence": "high",
+    "note": "3-carboxy-1-oxopropyl",
+    "smiles": "*C(=O)CCC(=O)O",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "TBDMS": {
     "confidence": "high",
@@ -1445,10 +2579,28 @@
     "note": "tert-butyldiphenylsilyl",
     "smiles": "CC(C)(C)[Si](c1ccccc1)(c1ccccc1)[*]"
   },
+  "TBMPS": {
+    "confidence": "high",
+    "note": "tert-butylmethoxyphenylsilyl",
+    "smiles": "*[Si](OC)(c1ccccc1)C(C)(C)C",
+    "source": "https://github.com/Actelion/openchemlib/blob/master/src/main/java/com/actelion/research/chem/NamedSubstituents.java"
+  },
   "TBS": {
     "confidence": "high",
     "note": "tert-butyldimethylsilyl",
     "smiles": "CC(C)(C)[Si](C)(C)[*]"
+  },
+  "TBT": {
+    "confidence": "high",
+    "note": "1-tert-butyl-1H-tetrazol-5-yl",
+    "smiles": "*c1nnnn1C(C)(C)C",
+    "source": "参考缩写表.pdf p.24"
+  },
+  "TBZ": {
+    "confidence": "high",
+    "note": "phenylthioxomethyl",
+    "smiles": "*C(=S)c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "TDS": {
     "confidence": "high",
@@ -1486,6 +2638,12 @@
     "note": "trimethylsilyl",
     "smiles": "C[Si](C)(C)[*]"
   },
+  "TMSE": {
+    "confidence": "high",
+    "note": "2-trimethylsilylethyl",
+    "smiles": "*CC[Si](C)(C)C",
+    "source": "参考缩写表.pdf p.28"
+  },
   "TNP": {
     "confidence": "medium",
     "note": "2,4,6-trinitrophenyl (picryl)",
@@ -1497,11 +2655,35 @@
     "smiles": "[*][Si](c1ccccc1)(c1ccccc1)c1ccccc1",
     "source": "https://www.thieme.de/statics/dokumente/thieme/final/de/dokumente/zw_rganicmaterials/CFZ-OrgMat-Abbreviation-List-2020.pdf"
   },
+  "TSE": {
+    "confidence": "high",
+    "note": "2-trimethylsilylethyl",
+    "smiles": "*CC[Si](C)(C)C",
+    "source": "参考缩写表.pdf p.28"
+  },
+  "Tac": {
+    "confidence": "high",
+    "note": "[[(4-methylphenyl)sulfonyl]amino]carbonyl",
+    "smiles": "*C(=O)NS(=O)(=O)c1ccc(C)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Tbs": {
+    "confidence": "high",
+    "note": "(1,1-dimethylethyl)dimethylsilyl",
+    "smiles": "*[Si](C)(C)C(C)(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Tbt": {
     "confidence": "high",
     "note": "2,4,6-tris[bis(trimethylsilyl)methyl]phenyl",
     "smiles": "[*]c1c(C([Si](C)(C)C)[Si](C)(C)C)cc(C([Si](C)(C)C)[Si](C)(C)C)cc1C([Si](C)(C)C)[Si](C)(C)C",
     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4581995/"
+  },
+  "Tcboc": {
+    "confidence": "high",
+    "note": "(2,2,2-trichloro-1,1-dimethylethoxy)carbonyl",
+    "smiles": "*C(=O)OC(C)(C)C(Cl)(Cl)Cl",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Tce": {
     "confidence": "medium",
@@ -1513,10 +2695,22 @@
     "note": "2,4,5-trichlorophenyl",
     "smiles": "[*]c1c(Cl)cc(Cl)c(Cl)c1"
   },
+  "Tec": {
+    "confidence": "high",
+    "note": "[2-[(4-methylphenyl)sulfonyl]ethoxy]carbonyl",
+    "smiles": "*C(=O)OCCS(=O)(=O)c1ccc(C)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Teoc": {
     "confidence": "high",
     "note": "2-(trimethylsilyl)ethoxycarbonyl",
     "smiles": "C[Si](C)(C)CCOC(=O)[*]"
+  },
+  "Teoc(CAS)": {
+    "confidence": "high",
+    "note": "(2,2,2-trichloroethoxy)carbonyl",
+    "smiles": "*C(=O)OCC(Cl)(Cl)Cl",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Tf": {
     "confidence": "high",
@@ -1528,6 +2722,12 @@
     "note": "2,2,2-trifluoroethyl",
     "smiles": "FC(F)(F)C[*]"
   },
+  "Tfp": {
+    "confidence": "high",
+    "note": "2,2,3,3-tetrafluoro-1-oxopropyl",
+    "smiles": "*C(=O)C(F)(F)C(F)F",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Th": {
     "confidence": "high",
     "note": "thiophen-2-yl; supplied Zhihu abbreviation table",
@@ -1538,10 +2738,22 @@
     "note": "thexyl (2,3-dimethylbutan-2-yl)",
     "smiles": "CC(C)C(C)(C)[*]"
   },
+  "Thi": {
+    "confidence": "high",
+    "note": "thiophen-3-ylalanine residue",
+    "smiles": "*C(=O)C(N)Cc1ccsc1",
+    "source": "https://web.cas.org/marketing/pdf/protseq.pdf"
+  },
   "Thr": {
     "confidence": "high",
     "note": "L-threonine",
     "smiles": "C[C@@H](O)[C@H](N)C(=O)[*]"
+  },
+  "Thz": {
+    "confidence": "high",
+    "note": "Timonacic, (S)- residue (C-terminal attachment)",
+    "smiles": "*C(=O)[C@H]1CSCN1",
+    "source": "https://pubchem.ncbi.nlm.nih.gov/compound/198253"
   },
   "Tic": {
     "confidence": "medium",
@@ -1559,6 +2771,12 @@
     "note": "L-tert-leucine residue",
     "smiles": "N[C@@H](C(C)(C)C)C(=O)[*]"
   },
+  "Tmb": {
+    "confidence": "high",
+    "note": "(2,4,6-trimethylphenyl)methyl",
+    "smiles": "*Cc1c(C)cc(C)cc1C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "Tmob": {
     "confidence": "medium",
     "note": "2,4,6-trimethoxybenzyl",
@@ -1568,6 +2786,12 @@
     "confidence": "high",
     "note": "p-toluenesulfonyl (tosyl)",
     "smiles": "Cc1ccc(S(=O)(=O)[*])cc1"
+  },
+  "Tosa": {
+    "confidence": "high",
+    "note": "[(4-methylphenyl)sulfonyl]amino",
+    "smiles": "*NS(=O)(=O)c1ccc(C)cc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Tr": {
     "confidence": "high",
@@ -1588,6 +2812,12 @@
     "confidence": "high",
     "note": "L-tryptophan",
     "smiles": "N[C@@H](Cc1c[nH]c2ccccc12)C(=O)[*]"
+  },
+  "Trs": {
+    "confidence": "high",
+    "note": "(triphenylmethyl)thio",
+    "smiles": "*SC(c1ccccc1)(c1ccccc1)c1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "Trt": {
     "confidence": "high",
@@ -1614,10 +2844,64 @@
     "note": "vinyl",
     "smiles": "C=C[*]"
   },
+  "Vinyl": {
+    "confidence": "high",
+    "note": "vinyl",
+    "smiles": "*C=C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "Xan": {
+    "confidence": "high",
+    "note": "9H-xanthen-9-yl",
+    "smiles": "*C1c2ccccc2Oc2ccccc21",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Xyl": {
+    "confidence": "high",
+    "note": "2,6-dimethylphenyl",
+    "smiles": "*c1c(C)cccc1C",
+    "source": "https://github.com/Actelion/openchemlib/blob/master/src/main/java/com/actelion/research/chem/NamedSubstituents.java"
+  },
+  "Xyl(alpha-D)": {
+    "confidence": "high",
+    "note": "alpha-D-xylopyranosyl, attached at C1",
+    "smiles": "*[C@H]1OC[C@@H](O)[C@H](O)[C@H]1O",
+    "source": "https://iupac.qmul.ac.uk/2carb/"
+  },
+  "Xyl(beta-D)": {
+    "confidence": "high",
+    "note": "beta-D-xylopyranosyl, attached at C1",
+    "smiles": "*[C@@H]1OC[C@@H](O)[C@H](O)[C@H]1O",
+    "source": "https://iupac.qmul.ac.uk/2carb/"
+  },
+  "Z": {
+    "confidence": "high",
+    "note": "(phenylmethoxy)carbonyl",
+    "smiles": "*C(=O)OCc1ccccc1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "ZNO2": {
     "confidence": "high",
     "note": "4-nitrobenzyloxycarbonyl",
     "smiles": "[O-][N+](=O)c1ccc(COC(=O)[*])cc1"
+  },
+  "Za": {
+    "confidence": "high",
+    "note": "[(phenylmethoxy)carbonyl]amino",
+    "smiles": "*NC(=O)OCc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Zae": {
+    "confidence": "high",
+    "note": "2-[(benzyloxycarbonyl)amino]ethyl",
+    "smiles": "*CCNC(=O)OCc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
+  "Zoa": {
+    "confidence": "high",
+    "note": "[[(phenylmethoxy)carbonyl]oxy]acetyl",
+    "smiles": "*C(=O)COC(=O)OCc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "aIle": {
     "confidence": "medium",
@@ -1714,6 +2998,24 @@
     "note": "beta3-valine; C3 stereochemistry left unspecified",
     "smiles": "CC(C)C(N)CC(=O)[*]"
   },
+  "c-Bu": {
+    "confidence": "high",
+    "note": "cyclobutyl",
+    "smiles": "*C1CCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "c-But": {
+    "confidence": "high",
+    "note": "cyclobutyl",
+    "smiles": "*C1CCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "c-Butyl": {
+    "confidence": "high",
+    "note": "cyclobutyl",
+    "smiles": "*C1CCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "c-C3H5": {
     "confidence": "high",
     "note": "cyclopropyl",
@@ -1744,15 +3046,99 @@
     "note": "cyclooctyl",
     "smiles": "C1CCCCCCC1[*]"
   },
+  "c-Heptyl": {
+    "confidence": "high",
+    "note": "cycloheptyl",
+    "smiles": "*C1CCCCCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "c-Hexyl": {
+    "confidence": "high",
+    "note": "cyclohexyl",
+    "smiles": "*C1CCCCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "c-Hx": {
     "confidence": "high",
     "note": "cyclohexyl",
     "smiles": "[*]C1CCCCC1"
   },
+  "c-Pentyl": {
+    "confidence": "high",
+    "note": "cyclopentyl",
+    "smiles": "*C1CCCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "c-Pr": {
+    "confidence": "high",
+    "note": "cyclopropyl",
+    "smiles": "*C1CC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "c-Pro": {
+    "confidence": "high",
+    "note": "cyclopropyl",
+    "smiles": "*C1CC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "c-Propyl": {
+    "confidence": "high",
+    "note": "cyclopropyl",
+    "smiles": "*C1CC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "cBu": {
+    "confidence": "high",
+    "note": "cyclobutyl",
+    "smiles": "*C1CCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "cButyl": {
+    "confidence": "high",
+    "note": "cyclobutyl",
+    "smiles": "*C1CCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "cHeptyl": {
+    "confidence": "high",
+    "note": "cycloheptyl",
+    "smiles": "*C1CCCCCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "cHexyl": {
+    "confidence": "high",
+    "note": "cyclohexyl",
+    "smiles": "*C1CCCCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "cHx": {
     "confidence": "high",
     "note": "cyclohexyl",
     "smiles": "C1CCCCC1[*]"
+  },
+  "cPentyl": {
+    "confidence": "high",
+    "note": "cyclopentyl",
+    "smiles": "*C1CCCC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "cPr": {
+    "confidence": "high",
+    "note": "cyclopropyl",
+    "smiles": "*C1CC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "cPropyl": {
+    "confidence": "high",
+    "note": "cyclopropyl",
+    "smiles": "*C1CC1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "cinnamyl": {
+    "confidence": "high",
+    "note": "(E)-cinnamyl",
+    "smiles": "*C/C=C/c1ccccc1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "cyclobutyl": {
     "confidence": "high",
@@ -1791,10 +3177,22 @@
     "smiles": "Cc1cn([C@H]2C[C@H](O)[C@@H](CO)O2)c(=O)[nH]c1=O",
     "standalone": true
   },
+  "dU(3'-O)": {
+    "confidence": "high",
+    "note": "dU, 3'-O attachment; no phosphate",
+    "smiles": "*O[C@H]1C[C@H](n2ccc(=O)[nH]c2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "dU(5'-O)": {
+    "confidence": "high",
+    "note": "dU, 5'-O attachment; no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2ccc(=O)[nH]c2=O)C[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
   "i-Am": {
     "confidence": "high",
     "note": "isopentyl (3-methylbutan-1-yl)",
-    "smiles": "CCC(C)C[*]"
+    "smiles": "CC(C)CC[*]"
   },
   "i-Bu": {
     "confidence": "high",
@@ -1805,6 +3203,12 @@
     "confidence": "high",
     "note": "isobutoxy",
     "smiles": "[*]OCC(C)C"
+  },
+  "i-BuO(CAS)": {
+    "confidence": "high",
+    "note": "2-methyl-1-oxopropyl",
+    "smiles": "*C(=O)C(C)C",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
   },
   "i-C3H7": {
     "confidence": "high",
@@ -1824,7 +3228,19 @@
   "i-Pr": {
     "confidence": "high",
     "note": "isopropyl",
-    "smiles": "C(C)C[*]"
+    "smiles": "CC(C)[*]"
+  },
+  "i-Pro": {
+    "confidence": "high",
+    "note": "1-methylethyl",
+    "smiles": "*C(C)C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "i-Propyl": {
+    "confidence": "high",
+    "note": "1-methylethyl",
+    "smiles": "*C(C)C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "iAm": {
     "confidence": "high",
@@ -1847,6 +3263,12 @@
     "smiles": "[*]C(CC(C)C)=C1C(=O)CC(C)(C)CC1=O",
     "source": "https://www.sigmaaldrich.com/deepweb/assets/sigmaaldrich/product/documents/178/274/6-fmocweb.pdf"
   },
+  "lBop": {
+    "confidence": "high",
+    "note": "2-benzyloxyphenoxy",
+    "smiles": "*Oc1ccccc1OCc1ccccc1",
+    "source": "https://web.cas.org/marketing/pdf/blocking.pdf"
+  },
   "m-Tolyl": {
     "confidence": "high",
     "note": "3-methylphenyl",
@@ -1861,6 +3283,18 @@
     "confidence": "high",
     "note": "n-butyl",
     "smiles": "CCCC[*]"
+  },
+  "n-But": {
+    "confidence": "high",
+    "note": "sec-butyl",
+    "smiles": "*CCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "n-Butyl": {
+    "confidence": "high",
+    "note": "sec-butyl",
+    "smiles": "*CCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "n-C3H7": {
     "confidence": "high",
@@ -1877,10 +3311,40 @@
     "note": "n-pentyl",
     "smiles": "CCCCC[*]"
   },
+  "n-Heptyl": {
+    "confidence": "high",
+    "note": "n-heptyl, linear isomer assumed",
+    "smiles": "*CCCCCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "n-Hexyl": {
+    "confidence": "high",
+    "note": "n-hexyl",
+    "smiles": "*CCCCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "n-Pentyl": {
+    "confidence": "high",
+    "note": "n-pentyl",
+    "smiles": "*CCCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "n-Pr": {
     "confidence": "high",
     "note": "n-propyl",
     "smiles": "CCC[*]"
+  },
+  "n-Pro": {
+    "confidence": "high",
+    "note": "n-propyl",
+    "smiles": "*CCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "n-Propyl": {
+    "confidence": "high",
+    "note": "n-propyl",
+    "smiles": "*CCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "nAm": {
     "confidence": "high",
@@ -1892,10 +3356,40 @@
     "note": "n-butyl",
     "smiles": "CCCC[*]"
   },
+  "nButyl": {
+    "confidence": "high",
+    "note": "sec-butyl",
+    "smiles": "*CCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "nHeptyl": {
+    "confidence": "high",
+    "note": "n-heptyl, linear isomer assumed",
+    "smiles": "*CCCCCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "nHexyl": {
+    "confidence": "high",
+    "note": "n-hexyl",
+    "smiles": "*CCCCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "nPentyl": {
+    "confidence": "high",
+    "note": "n-pentyl",
+    "smiles": "*CCCCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "nPr": {
     "confidence": "high",
     "note": "n-propyl",
     "smiles": "CCC[*]"
+  },
+  "nPropyl": {
+    "confidence": "high",
+    "note": "n-propyl",
+    "smiles": "*CCC",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "neo-Am": {
     "confidence": "medium",
@@ -1916,6 +3410,18 @@
     "confidence": "high",
     "note": "4-methylphenyl",
     "smiles": "[*]c1ccc(C)cc1"
+  },
+  "p-Tos": {
+    "confidence": "high",
+    "note": "tosyl (4-methylbenzenesulfonyl)",
+    "smiles": "*S(=O)(=O)c1ccc(C)cc1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
+  "p-Tosyl": {
+    "confidence": "high",
+    "note": "tosyl (4-methylbenzenesulfonyl)",
+    "smiles": "*S(=O)(=O)c1ccc(C)cc1",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
   },
   "pGlu": {
     "confidence": "high",
@@ -1942,10 +3448,25 @@
     "note": "O-phospho-L-tyrosine residue",
     "smiles": "N[C@@H](Cc1ccc(OP(=O)(O)O)cc1)C(=O)[*]"
   },
+  "picryl": {
+    "confidence": "high",
+    "note": "picryl",
+    "smiles": "*c1c([N+](=O)[O-])cc([N+](=O)[O-])cc1[N+](=O)[O-]"
+  },
   "pin": {
     "confidence": "medium",
     "note": "pinacol O-ether (pinacolato O-linked); for the boronate use Bpin",
     "smiles": "[*]OC(C)(C)C(C)(C)O"
+  },
+  "pyrazol-1-yl": {
+    "confidence": "high",
+    "note": "pyrazol-1-yl",
+    "smiles": "*n1nccc1"
+  },
+  "pyrazol-3-yl": {
+    "confidence": "high",
+    "note": "pyrazol-3-yl",
+    "smiles": "*c1cc[nH]n1"
   },
   "rA": {
     "confidence": "medium",
@@ -1959,6 +3480,18 @@
     "smiles": "Nc1nc2c(ncn2[C@@H]2O[C@H](CO)[C@@H](O)[C@H]2O)c(=O)[nH]1",
     "standalone": true
   },
+  "rT(3'-O)": {
+    "confidence": "high",
+    "note": "rT, 3'-O attachment; no phosphate",
+    "smiles": "*O[C@H]1[C@@H](O)[C@H](n2cc(C)c(=O)[nH]c2=O)O[C@@H]1CO",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
+  "rT(5'-O)": {
+    "confidence": "high",
+    "note": "rT, 5'-O attachment; no phosphate",
+    "smiles": "*OC[C@H]1O[C@@H](n2cc(C)c(=O)[nH]c2=O)[C@H](O)[C@@H]1O",
+    "source": "https://www.rdkit.org/docs/source/rdkit.Chem.rdmolfiles.html#rdkit.Chem.rdmolfiles.MolFromSequence"
+  },
   "rU": {
     "confidence": "medium",
     "note": "uridine, free nucleoside",
@@ -1968,7 +3501,7 @@
   "s-Am": {
     "confidence": "medium",
     "note": "sec-pentyl (pentan-2-yl)",
-    "smiles": "C(C)CCC[*]"
+    "smiles": "[*]C(C)CCC"
   },
   "s-Bu": {
     "confidence": "high",
@@ -1998,7 +3531,7 @@
   "sBu": {
     "confidence": "high",
     "note": "sec-butyl",
-    "smiles": "C(C)CC[*]"
+    "smiles": "[*]C(C)CC"
   },
   "t-Am": {
     "confidence": "high",
@@ -2010,6 +3543,12 @@
     "note": "tert-butoxycarbonyl",
     "smiles": "CC(C)(C)OC(=O)[*]"
   },
+  "t-Boc": {
+    "confidence": "high",
+    "note": "(1,1-dimethylethoxy)carbonyl",
+    "smiles": "*C(=O)OC(C)(C)C",
+    "source": "https://github.com/openbabel/superatoms/blob/master/superatom.txt"
+  },
   "t-Bu": {
     "confidence": "high",
     "note": "tert-butyl",
@@ -2018,7 +3557,7 @@
   "t-Butyl": {
     "confidence": "high",
     "note": "tert-butyl",
-    "smiles": "C(C)(C)C[*]"
+    "smiles": "CC(C)(C)[*]"
   },
   "t-C4H9": {
     "confidence": "high",
@@ -2038,7 +3577,7 @@
   "tBu": {
     "confidence": "high",
     "note": "tert-butyl",
-    "smiles": "C(C)(C)C[*]"
+    "smiles": "CC(C)(C)[*]"
   },
   "thexyl": {
     "confidence": "high",

@@ -1,6 +1,69 @@
 #pragma once
 inline void expandGroupCheck(App& a,const std::string& dir){
  auto check=[](bool b,const char* why){if(!b)throw std::runtime_error(why);};
+ if(!studioions::find("MeS")||studioions::find("Mes")||studioions::find("MES")||chemcompletion::ambiguousGroups().at("mes").size()!=3)throw std::runtime_error("Mes spelling collision");
+ for(const std::string label:{"MeS","Mes","legacy"}){
+    Document d;ObjectId ring[6],left,right,b;
+    for(int i=0;i<6;i++)d.addAtom(Vec2(std::cos(i*3.14159/3)*30,std::sin(i*3.14159/3)*30),6,&ring[i]);
+    for(int i=0;i<6;i++){d.addBond(ring[i],ring[(i+1)%6],&b);if(i%2==0)d.setBondOrder(b,BondOrder::Double);}
+    d.addAtom(Vec2(60,0),6,&left);d.addBond(ring[0],left,&b);d.addAtom(Vec2(-30,52),6,&right);d.addBond(ring[2],right,&b);
+    functional_groups::checked(nicknames::apply(d,right,"Dipp"));
+    if(label=="legacy"){
+        functional_groups::checked(nicknames::apply(d,left,"MES"));
+        functional_groups::checked(studioions::apply(d,left,*studioions::find("SMe"),0));
+    }else functional_groups::checked(nicknames::apply(d,left,label));
+    auto expected=label=="Mes"?"C27H32":"C19H24S";
+    std::vector<ObjectRef> refs{ObjectRef(ObjectKind::Atom,ring[0])};
+    check(studio::analyze(d,refs).plain==expected,"compact aryl formula");
+    for(auto id:{left,right}){auto expansion=functional_groups::prepareExpansion(d,id);std::vector<ObjectRef> inserted;functional_groups::applyExpansion(d,expansion,inserted);}
+    check(studio::analyze(d,refs).plain==expected&&studio::validation::overValentAtoms(d).empty(),"expanded aryl formula and valence");
+ }
+ {Document d;ObjectId atom,parent,edge;d.addAtom(Vec2(),6,&atom);functional_groups::checked(nicknames::apply(d,atom,"MES"));
+  auto free=functional_groups::prepareExpansion(d,atom);check(free.graph->stats().aliveAtoms==12,"standalone MES heavy atoms");
+  d.addAtom(Vec2(30,0),6,&parent);d.addBond(atom,parent,&edge);bool rejected=false;
+  try{functional_groups::prepareExpansion(d,atom);}catch(const std::runtime_error&){rejected=true;}check(rejected,"attached MES has no defined port");}
+ {
+    a.s.doc=Document();a.s.history.clear();a.expandPending=false;
+    ObjectId host,bond,buffer; a.s.doc.addAtom(Vec2(),6,&host);
+    int i=0;for(const auto label:{"SMe","Mes","MES"}){
+        ObjectId tip;a.s.doc.addAtom(direction(120.*i++)*30,6,&tip);a.s.doc.addBond(host,tip,&bond);
+        functional_groups::checked(nicknames::apply(a.s.doc,tip,label));buffer=tip;
+    }
+    a.s.refresh();a.s.selected=a.s.all();a.execute(Button("","","","@expandGroups"));
+    check(a.s.doc.stats().aliveAtoms==13&&a.s.doc.atomLabel(buffer)=="MES","mixed selection expands both groups while preserving attached buffer");
+ }
+ std::ofstream audit(dir+"/nickname-expansion.tsv");int failures=0;
+ for(const auto& entry:nickdata::nicknames){
+    try{
+        Document d;ObjectId parent,group,bond;d.addAtom(Vec2(),6,&parent);d.addAtom(Vec2(30,0),6,&group);d.addBond(parent,group,&bond);
+        functional_groups::checked(nicknames::apply(d,group,entry.name));
+        auto formula=[&](){std::vector<ObjectRef> all;for(const auto& atom:d.atoms().records())if(atom.isAlive())all.emplace_back(ObjectKind::Atom,atom.id);return studio::analyze(d,all);};
+        auto before=formula();
+        auto expansion=functional_groups::prepareExpansion(d,group);
+        std::vector<ObjectRef> inserted;functional_groups::applyExpansion(d,expansion,inserted);
+        auto after=formula();
+        bool ok=before.valid&&after.valid&&before.plain==after.plain&&studio::validation::overValentAtoms(d).empty();
+        audit<<entry.name<<"\t"<<before.plain<<"\t"<<after.plain<<"\t"<<(ok?"OK":"FAIL")<<"\n";failures+=!ok;
+    }catch(const std::exception& e){audit<<entry.name<<"\t"<<e.what()<<"\tFAIL\n";++failures;}
+ }
+ for(const auto& entry:bridgedata::entries){
+    Document d;ObjectId l,g,r,b1,b2;d.addAtom(Vec2(0,0),6,&l);d.addAtom(Vec2(30,0),6,&g);d.addAtom(Vec2(60,0),6,&r);d.addBond(l,g,&b1);d.addBond(g,r,&b2);
+    functional_groups::checked(nicknames::apply(d,g,entry.name));
+    auto all=std::vector<ObjectRef>{ObjectRef(ObjectKind::Atom,l)};
+    auto before=studio::analyze(d,all);auto plan=functional_groups::prepareExpansion(d,g);
+    std::vector<ObjectRef> inserted;functional_groups::applyExpansion(d,plan,inserted);auto after=studio::analyze(d,all);
+    bool ok=before.valid&&after.valid&&before.plain==after.plain&&d.bonds().alive(b2)->beginAtom!=g&&studio::validation::overValentAtoms(d).empty();
+    audit<<entry.name<<"\t"<<before.plain<<"\t"<<after.plain<<"\t"<<(ok?"OK":"FAIL")<<"\n";failures+=!ok;
+ }
+ for(const auto& entry:compounddata::entries)if(entry.standalone){
+    Document d;ObjectId id;d.addAtom(Vec2(),6,&id);
+    auto result=nicknames::apply(d,id,entry.name);std::vector<ObjectRef> all{ObjectRef(ObjectKind::Atom,id)};
+    auto before=studio::analyze(d,all);auto plan=functional_groups::prepareExpansion(d,id);std::vector<ObjectRef> inserted;
+    functional_groups::applyExpansion(d,plan,inserted);auto after=studio::analyze(d,inserted);
+    bool ok=result.ok()&&before.valid&&after.valid&&before.plain==after.plain;
+    audit<<entry.name<<"\t"<<before.plain<<"\t"<<after.plain<<"\t"<<(ok?"OK":"FAIL")<<"\n";failures+=!ok;
+ }
+ audit.close();check(failures==0,"catalogue expansion audit failed; see nickname-expansion.tsv");
  // Exercise actual attachment/expansion, including disconnected counterions
  // and the charge-separated MIDA chelate; these cannot be checked by spelling alone.
  for(const char* label:{"Dipp","Tipp","Dep","Mes*","Tbt","PMP","PMBM","PBB","PCB","EE","TPS","SiPh3","Bhoc","NVOC","NPPOC","Dde","ivDde","Bcat","Bneop","Bdan","BMIDA","Baam","BF3K"}){

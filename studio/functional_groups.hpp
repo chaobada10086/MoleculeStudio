@@ -4,18 +4,28 @@ namespace functional_groups {
 using namespace r62;using namespace core;
 inline void checked(Error e){if(!e.ok())throw std::runtime_error(e.message);}
 inline std::string definition(const Document& d,ObjectId id){
+    const auto atom=d.atoms().alive(id);
+    if(atom&&atom->semantics.nodeType==uint8_t(NodeType::Element)&&d.atomLabel(id)==elementSymbol(atom->element)&&!studioions::compact(d,id)&&!d.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.compound.fragment"))return "";
     if(d.incidentBonds(id).empty())if(auto ion=compounddata::ion(d.atomLabel(id),d.atoms().alive(id)->semantics.charge))return ion->fragment;
-    if(auto raw=d.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.compound.fragment"))return *raw;
+    const auto label=d.atomLabel(id);
+    if(auto b=bridgedata::find(label))return b->fragment;
+    const auto group=nickdata::find(label=="MeS"?"SMe":label);
+    if(auto raw=d.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.compound.fragment")){
+        // Recover the known stale library fragment while preserving imported custom definitions.
+        const auto wrong=compounddata::find(label=="SMe"?"MeS":label);
+        if(group&&wrong&&*raw==wrong->fragment&&(std::string("|")+wrong->aliases+"|").find("|"+label+"|")==std::string::npos)return group->fragment;
+        return *raw;
+    }
     if(auto raw=d.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.nickname.fragment"))return *raw;
     if(metal_complexes::eligible(d,id))return "<metal-ligands/>";
-    auto name=d.atomLabel(id);if(auto n=nickdata::find(name))return n->fragment;if(auto n=customgroups::find(name))return n->fragment;if(auto n=compounddata::find(name))return n->fragment;return "";
+    auto name=d.atomLabel(id);if(group)return group->fragment;if(auto n=customgroups::find(name))return n->fragment;if(auto n=compounddata::find(name))if((std::string("|")+n->aliases+"|").find("|"+name+"|")!=std::string::npos)return n->fragment;return "";
 }
 inline std::set<ObjectId> selection(const Session& s){std::set<ObjectId> ids;for(auto r:studioio::expanded(s.doc,s.selected)){if(r.kind==ObjectKind::Atom&&s.doc.atoms().alive(r.id))ids.insert(r.id);else if(r.kind==ObjectKind::Bond)if(auto b=s.doc.bonds().alive(r.id)){ids.insert(b->beginAtom);ids.insert(b->endAtom);}}return ids;}
 inline void copyAtomData(const Document& from,ObjectId old,Document& to,ObjectId fresh){
     if(!from.atomLabel(old).empty()||!to.atomLabel(fresh).empty()){checked(to.setAtomLabel(fresh,from.atomLabel(old)));if(from.atomLabel(old).empty())to.setAtomLabelQuiet(fresh,"");}for(const auto& e:from.extensions(ObjectRef(ObjectKind::Atom,old)).entries())if(e.key.compare(0,4,"pst.")!=0)to.extensions(ObjectRef(ObjectKind::Atom,fresh)).set(e.key,e.value);
     auto runs=studioatom::runs(from,old);if(!runs.empty())studioatom::set(to,fresh,runs);else to.extensions(ObjectRef(ObjectKind::Atom,fresh)).erase("studio.atom.runs");
 }
-struct Expansion {ObjectId target=kInvalidObjectId,anchor=kInvalidObjectId,dummy=kInvalidObjectId,text=kInvalidObjectId;std::shared_ptr<Document> graph;bool intermediate=false,metalLigands=false;};
+struct Expansion {ObjectId secondBond=kInvalidObjectId,secondAnchor=kInvalidObjectId,target=kInvalidObjectId,anchor=kInvalidObjectId,dummy=kInvalidObjectId,text=kInvalidObjectId;std::shared_ptr<Document> graph;bool intermediate=false,metalLigands=false;};
 inline void esterStage(Expansion& p,const std::string& label){
     std::string suffix;if(label.compare(0,3,"COO")==0)suffix=label.substr(3);else if(label.compare(0,3,"CO2")==0)suffix=label.substr(3);else return;
     if(suffix=="H")return;if(suffix=="CH3")suffix="Me";const auto name="O"+suffix;if(suffix.empty()||!nickdata::find(name))return;
@@ -29,6 +39,8 @@ inline void esterStage(Expansion& p,const std::string& label){
     checked(nicknames::apply(g,oxygen,name));p.intermediate=true;
 }
 inline Expansion prepareCompound(const Document& d,const std::string& raw,Vec2 position,ObjectId target=kInvalidObjectId,ObjectId text=kInvalidObjectId){
+    if(target!=kInvalidObjectId&&!d.incidentBonds(target).empty()&&raw==compounddata::find("MES")->fragment&&!d.extensions(ObjectRef(ObjectKind::Atom,target)).findValue("studio.compound.anchor"))
+        throw std::runtime_error("MES 是完整的缓冲剂分子，没有取代基连接点。请单独放置，或选择 Mes、MeS。");
     Expansion p;p.target=target;p.text=text;p.graph=std::make_shared<Document>();
     checked(persistence::readCdxml("<CDXML BondLength=\"22\"><page id=\"2000000000\">"+raw+"</page></CDXML>",*p.graph));
     Box bounds;bool found=false;for(const auto& a:p.graph->atoms().records())if(a.isAlive()){if(found)bounds.add(a.position);else{bounds=Box(a.position,a.position);found=true;}}
@@ -74,6 +86,27 @@ inline Expansion prepareCompound(const Document& d,const std::string& raw,Vec2 p
     p.graph->setDefaultBondLength(d.defaultBondLength());return p;
 }
 inline Expansion prepareExpansion(const Document& d,ObjectId target){
+    if(auto bridge=bridgedata::find(d.atomLabel(target))){
+        auto links=d.incidentBonds(target);
+        if(links.size()!=2||d.bonds().alive(links[0])->order!=BondOrder::Single||d.bonds().alive(links[1])->order!=BondOrder::Single)
+            throw std::runtime_error("双端连接基需要两条外部单键");
+        auto neighbor=[&](ObjectId bid){auto b=d.bonds().alive(bid);return d.atoms().alive(b->beginAtom==target?b->endAtom:b->beginAtom)->position;};
+        Expansion p;p.graph=std::make_shared<Document>();p.target=target;p.secondBond=links[1];
+        checked(persistence::readCdxml(std::string("<CDXML><page id=\"2000000000\">")+bridge->fragment+"</page></CDXML>",*p.graph));
+        std::vector<ObjectId> ports,anchors;
+        for(const auto& a:p.graph->atoms().records())if(a.isAlive()&&a.semantics.nodeType==uint8_t(NodeType::ExternalConnection)){
+            ports.push_back(a.id);auto edge=p.graph->bonds().alive(p.graph->incidentBonds(a.id).at(0));anchors.push_back(edge->beginAtom==a.id?edge->endAtom:edge->beginAtom);
+        }
+        if(ports.size()!=2)throw std::runtime_error("连接基模板的端点数量异常");
+        auto start=p.graph->atoms().alive(ports[0])->position,axis=p.graph->atoms().alive(ports[1])->position-start;
+        auto origin=neighbor(links[0]),dest=neighbor(links[1])-origin;
+        if(length(axis)<1e-6||length(dest)<1e-6)throw std::runtime_error("连接基端点重合");
+        double norm=axis.x*axis.x+axis.y*axis.y;
+        double c=(dest.x*axis.x+dest.y*axis.y)/norm,s=(dest.y*axis.x-dest.x*axis.y)/norm;
+        for(auto port:ports)checked(p.graph->removeAtom(port));
+        for(const auto& a:p.graph->atoms().records())if(a.isAlive()){auto v=a.position-start;checked(p.graph->setAtomPosition(a.id,origin+Vec2(c*v.x-s*v.y,s*v.x+c*v.y)));}
+        p.anchor=anchors[0];p.secondAnchor=anchors[1];return p;
+    }
     if(metal_complexes::eligible(d,target)){Expansion p;p.target=target;p.graph=std::make_shared<Document>();checked(metal_complexes::graph(d,target,*p.graph,&p.anchor));p.intermediate=true;p.metalLigands=true;return p;}
     if(studio::diazo::requested(d.atomLabel(target))&&studio::diazo::eligible(d,target)){
         Expansion p;p.target=target;p.graph=std::make_shared<Document>();p.graph->setDefaultBondLength(d.defaultBondLength());p.graph->setDefaultTextSize(d.defaultTextSize());
@@ -103,6 +136,10 @@ inline void applyExpansion(Document& d,const Expansion& p,std::vector<ObjectRef>
     auto& ext=d.extensions(ObjectRef(ObjectKind::Atom,target));for(const char* key:{"studio.nickname.fragment","studio.compound.fragment","studio.compound.saved","studio.compound.anchor","studio.hydrogens.manual","studio.query.description","studio.text.tidy.original","studio.mechanism.ion.base","studio.mechanism.compact.valence","studio.label.offset","studio.label.text"})ext.erase(key);copyAtomData(graph,p.anchor,d,target);inserted.push_back(ObjectRef(ObjectKind::Atom,target));
     for(const auto& a:graph.atoms().records())if(a.isAlive()&&a.id!=p.dummy&&a.id!=p.anchor){auto c=a;c.sourceId=0;ObjectId id;checked(d.addAtomRecord(c,&id));ids[a.id]=id;copyAtomData(graph,a.id,d,id);inserted.push_back(ObjectRef(ObjectKind::Atom,id));}
     for(const auto& b:graph.bonds().records())if(b.isAlive()&&ids.count(b.beginAtom)&&ids.count(b.endAtom)){auto c=b;c.sourceId=0;c.beginAtom=ids[b.beginAtom];c.endAtom=ids[b.endAtom];ObjectId id;checked(d.addBondRecord(c,&id));for(const auto& e:graph.extensions(ObjectRef(ObjectKind::Bond,b.id)).entries())if(e.key.compare(0,4,"pst.")!=0)d.extensions(ObjectRef(ObjectKind::Bond,id)).set(e.key,e.value);inserted.push_back(ObjectRef(ObjectKind::Bond,id));}
+    if(p.secondBond!=kInvalidObjectId){
+        auto edge=d.bonds().alive(p.secondBond);auto second=ids.at(p.secondAnchor);
+        checked(d.setBondEndpoints(p.secondBond,edge->beginAtom==target?second:edge->beginAtom,edge->endAtom==target?second:edge->endAtom));
+    }
     // A free azide is drawn N-=N+=N-. Put its plain charges above/below
     // the chain so superscript charge glyphs cannot erase either double bond.
     if(graph.stats().aliveAtoms==3&&graph.stats().aliveBonds==2){

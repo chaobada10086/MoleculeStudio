@@ -1,0 +1,122 @@
+{
+  "C2H4(alkylene)": {
+    "smiles": "*CC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C3H6(alkylene)": {
+    "smiles": "*CCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C4H8(alkylene)": {
+    "smiles": "*CCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C5H10(alkylene)": {
+    "smiles": "*CCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C6H12(alkylene)": {
+    "smiles": "*CCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C7H14(alkylene)": {
+    "smiles": "*CCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C8H16(alkylene)": {
+    "smiles": "*CCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C9H18(alkylene)": {
+    "smiles": "*CCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C10H20(alkylene)": {
+    "smiles": "*CCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C11H22(alkylene)": {
+    "smiles": "*CCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C12H24(alkylene)": {
+    "smiles": "*CCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C13H26(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C14H28(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C15H30(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C16H32(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C17H34(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C18H36(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C19H38(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "C20H40(alkylene)": {
+    "smiles": "*CCCCCCCCCCCCCCCCCCCC*",
+    "note": "linear alkylene bridge, two terminal bonds"
+  },
+  "o-C6H4": {
+    "smiles": "*c1ccccc1*",
+    "note": "o-phenylene, two connections"
+  },
+  "o-Phenylene": {
+    "smiles": "*c1ccccc1*",
+    "note": "o-phenylene, two connections"
+  },
+  "m-C6H4": {
+    "smiles": "*c1cccc(*)c1",
+    "note": "m-phenylene, two connections"
+  },
+  "m-Phenylene": {
+    "smiles": "*c1cccc(*)c1",
+    "note": "m-phenylene, two connections"
+  },
+  "p-C6H4": {
+    "smiles": "*c1ccc(*)cc1",
+    "note": "p-phenylene, two connections"
+  },
+  "p-Phenylene": {
+    "smiles": "*c1ccc(*)cc1",
+    "note": "p-phenylene, two connections"
+  },
+  "TIPDS": {
+    "smiles": "*[Si](C(C)C)(C(C)C)O[Si](C(C)C)(C(C)C)*",
+    "note": "tetraisopropyldisiloxane-1,3-diyl"
+  },
+  "PEG3(O,O)": {
+    "smiles": "*OCCOCCOCCO*",
+    "note": "explicit O,O terminal atoms, 3 ethylene units"
+  },
+  "PEG3(C,C)": {
+    "smiles": "*CCOCCOCC*",
+    "note": "explicit C,C terminal atoms, 3 ethylene units"
+  },
+  "PEG4(O,O)": {
+    "smiles": "*OCCOCCOCCOCCO*",
+    "note": "explicit O,O terminal atoms, 4 ethylene units"
+  },
+  "PEG4(C,C)": {
+    "smiles": "*CCOCCOCCOCC*",
+    "note": "explicit C,C terminal atoms, 4 ethylene units"
+  }
+}

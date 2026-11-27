@@ -10,13 +10,13 @@ void App::completionCheck(const std::string& dir){
     const bool originalEnabled=chemcompletion::enabled();
     const bool originalFormula=chemcompletion::formulaLayout();
     chemcompletion::enabled()=true;chemcompletion::formulaLayout()=true;
-    checkCompoundLibrary(*this,dir);
-    checkLocalCleanup(*this,dir);
+    const bool choiceOnly=std::wstring(GetCommandLineW()).find(L"--group-choice-ui-check")!=std::wstring::npos;
+    if(!choiceOnly){checkCompoundLibrary(*this,dir);checkLocalCleanup(*this,dir);}
     // The test runs next to the program's own interface.ini: remember the user's
     // custom entries and put them back when the run is over.
     struct Saved{std::string alias,canonical;};std::vector<Saved> saved;
     for(const auto& entry:chemcompletion::list())if(entry.custom)saved.push_back({entry.key,entry.name});
-    for(const auto& entry:saved)chemcompletion::removeCustom(entry.alias);
+    if(!choiceOnly)for(const auto& entry:saved)chemcompletion::removeCustom(entry.alias);
     int checks=0;
     // One label typed into a real inline editor, committed, then inspected.
     auto commit=[&](const char* typed,const char* expectText,const char* expectScripts,const char* why){
@@ -55,6 +55,77 @@ void App::completionCheck(const std::string& dir){
     // Spelling (dictionary) and typography (counts, charges, isotopes, radicals).
     commit("dipp","Dipp","0000","Dipp spelling");
     commit("Mes*","Mes*","0000","supermesityl star is not a radical");
+    commit("Mes","Mes","000","exact mesityl");
+    commit("MeS","SMe","000","exact methylthio");
+    commit("MES","MES","000","exact buffer");
+    {
+        auto pref=groupchoice::pref("mes");const auto original=chemcompletion::readKey(pref.c_str());
+        struct Restore {std::wstring key;std::string value;~Restore(){chemcompletion::writeKey(key.c_str(),value);}} restore{pref,original};
+        chemcompletion::writeKey(pref.c_str(),"");
+        static std::string previewOut;previewOut=dir;
+        UINT_PTR timer=SetTimer(nullptr,0,50,[](HWND,UINT,UINT_PTR timer,DWORD){
+            HWND dialog=GetActiveWindow();if(!GetDlgItem(dialog,1102))return;
+            KillTimer(nullptr,timer);
+            auto state=reinterpret_cast<groupchoice::Dialog*>(GetWindowLongPtrW(dialog,DWLP_USER));
+            for(size_t i=0;i<state->options.size();++i)if(state->options[i]=="Mes"){
+                CheckDlgButton(dialog,1103,BST_CHECKED);
+                PostMessageW(dialog,WM_COMMAND,MAKEWPARAM(1200+i,BN_DOUBLECLICKED),0);return;
+            }
+            EndDialog(dialog,IDCANCEL);
+        });
+        commit("mes","Mes","000","lowercase choice dialog");
+        KillTimer(nullptr,timer);
+        require(chemcompletion::readKey(pref.c_str())=="Mes","remember lowercase choice");
+        commit("mes","Mes","000","reuse saved choice");
+        auto expandAttached=[&](size_t count){
+            app.s.selected=app.s.all();app.expandPending=false;app.execute(Button("","","","@expandGroups"));
+            require(app.s.doc.stats().aliveAtoms==count,"expand attached mes via toolbar: "+app.status);
+        };
+        expandAttached(10);
+        commit("MeS","SMe","000","methylthio for toolbar");expandAttached(3);
+        commit("MES","MES","000","old attached MES for toolbar");
+        timer=SetTimer(nullptr,0,50,[](HWND,UINT,UINT_PTR timer,DWORD){
+            auto dialog=GetActiveWindow();if(!GetDlgItem(dialog,1102))return;KillTimer(nullptr,timer);
+            SendDlgItemMessageW(dialog,1102,CB_SETCURSEL,1,0);
+            PostMessageW(dialog,WM_COMMAND,IDOK,0);
+        });
+        expandAttached(3);KillTimer(nullptr,timer);
+        app.showSettings(5);
+        auto button=GetDlgItem(app.settingsWindow.hwnd,988);
+        require(IsWindowVisible(button),"ambiguity settings button");
+        timer=SetTimer(nullptr,0,50,[](HWND,UINT,UINT_PTR timer,DWORD){
+            HWND dialog=GetActiveWindow();if(!GetDlgItem(dialog,1102))return;
+            KillTimer(nullptr,timer);CheckDlgButton(dialog,1103,BST_UNCHECKED);
+            PostMessageW(dialog,WM_COMMAND,IDOK,0);
+        });
+        SendMessageW(button,BM_CLICK,0,0);KillTimer(nullptr,timer);
+        require(chemcompletion::readKey(pref.c_str()).empty(),"settings restore prompt");
+        ShowWindow(app.settingsWindow.hwnd,SW_HIDE);
+
+    }
+
+    if(choiceOnly){
+        for(int z=1;z<=118;++z){
+            std::string symbol=elementSymbol(z);std::string scripts(symbol.size(),'0');
+            auto pref=groupchoice::pref(chemcompletion::foldCase(symbol));const auto saved=chemcompletion::readKey(pref.c_str());
+            if(chemcompletion::exactAmbiguous(symbol))chemcompletion::writeKey(pref.c_str(),"#"+symbol);
+            commit(symbol.c_str(),symbol.c_str(),scripts.c_str(),"periodic table atom");
+            if(chemcompletion::exactAmbiguous(symbol))chemcompletion::writeKey(pref.c_str(),saved);
+            auto atom=s.doc.atoms().alive(1);require(atom&&atom->element==z&&atom->semantics.nodeType==uint8_t(NodeType::Element),"atomic number "+symbol);
+        }
+        for(const auto& input:std::vector<std::string>{"si","cu"}){
+            auto upper=input;upper[0]-=32;commit(input.c_str(),upper.c_str(),"00","lowercase element symbol");
+            require(s.doc.atoms().alive(1)->element==elementNumber(upper),"lowercase input changes element");
+        }
+        auto tip=s.doc.atoms().alive(1)->position;
+        auto view=s.view();view.scale=3;s.setView(view);s.refresh();
+        double dpi=GetDpiForWindow(app.canvas)/96.;
+        require(app.textToolTarget(tip+Vec2(0,s.view().deviceRadiusToDocument(14*dpi)),false)==1,"near miss captures the bond endpoint");
+        require(app.textToolTarget(tip+Vec2(0,s.view().deviceRadiusToDocument(36*dpi)),false)==kInvalidObjectId,"blank canvas stays available");
+        chemcompletion::enabled()=originalEnabled;chemcompletion::formulaLayout()=originalFormula;
+        std::ofstream(dir+"/group-choice-ui.json")<<"{\"exact_case\":true,\"popup\":true,\"remember\":true,\"settings_reset\":true}";
+        s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return;
+    }
     commit("bmida","BMIDA","00000","MIDA boron spelling");
     commit("so42-","SO42-","00-++","sulfate");
     commit("fe3+","Fe3+","00++","iron charge");

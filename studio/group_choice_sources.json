@@ -1,0 +1,361 @@
+{
+  "Asx": [
+    "Asn",
+    "Asp"
+  ],
+  "BTC": [
+    "BTC",
+    "BTC(CAS)"
+  ],
+  "Bs": [
+    "Bs",
+    "PhSO2"
+  ],
+  "C10H20": [
+    "C10H20(alkylene)",
+    "C10H20(1-alkene)",
+    "C10H20(cycloalkane)"
+  ],
+  "C11H22": [
+    "C11H22(alkylene)",
+    "C11H22(1-alkene)",
+    "C11H22(cycloalkane)"
+  ],
+  "C12H24": [
+    "C12H24(alkylene)",
+    "C12H24(1-alkene)",
+    "C12H24(cycloalkane)"
+  ],
+  "C13H26": [
+    "C13H26(alkylene)",
+    "C13H26(1-alkene)",
+    "C13H26(cycloalkane)"
+  ],
+  "C14H28": [
+    "C14H28(alkylene)",
+    "C14H28(1-alkene)",
+    "C14H28(cycloalkane)"
+  ],
+  "C15H30": [
+    "C15H30(alkylene)",
+    "C15H30(1-alkene)",
+    "C15H30(cycloalkane)"
+  ],
+  "C16H32": [
+    "C16H32(alkylene)",
+    "C16H32(1-alkene)",
+    "C16H32(cycloalkane)"
+  ],
+  "C17H34": [
+    "C17H34(alkylene)",
+    "C17H34(1-alkene)",
+    "C17H34(cycloalkane)"
+  ],
+  "C18H36": [
+    "C18H36(alkylene)",
+    "C18H36(1-alkene)",
+    "C18H36(cycloalkane)"
+  ],
+  "C19H38": [
+    "C19H38(alkylene)",
+    "C19H38(1-alkene)",
+    "C19H38(cycloalkane)"
+  ],
+  "C20H40": [
+    "C20H40(alkylene)",
+    "C20H40(1-alkene)",
+    "C20H40(cycloalkane)"
+  ],
+  "C2H4": [
+    "C2H4(alkylene)",
+    "C2H4(1-alkene)"
+  ],
+  "C3H6": [
+    "C3H6(alkylene)",
+    "C3H6(1-alkene)",
+    "C3H6(cycloalkane)"
+  ],
+  "C4H8": [
+    "C4H8(alkylene)",
+    "C4H8(1-alkene)",
+    "C4H8(cycloalkane)"
+  ],
+  "C5H10": [
+    "C5H10(alkylene)",
+    "C5H10(1-alkene)",
+    "C5H10(cycloalkane)"
+  ],
+  "C6H12": [
+    "C6H12(alkylene)",
+    "C6H12(1-alkene)",
+    "C6H12(cycloalkane)"
+  ],
+  "C7H14": [
+    "C7H14(alkylene)",
+    "C7H14(1-alkene)",
+    "C7H14(cycloalkane)"
+  ],
+  "C8H16": [
+    "C8H16(alkylene)",
+    "C8H16(1-alkene)",
+    "C8H16(cycloalkane)"
+  ],
+  "C9H18": [
+    "C9H18(alkylene)",
+    "C9H18(1-alkene)",
+    "C9H18(cycloalkane)"
+  ],
+  "DMB": [
+    "DMB",
+    "DMB(CAS)",
+    "DMB(solvent)"
+  ],
+  "DNAA": [
+    "DNAA(3'-O)",
+    "DNAA(5'-O)"
+  ],
+  "DNAC": [
+    "DNAC(3'-O)",
+    "DNAC(5'-O)"
+  ],
+  "DNAG": [
+    "DNAG(3'-O)",
+    "DNAG(5'-O)"
+  ],
+  "DNAT": [
+    "DNAT(3'-O)",
+    "DNAT(5'-O)"
+  ],
+  "Dec": [
+    "Dec",
+    "Dec(CAS)"
+  ],
+  "FRNAA": [
+    "FRNAA(3'-O)",
+    "FRNAA(5'-O)"
+  ],
+  "FRNAC": [
+    "FRNAC(3'-O)",
+    "FRNAC(5'-O)"
+  ],
+  "FRNAG": [
+    "FRNAG(3'-O)",
+    "FRNAG(5'-O)"
+  ],
+  "FRNAU": [
+    "FRNAU(3'-O)",
+    "FRNAU(5'-O)"
+  ],
+  "Glc": [
+    "Glc",
+    "Glc(alpha-D)",
+    "Glc(beta-D)"
+  ],
+  "Glx": [
+    "Gln",
+    "Glu"
+  ],
+  "Hex": [
+    "Hex",
+    "Hex(CAS)"
+  ],
+  "MPM": [
+    "MPM",
+    "MPM(PDF)"
+  ],
+  "Np": [
+    "1-Naph",
+    "2-Naph",
+    "Np",
+    "Np(CAS)"
+  ],
+  "Ns": [
+    "Ns",
+    "Ns(CAS)"
+  ],
+  "OMeRNAA": [
+    "OMeRNAA(3'-O)",
+    "OMeRNAA(5'-O)"
+  ],
+  "OMeRNAC": [
+    "OMeRNAC(3'-O)",
+    "OMeRNAC(5'-O)"
+  ],
+  "OMeRNAG": [
+    "OMeRNAG(3'-O)",
+    "OMeRNAG(5'-O)"
+  ],
+  "OMeRNAT": [
+    "OMeRNAT(3'-O)",
+    "OMeRNAT(5'-O)"
+  ],
+  "OMeRNAU": [
+    "OMeRNAU(3'-O)",
+    "OMeRNAU(5'-O)"
+  ],
+  "Oct": [
+    "Oct",
+    "Oct(CAS)"
+  ],
+  "Ole": [
+    "Ole",
+    "Ole(CAS)"
+  ],
+  "PEG3": [
+    "PEG3(O,O)",
+    "PEG3(C,C)"
+  ],
+  "PEG4": [
+    "PEG4(O,O)",
+    "PEG4(C,C)"
+  ],
+  "PMP": [
+    "PMP",
+    "PMP(base)"
+  ],
+  "Pht": [
+    "Pht",
+    "Pht(CAS)"
+  ],
+  "Pic": [
+    "Pic",
+    "picryl"
+  ],
+  "Py": [
+    "3Py",
+    "4Py",
+    "Py",
+    "Py(CAS)"
+  ],
+  "Pyr": [
+    "3Py",
+    "4Py",
+    "Py",
+    "Py(CAS)",
+    "pyrazol-1-yl",
+    "pyrazol-3-yl"
+  ],
+  "Pz": [
+    "Pz",
+    "pyrazol-1-yl",
+    "pyrazol-3-yl"
+  ],
+  "Quin": [
+    "Qu",
+    "Quin(quinoline)",
+    "Quin(quinuclidine)"
+  ],
+  "RNAA": [
+    "RNAA(3'-O)",
+    "RNAA(5'-O)"
+  ],
+  "RNAC": [
+    "RNAC(3'-O)",
+    "RNAC(5'-O)"
+  ],
+  "RNAG": [
+    "RNAG(3'-O)",
+    "RNAG(5'-O)"
+  ],
+  "RNAT": [
+    "rT(3'-O)",
+    "rT(5'-O)"
+  ],
+  "RNAU": [
+    "RNAU(3'-O)",
+    "RNAU(5'-O)"
+  ],
+  "TFP": [
+    "Tfp",
+    "TFP(phosphine)"
+  ],
+  "TPP": [
+    "PPh3",
+    "TPP(porphyrin)"
+  ],
+  "Teoc": [
+    "Teoc",
+    "Teoc(CAS)"
+  ],
+  "Tfa": [
+    "TFA",
+    "Tfa(amide)"
+  ],
+  "Tmb": [
+    "Tmb",
+    "Tmob"
+  ],
+  "Xyl": [
+    "Xyl",
+    "Xyl(alpha-D)",
+    "Xyl(beta-D)"
+  ],
+  "dA": [
+    "DNAA(3'-O)",
+    "DNAA(5'-O)"
+  ],
+  "dC": [
+    "DNAC(3'-O)",
+    "DNAC(5'-O)"
+  ],
+  "dG": [
+    "DNAG(3'-O)",
+    "DNAG(5'-O)"
+  ],
+  "dT": [
+    "DNAT(3'-O)",
+    "DNAT(5'-O)"
+  ],
+  "dU": [
+    "dU(3'-O)",
+    "dU(5'-O)"
+  ],
+  "i-BuO": [
+    "i-BuO",
+    "i-BuO(CAS)"
+  ],
+  "mA": [
+    "mA(N6)",
+    "OMeRNAA(3'-O)",
+    "OMeRNAA(5'-O)"
+  ],
+  "mC": [
+    "mC(5)",
+    "OMeRNAC(3'-O)",
+    "OMeRNAC(5'-O)"
+  ],
+  "mG": [
+    "mG(N7)",
+    "OMeRNAG(3'-O)",
+    "OMeRNAG(5'-O)"
+  ],
+  "mT": [
+    "OMeRNAT(3'-O)",
+    "OMeRNAT(5'-O)"
+  ],
+  "mU": [
+    "mU(5)",
+    "OMeRNAU(3'-O)",
+    "OMeRNAU(5'-O)"
+  ],
+  "rA": [
+    "RNAA(3'-O)",
+    "RNAA(5'-O)"
+  ],
+  "rC": [
+    "RNAC(3'-O)",
+    "RNAC(5'-O)"
+  ],
+  "rG": [
+    "RNAG(3'-O)",
+    "RNAG(5'-O)"
+  ],
+  "rT": [
+    "rT(3'-O)",
+    "rT(5'-O)"
+  ],
+  "rU": [
+    "RNAU(3'-O)",
+    "RNAU(5'-O)"
+  ]
+}

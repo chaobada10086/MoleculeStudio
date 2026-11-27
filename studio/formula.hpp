@@ -7,6 +7,7 @@
 #include <cctype>
 #include <sstream>
 #include "nickname_catalog.hpp"
+#include "bridge_catalog.hpp"
 #include "compound_catalog.hpp"
 #include "nickname_expand.hpp"
 #include "next/persistence/persistence.hpp"
@@ -110,12 +111,17 @@ inline Formula analyze(const Document& d,const std::vector<ObjectRef>& refs){
             if(!addFormulaExact(ion->formula,exact))exactOk=false;if(heavy)r.atoms+=heavy-1;
             charge+=compounddata::ionCharge(ion);continue;
         }
+        if(auto bridge=bridgedata::find(label)){
+            if(d.incidentBonds(id).size()!=2){r.note="双端基团需要两个连接点";return r;}
+            size_t heavy=0;if(!addFormulaText(bridge->formula,counts,mass,heavy))return r;
+            if(!addFormulaExact(bridge->formula,exact))exactOk=false;if(heavy)r.atoms+=heavy-1;continue;
+        }
         const int elementalH=sem.nodeType==uint8_t(NodeType::Element)?hydride_labels::count(a->element,label):-1;
         if(elementalH<0&&!d.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.nickname.fragment")&&
-           !label.empty()&&label!=core::elementSymbol(a->element)){
+           !label.empty()&&label!=core::elementSymbol(a->element)&&(!(nickdata::find(label)||label=="MeS")||compounddata::canonical(label)==label&&d.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.compound.fragment"))){
             if(const auto* compound=compounddata::find(label)){size_t heavy=0;if(!addFormulaText(compound->formula,counts,mass,heavy)){r.note="化合物分子式数据不可用";return r;}if(!addFormulaExact(compound->formula,exact))exactOk=false;if(heavy)r.atoms+=heavy-1;int intrinsicCharge=0;formulaComposition(compound->formula,&intrinsicCharge);charge+=sem.charge+intrinsicCharge;continue;}
         }
-        if(auto alias=elementalH<0?nickdata::findAlias(label):nullptr){size_t heavy=0;if(!addFormulaText(alias->formula,counts,mass,heavy)){r.note="缩写分子式数据不可用";return r;}if(!addFormulaExact(alias->formula,exact))exactOk=false;if(heavy>0)r.atoms+=heavy-1;continue;}
+        if(auto alias=elementalH<0&&!(sem.nodeType==uint8_t(NodeType::Element)&&label==elementSymbol(a->element))?nickdata::findAlias(label=="MeS"?"SMe":label):nullptr){size_t heavy=0;if(!addFormulaText(alias->formula,counts,mass,heavy)){r.note="缩写分子式数据不可用";return r;}if(!addFormulaExact(alias->formula,exact))exactOk=false;if(heavy>0)r.atoms+=heavy-1;continue;}
         bool countedCarbonRadical=sem.implicitHydrogens>=0&&sem.radical>=uint8_t(Radical::Singlet)&&sem.radical<=uint8_t(Radical::Triplet);
         if(sem.nodeType!=uint8_t(NodeType::Element)||(!label.empty()&&label!=core::elementSymbol(a->element)&&elementalH<0)||(sem.radical&&!countedCarbonRadical&&elementalH<0)){r.note="含未解析标签或未明确氢数的自由基，暂不计算";return r;}
         int sum=0,arom=0,degree=0;for(auto bid:d.incidentBonds(id)){auto b=d.bonds().alive(bid);if(!b)continue;++degree;

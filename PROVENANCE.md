@@ -19,6 +19,16 @@ from the authored SMILES table; no vendor fragment coordinates, node ids or stru
 copied. Entries are validated for formula, valence, a single attachment point and CIP
 where defined.
 
+The supplemental tables `studio/bridge_groups.json` and `studio/reference_compounds.json`
+describe two-attachment fragments and complete molecules respectively. Abbreviation
+meanings were checked against the [CAS blocking group table](https://web.cas.org/marketing/pdf/blocking.pdf),
+[CAS protein sequence guide](https://web.cas.org/marketing/pdf/protseq.pdf),
+[Hans Reich organic chemistry acronyms](https://organicchemistrydata.org/hansreich/resources/acronyms/),
+and the user-supplied reference glossary. Some structure identities and aliases were
+cross-checked using PubChem, Open Babel superatoms and OpenChemLib NamedSubstituents.
+RDKit generates the depictions. The source records include individual references
+where available.
+
 The shortcut table in `studio/keymap_data.hpp` (namespace `keymap`) is project-maintained
 functional data describing which key performs which command. It keeps vendor command
 identifiers (for example `chooseRingTool_Benzene`) because they are the interoperability

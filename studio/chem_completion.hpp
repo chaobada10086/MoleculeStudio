@@ -5,9 +5,13 @@
 #include <cstring>
 #include <map>
 #include <set>
+#include <sstream>
 #include <string>
 #include <vector>
 #include "nickname_catalog.hpp"
+#include "bridge_catalog.hpp"
+#include "nickname_forms.hpp"
+#include "group_reference.hpp"
 #include "custom_groups_data.hpp"
 #include "functional_groups_doc.hpp"
 #include "engine/ion_labels.hpp"
@@ -79,6 +83,40 @@ inline bool persist(State& draft){
     if(!writeKey(L"Disabled",disabled)||!writeKey(L"Custom",custom))return false;
     unsigned revision=state().revision+1;loadState(state());state().revision=revision;
     return true;
+}
+inline std::string foldCase(std::string label){for(auto& c:label)if(c>='A'&&c<='Z')c+=32;return label;}
+inline const std::map<std::string,std::set<std::string>>& ambiguousGroups(){
+    static const auto choices=[](){
+        std::map<std::string,std::set<std::string>> groups;
+        for(const auto& n:nickdata::nicknames)groups[foldCase(n.name)].insert(n.name);
+        for(const auto& pair:nicknameform::pairs)if(nickdata::find(pair.left))groups[foldCase(pair.right)].insert(pair.right);
+        for(const auto& c:compounddata::entries){
+            std::istringstream aliases(c.aliases);std::string alias;
+            while(std::getline(aliases,alias,'|')){auto it=groups.find(foldCase(alias));if(it!=groups.end())it->second.insert(alias);}
+        }
+        for(const auto& alias:groupreference::choices)groups[foldCase(alias.key)].insert(alias.value);
+        size_t symbolCount=0;const auto symbols=elementSymbols(&symbolCount);
+        for(size_t i=0;i<symbolCount;++i){
+            const std::string symbol=symbols[i],key=foldCase(symbol);
+            auto n=nickdata::find(symbol);
+            auto c=compounddata::find(key);
+            if(c&&std::string(c->identity)!="["+symbol+"]")groups[key].insert(compounddata::canonical(key));
+            // Li in the group catalogue denotes lithium itself.
+            if(symbol!="Li"&&groups.count(key)&&(n||groups[key].count(symbol)==0||groups[key].size()>1))groups[key].insert("#"+symbol);
+        }
+        for(auto it=groups.begin();it!=groups.end();)if(it->second.size()<2)it=groups.erase(it);else ++it;
+        // Both case variants in each of these pairs describe the same substituent.
+        groups.erase("chx");groups.erase("thexyl");
+        return groups;
+    }();
+    return choices;
+}
+inline bool multipleMeanings(const std::string& label){
+    for(const auto& alias:groupreference::choices)if(label==alias.key)return true;
+    return false;
+}
+inline bool exactAmbiguous(const std::string& label){
+    auto it=ambiguousGroups().find(foldCase(label));return it!=ambiguousGroups().end()&&it->second.count(label);
 }
 // ---- dictionary -----------------------------------------------------------
 inline const std::map<std::string,std::string>& index(){
@@ -266,6 +304,8 @@ inline bool unlistedCount(const std::string& label){
     const auto prefix=label.substr(0,digit);return prefix=="Ph"||(prefix.size()==2&&prefix[1]>='a'&&prefix[1]<='z'&&isElementSymbol(prefix));
 }
 inline std::string knownSpelling(const std::string& label){
+    if(bridgedata::find(label))return label;
+    if(exactAmbiguous(label))return label;
     if(label.empty()||label.size()>96)return "";
     if(unlistedCount(label))return "";
     if(isElementSymbol(label))return label;
@@ -291,6 +331,7 @@ inline std::string knownSpelling(const std::string& label){
     return "";
 }
 inline std::string normalize(const std::string& label,bool on){
+    if(exactAmbiguous(label))return label;
     if(!on||label.size()>96)return label;
     if(unlistedCount(label))return label;
     int ionCharge=0;bool charged=false;
@@ -360,9 +401,14 @@ inline std::vector<Entry> list(){
         item.custom=custom!=state().custom.end();
         listed.insert(k);result.push_back(item);
     }
+    for(const auto& b:bridgedata::entries){Entry item;item.name=b.name;item.key=key(b.name);item.enabled=!state().disabled.count(item.key);result.push_back(item);}
     for(const auto& alias:compounddata::index())if(alias.second.entry&&!seen.count(alias.first)){
         Entry item;item.name=alias.second.spelling;item.key=alias.first;item.enabled=state().disabled.count(alias.first)==0;
         result.push_back(item);seen.insert(alias.first);listed.insert(alias.first);
+    }
+    for(const auto& group:ambiguousGroups())if(!listed.count(key(group.first))){
+        Entry item;item.name=group.first;item.key=key(group.first);item.enabled=!state().disabled.count(item.key);
+        listed.insert(item.key);result.push_back(item);
     }
     for(const auto& entry:state().custom){
         if(listed.count(entry.first))continue;

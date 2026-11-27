@@ -42,6 +42,10 @@ static void checkCalculator(App& app,const std::string& dir){
             ok(d->fields.size()==2&&d->keyButtons.size()==16&&IsWindowVisible(d->keyButtons[0]),"compound cards and default keyboard");
             ok(!GetDlgItem(d->yieldPage,601),"redundant starting-compound selector removed");RECT keyRect;GetWindowRect(d->keyButtons[0],&keyRect);ok(keyRect.bottom-keyRect.top>=d->px(74),"yield keyboard has larger keys");
             auto& product=d->rows[1];auto& f=d->fields[1];
+            SetWindowTextW(f.mass,L"1.25 - 0.20 + 1e-2");SendMessageW(f.mass,WM_KEYDOWN,VK_RETURN,0);
+            ok(product.valid&&std::abs(product.grams-1.06)<1e-10,"mass arithmetic Enter");
+            SetFocus(f.mass);SetWindowTextW(f.mass,L"12.6-12.5");SetFocus(f.amount);
+            ok(product.valid&&std::abs(product.grams-.1)<1e-10,"mass subtraction on blur");
             SetWindowTextW(d->fields[0].mass,L"0.200");SetWindowTextW(f.mass,L"0.100");
             ok(product.valid&&product.yieldValid&&std::abs(product.yield-100*product.mol/d->rows[0].mol)<1e-8,"single substrate supplies the starting amount");
             auto initial=yieldcalc::compact((.1/product.formula.averageMass)/.88*1000,14);SetWindowTextW(d->start,initial.c_str());
@@ -55,7 +59,7 @@ static void checkCalculator(App& app,const std::string& dir){
             SendMessageW(f.amountUnit,CB_SETCURSEL,0,0);d->command(1025,CBN_SELCHANGE);
             SetWindowTextW(f.mass,yieldcalc::compact(product.formula.averageMass*101,12).c_str());ok(d->fields[1].autoUnit==2,"automatic mol above 100mmol");
             SetWindowTextW(f.mass,L"100");ok(d->fields[1].autoUnit==1,"automatic mmol below 100mmol");
-            d->lastInput=f.mass;SendMessageW(f.mass,EM_SETSEL,0,-1);d->key(8);ok(CalculatorDialog::text(f.mass)==L"1","soft keyboard input");d->key(3);ok(!product.valid,"keyboard backspace clears derived result");SetWindowTextW(f.mass,L"100");
+            SetFocus(f.mass);SendMessageW(f.mass,EM_SETSEL,0,-1);d->key(8);ok(CalculatorDialog::text(f.mass)==L"1","soft keyboard input");d->key(3);ok(!product.valid,"keyboard backspace clears derived result");SetWindowTextW(f.mass,L"100");
             auto notify=[&](HWND tabs,HWND target,int index){SendMessageW(tabs,TCM_SETCURSEL,index,0);NMHDR event={};event.hwndFrom=tabs;event.code=TCN_SELCHANGE;SendMessageW(target,WM_NOTIFY,0,(LPARAM)&event);};
             notify(d->tabs,popup,1);ok(IsWindowVisible(d->massPage)&&!IsWindowVisible(d->yieldPage),"mass and yield are sibling tabs");
             for(auto key:d->keyButtons)ok(!IsWindowVisible(key),"mass tab has no keyboard");ok(IsWindowVisible(d->massPreview)&&d->massThumbnail,"mass tab has selected structure preview");

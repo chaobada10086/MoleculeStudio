@@ -290,6 +290,29 @@ struct InlineTextEditor {
         const std::string previousPlain=atom!=kInvalidObjectId?session->doc.atomLabel(atom):text!=kInvalidObjectId?session->doc.plainText(text):std::string();
         std::vector<TextRun> originalRuns;std::string originalPlain,originalColors;
         if(accept&&autoLayout){originalRuns=runs(false);for(const auto& run:originalRuns)originalPlain+=run.utf8;std::ostringstream colors;for(auto color:runColors)colors<<color<<' ';originalColors=colors.str();}
+        std::string choice;
+        auto typedLabel=U(value());
+        const auto choiceKey=chemcompletion::foldCase(typedLabel);
+        // Exact element spelling always identifies the atom. For lowercase input
+        // retain established group spellings such as cn -> CN.
+        int typedElement=diagramCaption?0:elementNumber(typedLabel);
+        if(!typedElement&&!diagramCaption&&chemcompletion::enabled()&&typedLabel==choiceKey&&typedLabel.size()<=2&&!typedLabel.empty()){
+            auto symbol=choiceKey;
+            if(symbol[0]>='a'&&symbol[0]<='z')symbol[0]-=32;
+            auto known=chemcompletion::knownSpelling(typedLabel);
+            if(known.empty()||known==symbol)typedElement=elementNumber(symbol);
+        }
+        if(typedElement)choice=elementSymbol(typedElement);
+        auto ambiguity=chemcompletion::ambiguousGroups().find(choiceKey);
+        bool sharedExact=typedElement&&ambiguity!=chemcompletion::ambiguousGroups().end()&&ambiguity->second.count(typedLabel)&&ambiguity->second.count("#"+typedLabel);
+        if(accept&&!diagramCaption&&chemcompletion::enabled()&&ambiguity!=chemcompletion::ambiguousGroups().end()&&
+           (sharedExact||chemcompletion::multipleMeanings(typedLabel)||(!chemcompletion::exactAmbiguous(typedLabel)&&!elementNumber(typedLabel)))&&!chemcompletion::state().disabled.count(choiceKey)){
+            choice=groupchoice::choose(owner,choiceKey,false,atom!=kInvalidObjectId&&!session->doc.incidentBonds(atom).empty());
+            if(choice.empty()){closing=false;SetFocus(hwnd);return Error(ErrorCode::Unsupported,"已取消官能团选择");}
+            typedElement=0;
+            if(choice[0]=='#'){choice.erase(0,1);typedElement=elementNumber(choice);}
+            }
+        if(accept&&!autoLayout&&!choice.empty()){select(0,LONG(value().size()));auto replacement=W(choice);studio_i18n::sendMessage(hwnd,EM_REPLACESEL,TRUE,(LPARAM)replacement.c_str());}
         if(accept&&autoLayout){
             // Process whole caption lines individually, keeping ordinary prose
             // and its formatting. Work backwards to keep earlier offsets valid.
@@ -308,6 +331,7 @@ struct InlineTextEditor {
                 // Only catalogue entries receive automatic chemistry typography.
                 // An unknown atom label remains exactly as the author typed it.
                 auto canonical=atomLabel&&chemcompletion::knownSpelling(typed).empty()?std::string():chemcompletion::hyphenatedGroup(atomLabel?chemcompletion::normalize(typed):chemcompletion::chemicalToken(typed));
+                if(!choice.empty())canonical=choice;
                 if(!canonical.empty()){
                     if(canonical!=typed){
                         select(LONG(start),LONG(end));
@@ -340,14 +364,30 @@ struct InlineTextEditor {
             applyCanvasLineSpacing();resize();
         }
         auto r=runs();std::ostringstream colorsOut;for(auto color:runColors)colorsOut<<color<<' ';auto colors=colorsOut.str();std::string plain;for(auto& part:r)plain+=part.utf8;const bool automaticChanged=autoLayout&&!chemcompletion::knownSpelling(plain).empty()&&(plain!=originalPlain||!textbackup::sameRuns(originalRuns,r));auto t=text,a=atom;auto p=anchor;auto f=format;double sz=size,wrap=widthLimit;Error e;
-        if(accept){if(a!=kInvalidObjectId){e=session->submit(Command("原位原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateGeometry,[a,plain,r,colors,autoLayout,automaticChanged,originalPlain,originalRuns,originalColors,previousPlain](CommandContext& c){if(studio::diazo::requested(plain)&&studio::diazo::eligible(c.document,a)){auto e=studio::diazo::append(c.document,a,studio::diazo::axis(c.document,a),studio::diazo::externalValence(c.document,a));return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}const bool keepCompact=studioions::compact(c.document,a)&&c.document.atomLabel(a)==plain&&c.document.atoms().alive(a)->semantics.nodeType==uint8_t(NodeType::Nickname);auto outcome=keepCompact?CommandResult::success():nicknames::labelCommand(a,plain).execute(c);auto e=outcome.error;if(e.ok()){c.document.setAtomLabel(a,plain);studioatom::set(c.document,a,r);auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,a));if(autoLayout&&!chemcompletion::knownSpelling(plain).empty())bag.erase("pst.attr.MoleculeStudioLiteralLabel");else bag.set("pst.attr.MoleculeStudioLiteralLabel","1");if(automaticChanged)textbackup::save(c.document,ObjectRef(ObjectKind::Atom,a),originalPlain,originalRuns,originalColors,true);else if(previousPlain!=plain)bag.erase(textbackup::key());bag.erase("studio.color.override");bag.set("studio.text.colors",colors);bag.set("studio.text.colors.edited","1");if(autoLayout){int q=0;bool explicitQ=false;if(const auto* ion=studioions::find(plain,&q,&explicitQ)){e=studioions::apply(c.document,a,*ion,explicitQ?q:c.document.atoms().alive(a)->semantics.charge);if(e.ok()){auto count=c.document.atomLabel(a).size();std::vector<TextRun> kept;for(auto part:r){if(!count)break;part.utf8=part.utf8.substr(0,count);count-=part.utf8.size();kept.push_back(part);}studioatom::set(c.document,a,kept);}}else if(!keepCompact){bag.erase("studio.mechanism.ion.base");bag.erase("studio.mechanism.compact.valence");}}
+        if(accept&&!typedElement&&a!=kInvalidObjectId&&!choice.empty()&&groupchoice::standaloneChoice(choice)&&!session->doc.incidentBonds(a).empty()){
+            p=session->doc.atoms().alive(a)->position+Vec2(0,2*session->doc.defaultBondLength());a=kInvalidObjectId;
+        }
+        if(accept){if(a!=kInvalidObjectId){e=session->submit(Command("原位原子标签",kInvalidateStructure|kInvalidateAppearance|kInvalidateGeometry,[a,plain,r,colors,autoLayout,automaticChanged,originalPlain,originalRuns,originalColors,previousPlain,typedElement](CommandContext& c){if(studio::diazo::requested(plain)&&studio::diazo::eligible(c.document,a)){auto e=studio::diazo::append(c.document,a,studio::diazo::axis(c.document,a),studio::diazo::externalValence(c.document,a));return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}const bool keepCompact=studioions::compact(c.document,a)&&c.document.atomLabel(a)==plain&&c.document.atoms().alive(a)->semantics.nodeType==uint8_t(NodeType::Nickname);auto outcome=typedElement?chemistry::setElementCommand(a,typedElement).execute(c):keepCompact?CommandResult::success():nicknames::labelCommand(a,plain).execute(c);auto e=outcome.error;if(e.ok()){c.document.setAtomLabel(a,plain);studioatom::set(c.document,a,r);auto& bag=c.document.extensions(ObjectRef(ObjectKind::Atom,a));if(autoLayout&&!chemcompletion::knownSpelling(plain).empty())bag.erase("pst.attr.MoleculeStudioLiteralLabel");else bag.set("pst.attr.MoleculeStudioLiteralLabel","1");if(automaticChanged)textbackup::save(c.document,ObjectRef(ObjectKind::Atom,a),originalPlain,originalRuns,originalColors,true);else if(previousPlain!=plain)bag.erase(textbackup::key());bag.erase("studio.color.override");bag.set("studio.text.colors",colors);bag.set("studio.text.colors.edited","1");if(typedElement){
+                    for(auto key:{"studio.nickname.fragment","studio.compound.fragment","studio.compound.saved","studio.compound.anchor","studio.mechanism.ion.base","studio.mechanism.compact.valence","studio.hydrogens.manual","studio.query.description"})bag.erase(key);
+                    auto sem=c.document.atoms().alive(a)->semantics;sem.implicitHydrogens=-1;
+                    e=c.document.setAtomSemantics(a,sem);
+                }else if(autoLayout){int q=0;bool explicitQ=false;if(const auto* ion=studioions::find(plain,&q,&explicitQ)){e=studioions::apply(c.document,a,*ion,explicitQ?q:c.document.atoms().alive(a)->semantics.charge);if(e.ok()){auto count=c.document.atomLabel(a).size();std::vector<TextRun> kept;for(auto part:r){if(!count)break;part.utf8=part.utf8.substr(0,count);count-=part.utf8.size();kept.push_back(part);}studioatom::set(c.document,a,kept);}}else if(!keepCompact){bag.erase("studio.mechanism.ion.base");bag.erase("studio.mechanism.compact.valence");}}
                 if(e.ok()&&autoLayout&&studio::compact_radicals::find(plain))e=studio::compact_radicals::apply(c.document,a,plain,r);
                 if(keepCompact)bag.erase("pst.attr.MoleculeStudioLiteralLabel");
-                if(e.ok()&&autoLayout&&c.document.incidentBonds(a).empty())if(auto ion=compounddata::ion(plain))e=nicknames::applyWholeIon(c.document,a,*ion);
+                if(e.ok()&&!typedElement&&autoLayout&&c.document.incidentBonds(a).empty())if(auto ion=compounddata::ion(plain))e=nicknames::applyWholeIon(c.document,a,*ion);
                 bool repaired=false;
                 if(e.ok())e=studio::bond_hydrogens::repairCondensedHydroxyl(c.document,a,repaired);
             }
             return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);}),"原位原子标签");}
+            else if(typedElement&&t==kInvalidObjectId){
+                auto id=std::make_shared<ObjectId>(kInvalidObjectId);
+                e=session->submit(Command("输入元素",kInvalidateStructure|kInvalidateAppearance,[id,p,sz,typedElement,plain,r](CommandContext& c){
+                    auto e=c.document.addAtom(p+Vec2(sz*.35,-sz*.35),typedElement,id.get());
+                    if(e.ok())e=c.document.setAtomLabel(*id,plain);
+                    if(e.ok())studioatom::set(c.document,*id,r);
+                    return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
+                }),"输入元素");a=*id;
+            }
             else if(!diagramCaption&&autoLayout&&compounddata::ion(plain)){
                 auto id=std::make_shared<ObjectId>(kInvalidObjectId);const auto* ion=compounddata::ion(plain);
                 e=session->submit(Command("输入多原子离子",kInvalidateStructure|kInvalidateSemantics|kInvalidateAppearance|kInvalidateGeometry,[id,p,sz,ion,t](CommandContext& c){
@@ -357,7 +397,7 @@ struct InlineTextEditor {
                     return e.ok()?CommandResult::success():CommandResult::fail(e.code,e.message);
                 }),"输入多原子离子");a=*id;t=kInvalidObjectId;
             }
-            else if(!diagramCaption&&autoLayout&&(compounddata::hydride(plain)||studio::compact_radicals::find(plain))){
+            else if(!diagramCaption&&autoLayout&&(bridgedata::find(plain)||compounddata::hydride(plain)||studio::compact_radicals::find(plain)||(chemcompletion::exactAmbiguous(plain)&&(nickdata::find(plain)||plain=="MeS")))){
                 auto id=std::make_shared<ObjectId>(kInvalidObjectId);
                 e=session->submit(Command("输入可拉出氢的试剂",kInvalidateStructure|kInvalidateSemantics|kInvalidateAppearance|kInvalidateGeometry,[id,p,sz,plain,r,t,automaticChanged,originalPlain,originalRuns,originalColors](CommandContext& c){
                     auto e=c.document.addAtom(p+Vec2(sz*.35,-sz*.35),6,id.get());

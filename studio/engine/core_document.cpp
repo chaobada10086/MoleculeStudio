@@ -630,6 +630,14 @@ Error Document::setBondEndpoints(ObjectId id, ObjectId begin, ObjectId end) {
         if (prev) return Error(ErrorCode::DuplicateBond, "A bond between these atoms already exists");
     }
     bondIndex_.erase(bondKey(bond->beginAtom, bond->endAtom));
+    for (ObjectId previous : {bond->beginAtom, bond->endAtom}) {
+        if (previous == begin || previous == end) continue;
+        auto& links = adjacency_[previous];
+        links.erase(std::remove(links.begin(), links.end(), id), links.end());
+    }
+    for (ObjectId next : {begin, end}) {
+        if (next != bond->beginAtom && next != bond->endAtom) adjacency_[next].push_back(id);
+    }
     bond->beginAtom = begin;
     bond->endAtom = end;
     bondIndex_[key] = id;

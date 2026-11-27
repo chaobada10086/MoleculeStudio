@@ -20,6 +20,12 @@ struct CalculatorDialog {
     }
     static LRESULT CALLBACK inputProc(HWND h,UINT m,WPARAM w,LPARAM l,UINT_PTR,DWORD_PTR data){
         auto d=(CalculatorDialog*)data;
+        const int id=GetDlgCtrlID(h);
+        if(id>=1000&&(id-1000)%20==1){
+            if(m==WM_GETDLGCODE&&l&&reinterpret_cast<MSG*>(l)->wParam==VK_RETURN)return DLGC_WANTMESSAGE;
+            if(m==WM_KEYDOWN&&w==VK_RETURN){d->settleMass((id-1000)/20);return 0;}
+            if(m==WM_CHAR&&w==VK_RETURN)return 0;
+        }
         if(m==WM_SETFOCUS){d->lastInput=h;for(size_t i=0;i<d->fields.size();++i)if(h==d->fields[i].mass||h==d->fields[i].amount||h==d->fields[i].coefficient){d->ensureVisible(i);break;}}
         if(m==WM_NCDESTROY)RemoveWindowSubclass(h,inputProc,1);return DefSubclassProc(h,m,w,l);
     }
@@ -52,6 +58,17 @@ struct CalculatorDialog {
         }else{if(f.massSource)set(f.amount,L"");else set(f.mass,L"");}
         int unit=row.amountDisplay?row.amountDisplay:f.autoUnit;const wchar_t* names[]={L"",L"mmol",L"mol",L"µmol"};
         set(f.amountLabel,std::wstring(L"物质的量（")+names[unit]+L"）");quiet=wasQuiet;
+    }
+    void settleMass(size_t i){
+        if(i>=fields.size())return;
+        std::wistringstream input(text(fields[i].mass));input.imbue(std::locale::classic());
+        double sum;if(!(input>>sum))return;
+        bool expression=false;
+        while(true){input>>std::ws;if(input.eof())break;
+            wchar_t op;double term;if(!(input>>op)||(op!=L'+'&&op!=L'-')||!(input>>term))return;
+            sum+=op==L'+'?term:-term;expression=true;
+        }
+        if(expression&&std::isfinite(sum)&&sum>=0)set(fields[i].mass,yieldcalc::compact(sum,14));
     }
     void recalculate(size_t i,bool fromMass){
         if(quiet)return;auto& row=rows[i];auto& f=fields[i];f.massSource=fromMass;double value=0;
@@ -161,16 +178,18 @@ struct CalculatorDialog {
             refreshResults();return;
         }
         if((field==1||field==4)&&notification==EN_CHANGE){recalculate(i,field==1);return;}
+        if(field==1&&notification==EN_KILLFOCUS){settleMass(i);return;}
         if(field==4&&notification==EN_KILLFOCUS){renderRow(i,true);return;}
         if((field==2||field==5)&&notification==CBN_SELCHANGE){
             row.massUnit=selection(f.massUnit);row.amountDisplay=selection(f.amountUnit);renderRow(i,true);refreshResults();return;}
         if((field==6&&notification==CBN_SELCHANGE)||(field==7&&notification==EN_CHANGE)||(field==0&&notification==BN_CLICKED))refreshResults();
     }
     static LRESULT CALLBACK pageProc(HWND h,UINT m,WPARAM w,LPARAM l,UINT_PTR,DWORD_PTR data){
-        auto d=(CalculatorDialog*)data;if(m==WM_COMMAND){d->command(LOWORD(w),HIWORD(w));return 0;}if(m==WM_NCDESTROY)RemoveWindowSubclass(h,pageProc,1);return DefSubclassProc(h,m,w,l);
+        auto d=(CalculatorDialog*)data;if(m==WM_LBUTTONDOWN)SetFocus(h);if(m==WM_COMMAND){d->command(LOWORD(w),HIWORD(w));return 0;}if(m==WM_NCDESTROY)RemoveWindowSubclass(h,pageProc,1);return DefSubclassProc(h,m,w,l);
     }
     static LRESULT CALLBACK cardsProc(HWND h,UINT m,WPARAM w,LPARAM l){
         auto d=(CalculatorDialog*)GetWindowLongPtrW(h,GWLP_USERDATA);if(m==WM_NCCREATE){d=(CalculatorDialog*)((CREATESTRUCTW*)l)->lpCreateParams;SetWindowLongPtrW(h,GWLP_USERDATA,(LONG_PTR)d);}if(!d)return DefWindowProcW(h,m,w,l);
+        if(m==WM_LBUTTONDOWN)SetFocus(h);
         if(m==WM_COMMAND){d->command(LOWORD(w),HIWORD(w));return 0;}
         if(m==WM_CTLCOLORSTATIC||m==WM_CTLCOLORBTN){SetBkMode((HDC)w,TRANSPARENT);SetTextColor((HDC)w,RGB(40,52,53));return (LRESULT)GetStockObject(WHITE_BRUSH);}
         if(m==WM_HSCROLL){int at=d->offset;switch(LOWORD(w)){case SB_LINELEFT:at-=40;break;case SB_LINERIGHT:at+=40;break;case SB_PAGELEFT:at-=236;break;case SB_PAGERIGHT:at+=236;break;case SB_THUMBTRACK:case SB_THUMBPOSITION:{SCROLLINFO info={};info.cbSize=sizeof(info);info.fMask=SIF_TRACKPOS;GetScrollInfo(h,SB_HORZ,&info);at=info.nTrackPos;break;}}d->offset=at;d->moveCards();return 0;}
@@ -188,6 +207,7 @@ struct CalculatorDialog {
     }
     static INT_PTR CALLBACK proc(HWND h,UINT m,WPARAM w,LPARAM l){
         auto d=(CalculatorDialog*)GetWindowLongPtrW(h,DWLP_USER);
+        if(d&&m==WM_LBUTTONDOWN)SetFocus(h);
         if(m==WM_INITDIALOG){d=(CalculatorDialog*)l;d->hwnd=h;SetWindowLongPtrW(h,DWLP_USER,(LONG_PTR)d);SetWindowTextW(h,L"计算器");
             MONITORINFO monitor={};monitor.cbSize=sizeof(monitor);GetMonitorInfoW(MonitorFromWindow(GetParent(h),MONITOR_DEFAULTTONEAREST),&monitor);auto work=monitor.rcWork;
             d->dpi=std::min({GetDpiForWindow(h)/96.,(work.right-work.left-32)/1040.,(work.bottom-work.top-40)/640.});

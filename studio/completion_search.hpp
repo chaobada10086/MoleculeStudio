@@ -33,7 +33,7 @@ inline std::string preview(const std::string& formula){
  const char* sub[]={"₀","₁","₂","₃","₄","₅","₆","₇","₈","₉"};const char* sup[]={"⁰","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"};
  std::string out;for(auto r:chemcompletion::segments(formula,true))for(char c:r.text){if(c>='0'&&c<='9'&&r.script)out+=(r.script<0?sub:sup)[c-'0'];else if(r.script>0&&c=='+')out+="⁺";else if(r.script>0&&c=='-')out+="⁻";else out+=c;}return out.empty()?formula:out;
 }
-struct Hit{chemcompletion::Entry entry;bool formula=false;int score=0;};
+struct Hit{chemcompletion::Entry entry;bool formula=false,reference=false;int score=0;};
 inline std::vector<Hit> search(const std::string& query){
  std::vector<Hit> out;std::set<std::string> names;
  for(auto e:chemcompletion::list()){
@@ -43,6 +43,10 @@ inline std::vector<Hit> search(const std::string& query){
  if(!normalized(query).empty())for(auto f:chemcompletion::commonFormulas()){
   int score=rank(query,f.second);if(score<0||names.count(normalized(f.second)))continue;
   Hit h;h.entry.name=f.second;h.entry.key="";h.formula=true;h.score=score;out.push_back(h);
+ }
+ for(auto name:groupreference::unresolved){
+  int score=rank(query,name);if(score<0)continue;
+  Hit h;h.entry.name=name;h.entry.key="";h.reference=true;h.score=score;out.push_back(h);
  }
  std::stable_sort(out.begin(),out.end(),[](const Hit&a,const Hit&b){return a.score!=b.score?a.score<b.score:a.entry.name<b.entry.name;});return out;
 }

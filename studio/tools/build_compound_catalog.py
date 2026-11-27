@@ -19,8 +19,8 @@ def build():
                          fragment=ET.tostring(frag,encoding='unicode'),file=record['file']))
     lines=['#pragma once','#include <string>','#include <map>','#include <vector>',
            'namespace compounddata {',
-           'struct Entry {const char* name;const char* aliases;const char* title;const char* formula;const char* identity;const char* fragment;};',
-           'static const Entry entries[]={', '#include "polyatomic_ion_entries.hpp"']
+           'struct Entry {const char* name;const char* aliases;const char* title;const char* formula;const char* identity;const char* fragment;bool standalone;};',
+           'static const Entry entries[]={', '#include "polyatomic_ion_entries.hpp"', '#include "reference_compounds.inc"']
     for r in rows:
         lines.append('{'+','.join(json.dumps(r[k],ensure_ascii=False) for k in ('name','aliases','title','formula','identity'))+',R"CMP('+r['fragment']+')CMP"},')
     hydrides=[]

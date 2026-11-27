@@ -3,6 +3,7 @@
 #pragma once
 #include "chem_completion.hpp"
 #include "completion_search.hpp"
+#include "group_preview.hpp"
 #include "page_defaults.hpp"
 #include "ui_language.hpp"
 #include "skill_export.hpp"
@@ -23,10 +24,7 @@ struct StudioSettingsWindow {
         if(row<0||size_t(row)>=entries.size()){groupPreview.reset();groupRenderer.reset();previewFragment.clear();previewName.clear();previewError.clear();InvalidateRect(hwnd,&previewRect,FALSE);return;}
         const auto& entry=entries[size_t(row)];if(previewFragment==entry.fragment&&previewName==entry.name)return;
         groupPreview.reset();groupRenderer.reset();previewFragment=entry.fragment;previewName=entry.name;previewError.clear();
-        try{tinyxml2::XMLDocument xml;if(xml.Parse(entry.fragment.c_str())!=tinyxml2::XML_SUCCESS||!xml.RootElement())throw std::runtime_error("结构数据损坏");
-            nicknameexpand::walk(xml.RootElement(),[&](tinyxml2::XMLElement* e){if(e->Attribute("NodeType")&&std::string(e->Attribute("NodeType"))=="ExternalConnectionPoint"){e->SetAttribute("NodeType","GenericNickname");e->SetAttribute("NumHydrogens",0);auto t=xml.NewElement("t"),s=xml.NewElement("s");s->SetText("R");t->InsertEndChild(s);e->InsertEndChild(t);}});
-            tinyxml2::XMLPrinter p;xml.Print(&p);std::unique_ptr<Session> session(new Session());auto error=persistence::readCdxml(std::string("<CDXML BondLength=\"14.4\"><page id=\"2000000000\">")+p.CStr()+"</page></CDXML>",session->doc);if(!error.ok())throw std::runtime_error(error.message);
-            session->refresh();groupPreview=std::move(session);groupRenderer.reset(new compatible::Renderer());groupRenderer->initialize(nullptr);
+        try{groupPreview=grouppreview::load(entry.fragment);groupRenderer.reset(new compatible::Renderer());groupRenderer->initialize(nullptr);
         }catch(const std::exception& e){previewError=e.what();}
         InvalidateRect(hwnd,&previewRect,FALSE);
     }
@@ -128,7 +126,7 @@ struct StudioSettingsWindow {
     std::wstring text(int id)const{return AiWindow::controlText(GetDlgItem(hwnd,id));}
     void set(int id,const std::wstring& value){if(id==802)statusSource=value;auto translated=(id==802?studio_i18n::tr(value):value);if(id==926)translated=studio_i18n::tr(translated);if(text(id)!=translated)studio_i18n::setDlgItemText(hwnd,id,translated.c_str());}
     static std::wstring number(double value){wchar_t s[64];swprintf(s,64,L"%.6g",value);return s;}
-    static int group(int id){if(id>=kSkinPreset&&id<=kLastControl)return kSkin;if(id>=1001&&id<=1010)return 0;if(id>=985&&id<=987)return 5;if(id==928||(id>=983&&id<=984))return 8;if(id==980||id==981)return 7;if(id>=970&&id<=974)return 6;if(id==968)return 5;if(id>=960&&id<=974)return 5;if(id>=950&&id<=953)return 4;if(id>=910&&id<=917)return 0;if(id==927)return 1;if(id>=920&&id<=926)return 1;if(id>=940&&id<=946)return 2;if(id>=930&&id<=932)return 3;return -1;}
+    static int group(int id){if(id>=kSkinPreset&&id<=kLastControl)return kSkin;if(id>=1001&&id<=1010)return 0;if(id>=985&&id<=987)return 5;if(id==928||(id>=983&&id<=984))return 8;if(id==980||id==981)return 7;if(id>=970&&id<=974)return 6;if(id==988||id==968)return 5;if(id>=960&&id<=974)return 5;if(id>=950&&id<=953)return 4;if(id>=910&&id<=917)return 0;if(id==927)return 1;if(id>=920&&id<=926)return 1;if(id>=940&&id<=946)return 2;if(id>=930&&id<=932)return 3;return -1;}
     std::vector<DrawingSettings> customStyles;
     DrawingSettings drawingDraft()const{
         DrawingSettings d=*drawing;struct Field{int id;double low,high;double* value;const char* title;};
@@ -159,8 +157,8 @@ struct StudioSettingsWindow {
             item.iItem=row;item.lParam=LPARAM(row);
             studio_i18n::sendMessage(list,LVM_INSERTITEMW,0,(LPARAM)&item);
             {std::wstring name=W(entry.name+(hit.formula?" → "+completionsearch::preview(entry.name):""));LVITEMW column={};column.mask=LVIF_TEXT;column.iItem=row;column.iSubItem=1;column.pszText=&name[0];studio_i18n::sendMessage(list,LVM_SETITEMW,0,(LPARAM)&column);}
-            {std::wstring origin=hit.formula?L"公式排版":entry.custom?L"自定义":L"内置";LVITEMW column={};column.mask=LVIF_TEXT;column.iItem=row;column.iSubItem=2;origin=studio_i18n::tr(origin);column.pszText=&origin[0];studio_i18n::sendMessage(list,LVM_SETITEMW,0,(LPARAM)&column);}
-            if(hit.formula){LVITEMW state={};state.stateMask=LVIS_STATEIMAGEMASK;state.state=0;studio_i18n::sendMessage(list,LVM_SETITEMSTATE,row,(LPARAM)&state);}else ListView_SetCheckState(list,row,entry.enabled?TRUE:FALSE);++row;
+            {std::wstring origin=hit.reference?L"待定结构":hit.formula?L"公式排版":entry.custom?L"自定义":L"内置";LVITEMW column={};column.mask=LVIF_TEXT;column.iItem=row;column.iSubItem=2;origin=studio_i18n::tr(origin);column.pszText=&origin[0];studio_i18n::sendMessage(list,LVM_SETITEMW,0,(LPARAM)&column);}
+            if(hit.formula||hit.reference){LVITEMW state={};state.stateMask=LVIS_STATEIMAGEMASK;state.state=0;studio_i18n::sendMessage(list,LVM_SETITEMSTATE,row,(LPARAM)&state);}else ListView_SetCheckState(list,row,entry.enabled?TRUE:FALSE);++row;
         }
         studio_i18n::sendMessage(list,WM_SETREDRAW,TRUE,0);
         InvalidateRect(list,nullptr,TRUE);
@@ -312,7 +310,7 @@ struct StudioSettingsWindow {
         move(930,x,px(143),px(180),px(36));move(931,x,px(205),content,px(200));move(932,x,px(425),content,px(28));
         move(950,x,px(142),content,std::max(px(180),h-px(340)));move(951,x,h-px(162),px(158),px(34));move(952,x,px(108),content,px(24));move(953,x,h-px(120),content,px(24));
         // 基团补齐页：总开关、公式排版、可勾选缩写清单、自定义缩写。
-        move(969,x,px(96),content,px(26));move(966,x,px(128),content,px(26));
+        move(969,x,px(96),content-px(160),px(26));move(988,x+content-px(154),px(94),px(154),px(28));move(966,x,px(128),content,px(26));
         move(960,x,px(162),px(110),px(22));move(968,x+px(114),px(158),content-px(114),px(28));
         {int listTop=px(190),listHeight=std::max(px(96),h-listTop-px(274));move(961,x,listTop,content,listHeight);
          auto list=GetDlgItem(hwnd,961);if(list){
@@ -446,6 +444,7 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
                 if(chemcompletion::removeCustom(self->completionKeys[size_t(index)])){self->fillCompletion();self->set(802,L"已删除该自定义缩写");}
                 else self->set(802,L"内置缩写不能删除，可取消勾选停用");
                 return 0;}
+            if(id==988&&event==BN_CLICKED){groupchoice::choose(h,"mes",true);return 0;}
             if(id==965&&event==BN_CLICKED){chemcompletion::resetEntries();self->fillCompletion();self->set(802,L"已恢复补齐默认值；自定义官能团结构库保留");return 0;}
             if(id==969&&event==BN_CLICKED){bool on=IsDlgButtonChecked(h,969)==BST_CHECKED;CheckDlgButton(h,917,on?BST_CHECKED:BST_UNCHECKED);self->completionDirty=true;return 0;}
             if(id==966&&event==BN_CLICKED){self->formulaDirty=true;return 0;}
@@ -501,7 +500,7 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
         child(L"BUTTON",L"自动补齐基团大小写和连字符（如 tbu → t-Bu）",917,WS_TABSTOP|BS_AUTOCHECKBOX);
         child(L"BUTTON",L"启用基团自动补齐（按下面的清单识别官能团缩写）",969,WS_TABSTOP|BS_AUTOCHECKBOX);
         child(L"BUTTON",L"公式排版：原子数下标、同位素与电荷上标，支持自由基（SO4 → SO₄²⁻）",966,WS_TABSTOP|BS_AUTOCHECKBOX);
-        child(L"STATIC",L"缩写清单",960);
+        button(L"歧义官能团选择…",988);child(L"STATIC",L"缩写清单",960);
         {auto list=child(WC_LISTVIEWW,L"",961,WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|WS_TABSTOP);
          studio_i18n::sendMessage(list,LVM_SETEXTENDEDLISTVIEWSTYLE,0,LPARAM(LVS_EX_FULLROWSELECT|LVS_EX_CHECKBOXES|LVS_EX_DOUBLEBUFFER));
          const wchar_t* headers[]={L"",L"缩写",L"来源"};const int widths[]={28,300,60};

@@ -24,6 +24,7 @@ def fragment_xml(mol):
     from branched_alkyl_layout import molecule as project_alkyl
     project_alkyl(mol)
     Chem.Kekulize(mol, clearAromaticFlags=True)
+    Chem.WedgeMolBonds(mol,mol.GetConformer())
     frag = ET.Element("fragment", {"id": "1"})
     for a in mol.GetAtoms():
         pos = mol.GetConformer().GetAtomPosition(a.GetIdx())
@@ -36,9 +37,11 @@ def fragment_xml(mol):
                 attrs["Charge"] = str(a.GetFormalCharge())
         ET.SubElement(frag, "n", attrs)
     for b in mol.GetBonds():
-        ET.SubElement(frag, "b", {"id": str(mol.GetNumAtoms()+2+b.GetIdx()),
+        bond=ET.SubElement(frag, "b", {"id": str(mol.GetNumAtoms()+2+b.GetIdx()),
                                   "B": str(b.GetBeginAtomIdx()+2), "E": str(b.GetEndAtomIdx()+2),
                                   "Order": str(int(b.GetBondTypeAsDouble()))})
+        if b.GetBondDir() in (Chem.BondDir.BEGINWEDGE,Chem.BondDir.BEGINDASH):
+            bond.set("Display","WedgeBegin" if b.GetBondDir()==Chem.BondDir.BEGINWEDGE else "WedgedHashBegin")
     return ET.tostring(frag, encoding="unicode")
 
 def build(entries):
@@ -51,7 +54,7 @@ def build(entries):
         if mol is None:
             bad.append((name, "invalid smiles")); continue
         if rec.get("standalone"):
-            bad.append((name, "standalone molecule not supported by the editor")); continue
+            bad.append((name, "whole molecule excluded from single-attachment catalogue")); continue
         dummies = [a for a in mol.GetAtoms() if a.GetAtomicNum() == 0]
         if len(dummies) != 1:
             bad.append((name, "%d dummy atoms" % len(dummies))); continue
@@ -95,6 +98,34 @@ def main(argv):
     (STUDIO/"nicknames.json").write_text(json.dumps(backend, ensure_ascii=False, indent=0, sort_keys=True), encoding="utf-8")
     rep = {"source": str(source.name), "count": len(out), "rejected": bad, "entries": report}
     (STUDIO/"tools/generation_report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8")
+    bridges=json.loads((STUDIO/"bridge_groups.json").read_text(encoding="utf8"))
+    bridge_lines=['#pragma once','namespace bridgedata {','struct Entry{const char* name;const char* fragment;const char* formula;const char* title;};','static const Entry entries[]={']
+    for name,rec in sorted(bridges.items()):
+        mol=Chem.MolFromSmiles(rec['smiles']);ports=[a for a in mol.GetAtoms() if a.GetAtomicNum()==0]
+        assert len(ports)==2 and all(a.GetDegree()==1 for a in ports),name
+        formula=rdMolDescriptors.CalcMolFormula(mol).replace('*2','')
+        bridge_lines.append('{'+json.dumps(name)+',R"BR('+fragment_xml(mol)+')BR",'+json.dumps(formula)+','+json.dumps(rec['note'])+'},')
+    bridge_lines+=['};','inline const Entry* find(const std::string& s){for(auto& e:entries)if(s==e.name)return &e;return nullptr;}','}']
+    (STUDIO/'bridge_catalog.hpp').write_text('\n'.join(bridge_lines)+'\n',encoding='utf8')
+    compounds=json.loads((STUDIO/"reference_compounds.json").read_text(encoding="utf8"))
+    compound_lines=[]
+    for label,rec in sorted(compounds.items()):
+        mol=Chem.MolFromSmiles(rec["smiles"])
+        assert mol is not None and all(a.GetAtomicNum() for a in mol.GetAtoms()),label
+        fields=(label,label,rec["title"],rdMolDescriptors.CalcMolFormula(mol),Chem.MolToSmiles(mol))
+        compound_lines.append("{"+",".join(json.dumps(value,ensure_ascii=False) for value in fields)+',R"CMP('+fragment_xml(Chem.Mol(mol))+')CMP",true},')
+    (STUDIO/"reference_compounds.inc").write_text("\n".join(compound_lines)+"\n",encoding="utf8")
+    choices=json.loads((STUDIO/"group_choice_sources.json").read_text(encoding="utf8"))
+    pending=json.loads((STUDIO/"tools/nicknames_skipped.json").read_text(encoding="utf8"))
+    quote=lambda v:json.dumps(v,ensure_ascii=False)
+    lines=["#pragma once","namespace groupreference {","struct Pair {const char* key;const char* value;};","static const Pair choices[]={"]
+    for key,options in choices.items():
+        for option in options:lines.append("{"+quote(key)+","+quote(option)+"},")
+    lines+=["};","static const Pair descriptions[]={"]
+    for key,record in sorted(entries.items()):
+        if key in out:lines.append("{"+quote(key)+","+quote(record.get("note","").split(";")[0])+"},")
+    lines+=["};","static const char* const unresolved[]={"]+[quote(key)+"," for key in sorted(pending)]+["};","}"]
+    (STUDIO/"group_reference.hpp").write_text("\n".join(lines)+"\n",encoding="utf8")
     print("generated", len(out), "entries; rejected", len(bad))
     return 0
 
