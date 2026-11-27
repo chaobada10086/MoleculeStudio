@@ -513,7 +513,7 @@ if(rc){wglMakeCurrent(nullptr,nullptr);wglDeleteContext(rc);rc=nullptr;}if(dc){R
     void appendArcContextMenu(HMENU menu,ObjectId target);
     void arcCurvatureAction(ObjectId target,int action,bool persist=true);
     void graphicsStyleMenu(bool width);
-    bool cycleAtomHydrogens(ObjectId id,bool initialize=false,int replacement=0);bool preferAtomHydride(ObjectId id,int element);void hydrideDefaultCheck(const std::string& dir);void bioMenu();void insertBioComponent(size_t index);void shapeMenu();void shapeFillMenu();void insertAutoShape(size_t index);bool drawShapeItem(DRAWITEMSTRUCT* item);uint32_t shapeFill=0xE6F2EFFFu;bool shapeFillEnabled=true;
+    bool cycleAtomHydrogens(ObjectId id,bool initialize=false,int replacement=0);bool preferAtomHydride(ObjectId id,int element);void hydrideDefaultCheck(const std::string& dir);void bioMenu();void insertBioComponent(size_t index);void shapeMenu();void shapeFillMenu();void applyShapeFill(uint32_t color,bool enabled);void insertAutoShape(size_t index);bool drawShapeItem(DRAWITEMSTRUCT* item);uint32_t shapeFill=0xE6F2EFFFu;bool shapeFillEnabled=true;
     bool patternPlacing=false,patternDragging=false,patternPreviewPending=false;int patternShape=-1;Vec2 patternStart,patternEnd;void updatePatternPreview();void finishPatternPlacement(Vec2 end);void cancelPatternPlacement();
     void paintGraphicFormatControl(Graphics& g,const Button& button);
     bool drawGraphicStyleItem(DRAWITEMSTRUCT* item);
@@ -717,7 +717,7 @@ void cdxmlColorCheck(const std::string& dir);
         if(quickRows>0)canvasTop=std::max(canvasTop,quickBottom+6);
         top=int(canvasTop*scale);
         layoutTabBand();int sb=GetSystemMetricsForDpi(SM_CXVSCROLL,GetDpiForWindow(h));int ch=std::max(60,height-top-int(footerHeight()*scale)-sb);int ew=int(elementpalette::Palette::width*scale);int cw=std::max(100,width-int(32*scale)-reserved-sb-ew);
-        if(!elements.bar)initializeElements();elements.scale=scale;MoveWindow(elements.bar,int(16*scale)+cw,top,ew,ch,TRUE);
+        if(!elements.bar)initializeElements();elements.scale=scale;SetWindowPos(elements.bar,nullptr,int(16*scale)+cw,top,ew,ch,SWP_NOZORDER|SWP_NOACTIVATE|SWP_NOCOPYBITS);
         // Batch children without synchronous paints during native edge tracking.
         HDWP positions=BeginDeferWindowPos(3);
         if(positions)positions=DeferWindowPos(positions,canvas,0,int(16*scale),top,cw,ch,SWP_NOZORDER|SWP_NOACTIVATE);
@@ -2178,7 +2178,7 @@ LRESULT CALLBACK windowProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
     case WM_DRAWITEM:if(a->drawShapeItem((DRAWITEMSTRUCT*)lp)||a->drawGraphicStyleItem((DRAWITEMSTRUCT*)lp)||a->drawArrowMenuItem((DRAWITEMSTRUCT*)lp))return TRUE;break;
     case WM_ENTERSIZEMOVE:a->liveSizing=true;return 0;
     case WM_EXITSIZEMOVE:KillTimer(h,71);a->liveSizing=false;a->resizePending=false;if(a->canvas){a->layout();a->invalidate();}return 0;
-    case WM_SIZE:if(a->canvas){if(a->liveSizing){if(!a->resizePending){a->resizePending=true;SetTimer(h,71,33,0);}}else{a->layout();a->invalidate();}}return 0;
+    case WM_SIZE:if(wp==SIZE_MINIMIZED)return 0;if(a->canvas){if(a->liveSizing){if(!a->resizePending){a->resizePending=true;SetTimer(h,71,33,0);}}else{a->layout();a->invalidate();}}return 0;
     case WM_GETMINMAXINFO:{auto p=(MINMAXINFO*)lp;MONITORINFO monitor={};monitor.cbSize=sizeof(monitor);if(GetMonitorInfoW(MonitorFromWindow(h,MONITOR_DEFAULTTONEAREST),&monitor)){p->ptMaxPosition.x=monitor.rcWork.left-monitor.rcMonitor.left;p->ptMaxPosition.y=monitor.rcWork.top-monitor.rcMonitor.top;p->ptMaxSize.x=monitor.rcWork.right-monitor.rcWork.left;p->ptMaxSize.y=monitor.rcWork.bottom-monitor.rcWork.top;}int minW=int(800*a->scale),minH=int(500*a->scale);if(p->ptMaxSize.x>0)minW=std::min(minW,int(p->ptMaxSize.x*3/4));if(p->ptMaxSize.y>0)minH=std::min(minH,int(p->ptMaxSize.y*3/4));p->ptMinTrackSize.x=minW;p->ptMinTrackSize.y=minH;if(a->testing){p->ptMaxTrackSize.x=8192;p->ptMaxTrackSize.y=8192;}return 0;}
     case WM_DPICHANGED:{a->scale=HIWORD(wp)/96.f;auto r=(RECT*)lp;SetWindowPos(h,0,r->left,r->top,r->right-r->left,r->bottom-r->top,SWP_NOZORDER);a->layout();return 0;}
     case WM_ERASEBKGND:return 1;

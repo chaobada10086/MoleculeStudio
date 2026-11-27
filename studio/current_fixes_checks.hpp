@@ -49,6 +49,69 @@ static void checkMetalLabels(App& app,const std::string& dir){
 }
 static void checkCurrentCarbene(App& app,const std::string& dir){
     auto require=[](bool ok,const std::string& why){if(!ok)throw std::runtime_error("carbene fixes: "+why);};auto& s=app.s;int cases=0;
+    {
+        s.cancel();s.doc=Document();s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());
+        auto atom=[&](Vec2 p,int z){ObjectId id;s.doc.addAtom(p,z,&id);return id;};
+        auto bond=[&](ObjectId a,ObjectId b){ObjectId id;s.doc.addBond(a,b,&id);return id;};
+        auto base=atom(Vec2(0,0),6),h=atom(Vec2(30,30),1),c=atom(Vec2(30,52),6);
+        auto legacy=s.doc.atoms().alive(c)->semantics;legacy.nodeType=uint8_t(NodeType::Query);s.doc.setAtomSemantics(c,legacy);
+        mechanism::setGenericRole(s.doc,base,"base");
+        auto ch=bond(c,h),x=atom(Vec2(50,64),17),cx=bond(c,x);
+        auto left=bond(c,atom(Vec2(10,64),17)),down=bond(c,atom(Vec2(30,77),17));
+        for(auto move:std::vector<mechanism::ElectronMove>{
+            {{ObjectKind::Atom,base},{ObjectKind::Atom,h}},
+            {{ObjectKind::Bond,ch},{ObjectKind::Atom,c}},
+            {{ObjectKind::Bond,cx},{ObjectKind::Atom,x}}}){
+            Vec2 from,to;arrows::mechanismAnchorPoint(s.doc,move.source,&from);arrows::mechanismAnchorPoint(s.doc,move.target,&to);
+            auto arrow=arrows::resolvePreset(49,from,to,.6);arrow.mechanism=true;
+            arrow.electronSource=move.source;arrow.electronTarget=move.target;
+            arrows::routeMechanism(s.doc,arrow);arrows::addArrow(s.doc,arrow,.6,nullptr);
+        }
+        s.refresh();s.selected=s.all();app.generateMechanismStep();
+        ObjectId product=kInvalidObjectId;
+        for(auto ref:s.selected)if(ref.kind==ObjectKind::Atom&&studio_mechanism_products::sourceAtom(s.doc,ref.id)==c)product=ref.id;
+        require(product!=kInvalidObjectId,"generate chloroform elimination: "+app.status);
+        const auto& state=s.doc.atoms().alive(product)->semantics;
+        require(!state.charge&&state.radical==uint8_t(Radical::Singlet)&&state.implicitHydrogens==0,"one-step dichlorocarbene state");
+        int dots=0;
+        for(const auto& p:s.scene.primitives())if(p.source==ObjectRef(ObjectKind::Atom,product)&&p.z==12&&p.points.size()==32)++dots;
+        require(dots==2,"one-step dichlorocarbene has two visible dots");
+        s.doc.removeObject(ObjectRef(ObjectKind::Bond,ch));
+        integration::RingGeometry geometry(s.doc);
+        for(auto id:{left,down,cx}){
+            auto data=geometry.build(*s.doc.bonds().alive(id));
+            int joins=0;for(const auto& shape:data.shapes)joins+=shape.kind==bonds::BondShapeKind::FilledPolygon;
+            require(joins==(id==down?0:1),"only outer C-Cl bonds form the exposed corner");
+        }
+        ++cases;
+    }
+    {
+        Document doc;
+        auto atom=[&](Vec2 pos,int z){ObjectId id;doc.addAtom(pos,z,&id);return id;};
+        auto bond=[&](ObjectId a,ObjectId b,BondOrder order){ObjectId id;doc.addBond(a,b,&id);doc.setBondOrder(id,order);return id;};
+        auto A=[](ObjectId id){return ObjectRef(ObjectKind::Atom,id);};
+        auto B=[](ObjectId id){return ObjectRef(ObjectKind::Bond,id);};
+        std::array<ObjectId,6> ring,links;
+        for(int i=0;i<6;++i)ring[i]=atom(direction(i*60)*30,6);
+        for(int i=0;i<6;++i)links[i]=bond(ring[i],ring[(i+1)%6],i%2?BondOrder::Single:BondOrder::Double);
+        auto oxygen=atom(Vec2(58,0),8),co=bond(oxygen,ring[0],BondOrder::Single);
+        auto sem=doc.atoms().alive(oxygen)->semantics;sem.charge=-1;doc.setAtomSemantics(oxygen,sem);
+        auto carbene=atom(Vec2(85,75),6);
+        for(auto pos:{Vec2(105,55),Vec2(105,95)})bond(carbene,atom(pos,17),BondOrder::Single);
+        sem=doc.atoms().alive(carbene)->semantics;sem.radical=uint8_t(Radical::Singlet);sem.implicitHydrogens=2;
+        doc.setAtomSemantics(carbene,sem);
+        std::vector<ObjectRef> made;
+        auto product=[&](ObjectId old){for(auto r:made)if(r.kind==ObjectKind::Atom&&studio_mechanism_products::sourceAtom(doc,r.id)==old)return r.id;return kInvalidObjectId;};
+        auto e=mechanism::generateNextStep(doc,{{A(oxygen),B(co)},{B(links[0]),A(carbene)}},&made);
+        require(e.ok(),"phenoxide adds to dichlorocarbene: "+e.message);
+        auto c=product(carbene);auto attached=doc.atoms().alive(c);
+        require(attached && attached->semantics.charge==-1 && !attached->semantics.radical && !attached->semantics.implicitHydrogens && doc.incidentBonds(c).size()==3,"C step retains three bonds and forms carbanion");
+        auto water=atom(Vec2(250,10),8),h=atom(Vec2(230,10),1),oh=bond(water,h,BondOrder::Single);
+        made.clear();e=mechanism::generateNextStep(doc,{{A(c),A(h)},{B(oh),A(water)}},&made);
+        require(e.ok(),"carbanion takes proton from water: "+e.message);
+        auto neutral=product(c);require(doc.bondBetween(neutral,product(h))!=kInvalidObjectId && !doc.atoms().alive(neutral)->semantics.charge && doc.atoms().alive(product(water))->semantics.charge==-1,"D step yields dichloromethyl and hydroxide");
+        ++cases;
+    }
     for(int site:{1,4}){
         s.cancel();s.doc=Document();s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());s.doc.setDefaultBondLength(22);std::vector<ObjectId> ring;
         const double radius=22/(2*std::sin(3.141592653589793/5));for(int i=0;i<5;++i){ObjectId id;s.doc.addAtom(Vec2(std::cos(i*6.283185307179586/5),std::sin(i*6.283185307179586/5))*radius,6,&id);ring.push_back(id);}for(int i=0;i<5;++i)s.doc.addBond(ring[i],ring[(i+1)%5],nullptr);
@@ -89,6 +152,111 @@ static void checkOwnedElectronEndpoints(const std::string& dir){
     std::ofstream(dir+"/electron-owner-checks.json")<<"{\"cases\":"<<cases<<",\"positive_negative_radical\":true,\"body_marker_equivalence\":true,\"owned_symbols\":true}";
 }
 void App::currentFixesCheck(const std::string& dir){
+    if(GetFileAttributesW(W(dir+"/carbene-fill-check").c_str())!=INVALID_FILE_ATTRIBUTES){
+        if(GetFileAttributesW(W(dir+"/haloform-input.cdxml").c_str())!=INVALID_FILE_ATTRIBUTES){
+            auto e=s.open(dir+"/haloform-input.cdxml");if(!e.ok())throw std::runtime_error(e.message);
+            ObjectId carbon=kInvalidObjectId;
+            for(const auto& atom:s.doc.atoms().records())if(atom.isAlive()&&atom.element==6){
+                int cl=0,h=0;for(auto id:s.doc.neighbours(atom.id)){int z=s.doc.atoms().alive(id)->element;cl+=z==17;h+=z==1;}
+                if(cl==3&&h==1)carbon=atom.id;
+            }
+            if(carbon==kInvalidObjectId)throw std::runtime_error("missing haloform fixture");
+            s.selected.clear();const auto center=s.doc.atoms().alive(carbon)->position;
+            for(const auto& record:s.doc.arrows().records())if(record.isAlive()){
+                arrows::ArrowParams p;bool ok=false;arrows::readArrow(s.doc,record.id,&p,&ok);
+                if(ok&&p.mechanism&&length(p.end-center)<3*s.doc.defaultBondLength())s.selected.emplace_back(ObjectKind::Arrow,record.id);
+            }
+            if(s.selected.size()!=3)throw std::runtime_error("expected three haloform arrows");
+            generateMechanismStep();int dots=0;
+            for(auto ref:s.selected)if(ref.kind==ObjectKind::Atom&&studio_mechanism_products::sourceAtom(s.doc,ref.id)==carbon){
+                if(!mechanism::singletCarbene(*s.doc.atoms().alive(ref.id)))throw std::runtime_error("product missing singlet");
+                for(const auto& p:s.scene.primitives())if(p.source==ref&&p.z==12&&p.points.size()==32)++dots;
+            }
+            if(dots!=2)throw std::runtime_error("expected two carbene dots: "+status);
+            s.selected.clear();s.fit();s.save(dir+"/haloform-result.cdxml",true);screenshot(dir+"/haloform-result.png");
+        }
+        checkCurrentCarbene(*this,dir);
+        checkChairLayout(*this,dir);
+        s.cancel();s.doc=Document();s.history.clear();s.selected.clear();
+        PathRecord path;path.closed=true;path.points={Vec2(0,0),Vec2(30,0),Vec2(30,30),Vec2(0,30)};
+        ObjectId id;s.doc.addPath(path,&id);s.refresh();s.selected={ObjectRef(ObjectKind::Path,id)};
+        uint32_t color=0x1969caff;applyShapeFill(color,true);
+        bool painted=false;for(const auto& prim:s.scene.primitives())if(prim.source==s.selected.front()&&prim.style.fill.enabled&&prim.style.fill.rgba==color)painted=true;
+        if(!painted)throw std::runtime_error("pattern fill missing from scene");
+        if(!s.save(dir+"/filled.cdxml",true).ok())throw std::runtime_error("save filled pattern");
+        Session back;if(!back.open(dir+"/filled.cdxml").ok()||back.doc.paths().records().empty()||
+            !back.doc.paths().records().front().fillEnabled||back.doc.paths().records().front().fillRGBA!=color)throw std::runtime_error("reopen filled pattern");
+        bool reopenedFill=false;
+        for(const auto& prim:back.scene.primitives())if(prim.source.kind==ObjectKind::Path && prim.style.fill.enabled && prim.style.fill.rgba==color)reopenedFill=true;
+        if(!reopenedFill)throw std::runtime_error("reopened path fill missing from scene");
+        graphics::ShapeParams circle;circle.form=graphics::ShapeForm::Circle;
+        circle.frame.centre=Vec2(80,80);circle.frame.axisU=Vec2(30,0);circle.frame.axisV=Vec2(0,30);
+        ObjectId circleId;graphics::addShape(s.doc,circle,.6,&circleId);
+        s.selected={ObjectRef(ObjectKind::Arrow,circleId)};s.refresh();
+        applyGraphicsStyle(0,0xcc2244ff,false,true);applyShapeFill(color,true);
+        bool circleFill=false;
+        for(const auto& prim:s.scene.primitives())if(prim.source==s.selected.front() && prim.style.fill.enabled && prim.style.fill.rgba==color)circleFill=true;
+        if(!circleFill)throw std::runtime_error("circle fill was replaced by outline color");
+        int pullCases=0;
+        for(const auto& item:compounddata::index()){
+            const auto* compound=item.second.entry;if(!compound)continue;
+            const auto label=item.second.spelling;
+            const auto* preset=compounddata::hydride(label);
+            const auto* donor=mechanism::compactLonePairGroup(label);
+            if(!preset&&(!donor||!donor->hydrogens))continue;
+            const int count=preset?1:donor->hydrogens;
+            for(int charge=0;charge<=((donor&&donor->hydrogens)?1:0);++charge){
+                Document d;ObjectId host;d.addAtom(Vec2(0,0),6,&host);
+                d.setAtomLabel(host,label);
+                auto state=d.atoms().alive(host)->semantics;state.charge=charge;state.nodeType=uint8_t(NodeType::Nickname);d.setAtomSemantics(host,state);
+                if(charge){ObjectId methyl;d.addAtom(Vec2(-30,0),6,&methyl);d.addBond(host,methyl,nullptr);}
+                for(int n=0;n<count;++n){
+                    ObjectId h;auto err=exposeAttachedProton(d,host,Vec2(30,n*25),&h,label.front()=='H');
+                    auto f=studio::analyze(d,{ObjectRef(ObjectKind::Atom,host)});
+                    if(!err.ok()||d.atoms().alive(host)->semantics.charge!=charge||d.bondBetween(host,h)==kInvalidObjectId||
+                       !f.valid||(!charge && f.plain!=compound->formula))throw std::runtime_error("hydrogen extraction "+label+" "+f.plain+" expected "+compound->formula+" "+f.note+" "+err.message);
+                    ++pullCases;
+                }
+            }
+        }
+        for(const char* name:{"COOH","SO3H","OH","HO","NH2","H2N","SH","CH3","SiH3"}){
+            Document d;ObjectId host,carbon,h;
+            d.addAtom(Vec2(0,0),6,&host);d.addAtom(Vec2(-30,0),6,&carbon);d.addBond(host,carbon,nullptr);
+            if(std::string(name)=="COOH"||std::string(name)=="SO3H")nicknames::apply(d,host,name);
+            else {int z=6;for(int el=2;el<=118;++el)if(studio::hydride_labels::count(el,name)>0){z=el;break;}d.setElement(host,z);d.setAtomLabel(host,name);}
+            auto before=studio::analyze(d,{ObjectRef(ObjectKind::Atom,host)});
+            auto e=exposeAttachedProton(d,host,Vec2(30,0),&h,name[0]=='H');
+            auto after=studio::analyze(d,{ObjectRef(ObjectKind::Atom,host)});
+            if(!e.ok()||!before.valid||!after.valid||before.plain!=after.plain)throw std::runtime_error(std::string("attached ")+name+" "+e.message+" "+before.plain+" -> "+after.plain+" "+after.note);
+            ++pullCases;
+        }
+        for(const char* name:{"iPr3SiH","PhSiH3","HBpin","NaBH4","9-BBN-H","DIBAL-H","TIPS-H","Hacac","acacH","HFIP","HMDS","PhCCH","C6H6","nHexH","cHexH","HCHO","HNO3","H2SO4","NH2NH2","HOCH2CH2OH","HCOOH","HO2CCO2H"}){
+            for(bool front:{false,true}){
+                if(front&&name[0]!='H')continue;
+                Document d;ObjectId host,h=kInvalidObjectId;d.addAtom(Vec2(0,0),6,&host);
+                nicknames::apply(d,host,name);auto before=studio::analyze(d,{ObjectRef(ObjectKind::Atom,host)});
+                auto e=exposeAttachedProton(d,host,Vec2(30,0),&h,front);
+                std::vector<ObjectRef> all;for(const auto& atom:d.atoms().records())if(atom.isAlive())all.emplace_back(ObjectKind::Atom,atom.id);
+                auto after=studio::analyze(d,all);
+                if(!e.ok()||!after.valid||after.plain!=before.plain||h==kInvalidObjectId||d.incidentBonds(h).size()!=1)throw std::runtime_error(std::string("structural H ")+name+" "+e.message+" "+before.plain+" -> "+after.plain+" "+after.note);
+                ++pullCases;
+            }
+        }
+        std::ofstream(dir+"/hydrogen-extractions.txt")<<pullCases;
+        Document oxide;ObjectId ethyl,methyl,hydrogen;
+        oxide.addAtom(Vec2(0,0),6,&ethyl);oxide.addAtom(Vec2(30,0),6,&methyl);
+        nicknames::apply(oxide,ethyl,"EtOH");
+        auto sem=oxide.atoms().alive(ethyl)->semantics;sem.charge=1;oxide.setAtomSemantics(ethyl,sem);
+        oxide.addBond(ethyl,methyl,nullptr);
+        auto e=exposeAttachedProton(oxide,ethyl,Vec2(0,30),&hydrogen);
+        if(!e.ok()||oxide.atoms().alive(ethyl)->semantics.charge!=1)throw std::runtime_error("pulling oxonium H loses charge");
+        auto formula=studio::analyze(oxide,{ObjectRef(ObjectKind::Atom,ethyl)});
+        if(!formula.valid||formula.plain!="C3H9O (1+)")throw std::runtime_error("explicit oxonium formula: "+formula.plain+" "+formula.note);
+        e=studio_mechanism_products::changeHydrogen(oxide,ethyl);
+        if(!e.ok()||oxide.atoms().alive(ethyl)->semantics.charge||oxide.atoms().alive(hydrogen))throw std::runtime_error("remove explicit oxonium H");
+        std::ofstream(dir+"/fill-passed.txt")<<"passed";
+        s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return;
+    }
     if(GetFileAttributesW(W(dir+"/skin-check").c_str())!=INVALID_FILE_ATTRIBUTES){
         auto require=[](bool valid,const char* message){if(!valid)throw std::runtime_error(message);};
         chooseArrowPreset(58);

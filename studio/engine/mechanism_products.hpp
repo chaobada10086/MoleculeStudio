@@ -1,6 +1,7 @@
 #pragma once
 #include "mechanism_step.hpp"
 #include "diazo.hpp"
+#include "../compact_hydrogen_residue.hpp"
 #include "generated_bond_spacing.hpp"
 #include <functional>
 namespace studio_mechanism_products {
@@ -112,7 +113,7 @@ inline ObjectId sourceAtom(const Document& doc,ObjectId id){
 inline Error changeHydrogen(Document& doc,ObjectId donor,ObjectId acceptor=kInvalidObjectId){
     const auto* atom=doc.atoms().alive(donor);if(!atom)return step_detail::fail("供氢原子不存在。");
     auto sem=atom->semantics;
-    int count=hydrogenCount(doc,donor);
+    int count=studioions::compact(doc,donor)?int(sem.implicitHydrogens):hydrogenCount(doc,donor);
     if(count>0)sem.implicitHydrogens=count-1;
     else{
         ObjectId hydrogen=kInvalidObjectId;
@@ -131,7 +132,10 @@ inline Error changeHydrogen(Document& doc,ObjectId donor,ObjectId acceptor=kInva
         }
     };
     --sem.charge;auto error=doc.setAtomSemantics(donor,sem);if(!error.ok())return error;
-    refreshLabel(donor);
+    studio_hydrogen::Residue residue;
+    if(count>0 && studio_hydrogen::resolve(doc,donor,false,residue)){
+        error=studio_hydrogen::apply(doc,donor,residue,sem.charge);if(!error.ok())return error;
+    }else refreshLabel(donor);
     if(acceptor!=kInvalidObjectId){
         auto next=doc.atoms().alive(acceptor)->semantics;next.implicitHydrogens=hydrogenCount(doc,acceptor)+1;++next.charge;
         error=doc.setAtomSemantics(acceptor,next);
@@ -140,6 +144,7 @@ inline Error changeHydrogen(Document& doc,ObjectId donor,ObjectId acceptor=kInva
     return error;
 }
 inline bool hasHydrogen(const Document& doc,ObjectId id){
+    if(studioions::compact(doc,id)&&doc.atoms().alive(id)->semantics.implicitHydrogens>0)return true;
     if(hydrogenCount(doc,id)>0)return true;
     for(auto bid:doc.incidentBonds(id)){
         const auto& b=*doc.bonds().alive(bid);
@@ -154,6 +159,14 @@ inline Error finish(Document& doc,const Document& source,std::vector<ObjectRef>&
         if(ref.kind==ObjectKind::Arrow)arrowId=ref.id;
         if(ref.kind!=ObjectKind::Atom)continue;
         const auto* atom=doc.atoms().alive(ref.id);if(!atom)continue;
+        if(atom->semantics.charge>0){
+            const auto* group=compactLonePairGroup(doc.atomLabel(ref.id));
+            if(group && group->hydrogens>0 && !studioions::compact(doc,ref.id)){
+                auto e=studioions::apply(doc,ref.id,*group,atom->semantics.charge);
+                if(!e.ok())return e;
+            }
+        }
+        atom=doc.atoms().alive(ref.id);
         const int z=atom->element;
         if((z==7||z==8||z==15||z==16)&&atom->semantics.charge>0&&hasHydrogen(doc,ref.id))acids.push_back(ref.id);
         if((z==7||z==8||z==16)&&atom->semantics.charge<0)bases.push_back(ref.id);
@@ -185,7 +198,14 @@ inline Error finish(Document& doc,const Document& source,std::vector<ObjectRef>&
             above.push_back("-H+");below.push_back("+H+");
         }else if(acids.size()>1||bases.size()>1)return step_detail::fail("存在多个质子转移位点，请拆成单独一步或补画质子箭头。");
     }
-    if(mode==2){
+    bool releasedProton=false;
+    if(mode==2)for(auto ref:made)if(ref.kind==ObjectKind::Atom){
+        auto atom=doc.atoms().alive(ref.id);auto original=sourceAtom(doc,ref.id);
+        auto old=source.atoms().alive(original);
+        if(atom && old && atom->element==1 && atom->semantics.charge==1 && !old->semantics.charge &&
+           doc.incidentBonds(ref.id).empty() && source.incidentBonds(original).size()==1)releasedProton=true;
+    }
+    if(mode==2&&!releasedProton){
         if(acids.size()>1)return step_detail::fail("存在多个可脱质子的带正电原子，请分别处理。");
         if(acids.size()==1){
             auto e=changeHydrogen(doc,acids.front());if(!e.ok())return e;above.push_back("-H+");
@@ -393,8 +413,11 @@ inline Error finish(Document& doc,const Document& source,std::vector<ObjectRef>&
             if(!stack)rows.push_back(joined);
             for(size_t row=0;row<rows.size();++row){const auto& text=rows[row];
             const double baseline=y-(stack?(rows.size()-1-row)*size*1.6:0);
-            size_t characters=0;for(unsigned char c:text)if((c&0xC0)!=0x80)++characters;
-            ObjectId id;auto e=doc.addText(Vec2(middle.x-characters*size*.23,baseline),size,text,&id);
+            ObjectId id;auto e=doc.addText(Vec2(middle.x,baseline),size,text,&id);
+            if(e.ok()){
+                auto format=doc.texts().alive(id)->format;format.align=uint8_t(core::TextAlign::Center);
+                e=doc.setTextFormat(id,format);
+            }
             if(e.ok()){
                 std::vector<TextRun> runs;std::string base;
                 auto addRun=[&](const std::string& value,uint16_t flags){if(value.empty())return;TextRun run;run.utf8=value;run.size=size;run.fontName=doc.defaultFont();run.flags=flags;runs.push_back(run);};

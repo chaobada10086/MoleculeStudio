@@ -645,8 +645,7 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
         if(p.mechanism&&(state_.grabbed==HandleKind::Begin||state_.grabbed==HandleKind::End)&&!altReleasesConstraints(pointer.modifiers)){
             // Re-capturing an existing endpoint uses the same glyph clearance as
             // a new gesture. The old arrow must not obstruct its own new route.
-            core::Document routingDoc=doc;routingDoc.removeObject(core::ObjectRef(core::ObjectKind::Arrow,state_.target));
-            p.route.clear();routeMechanism(routingDoc,p);clearMechanismLabels(routingDoc,p);
+            p.route.clear();routeMechanism(doc,p,true,state_.target);clearMechanismLabels(doc,p);
         }
         if(p.mechanism&&state_.grabbed==HandleKind::Middle)orientAutomaticFishhook(p);
         if(!isMechanismArrow(p)&&(state_.grabbed==HandleKind::Begin||state_.grabbed==HandleKind::End)&&p.family==ArrowFamily::Arc){

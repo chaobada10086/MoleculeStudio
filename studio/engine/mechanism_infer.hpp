@@ -305,7 +305,7 @@ inline core::Error inferElectronMoves(const core::Document& graph,const std::vec
             else if(!(identity==candidate))ambiguous=true;
             return;
         }
-        for(auto move:options[index]){bool duplicate=false;for(auto old:current)if(old.source==move.source&&(old.electronCount+move.electronCount>2)){duplicate=true;break;}if(duplicate)continue;current.push_back(move);search(index+1);current.pop_back();if(ambiguous)return;}
+        for(auto move:options[index]){bool duplicate=false;for(auto old:current)if(old.source==move.source&&(old.electronCount+move.electronCount>2)&&!step_detail::separatesDoubleBond(graph,old,move)){duplicate=true;break;}if(duplicate)continue;current.push_back(move);search(index+1);current.pop_back();if(ambiguous)return;}
     };
     search(0);
     if(ambiguous)return core::Error(core::ErrorCode::InvalidSemantics,"附近存在两种不同且价态合理的结果，暂不猜测。请把有歧义的箭头端点靠近目标原子或键。");

@@ -19,9 +19,9 @@ static void checkChairLayout(App& app,const std::string& dir){
             require(std::abs(dot(f.axial,f.equatorial))<.83,"axial and equatorial remain distinct");
         }
         const ObjectId host=ids[3];const auto frame=chair_layout::frame(s.doc,host);const Vec2 origin=s.doc.atoms().alive(host)->position;
-        s.activateCommand("chooseBondTool_Solid");const auto before=s.doc.digest();
+        s.activateCommand("chooseBondTool_Solid");const auto before=s.doc.digest();Vec2 axialEnd;
         for(int k=0;k<2;++k){
-            const auto expected=chair_layout::target(s.doc,host,Vec2(),true);require(expected.available&&expected.axial==(k==1),"equatorial first, then axial");
+            const auto expected=chair_layout::target(s.doc,host,Vec2(),true);if(k)axialEnd=expected.end;require(expected.available&&expected.axial==(k==1),"equatorial first, then axial");
             require(s.gesture(PointerPhase::Down,origin).ok(),"chair bond press");
             require(!s.ghost.items().empty()&&length(s.ghost.items().back().points.back()-expected.end)<1e-7,"preview matches chair target");
             require(s.gesture(PointerPhase::Up,origin).ok(),"chair bond click");
@@ -35,14 +35,14 @@ static void checkChairLayout(App& app,const std::string& dir){
         require(length(eq-(origin+frame.equatorial*(unit*.65)))<1e-7,"rapid first is equatorial");
         require(s.submit(studio::rapid_sprout::command(host,{eqId},added),"rapid chair").ok(),"second rapid chair bond");
         require(s.doc.atoms().alive(eqId)->position==eq&&!added->arranged,"rapid second never reflows first chair bond");
-        require(length(s.doc.atoms().alive(added->atom)->position-(origin+frame.axial*(unit*.5)))<1e-7,"rapid second is axial");
+        require(length(s.doc.atoms().alive(added->atom)->position-axialEnd)<1e-7,"rapid second is axial");
         require(s.undo().ok()&&s.undo().ok()&&s.doc.digest()==before,"rapid chair burst undo");
         ObjectId axial;s.doc.addAtom(origin+frame.axial*(unit*.5),6,&axial);s.doc.addBond(host,axial,nullptr);
         require(s.submit(studio::rapid_sprout::command(host,{},added),"rapid chair").ok()&&length(s.doc.atoms().alive(added->atom)->position-(origin+frame.equatorial*(unit*.65)))<1e-7,"existing axial prefers new equatorial");
         require(s.undo().ok()&&s.doc.removeAtom(axial).ok(),"restore chair fixture");s.cancel();s.refresh();
         const Vec2 pointer=origin+frame.axial*unit;
         require(s.gesture(PointerPhase::Down,origin).ok()&&s.gesture(PointerPhase::Move,pointer).ok(),"axial drag");
-        const Vec2 expected=origin+frame.axial*(unit*.5);
+        const Vec2 expected=axialEnd;
         require(length(s.bondSnap.endpoint-expected)<1e-7&&!s.bondSnap.joined,"drag snaps to axial rather than ring vertex");
         require(s.gesture(PointerPhase::Up,pointer).ok()&&s.undo().ok(),"axial drag one undo");
         const std::string path=dir+"/chair-case-"+std::to_string(cases)+".cdxml";require(s.save(path,true).ok(),"chair save");Session back;require(back.open(path).ok(),"chair reopen");

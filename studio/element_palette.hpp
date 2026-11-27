@@ -32,7 +32,7 @@ struct Palette {
     void save(){if(!settings().save())studio_i18n::messageBox(table?table:owner,L"无法保存元素栏设置，请检查设置文件是否可写。",L"MoleculeStudio",MB_OK|MB_ICONWARNING);refresh();}
     int capacity()const{RECT rc;GetClientRect(bar,&rc);return std::max(1,int((rc.bottom/scale-66)/30));}
     void paint(HWND hwnd,HDC dc,bool full){
-        using namespace Gdiplus;RECT rc;GetClientRect(hwnd,&rc);Bitmap buffer(std::max(1,int(rc.right)),std::max(1,int(rc.bottom)),PixelFormat32bppARGB);Graphics g(&buffer);g.SetPageUnit(UnitPixel);float dpi=full?tableScale:scale;g.ScaleTransform(dpi,dpi);g.SetSmoothingMode(SmoothingModeAntiAlias);g.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);auto skin=studio_ui::skinColors();g.Clear(full?Color(255,249,250,252):Color(255,247,249,252));
+        using namespace Gdiplus;RECT rc;GetClientRect(hwnd,&rc);Bitmap buffer(std::max(1,int(rc.right)),std::max(1,int(rc.bottom)),PixelFormat32bppARGB);{ Graphics g(&buffer);g.SetPageUnit(UnitPixel);float dpi=full?tableScale:scale;g.ScaleTransform(dpi,dpi);g.SetSmoothingMode(SmoothingModeAntiAlias);g.SetTextRenderingHint(TextRenderingHintClearTypeGridFit);auto skin=studio_ui::skinColors();g.Clear(full?Color(255,249,250,252):Color(255,247,249,252));
         if(!full){
             Pen edge(skin.border,1);g.DrawLine(&edge,0.f,0.f,0.f,rc.bottom/dpi);
             RectF icon(4,5,28,28);box(g,icon,hover==0?skin.selected:skin.hover);
@@ -59,6 +59,7 @@ struct Palette {
             for(int i=0;i<4;++i){RectF r(148.f+i*158,510,148,32);box(g,r,i==0?skin.accent:Color::White);Pen border(skin.border,1);g.DrawRectangle(&border,r);label(g,names[i],r,12,i==0?Color::White:skin.strong,i==0);}
             label(g,"点击元素后选择操作；Enter 使用，Space 固定 / 取消固定，Esc 关闭",RectF(22,555,756,25),11,Color(255,109,120,135));
         }
+        } // Release the bitmap drawing context before presenting its pixels.
         // Copy physical pixels 1:1. The natural-size overload applies image DPI again on a scaled display.
         Graphics dest(dc);
         dest.SetPageUnit(UnitPixel);
@@ -73,7 +74,7 @@ struct Palette {
     static LRESULT CALLBACK proc(HWND h,UINT m,WPARAM w,LPARAM l){
         Palette* self=(Palette*)GetWindowLongPtrW(h,GWLP_USERDATA);if(m==WM_NCCREATE){self=(Palette*)((CREATESTRUCTW*)l)->lpCreateParams;SetWindowLongPtrW(h,GWLP_USERDATA,(LONG_PTR)self);}if(!self)return DefWindowProcW(h,m,w,l);bool full=h==self->table;float dpi=full?self->tableScale:self->scale;
         switch(m){
-        case WM_ERASEBKGND:return 1;
+        case WM_ERASEBKGND:{RECT rc;GetClientRect(h,&rc);FillRect((HDC)w,&rc,GetSysColorBrush(COLOR_WINDOW));return 1;}
         case WM_PAINT:{PAINTSTRUCT ps;auto dc=BeginPaint(h,&ps);self->paint(h,dc,full);EndPaint(h,&ps);return 0;}
         case WM_CLOSE:ShowWindow(h,SW_HIDE);return 0;
         case WM_MOUSEMOVE:if(!full){int y=int(GET_Y_LPARAM(l)/dpi);self->hover=y<36?0:y>=40?(y-40)/30+1:-1;TRACKMOUSEEVENT t={sizeof(t),TME_LEAVE,h,0};TrackMouseEvent(&t);self->refresh();}return 0;

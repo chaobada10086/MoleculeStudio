@@ -2,8 +2,10 @@
 // Included in r62::arrows after MechanismObstacle and mechanismDistance.
 inline bool routeClear(const core::Vec2& a,const core::Vec2& b,const ArrowParams& p,const std::vector<MechanismObstacle>& obstacles,double extra=1.2) {
     int steps=std::max(1,int(std::ceil(core::length(b-a)/1.2)));
-    for(int i=0;i<=steps;++i){core::Vec2 q=a+(b-a)*(double(i)/steps);
-        for(const auto& o:obstacles){
+    core::Box bounds(a,a);bounds.add(b);
+    for(const auto& o:obstacles){
+        if(!nearMechanismBounds(o,bounds,extra))continue;
+        for(int i=0;i<=steps;++i){core::Vec2 q=a+(b-a)*(double(i)/steps);
             if(o.glyphOwner.valid()){
                 if(mechanismGlyphContact(o,p,q))continue;
                 // Grid padding must leave room to dock beside a letter.

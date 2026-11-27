@@ -351,6 +351,8 @@ struct TabHost {
         DragFinish(drop);
     }
     void layout(){
+        // A minimized frame has no usable client area. Keep child surfaces at their last visible size.
+        if(IsIconic(hwnd))return;
         RECT rc;GetClientRect(hwnd,&rc);
         width=rc.right;height=rc.bottom;
         if(active>=0&&active<int(tabs.size()))MoveWindow(tabs[active]->h,0,0,std::max(1,width),std::max(1,height),FALSE);

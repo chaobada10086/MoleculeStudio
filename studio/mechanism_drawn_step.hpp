@@ -1,5 +1,5 @@
 #pragma once
-#include "engine/reactive_carbon_hydrides.hpp"
+#include "mechanism_step_prepare.hpp"
 // A drawing operation may intentionally describe a nonstandard or incomplete
 // mechanism. Replay the user's arrows without a chemical-validity gate.
 namespace studio_drawn_step {
@@ -128,7 +128,7 @@ inline Error prepare(const Document& sourceInput,const std::vector<ObjectRef>& s
                      const std::vector<arrows::ArrowParams>& arrowsIn,Document& doc,
                      std::vector<mechanism::ElectronMove>& moves,std::vector<ObjectRef>& made){
     using namespace mechanism::step_detail;
-    Document normalized=sourceInput;studio_carbon_hydrides::normalize(normalized,arrowsIn);const Document& source=normalized;
+    Document normalized=sourceInput;studio_mechanism::resolveHaloformCenter(normalized,arrowsIn);studio_carbon_hydrides::normalize(normalized,arrowsIn);const Document& source=normalized;
     moves.clear();made.clear();std::vector<ObjectRef> refs=selected;
     std::set<std::pair<ObjectRef,ObjectRef>> used;
     std::map<ObjectRef,int> electronsFrom;
@@ -139,7 +139,9 @@ inline Error prepare(const Document& sourceInput,const std::vector<ObjectRef>& s
         if(!used.insert({from,to}).second)return fail("有重复的机理箭头，请只保留一次电子转移。");
         const int electrons=single?1:2;
         electronsFrom[from]+=electrons;
-        if(electronsFrom[from]>2)return fail("同一电子来源超过两个电子，请检查重复的箭头。");
+        const mechanism::ElectronMove next(from,to,electrons);
+        bool split=electronsFrom[from]==4 && std::any_of(moves.begin(),moves.end(),[&](const mechanism::ElectronMove& old){return separatesDoubleBond(source,old,next);});
+        if(electronsFrom[from]>2&&!split)return fail("同一电子来源超过两个电子，请检查重复的箭头。");
         moves.emplace_back(from,to,electrons);
         for(auto id:participants(source,arrow))refs.emplace_back(ObjectKind::Atom,id);
     }
@@ -275,15 +277,21 @@ inline Error prepare(const Document& sourceInput,const std::vector<ObjectRef>& s
     for(const auto& item:copied){
         const auto* old=source.atoms().alive(item.first);
         const auto label=source.atomLabel(item.first);int typedCharge=0;bool explicitCharge=false;
-        if(const auto* ion=studioions::find(label,&typedCharge,&explicitCharge))if(explicitCharge||ion->hidden||label!=elementSymbol(old->element)){
+        const auto* ion=studioions::find(label,&typedCharge,&explicitCharge);
+        if(!ion && donated.count(item.first))ion=mechanism::compactLonePairGroup(label);
+        if(ion)if(explicitCharge||ion->hidden||label!=elementSymbol(old->element)){
             error=studioions::apply(doc,item.second,*ion,explicitCharge?typedCharge:old->semantics.charge);if(!error.ok())return error;
         }
         auto sem=doc.atoms().alive(item.second)->semantics;
         if(edited.count(item.first)&&sem.implicitHydrogens<0&&old->semantics.nodeType==uint8_t(NodeType::Element))
             sem.implicitHydrogens=std::max(0,chemistry::refreshAtomDerived(source,item.first,{}).newHydrogenCount);
+        if(edited.count(item.first)&&mechanism::singletCarbene(*old)){
+            int bonded=0;for(auto bid:source.incidentBonds(old->id))bonded+=int(source.bonds().alive(bid)->order);
+            sem.implicitHydrogens=std::max(0,2-bonded);
+        }
         sem.charge=int8_t(std::max(-8,std::min(8,int(sem.charge)+charges[item.first])));
         if(radicals.count(item.first))sem.radical=radicals[item.first]?uint8_t(Radical::Doublet):uint8_t(Radical::None);
-        if(donated.count(item.first)&&sem.radical==uint8_t(Radical::Singlet))sem.radical=0;
+        if((donated.count(item.first)||sem.charge)&&sem.radical==uint8_t(Radical::Singlet))sem.radical=0;
         error=doc.setAtomSemantics(item.second,sem);if(!error.ok())return error;
         if(donated.count(item.first)){
             auto& bag=doc.extensions(ObjectRef(ObjectKind::Atom,item.second));

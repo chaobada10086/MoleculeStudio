@@ -82,10 +82,10 @@ void strokePolyline(const std::vector<core::Vec2>& path, const StrokeOptions& op
         if (segmentCount) *segmentCount += 2;
 
         // Join with the NEXT span.
-        const bool hasNext = (i + 2 < pts.size());
+        const bool hasNext = (i + 2 < pts.size() || (options.closed && pts.size() > 3));
         if (hasNext) {
             const core::Vec2 c = pts[i + 1];
-            core::Vec2 d2 = sub2(pts[i + 2], c);
+            core::Vec2 d2 = sub2(pts[i + 2 < pts.size() ? i + 2 : 1], c);
             const double l2 = len2(d2);
             if (l2 > 1e-12) {
                 d2 = core::Vec2(d2.x / l2, d2.y / l2);
@@ -97,7 +97,7 @@ void strokePolyline(const std::vector<core::Vec2>& path, const StrokeOptions& op
                     // 180-degree reversal still gets a smooth semicircle.
                     const double turn = std::atan2(cros, dotp);
                     const int steps = std::max(2, static_cast<int>(std::ceil(std::fabs(turn) / (kPi2 / 8.0))));
-                    const core::Vec2 start = mul2(n, hw);
+                    const core::Vec2 start = mul2(n, cros > 0 ? -hw : hw);
                     for (int s = 0; s < steps; ++s) {
                         const double t0 = turn * s / steps;
                         const double t1 = turn * (s + 1) / steps;

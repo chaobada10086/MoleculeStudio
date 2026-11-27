@@ -85,7 +85,7 @@ inline Expansion prepareCompound(const Document& d,const std::string& raw,Vec2 p
     for(const auto& a:p.graph->atoms().records())if(a.isAlive())checked(p.graph->setAtomPosition(a.id,position+(a.position-anchor)*factor));
     p.graph->setDefaultBondLength(d.defaultBondLength());return p;
 }
-inline Expansion prepareExpansion(const Document& d,ObjectId target){
+inline Expansion prepareExpansion(const Document& d,ObjectId target,bool staged=true){
     if(auto bridge=bridgedata::find(d.atomLabel(target))){
         auto links=d.incidentBonds(target);
         if(links.size()!=2||d.bonds().alive(links[0])->order!=BondOrder::Single||d.bonds().alive(links[1])->order!=BondOrder::Single)
@@ -125,9 +125,9 @@ inline Expansion prepareExpansion(const Document& d,ObjectId target){
     Expansion result;result.target=target;result.anchor=kInvalidObjectId;result.graph=std::make_shared<Document>();checked(persistence::readCdxml(nicknameexpand::expand(xml),*result.graph));
     for(const auto& a:result.graph->atoms().records())if(a.isAlive()){if(a.sourceId==rootSource)result.anchor=a.id;if(a.sourceId==dummySource)result.dummy=a.id;}
     if(result.anchor==kInvalidObjectId){for(const auto& a:result.graph->atoms().records())if(a.isAlive()&&a.id!=result.dummy){result.anchor=a.id;break;}}
-    if(result.anchor==kInvalidObjectId)throw std::runtime_error("官能团没有可展开的原子");esterStage(result,d.atomLabel(target));if(!studio::validation::overValentAtoms(*result.graph).empty())throw std::runtime_error("官能团展开后价态异常，已保留原结构");return result;
+    if(result.anchor==kInvalidObjectId)throw std::runtime_error("官能团没有可展开的原子");if(staged)esterStage(result,d.atomLabel(target));if(!studio::validation::overValentAtoms(*result.graph).empty())throw std::runtime_error("官能团展开后价态异常，已保留原结构");return result;
 }
-inline void applyExpansion(Document& d,const Expansion& p,std::vector<ObjectRef>& inserted){
+inline void applyExpansion(Document& d,const Expansion& p,std::vector<ObjectRef>& inserted,std::map<ObjectId,ObjectId>* atomIds=nullptr){
     size_t begin=inserted.size();
     ObjectId target=p.target;const auto& graph=*p.graph;
     if(target==kInvalidObjectId){auto a=*graph.atoms().alive(p.anchor);a.sourceId=0;checked(d.addAtomRecord(a,&target));if(p.text!=kInvalidObjectId)checked(d.removeObject(ObjectRef(ObjectKind::Text,p.text)));}
@@ -136,6 +136,7 @@ inline void applyExpansion(Document& d,const Expansion& p,std::vector<ObjectRef>
     auto& ext=d.extensions(ObjectRef(ObjectKind::Atom,target));for(const char* key:{"studio.nickname.fragment","studio.compound.fragment","studio.compound.saved","studio.compound.anchor","studio.hydrogens.manual","studio.query.description","studio.text.tidy.original","studio.mechanism.ion.base","studio.mechanism.compact.valence","studio.label.offset","studio.label.text"})ext.erase(key);copyAtomData(graph,p.anchor,d,target);inserted.push_back(ObjectRef(ObjectKind::Atom,target));
     for(const auto& a:graph.atoms().records())if(a.isAlive()&&a.id!=p.dummy&&a.id!=p.anchor){auto c=a;c.sourceId=0;ObjectId id;checked(d.addAtomRecord(c,&id));ids[a.id]=id;copyAtomData(graph,a.id,d,id);inserted.push_back(ObjectRef(ObjectKind::Atom,id));}
     for(const auto& b:graph.bonds().records())if(b.isAlive()&&ids.count(b.beginAtom)&&ids.count(b.endAtom)){auto c=b;c.sourceId=0;c.beginAtom=ids[b.beginAtom];c.endAtom=ids[b.endAtom];ObjectId id;checked(d.addBondRecord(c,&id));for(const auto& e:graph.extensions(ObjectRef(ObjectKind::Bond,b.id)).entries())if(e.key.compare(0,4,"pst.")!=0)d.extensions(ObjectRef(ObjectKind::Bond,id)).set(e.key,e.value);inserted.push_back(ObjectRef(ObjectKind::Bond,id));}
+    if(atomIds)*atomIds=ids;
     if(p.secondBond!=kInvalidObjectId){
         auto edge=d.bonds().alive(p.secondBond);auto second=ids.at(p.secondAnchor);
         checked(d.setBondEndpoints(p.secondBond,edge->beginAtom==target?second:edge->beginAtom,edge->endAtom==target?second:edge->endAtom));

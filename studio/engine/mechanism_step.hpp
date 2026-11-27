@@ -2,6 +2,7 @@
 #include "next/core/document.hpp"
 #include "next/arrows_curves/model.hpp"
 #include "mechanism_roles.hpp"
+#include "reactive_centers.hpp"
 #include "mechanism_electrons.hpp"
 #include "virtual_bonds.hpp"
 #include "fragment_layout_mass.hpp"
@@ -27,6 +28,14 @@ struct ElectronMove {
     ElectronMove(ObjectRef s,ObjectRef t,int count=2,bool shared=false):source(s),target(t),electronCount(count),sharedTarget(shared){}
 };
 namespace step_detail {
+inline bool separatesDoubleBond(const Document& doc,const ElectronMove& first,const ElectronMove& second){
+    if(first.source!=second.source||first.source.kind!=ObjectKind::Bond||
+       first.electronCount!=2||second.electronCount!=2||first.target.kind!=ObjectKind::Atom||second.target.kind!=ObjectKind::Atom)return false;
+    auto bond=doc.bonds().alive(first.source.id);
+    if(!bond||bond->order!=BondOrder::Double||bond->semantics!=BondSemantics::Normal)return false;
+    return (first.target.id==bond->beginAtom&&second.target.id==bond->endAtom)||
+           (second.target.id==bond->beginAtom&&first.target.id==bond->endAtom);
+}
 typedef std::pair<ObjectId,ObjectId> Edge;
 inline Edge edge(ObjectId a,ObjectId b){return a<b?Edge(a,b):Edge(b,a);}
 inline Error fail(const std::string& s){return Error(ErrorCode::InvalidArgument,s);}
@@ -698,7 +707,9 @@ inline Error generateNextStep(Document& doc,const std::vector<ElectronMove>& mov
     for(const auto& m:moves){
         if(m.source==m.target)return fail("机理箭头起点和终点不能是同一个对象。");
         if(!unique.insert({m.source,m.target}).second)return fail("有重复的机理箭头，请只保留一次电子转移。");
-        if((m.electronCount!=1&&m.electronCount!=2)||(sources[m.source]+=m.electronCount)>2)return fail("同一个电子来源被多次使用，请拆成连续步骤。");
+        sources[m.source]+=m.electronCount;
+        bool split=sources[m.source]==4 && std::any_of(moves.begin(),moves.end(),[&](const ElectronMove& other){return separatesDoubleBond(doc,m,other);});
+        if((m.electronCount!=1&&m.electronCount!=2)||(sources[m.source]>2&&!split))return fail("同一个电子来源被多次使用，请拆成连续步骤。");
         for(auto r:{m.source,m.target}){
             if(r.kind==ObjectKind::Atom&&doc.atoms().alive(r.id))atoms.insert(r.id);
             else if(r.kind==ObjectKind::Bond&&doc.bonds().alive(r.id)){auto b=doc.bonds().alive(r.id);atoms.insert(b->beginAtom);atoms.insert(b->endAtom);}
@@ -788,6 +799,7 @@ inline Error generateNextStep(Document& doc,const std::vector<ElectronMove>& mov
             base=sums[id]+std::max(0,int(a->semantics.implicitHydrogens))+(a->semantics.radical==uint8_t(Radical::Doublet)?1:a->semantics.radical==uint8_t(Radical::Singlet)?2:0);
         int v=base-(a->semantics.radical==uint8_t(Radical::Doublet)?1:a->semantics.radical==uint8_t(Radical::Singlet)?2:0);if(v<0)return fail("反应中心暂支持 C、N、O、H、P 和卤素的常见价态；未参与反应的其他元素可原样保留。");
         int h=a->semantics.implicitHydrogens<0?std::max(0,v-sums[id]):a->semantics.implicitHydrogens;
+        if(singletCarbene(*a))h=std::max(0,v-sums[id]);
         if(sums[id]+h!=v)return fail("反应物的价态或氢数不完整，请先检查结构。");
         hydrogens[id]=h;atomRecords[id]=*a;
     }
@@ -981,7 +993,10 @@ inline Error generateNextStep(Document& doc,const std::vector<ElectronMove>& mov
         candidates.swap(next);
     }
     std::vector<Change> valid;
-    for(auto c:candidates){bool ok=true;for(auto use:c.piUses)if(use.second>2)ok=false;for(auto d:c.halfBonds){if(d.second%2)ok=false;else c.bonds[d.first]+=d.second/2;}auto degree=sums;int chargeSum=0;
+    for(auto c:candidates){bool ok=true;for(auto use:c.piUses)if(use.second>2){
+            auto bond=doc.bondBetween(use.first.first,use.first.second);
+            if(use.second!=4||sources[ObjectRef(ObjectKind::Bond,bond)]!=4)ok=false;
+        }for(auto d:c.halfBonds){if(d.second%2)ok=false;else c.bonds[d.first]+=d.second/2;}auto degree=sums;int chargeSum=0;
         for(auto d:c.bonds){int before=original.count(d.first)?original.at(d.first):0;int after=before+d.second;if(after<0||after>3){ok=false;break;}degree[d.first.first]+=d.second;degree[d.first.second]+=d.second;}
         for(auto id:potentialReacting){
             const auto& atom=atomRecords.at(id);
@@ -998,7 +1013,7 @@ inline Error generateNextStep(Document& doc,const std::vector<ElectronMove>& mov
                 }
                 if(alpha&&degree[id]+hydrogens[id]==2){r=2;c.radicals[id]=r-electronDeficit(atom);}
             }
-            if(atom.semantics.radical==uint8_t(Radical::Singlet)&&degree[id]!=sums[id]){
+            if(atom.semantics.radical==uint8_t(Radical::Singlet)&&(q||degree[id]!=sums[id])){
                 r=0;c.radicals[id]=-2;
             }
             chargeSum+=c.charge[id];

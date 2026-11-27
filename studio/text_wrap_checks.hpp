@@ -5,6 +5,14 @@
 void App::textWrapCheck(const std::string& dir){
     auto require=[](bool value,const char* message){if(!value)throw std::runtime_error(message);};
     SetWindowPos(h,0,0,0,1200,900,SWP_NOMOVE|SWP_NOZORDER);scale=1;layout();
+    {
+        text::LayoutOptions options;options.widthLimit=5;options.defaultSize=10;
+        TextRun run;run.utf8="\xE2\x88\x92 H2O";run.size=10;run.flags=kFormula;
+        text::RichLayout layout;
+        require(text::layoutRichText({run},Vec2(),options,&s.glyphs,&layout).ok()&&layout.lines.size()==1,"keep loss sign and water on one line in a narrow caption");
+        run.flags=0;
+        require(text::layoutRichText({run},Vec2(),options,&s.glyphs,&layout).ok()&&layout.lines.size()>1,"ordinary caption spaces still wrap");
+    }
     // The native scrollbars occupy reserved space outside the canvas.
     {RECT c,horizontal,vertical,overlap;
      GetWindowRect(canvas,&c);GetWindowRect(hbar,&horizontal);GetWindowRect(vbar,&vertical);

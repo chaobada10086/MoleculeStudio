@@ -516,6 +516,13 @@ core::Error layoutRichText(const std::vector<core::TextRun>& runs,
             } else if (isCjk(units[i].cp)) {
                 ++i;
             } else {
+                // A formula loss such as "minus H2O" is one wrapping unit.
+                // Keep the ordinary space for editing, export and glyph advances.
+                if (units[i].cp == 0x2212u && (units[i].flags & core::kFormula) &&
+                    i + 2 < units.size() && units[i + 1].cp == ' ' &&
+                    (units[i + 2].flags & core::kFormula) &&
+                    ((units[i + 2].cp >= 'A' && units[i + 2].cp <= 'Z') || isAsciiDigit(units[i + 2].cp)))
+                    i += 2;
                 while (i < units.size() && !isBlankCp(units[i].cp) &&
                        !isCjk(units[i].cp) && units[i].cp != 0x2Du)
                     ++i;

@@ -123,6 +123,18 @@ bonds::BondRenderData RingGeometry::build(const BondRecord& b,const std::set<Obj
                     v=v*(1/len);
                     double turn=cross(inward,v);
                     if(std::abs(turn)<1e-6)continue;
+                    // Only the two outermost rays bound an exposed corner.
+                    // An interior branch must not extend its miter beyond that outline.
+                    bool exposed=true;
+                    for(const auto& branch:edges[id]){
+                        if(branch.second==b.id||branch.second==edge.second)continue;
+                        Vec2 ray=pos(branch.first)-vertex;
+                        if(cross(inward,ray)*turn< -1e-8||cross(ray,v)*turn< -1e-8){
+                            exposed=false;
+                            break;
+                        }
+                    }
+                    if(!exposed)continue;
                     double half=opts.lineWidth*.5;
                     double reach=half*(1+dot(inward,v))/std::abs(turn);
                     if(reach>4*half)continue;

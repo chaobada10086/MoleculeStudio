@@ -68,8 +68,23 @@ void App::shapeFillMenu(){
     POINT pt;GetCursorPos(&pt);int choice=TrackPopupMenu(menu,TPM_RETURNCMD|TPM_NONOTIFY,pt.x,pt.y,0,h,nullptr);DestroyMenu(menu);if(!choice)return;
     uint32_t color=choice==3?0xDFEBFAFFu:choice==4?0xFFF0DCFFu:0xE6F2EFFFu;
     if(choice==5){static COLORREF custom[16]={};CHOOSECOLORW cc={};cc.lStructSize=sizeof(cc);cc.hwndOwner=h;cc.lpCustColors=custom;cc.rgbResult=RGB(BYTE(shapeFill>>24),BYTE(shapeFill>>16),BYTE(shapeFill>>8));cc.Flags=CC_FULLOPEN|CC_RGBINIT;if(!studio_i18n::chooseColor(&cc))return;color=(uint32_t(GetRValue(cc.rgbResult))<<24)|(uint32_t(GetGValue(cc.rgbResult))<<16)|(uint32_t(GetBValue(cc.rgbResult))<<8)|255;}
-    shapeFill=color;shapeFillEnabled=choice!=1;auto refs=studioio::expanded(s.doc,s.selected);bool enabled=shapeFillEnabled;
-    if(!refs.empty())error(s.submit(Command("图案填充",kInvalidateAppearance,[refs,color,enabled](CommandContext& c){for(auto ref:refs)if(ref.kind==ObjectKind::Path){auto path=c.document.paths().mutableGet(ref.id);if(path){path->fillEnabled=enabled;path->fillRGBA=color;c.document.noteTouchedPath(ref.id);}}return CommandResult::success();}),"图案填充"));
+    applyShapeFill(color,choice!=1);
+}
+void App::applyShapeFill(uint32_t color,bool enabled){
+    shapeFill=color;shapeFillEnabled=enabled;
+    auto refs=studioio::expanded(s.doc,s.selected);
+    if(!refs.empty())error(s.submit(Command("图案填充",kInvalidateAppearance,[refs,color,enabled](CommandContext& c){for(auto ref:refs)if(ref.kind==ObjectKind::Path){auto path=c.document.paths().mutableGet(ref.id);if(path && path->closed){
+            c.document.noteTouchedPath(ref.id);
+            path->fillEnabled=enabled;path->fillRGBA=color;
+        }}else if(ref.kind==ObjectKind::Arrow && c.document.extensions(ref).find("gfx.shape.params.1")){
+            graphics::ShapeParams shape;bool valid=false;
+            auto e=graphics::readShape(c.document,ref.id,&shape,&valid);
+            if(!e.ok())return CommandResult::fail(e.code,e.message);
+            if(!valid||shape.form==graphics::ShapeForm::Line||shape.form==graphics::ShapeForm::Arc)continue;
+            shape.fillRGBA=color;shape.appearance=enabled?graphics::ShapeAppearance::Solid:graphics::ShapeAppearance::Hollow;
+            e=graphics::writeShape(c.document,ref.id,shape,c.document.defaultLineWidth());
+            if(!e.ok())return CommandResult::fail(e.code,e.message);
+        }return CommandResult::success();}),"图案填充"));
     invalidate();
 }
 

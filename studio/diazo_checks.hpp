@@ -3,7 +3,7 @@ static void checkDiazo(App& app,const std::string& dir){
     auto& s=app.s;auto require=[](bool ok,const std::string& why){if(!ok)throw std::runtime_error("diazo: "+why);};
     auto fixture=[&](){s.cancel();s.doc=Document();s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());s.doc.setDefaultBondLength(14.4);s.activateCommand("chooseRingTool_Cyclopentane");require(s.gesture(PointerPhase::Down,Vec2()).ok()&&s.gesture(PointerPhase::Up,Vec2()).ok(),"ring fixture");s.refresh();};
     auto verify=[&](){
-        require(s.doc.atoms().alive(0)->element==6&&s.doc.incidentBonds(0).size()==3,"original ring carbon retained");
+        require(s.doc.atoms().alive(0)->element==6&&s.doc.incidentBonds(0).size()==3,"original ring carbon retained: "+app.status);
         int cs=0,ns=0;ObjectId middle=kInvalidObjectId,end=kInvalidObjectId;
         for(const auto& a:s.doc.atoms().records())if(a.isAlive()){cs+=a.element==6;if(a.element==7){++ns;if(a.semantics.charge==1)middle=a.id;if(a.semantics.charge==-1)end=a.id;require(a.semantics.implicitHydrogens==0,"nitrogens carry no H");}}
         require(cs==5&&ns==2&&middle!=kInvalidObjectId&&end!=kInvalidObjectId,"C=N+ =N- graph and charges");

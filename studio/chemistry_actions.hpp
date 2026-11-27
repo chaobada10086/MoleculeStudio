@@ -287,6 +287,9 @@ void App::expandGroups(){
      auto definition=functional_groups::definition(s.doc,id);
      if(definition.empty())continue;
      auto label=s.doc.atomLabel(id);
+     if(studio::diazo::requested(label)&&studio::diazo::eligible(s.doc,id)){
+         plans.push_back(functional_groups::prepareExpansion(s.doc,id));continue;
+     }
      auto compound=compounddata::find(label);
      if(compound&&(compound->standalone||(chemcompletion::ambiguousGroups().count(chemcompletion::foldCase(label))&&groupchoice::standaloneChoice(label)))&&!s.doc.incidentBonds(id).empty()&&definition==compounddata::find(label)->fragment&&!s.doc.extensions(ObjectRef(ObjectKind::Atom,id)).findValue("studio.compound.anchor")){
          attachedMolecules.push_back(id);continue;

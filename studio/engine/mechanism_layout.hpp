@@ -103,7 +103,7 @@ inline bool mechanismGeometryContact(const MechanismObstacle& o,const ArrowParam
     auto contact=[&](core::ObjectRef ref,uint8_t site,core::Vec2 point){return ref==o.geometryOwner&&!(ref.kind==core::ObjectKind::Bond&&site==5)&&core::length(q-point)<std::max(3.,o.radius+1.);};
     return contact(p.electronSource,p.sourceVisualAnchor,p.begin)||contact(p.electronTarget,p.targetVisualAnchor,p.end);
 }
-inline std::vector<MechanismObstacle> mechanismObstacles(const core::Document& doc) {
+inline std::vector<MechanismObstacle> mechanismObstacles(const core::Document& doc,core::ObjectId excludedArrow=core::kInvalidObjectId) {
     std::vector<MechanismObstacle> result;
     for(const auto& b:doc.bonds().records())if(b.isAlive()) {
         auto a=doc.atoms().alive(b.beginAtom),z=doc.atoms().alive(b.endAtom);
@@ -127,7 +127,7 @@ inline std::vector<MechanismObstacle> mechanismObstacles(const core::Document& d
     }
     for(const auto& path:doc.paths().records())if(path.isAlive())
         for(size_t i=1;i<path.points.size();++i)result.push_back({path.points[i-1],path.points[i],1.5});
-    for(const auto& arrow:doc.arrows().records())if(arrow.isAlive()) {
+    for(const auto& arrow:doc.arrows().records())if(arrow.isAlive()&&arrow.id!=excludedArrow) {
         ArrowParams p;bool valid=false;
         if(!readArrow(doc,arrow.id,&p,&valid).ok()||!valid)continue;
         std::vector<core::Vec2> points;Tessellation t;if(p.route.size()>1)points=routedPoints(p);else flattenArc(p.begin,p.end,p.arcSagitta,t,&points);
@@ -135,8 +135,22 @@ inline std::vector<MechanismObstacle> mechanismObstacles(const core::Document& d
     }
     return result;
 }
+// Use the same clearance as the exact distance test. A route sample
+// inside this box cannot reach obstacles beyond its padded edges.
+inline bool nearMechanismBounds(const MechanismObstacle& o,const core::Box& box,double extra){
+    const double pad=o.radius+extra;
+    return std::max(o.a.x,o.b.x)>=box.min.x-pad && std::min(o.a.x,o.b.x)<=box.max.x+pad &&
+           std::max(o.a.y,o.b.y)>=box.min.y-pad && std::min(o.a.y,o.b.y)<=box.max.y+pad;
+}
 inline double mechanismRouteScore(const ArrowParams& p,const std::vector<MechanismObstacle>& obstacles,bool glyphsOnly=false) {
     std::vector<core::Vec2> points;Tessellation t;t.tolerance=.25;if(p.route.size()>1)points=routedPoints(p);else flattenArc(p.begin,p.end,p.arcSagitta,t,&points);
+    if(points.size()<2)return 0;
+    core::Box bounds(points.front(),points.front());
+    for(auto q:points)bounds.add(q);
+    std::vector<const MechanismObstacle*> nearby;
+    for(const auto& o:obstacles)if((!glyphsOnly||o.glyphOwner.valid())&&nearMechanismBounds(o,bounds,glyphsOnly?0.:3.))
+        nearby.push_back(&o);
+    if(nearby.empty())return 0;
     double score=0;
     for(size_t i=1;i<points.size();++i) {
       const double span=core::length(points[i]-points[i-1]);
@@ -144,7 +158,8 @@ inline double mechanismRouteScore(const ArrowParams& p,const std::vector<Mechani
       for(int j=0;j<count;++j) {
         core::Vec2 sample=points[i-1]+(points[i]-points[i-1])*(double(j)/count);
         // Contact with the source/target is intentional; interior collisions aren't.
-        for(const auto& o:obstacles) {
+        for(const auto* obstacle:nearby) {
+            const auto& o=*obstacle;
             const bool glyph=o.glyphOwner.valid();
             if(glyph?mechanismGlyphContact(o,p,sample):(glyphsOnly||mechanismGeometryContact(o,p,sample)))continue;
             const double d=mechanismObstacleDistance(sample,o),weight=span/count;
@@ -423,7 +438,7 @@ inline void avoidBondAtLabel(const core::Document& doc,ArrowParams& p,const std:
         if(findMechanismRoute(dock,obstacles))consider(dock);
     if(std::isfinite(bestCost))p=std::move(best);
 }
-inline void routeMechanism(const core::Document& doc,ArrowParams& p,bool automatic=true) {
+inline void routeMechanism(const core::Document& doc,ArrowParams& p,bool automatic=true,core::ObjectId excludedArrow=core::kInvalidObjectId) {
     if(automatic){p.head.length=2.8;p.head.width=1.95;}
     if(automatic&&p.electronSource.kind==core::ObjectKind::Atom){auto atom=doc.atoms().alive(p.electronSource.id);if(atom){
         if(p.sourceVisualAnchor==0){auto charge=mechanismChargeBox(doc,*atom,1.);bool onCharge=atom->semantics.charge&&p.begin.x>=charge.min.x&&p.begin.x<=charge.max.x&&p.begin.y>=charge.min.y&&p.begin.y<=charge.max.y;p.sourceVisualAnchor=onCharge?2:1;}
@@ -447,7 +462,7 @@ inline void routeMechanism(const core::Document& doc,ArrowParams& p,bool automat
             // Arrive at the exposed side of H, away from its C-H bond. A tip
             // on the inward edge can make the route search's goal inaccessible.
             auto end=boundary(goal,(goal.min+goal.max)*.5+outward*100.);auto chord=end-begin;core::Vec2 normal(-chord.y,chord.x);double square=core::dot(chord,chord);
-            if(square>1){ArrowParams best=p;double cost=1e100;auto obstacles=mechanismObstacles(doc);
+            if(square>1){ArrowParams best=p;double cost=1e100;auto obstacles=mechanismObstacles(doc,excludedArrow);
                 auto crossings=[&](const ArrowParams& curve){auto points=routedPoints(curve);int count=0;auto cross=[](core::Vec2 a,core::Vec2 b,core::Vec2 c){auto u=b-a,v=c-a;return u.x*v.y-u.y*v.x;};
                     for(size_t i=1;i<points.size();++i)for(const auto& bond:doc.bonds().records())if(bond.isAlive()){auto x=doc.atoms().alive(bond.beginAtom)->position,y=doc.atoms().alive(bond.endAtom)->position;if(cross(points[i-1],points[i],x)*cross(points[i-1],points[i],y)<-1e-8&&cross(x,y,points[i-1])*cross(x,y,points[i])<-1e-8)++count;}return count;
                 };
@@ -480,7 +495,7 @@ inline void routeMechanism(const core::Document& doc,ArrowParams& p,bool automat
     if(automatic && localBondTransfer)p.route.clear();
     const double preferred=closeLabels?std::max(.7,std::min(1.4,(doc.defaultTextSize()+2.)/length)):shortSpan?.42:.22;
     if(shortSpan&&p.strokeWidth<=0)p.strokeWidth=std::min(.45,doc.defaultLineWidth());
-    const auto obstacles=automatic?mechanismObstacles(doc):std::vector<MechanismObstacle>{};
+    const auto obstacles=automatic?mechanismObstacles(doc,excludedArrow):std::vector<MechanismObstacle>{};
     if(automatic&&shortSpan&&localBondTransfer&&(targetLabel||localPiReturn||p.head.sides==HeadSides::Left||p.head.sides==HeadSides::Right)&&p.targetVisualAnchor<2&&
        routeShortBondReturn(doc,p,originalSource,obstacles)){
         p.targetVisualAnchor=1;

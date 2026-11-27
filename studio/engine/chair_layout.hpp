@@ -58,7 +58,18 @@ inline Target target(const Document& doc,ObjectId id,Vec2 pointer,bool automatic
     const Vec2 rays[]={f.equatorial,f.axial};double best=1e100;
     auto onRing=[&](ObjectId a){return std::find(f.ring.begin(),f.ring.end(),a)!=f.ring.end();};
     for(int k=0;k<2;++k){
-        const Vec2 ray=rays[k],end=origin+ray*(unit*(k?.5:.65));bool occupied=false;
+        const Vec2 ray=rays[k];double reach=unit*(k?.5:.65);
+        // Leave a visible gap when an axial substituent ends at a projected ring edge.
+        if(k)for(size_t i=0;i<f.ring.size();++i){
+            auto a=f.ring[i],b=f.ring[(i+1)%f.ring.size()];if(a==id||b==id)continue;
+            auto start=doc.atoms().alive(a)->position-origin;
+            auto span=doc.atoms().alive(b)->position-origin-start;
+            double det=ray.x*span.y-ray.y*span.x;if(std::abs(det)<1e-9)continue;
+            double t=(start.x*span.y-start.y*span.x)/det;
+            double u=(start.x*ray.y-start.y*ray.x)/det;
+            if(u>=0&&u<=1&&t>unit*.20&&std::abs(t-reach)<unit*.15)reach=t-unit*.10;
+        }
+        const Vec2 end=origin+ray*reach;bool occupied=false;
         for(auto edge:doc.incidentBonds(id)){auto bond=doc.bonds().alive(edge);auto other=bond->beginAtom==id?bond->endAtom:bond->beginAtom;if(onRing(other))continue;auto v=doc.atoms().alive(other)->position-origin;double n=length(v);if(n>1e-8&&dot(v,ray)/n>.90)occupied=true;}
         if(occupied)continue;
         // A projected axial bond may cross the ring outline in a chair diagram.

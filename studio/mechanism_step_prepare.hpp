@@ -6,6 +6,39 @@
 namespace studio_mechanism {
 using namespace r62;using namespace core;
 
+// Some older drawings store a fully drawn haloform center as a blank query
+// node. Its explicit bonds and leaving-halide arrow identify elemental carbon.
+inline void resolveHaloformCenter(Document& doc,const std::vector<arrows::ArrowParams>& inputs){
+    for(const auto& arrow:inputs){
+        if(arrow.electronSource.kind!=ObjectKind::Bond||arrow.electronTarget.kind!=ObjectKind::Atom)continue;
+        const auto* bond=doc.bonds().alive(arrow.electronSource.id);
+        const auto leaving=arrow.electronTarget.id;
+        if(!bond||(bond->beginAtom!=leaving&&bond->endAtom!=leaving))continue;
+        auto id=bond->beginAtom==leaving?bond->endAtom:bond->beginAtom;
+        const auto* atom=doc.atoms().alive(id);
+        if(atom->element!=6||atom->semantics.nodeType!=uint8_t(NodeType::Query)||!doc.atomLabel(id).empty())continue;
+        const ObjectRef ref(ObjectKind::Atom,id);
+        const auto& attrs=static_cast<const Document&>(doc).extensions(ref);
+        bool query=false;
+        for(const char* key:{"pst.attr.ElementList","pst.attr.GenericNickname","pst.attr.GenericList","pst.attr.SubstituentsUpTo","pst.attr.SubstituentsExactly","pst.attr.UnsaturatedBonds","pst.attr.RingBondCount","studio.nickname.fragment","studio.compound.fragment"})
+            query|=attrs.findValue(key)!=nullptr;
+        if(query||atom->semantics.radical||atom->semantics.aromatic)continue;
+        auto halogen=[](int z){return z==9||z==17||z==35||z==53;};
+        if(!halogen(doc.atoms().alive(leaving)->element))continue;
+        int halides=0,hydrogens=0;bool ordinary=true;
+        for(auto bid:doc.incidentBonds(id)){
+            const auto& edge=*doc.bonds().alive(bid);
+            const auto z=doc.atoms().alive(edge.beginAtom==id?edge.endAtom:edge.beginAtom)->element;
+            ordinary&=edge.order==BondOrder::Single&&edge.semantics==BondSemantics::Normal&&(halogen(z)||z==1);
+            halides+=halogen(z);hydrogens+=z==1;
+        }
+        if(ordinary&&halides==3&&((hydrogens==1&&atom->semantics.charge==0)||(hydrogens==0&&atom->semantics.charge==-1))){
+            auto sem=atom->semantics;sem.nodeType=uint8_t(NodeType::Element);sem.implicitHydrogens=0;
+            doc.setAtomSemantics(id,sem);
+        }
+    }
+}
+
 // Short carbonyl arrows often start or end at the edge of a labelled atom
 // or at a vertex shared with a different bond. Resolve them together only
 // when the other arrows identify an addition, a collapse or a reciprocal pair.
@@ -224,6 +257,7 @@ inline Error prepareProduct(const Document& source,const std::vector<ObjectRef>&
     if(arranged)*arranged=false;
     if(!prepared||!moves||!products)return Error(ErrorCode::InvalidArgument,"缺少机理生成输出容器。");
     *prepared=source;moves->clear();products->clear();if(preservedCount)*preservedCount=0;
+    resolveHaloformCenter(*prepared,inputs);
     const auto carbonHydrides=studio_carbon_hydrides::normalize(*prepared,inputs);
     std::set<ObjectId> seeds;
     auto add=[&](ObjectRef ref){if(ref.kind==ObjectKind::Atom&&source.atoms().alive(ref.id))seeds.insert(ref.id);else if(ref.kind==ObjectKind::Bond){if(auto b=source.bonds().alive(ref.id)){seeds.insert(b->beginAtom);seeds.insert(b->endAtom);}}else{ObjectId a,b;if(virtual_bonds::endpoints(source,ref,a,b)){seeds.insert(a);seeds.insert(b);}}};

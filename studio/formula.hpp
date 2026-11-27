@@ -1,5 +1,6 @@
 #pragma once
 #include "engine/hydride_labels.hpp"
+#include "engine/diazo.hpp"
 #include "next/integration/session.hpp"
 #include "next/chemistry/valence.hpp"
 #include <queue>
@@ -86,6 +87,18 @@ inline Formula analyze(const Document& d,const std::vector<ObjectRef>& refs){
         while(!q.empty()){auto a=q.front();q.pop();for(auto b:d.incidentBonds(a)){auto br=d.bonds().alive(b);if(!br)continue;auto n=br->beginAtom==a?br->endAtom:br->beginAtom;if(seen.insert(n).second)q.push(n);}}}
     // Analyze the saved molecular graph, including attachment valence, instead
     // of trying to infer a custom definition from its display name.
+    // A legacy N2 label on a skeletal carbon represents the same diazo or
+    // diazonium group as typing N2 there in the editor.
+    std::vector<ObjectId> diazoSites;
+    for(auto id:seen)if(diazo::requested(d.atomLabel(id))&&diazo::eligible(d,id))diazoSites.push_back(id);
+    if(!diazoSites.empty()){
+        Document normalized=d;
+        for(auto id:diazoSites){
+            auto e=diazo::append(normalized,id,diazo::axis(d,id),diazo::externalValence(d,id));
+            if(!e.ok()){r.note=e.message;return r;}
+        }
+        return analyze(normalized,refs);
+    }
     auto fragmentFor=[&](ObjectId id){
         const auto& bag=d.extensions(ObjectRef(ObjectKind::Atom,id));
         if(auto raw=bag.findValue("studio.nickname.fragment"))return *raw;

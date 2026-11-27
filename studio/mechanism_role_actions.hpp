@@ -1,3 +1,5 @@
+#include "compact_hydrogen_residue.hpp"
+#include "hydrogen_fragment_site.hpp"
 #pragma once
 #include "engine/mechanism_electrons.hpp"
 void App::insertMechanismRole(bool base){
@@ -334,25 +336,66 @@ static Error exposeAttachedProton(Document& doc,ObjectId host,Vec2 position,Obje
     const int count=atom?(front?studio::hydride_labels::terminal(doc.atomLabel(host),nullptr,true):arrows::attachedHydrogenCount(doc,*atom)):0;
     if(!count)
         return Error(ErrorCode::InvalidArgument,"这个标记没有可拉出的附着氢。");
-    if(const auto* hydride=compounddata::hydride(doc.atomLabel(host))){
-        studioions::Entry compact={hydride->base,"",hydride->element,0,hydride->element==8?1:3};
-        auto e=studioions::apply(doc,host,compact,0);
-        if(!e.ok())return e;
-        auto compactSem=doc.atoms().alive(host)->semantics;compactSem.nodeType=uint8_t(NodeType::Nickname);
-        e=doc.setAtomSemantics(host,compactSem);if(!e.ok())return e;
-        auto& bag=doc.extensions(ObjectRef(ObjectKind::Atom,host));
-        bag.erase("studio.compound.fragment");bag.set("studio.nickname.fragment",hydride->fragment);
-        std::vector<TextRun> runs;for(const auto& part:chemcompletion::segments(hydride->base,true)){TextRun run;run.utf8=part.text;run.flags=part.script<0?kSubscript:part.script>0?kSuperscript:0;runs.push_back(run);}studioatom::set(doc,host,runs);
+    const auto label=doc.atomLabel(host);
+    int elemental=atom->element;
+    if(studio::hydride_labels::count(elemental,label)<0){
+        for(int z=2;z<=118;++z)if(studio::hydride_labels::count(z,label)>0){elemental=z;break;}
+    }
+    const bool simple=studio::hydride_labels::count(elemental,label)>0;
+    studio_hydrogen::Residue compact;
+    if(!simple && studio_hydrogen::resolve(doc,host,front,compact)){
+        auto e=studio_hydrogen::apply(doc,host,compact,atom->semantics.charge);if(!e.ok())return e;
+        std::vector<TextRun> runs;for(const auto& part:chemcompletion::segments(compact.label,true)){TextRun run;run.utf8=part.text;run.flags=part.script<0?kSubscript:part.script>0?kSuperscript:0;runs.push_back(run);}studioatom::set(doc,host,runs);
         e=doc.addAtom(position,1,hydrogen);
         if(e.ok()){auto h=doc.atoms().alive(*hydrogen)->semantics;h.implicitHydrogens=0;h.showLabel=true;e=doc.setAtomSemantics(*hydrogen,h);}
         if(e.ok()){ObjectId bond;e=doc.addBond(host,*hydrogen,&bond);}return e;
     }
     auto sem=atom->semantics;
-    const auto label=doc.atomLabel(host);
+    // A residue such as R-COOH attaches to R through carbon, but releases H
+    // from oxygen. Keep the scaffold bond on its original atom.
+    if(!simple &&
+       !functional_groups::definition(doc,host).empty()){
+        std::string base;bool first=false;
+        int n=studio::hydride_labels::terminal(label,&base,front,&first);
+        if(n>0){
+            while(!first&&!base.empty()&&base.back()>='0'&&base.back()<='9')base.pop_back();
+            try{
+                auto plan=functional_groups::prepareExpansion(doc,host,false);
+                auto site=studio_hydrogen::fragmentDonor(*plan.graph,plan.dummy,base,first,n,label);
+                if(site==kInvalidObjectId)return Error(ErrorCode::InvalidArgument,"标签中的 H 无法确定唯一的化学位置，请展开后选择含氢原子。");
+                if(atom->semantics.charge){
+                    int total=0;for(auto& record:plan.graph->atoms().records())if(record.isAlive())total+=record.semantics.charge;
+                    if(total!=atom->semantics.charge){
+                        auto state=plan.graph->atoms().alive(site)->semantics;
+                        state.charge+=atom->semantics.charge-total;
+                        auto e=plan.graph->setAtomSemantics(site,state);if(!e.ok())return e;
+                    }
+                }
+                const auto offset=position-atom->position;
+                std::map<ObjectId,ObjectId> ids;std::vector<ObjectRef> inserted;
+                functional_groups::applyExpansion(doc,plan,inserted,&ids);
+                auto donor=ids.at(site);auto origin=doc.atoms().alive(donor)->position;
+                for(auto bid:doc.incidentBonds(donor)){
+                    auto b=doc.bonds().alive(bid);auto other=b->beginAtom==donor?b->endAtom:b->beginAtom;
+                    auto h=doc.atoms().alive(other);
+                    if(h->element==1&&!h->semantics.isotope){*hydrogen=other;return doc.setAtomPosition(other,origin+offset);}
+                }
+                auto state=doc.atoms().alive(donor)->semantics;
+                if(state.implicitHydrogens<0)state.implicitHydrogens=chemistry::refreshAtomDerived(doc,donor,{}).newHydrogenCount;
+                if(state.implicitHydrogens<=0)return Error(ErrorCode::InvalidArgument,"展开后的原子没有可拉出的氢。");
+                --state.implicitHydrogens;
+                auto e=doc.setAtomSemantics(donor,state);if(!e.ok())return e;
+                e=doc.addAtom(origin+offset,1,hydrogen);if(!e.ok())return e;
+                auto hs=doc.atoms().alive(*hydrogen)->semantics;hs.implicitHydrogens=0;hs.showLabel=true;
+                e=doc.setAtomSemantics(*hydrogen,hs);if(e.ok())e=doc.addBond(donor,*hydrogen,nullptr);
+                return e;
+            }catch(const std::exception& ex){return Error(ErrorCode::InvalidArgument,ex.what());}
+        }
+    }
     // A textual residue remains textual. Pulling out its authored H creates a
     // genuine bond without guessing a different compound or discarding atoms.
     std::string residue;bool first=false;
-    if(studio::hydride_labels::count(atom->element,label)<0&&label!="OH"&&label!="HO"&&studio::hydride_labels::terminal(label,&residue,front,&first)>0){
+    if(!simple&&studio::hydride_labels::terminal(label,&residue,front,&first)>0){
         if(count>1){const std::string h="H"+(count>2?std::to_string(count-1):"");residue=first?h+residue:residue+h;}
         sem.nodeType=uint8_t(NodeType::Query);sem.implicitHydrogens=0;sem.showLabel=true;
         auto e=doc.setAtomSemantics(host,sem);if(e.ok())e=doc.setAtomLabel(host,residue);
@@ -361,11 +404,10 @@ static Error exposeAttachedProton(Document& doc,ObjectId host,Vec2 position,Obje
         studioatom::set(doc,host,{});
         if(e.ok())e=doc.addAtom(position,1,hydrogen);if(e.ok()){auto hs=doc.atoms().alive(*hydrogen)->semantics;hs.implicitHydrogens=0;hs.showLabel=true;e=doc.setAtomSemantics(*hydrogen,hs);}if(e.ok()){ObjectId bond;e=doc.addBond(host,*hydrogen,&bond);}return e;
     }
-    const bool hydroxylLabel=!sem.charge&&(label=="OH"||label=="HO");
-    const int atomicNumber=hydroxylLabel?8:atom->element;
+    const int atomicNumber=simple?elemental:atom->element;
     const std::string element=elementSymbol(atomicNumber);
     sem.implicitHydrogens=count-1;
-    if(hydroxylLabel)sem.nodeType=uint8_t(NodeType::Element);
+    if(simple)sem.nodeType=uint8_t(NodeType::Element);
     auto error=doc.setElement(host,atomicNumber);
     if(error.ok())error=doc.setAtomSemantics(host,sem);
     if(error.ok()&&!label.empty()&&label!=element){

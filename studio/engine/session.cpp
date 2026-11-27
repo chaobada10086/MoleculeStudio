@@ -646,8 +646,10 @@ Error Session::buildScene(){
     }
     auto camera=advanced::readCamera(doc);
     for(auto& p:resolved.mutablePrimitives()){
-        if(p.source.kind==ObjectKind::Arrow){auto c=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color");if(c){uint32_t rgba=uint32_t(std::strtoull(c->c_str(),0,10));p.style.stroke.rgba=rgba;p.style.fill.rgba=rgba;}}
-        if(!((p.source.kind==ObjectKind::Atom&&p.z==kAtomLabelZ)||(p.source.kind==ObjectKind::Text&&p.z==10))||elementpalette::settings().colors.empty())if(auto color=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color.override")){uint32_t value=uint32_t(std::strtoull(color->c_str(),0,10));p.style.stroke.rgba=value;if(p.source.kind!=ObjectKind::Path&&(p.source.kind!=ObjectKind::Symbol||(!experimental::isFigureObject(doc,p.source)&&p.style.fill.rgba!=0xFFFFFFFFu)))p.style.fill.rgba=value;}
+        const bool shapeFill=p.source.kind==ObjectKind::Arrow && p.style.fill.enabled &&
+            static_cast<const Document&>(doc).extensions(p.source).find("gfx.shape.params.1");
+        if(p.source.kind==ObjectKind::Arrow){auto c=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color");if(c){uint32_t rgba=uint32_t(std::strtoull(c->c_str(),0,10));p.style.stroke.rgba=rgba;if(!shapeFill)p.style.fill.rgba=rgba;}}
+        if(!((p.source.kind==ObjectKind::Atom&&p.z==kAtomLabelZ)||(p.source.kind==ObjectKind::Text&&p.z==10))||elementpalette::settings().colors.empty())if(auto color=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.color.override")){uint32_t value=uint32_t(std::strtoull(color->c_str(),0,10));p.style.stroke.rgba=value;if(!shapeFill&&p.source.kind!=ObjectKind::Path&&(p.source.kind!=ObjectKind::Symbol||(!experimental::isFigureObject(doc,p.source)&&p.style.fill.rgba!=0xFFFFFFFFu)))p.style.fill.rgba=value;}
         if(p.source.kind!=ObjectKind::Bond)if(auto width=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.graphics.width")){double value=std::atof(width->c_str());if(value>0){p.style.strokeWidth=value;p.bounds=render::geom::computeBounds(p,value);}}
         auto z=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.z");if(z)p.z+=std::atoi(z->c_str());
         auto rotation=static_cast<const Document&>(doc).extensions(p.source).findValue("studio.text.RotationAngle");

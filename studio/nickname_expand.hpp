@@ -41,12 +41,22 @@ inline std::string expand(const std::string& source){
             for(auto def=node->FirstChildElement("fragment");def;def=def->NextSiblingElement("fragment"))for(auto child=def->FirstChildElement();child;child=child->NextSiblingElement())parent->InsertEndChild(child->DeepClone(&xml));
             parent->DeleteChild(node);continue;
         }
-        if(external.size()!=1||incident.size()>1)throw std::runtime_error("该官能团须有一个连接点，且最多连接一根外部键");
+        if(external.size()!=1)throw std::runtime_error("该官能团须有一个连接点，且最多连接一根外部键");
         auto ext=external[0];int extId=ext->IntAttribute("id");
         for(auto b=f->FirstChildElement("b");b;b=b->NextSiblingElement("b"))if(b->IntAttribute("B")==extId||b->IntAttribute("E")==extId)connections.push_back(b);
         if(connections.size()!=1)throw std::runtime_error("官能团连接点定义不完整");auto link=connections[0];
         int anchorId=link->IntAttribute("B")==extId?link->IntAttribute("E"):link->IntAttribute("B");
         if(!nodes.count(anchorId))throw std::runtime_error("官能团缺少连接原子");
+        if(incident.size()>1){
+            size_t hydrogens=0;
+            for(auto bond:incident){
+                int other=bond->IntAttribute("B")==nodeId?bond->IntAttribute("E"):bond->IntAttribute("B");
+                for(auto n=parent->FirstChildElement("n");n;n=n->NextSiblingElement("n"))
+                    if(n->IntAttribute("id")==other && n->IntAttribute("Element",6)==1 && bond->IntAttribute("Order",1)==1)++hydrogens;
+            }
+            if(incident.size()-hydrogens>1)
+                throw std::runtime_error("该官能团的外部连接数不受支持");
+        }
         // A compact residue can acquire a charge or an unpaired electron in a
         // mechanism step. Keep that state on its real attachment atom.
         for(const char* key:{"Charge","Radical"})if(auto state=node->Attribute(key))nodes[anchorId]->SetAttribute(key,state);
