@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "schema": 2,
   "min_installer_protocol": 2,
@@ -53,3 +54,60 @@
     }
   ]
 }
+=======
+{
+  "schema": 2,
+  "min_installer_protocol": 2,
+  "channel": "stable",
+  "release": "v1.0.3.0",
+  "generated_utc": "2026-11-27T13:04:23.7159983Z",
+  "components": [
+    {
+      "id": "Core",
+      "version": "1.0.3.0",
+      "name": "MoleculeStudio-v1.0.3.0-Core-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v1.0.3.0/MoleculeStudio-v1.0.3.0-Core-win64.zip",
+      "sha256": "249ba88b86d503a98a4ae3a6b68f9f8fc553798b25b1bfb3958809b0e481a3b4",
+      "bytes": 1202034643,
+      "requires": [],
+      "requires_core_version": null
+    },
+    {
+      "id": "AIBasic",
+      "version": "1.0.3.0",
+      "name": "MoleculeStudio-v1.0.3.0-AIBasic-addon-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v1.0.3.0/MoleculeStudio-v1.0.3.0-AIBasic-addon-win64.zip",
+      "sha256": "f3b93950017818176bc075f8b26f1b2a594187e048cae90c26bc1bb365b72719",
+      "bytes": 2729670,
+      "requires": [
+        "Core"
+      ],
+      "requires_core_version": "1.0.3.0"
+    },
+    {
+      "id": "AIAdvanced",
+      "version": "1.0.3.0",
+      "name": "MoleculeStudio-v1.0.3.0-AIAdvanced-addon-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v1.0.3.0/MoleculeStudio-v1.0.3.0-AIAdvanced-addon-win64.zip",
+      "sha256": "fb83a309c9752d51d21a7b729c8e48f83f9ebf1ebe9a836c7a6da2344342ee8d",
+      "bytes": 808239056,
+      "requires": [
+        "AIBasic"
+      ],
+      "requires_core_version": "1.0.3.0"
+    },
+    {
+      "id": "OCSR",
+      "version": "1.0.3.0",
+      "name": "MoleculeStudio-v1.0.3.0-OCSR-addon-win64.zip",
+      "url": "https://github.com/chaobada10086/MoleculeStudio/releases/download/v1.0.3.0/MoleculeStudio-v1.0.3.0-OCSR-addon-win64.zip",
+      "sha256": "455697f4df1710d7203262730c9ad4f57fc8274b607567369670308e85142670",
+      "bytes": 872444510,
+      "requires": [
+        "Core"
+      ],
+      "requires_core_version": "1.0.3.0"
+    }
+  ]
+}
+>>>>>>> 022af4433384072023eef44b71055e24f93805ea
