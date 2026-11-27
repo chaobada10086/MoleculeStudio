@@ -597,7 +597,7 @@ void cdxmlColorCheck(const std::string& dir);
         if(activeArrow){arrowPreset=activeArrow->family==arrows::ArrowFamily::Arc&&activeArrow->presetId!=49&&activeArrow->presetId!=57?58:activeArrow->presetId;syncArrowSurfaces();}
         for(auto& gr:templateGroups)for(auto& b:gr.items)if(b.cmd=="@addCustomTemplate")b.enabled=!s.selected.empty();
         updateInfo();syncTextControls();touched();
-        std::string title="Molecule Studio 1.0.1.0  ·  "+fileName+(s.dirty?" *":"");
+        std::string title="Molecule Studio 1.0.3.0  ·  "+fileName+(s.dirty?" *":"");
         if(title!=lastTitle){lastTitle=title;studio_i18n::setWindowText(h,W(title).c_str());if(host)notifyTitleChanged();}
         std::ostringstream key;key<<s.graphicsWidth<<'|'<<s.graphicsColor<<'|'<<ribbonTab<<'|'<<generationArrowStyle<<'|'<<title<<'|'<<s.activeIndex<<'|'<<info.valid<<'|'<<info.plain<<'|'<<info.mass<<'|'<<s.selected.empty()<<'|'<<shortcutContext()<<'|'<<shortcuts.generation<<'|'<<hover;
         if(key.str()!=lastChrome){lastChrome=key.str();RECT r={0,0,width,top};InvalidateRect(h,&r,FALSE);}
@@ -3144,7 +3144,7 @@ static App* createEditorTab(HINSTANCE inst,HWND parent,const std::string& path,b
     App& a=*ap;
     a.tabChild=true;
     a.quitOnDestroy=false;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.1.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.3.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
     if(!h){delete ap;return nullptr;}
     a.scale=GetDpiForWindow(h)/96.f;
     DragAcceptFiles(h,TRUE);
@@ -3322,7 +3322,7 @@ int WINAPI WinMain(HINSTANCE inst,HINSTANCE,LPSTR,int){apppaths::applyToChildEnv
         return code;
     }
     g_currentApp=&a;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.1.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.3.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
     a.scale=(a.testing||shotMode||perfMode)?1.f:GetDpiForWindow(h)/96.f;{UINT dpi=GetDpiForWindow(h);olepreview::previewDpi()=dpi?dpi:96;}
     SetWindowPos(h,0,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
     studio_i18n::createWindowEx(0,L"MoleculeStudioCanvas",L"",WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS,0,0,100,100,h,0,inst,&a);
