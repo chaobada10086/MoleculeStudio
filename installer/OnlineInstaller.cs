@@ -40,40 +40,11 @@ class OnlineInstaller {
   "高级绘图插件；需先安装 AI 基础",
   "图片 / PDF 转可编辑结构 · 本地运行"};
 
- // Built-in fallback table. Only used when the online feed cannot be read.
- // P7 must replace the AIBasic/AIAdvanced entries after the real split packages are
- // uploaded (they are placeholders here on purpose: the split hashes depend on the
- // final AI build), and may adjust the OCSR release tag once the audited
- // 0.95-20261108 package is published.
  static Package[] packages=Builtin();
-
  static readonly string[] LegacyAIKeys={"AIBasic","AI"};
-
- static Package BuiltinPackage(string key,string version,string name,string hash,long bytes,string url,bool available,string reason){
-  int index=Array.IndexOf(Keys,key);
-  return new Package{Key=key,Version=version,Name=name,Hash=hash,Bytes=bytes,Url=url,Available=available,Reason=reason,
-   Display=Titles[index],Description=Descriptions[index],Optional=key!="Core",
-   Requires=key=="Core"?new string[0]:key=="AIAdvanced"?new[]{"AIBasic"}:new[]{"Core"},
-   RequiresCoreVersion=key=="Core"?null:"0.95-20261107-canvas-fix"};
- }
  static Package[] Builtin(){
-  string coreName="MoleculeStudio-0.95-20261108-Core-win64.zip";
-  string basicName="MoleculeStudio-0.95-20261108-AIBasic-addon-win64.zip";
-  string advancedName="MoleculeStudio-0.95-20261108-AIAdvanced-addon-win64.zip";
-  string ocsrName="MoleculeStudio-0.95-20261108-OCSR-addon-win64.zip";
-  return new[]{
-   BuiltinPackage("Core","0.95-20261108",coreName,
-    "58a1354cac26f5c863a79fab0e710888f264c8d23facaa16a9dab11a4754769b",1115233626L,
-    ReleaseBase+"v0.9.6.0.0/"+coreName,true,null),
-   BuiltinPackage("AIBasic","0.95-20261108",basicName,
-    "c47ab5d456143342ca9efedd8535a0a7270fab13706a22be308cdb14e48ace78",75242L,
-    ReleaseBase+"v0.9.6.0.0/"+basicName,true,null),
-   BuiltinPackage("AIAdvanced","0.95-20261108",advancedName,
-    "7a386c2464e678d642968c9b1315a02827797360fc851a709077a9cf17006389",794723178L,
-    ReleaseBase+"v0.9.6.0.0/"+advancedName,true,null),
-   BuiltinPackage("OCSR","0.95-20261108",ocsrName,
-    "d9977a679f51852d95b3e4348304ad7d133d851397bc61fbb68dff970b032822",833407453L,
-    ReleaseBase+"v0.9.6.0.0/"+ocsrName,true,null)};
+  using(var stream=typeof(OnlineInstaller).Assembly.GetManifestResourceStream("stable.json"))
+  using(var reader=new StreamReader(stream))return ParseFeed(reader.ReadToEnd());
  }
  static Window window; static TextBox folder; static TextBlock status; static ProgressBar bar;
  static Button start,scan,uninstall; static CheckBox mirror,desktopShortcut; static bool busy,managed; static string cache;
@@ -176,7 +147,7 @@ class OnlineInstaller {
   active.Remove(key);done.Add(key);
  }
  static void LoadFeed(){
-  if(feedChecked)return;feedChecked=true;
+  if(feedChecked)return;feedUpgrade=null;
   // Version metadata comes only from the official HTTPS origin. Package mirrors
   // cannot substitute their own checksum manifest.
   foreach(string feedUrl in new[]{"https://raw.githubusercontent.com/chaobada10086/MoleculeStudio/main/updates/stable.json","https://api.github.com/repos/chaobada10086/MoleculeStudio/contents/updates/stable.json?ref=main"})try{
@@ -186,7 +157,7 @@ class OnlineInstaller {
     byte[] buffer=new byte[8192];int n;
     while((n=input.Read(buffer,0,buffer.Length))>0){if(bytes.Length+n>1048576)throw new IOException("版本清单过大");bytes.Write(buffer,0,n);}
     packages=ParseFeed(System.Text.Encoding.UTF8.GetString(bytes.ToArray()));
-    feedStatus=FeedStatus();return;
+    feedChecked=true;feedStatus=FeedStatus();return;
    }
   }catch(IOException error){if(error.Message.IndexOf("安装器",StringComparison.Ordinal)>=0)feedUpgrade=error.Message;}catch{}
   packages=Builtin();
