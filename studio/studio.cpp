@@ -10,6 +10,7 @@
 #include <commdlg.h>
 #include <commctrl.h>
 #include <wincrypt.h>
+#include <winver.h>
 #include <imm.h>
 #include <richedit.h>
 #include <richole.h>
@@ -77,6 +78,8 @@ using namespace studio;
 using r62::integration::Session;
 #include "engine/compact_radicals.hpp"
 #include "engine/diazo.hpp"
+#include "engine/arrow_handle_hit.hpp"
+
 namespace {
 struct MarqueeBackdrop {
     HDC memory=nullptr;HBITMAP bitmap=nullptr;HGDIOBJ previous=nullptr;int width=0,height=0;
@@ -359,10 +362,10 @@ struct App : TextEditHost {
     bool customPlacement=false;std::string customPlacementName;void addCustomTemplate();void transferCustomTemplate(bool importing);void customTemplateMenu();void placeCustomTemplate(Vec2 center);void customTemplateCheck(const std::string& dir);bool customTemplateChecking=false;
     bool reagentPlacing=false;int reagentIndex=0;bool bioPlacing=false,bioPreferencesLoaded=false;int bioIndex=0;std::vector<int> bioRecent;std::shared_ptr<Session> bioSource;
     bool projectionChecking=false;ObjectId projectionAxis(Vec2 point);void convertProjection(ObjectId axis,int kind,int variant);void projectionMenu(int kind);void sugarProjectionMenu();bool editProjectionEndpoint(Vec2 point,bool probe=false,Vec2* capture=nullptr);bool projectionCapture(Vec2 pixel,Vec2* capture=nullptr);void appendProjectionCapture(render::OverlayScene& overlay);bool projectionWasHot=false;
-    ObjectId arrowBendAt(Vec2 pixel,Vec2* point=nullptr);
-    bool arrowBendFeedback(Vec2* point);
-    void appendArrowBendCapture(render::OverlayScene& overlay);
-    bool arrowBendWasHot=false;bool prepareStereoLabels(std::string* output);bool canLabelConfiguration();std::string stereoCacheInput,stereoCacheOutput;bool stereoCacheOk=false;void armProjection(int kind,int variant);
+    ObjectId arrowHandleAt(Vec2 pixel,Vec2* point=nullptr,uint32_t modifiers=mods());
+    bool arrowHandleFeedback(Vec2* point);
+    void appendArrowHandleCapture(render::OverlayScene& overlay);
+    bool arrowHandleWasHot=false;bool prepareStereoLabels(std::string* output);bool canLabelConfiguration();std::string stereoCacheInput,stereoCacheOutput;bool stereoCacheOk=false;void armProjection(int kind,int variant);
     void cancelBioPlacement();void placeBioComponent(Vec2 center);void loadBioPreferences();void rememberBio(int index);
     bool phenalenePlacing=false;ObjectId insertPhenalene(Vec2 center);void cancelPhenalenePlacement();
     bool perspectiveTool=false,perspectiveDragging=false,perspectiveChecking=false;
@@ -563,7 +566,7 @@ void cdxmlColorCheck(const std::string& dir);
     void conformer3D();
     std::vector<ObjectRef> chemicalScope();
     Error finishClone(Vec2 p,uint32_t pointerModifiers=0);
-    WORD canvasCursorId(Vec2 pixel){if(perspectiveTool)return perspectiveDragging||(!s.selected.empty()&&studioio::inside(studioio::selectionBounds(s),s.view().toDocument(pixel)))?32649:32512;if(pan&&!std::getenv("MOLECULE_STUDIO_PAN_LEGACY"))return 32646;if(bioPlacing||ringPlacing||phenalenePlacing||partialChargePlacement||equivalencePlacement||virtualBondTool)return 32515;if(patternPlacing)return 32515;if(radicalPlacing||s.entries[s.activeIndex].command=="chooseSymbolTool_Radical")return 32515;const auto& tool=s.entries[s.activeIndex];bool selection=tool.owner=="T05"&&tool.command.find("Eraser")==std::string::npos;if(down&&s.selectionDragActive())return 32512;if(down&&s.objectDragActive()&&!std::getenv("MOLECULE_STUDIO_MOVE_LEGACY"))return 32646;if(wrapDragging)return 32644;if(transformDragging)return transformHandle==8?32649:32646;Vec2 bendPoint;if((down&&arrowBendFeedback(&bendPoint))||arrowBendAt(pixel)!=kInvalidObjectId)return 32646;if(projectionCapture(pixel))return 32513;if(selection){int hit=selectionHandleAt(pixel);if(s.selected.size()==1&&s.selected.front().kind==ObjectKind::Bond&&(hit==8||studioio::inside(studioio::selectionBounds(s),s.view().toDocument(pixel),s.view().deviceRadiusToDocument(3))))return 32649;if(hit>=0){if(s.dragFixedLength){auto refs=studioio::expanded(s.doc,s.selected);for(auto r:refs)if(r.kind==ObjectKind::Atom&&(hit!=8||s.nearestAtom(s.view().toDocument(pixel),8)!=kInvalidObjectId))return 32646;}return hit==8?32649:(hit==1||hit==6)?32645:(hit==3||hit==4)?32644:(hit==0||hit==7)?32642:32643;}}if(tableDragPending||((ribbonTab==4||selection)&&tableAt(s.view().toDocument(pixel))!=kInvalidObjectId))return 32646;if(selection&&selectionCursorReset)return 32512;if(pan||cloneDragging||(down&&selection&&!s.selected.empty()))return 32646;if(tool.owner=="T09")return 32513;if(selection&&!s.selected.empty()&&studioio::inside(studioio::selectionBounds(s),s.view().toDocument(pixel),s.view().deviceRadiusToDocument(3)))return 32646;return 32512;}
+    WORD canvasCursorId(Vec2 pixel){if(perspectiveTool)return perspectiveDragging||(!s.selected.empty()&&studioio::inside(studioio::selectionBounds(s),s.view().toDocument(pixel)))?32649:32512;if(pan&&!std::getenv("MOLECULE_STUDIO_PAN_LEGACY"))return 32646;if(bioPlacing||ringPlacing||phenalenePlacing||partialChargePlacement||equivalencePlacement||virtualBondTool)return 32515;if(patternPlacing)return 32515;if(radicalPlacing||s.entries[s.activeIndex].command=="chooseSymbolTool_Radical")return 32515;const auto& tool=s.entries[s.activeIndex];bool selection=tool.owner=="T05"&&tool.command.find("Eraser")==std::string::npos;if(down&&s.selectionDragActive())return 32512;if(down&&s.objectDragActive()&&!std::getenv("MOLECULE_STUDIO_MOVE_LEGACY"))return 32646;if(wrapDragging)return 32644;if(transformDragging)return transformHandle==8?32649:32646;Vec2 arrowHandlePoint;if((down&&arrowHandleFeedback(&arrowHandlePoint))||arrowHandleAt(pixel)!=kInvalidObjectId)return 32646;if(projectionCapture(pixel))return 32513;if(selection){int hit=selectionHandleAt(pixel);if(s.selected.size()==1&&s.selected.front().kind==ObjectKind::Bond&&(hit==8||studioio::inside(studioio::selectionBounds(s),s.view().toDocument(pixel),s.view().deviceRadiusToDocument(3))))return 32649;if(hit>=0){if(s.dragFixedLength){auto refs=studioio::expanded(s.doc,s.selected);for(auto r:refs)if(r.kind==ObjectKind::Atom&&(hit!=8||s.nearestAtom(s.view().toDocument(pixel),8)!=kInvalidObjectId))return 32646;}return hit==8?32649:(hit==1||hit==6)?32645:(hit==3||hit==4)?32644:(hit==0||hit==7)?32642:32643;}}if(tableDragPending||((ribbonTab==4||selection)&&tableAt(s.view().toDocument(pixel))!=kInvalidObjectId))return 32646;if(selection&&selectionCursorReset)return 32512;if(pan||cloneDragging||(down&&selection&&!s.selected.empty()))return 32646;if(tool.owner=="T09")return 32513;if(selection&&!s.selected.empty()&&studioio::inside(studioio::selectionBounds(s),s.view().toDocument(pixel),s.view().deviceRadiusToDocument(3)))return 32646;return 32512;}
     bool rotationHot=false;HCURSOR cursorAt(Vec2 point){WORD id=canvasCursorId(point);if(perspectiveTool)return LoadCursorW(0,MAKEINTRESOURCEW(id));return id==32649?rotationPointer(GetDpiForWindow(canvas)):LoadCursorW(0,MAKEINTRESOURCEW(id));}
     void updateCanvasCursor(bool clientMessage=false){++cursorRequests;POINT point;if(!GetCursorPos(&point))return;if(!clientMessage&&GetCapture()!=canvas&&WindowFromPoint(point)!=canvas)return;ScreenToClient(canvas,&point);bool hot=!perspectiveTool&&!transformDragging&&canvasCursorId(Vec2(point.x,point.y))==32649&&selectionHandleAt(Vec2(point.x,point.y))==8;if(hot!=rotationHot){rotationHot=hot;InvalidateRect(canvas,0,FALSE);}SetCursor(cursorAt(Vec2(point.x,point.y)));}
     int shortcutContext()const{if(!pointerOverCanvas)return 1;auto context=s.input.hotspot().context();return context==interaction::HotspotContext::Atom?2:context==interaction::HotspotContext::Bond?3:1;}
@@ -597,7 +600,7 @@ void cdxmlColorCheck(const std::string& dir);
         if(activeArrow){arrowPreset=activeArrow->family==arrows::ArrowFamily::Arc&&activeArrow->presetId!=49&&activeArrow->presetId!=57?58:activeArrow->presetId;syncArrowSurfaces();}
         for(auto& gr:templateGroups)for(auto& b:gr.items)if(b.cmd=="@addCustomTemplate")b.enabled=!s.selected.empty();
         updateInfo();syncTextControls();touched();
-        std::string title="Molecule Studio 1.0.4.0  ·  "+fileName+(s.dirty?" *":"");
+        std::string title="Molecule Studio 1.0.5.0  ·  "+fileName+(s.dirty?" *":"");
         if(title!=lastTitle){lastTitle=title;studio_i18n::setWindowText(h,W(title).c_str());if(host)notifyTitleChanged();}
         std::ostringstream key;key<<s.graphicsWidth<<'|'<<s.graphicsColor<<'|'<<ribbonTab<<'|'<<generationArrowStyle<<'|'<<title<<'|'<<s.activeIndex<<'|'<<info.valid<<'|'<<info.plain<<'|'<<info.mass<<'|'<<s.selected.empty()<<'|'<<shortcutContext()<<'|'<<shortcuts.generation<<'|'<<hover;
         if(key.str()!=lastChrome){lastChrome=key.str();RECT r={0,0,width,top};InvalidateRect(h,&r,FALSE);}
@@ -974,7 +977,7 @@ void cdxmlColorCheck(const std::string& dir);
     void insertionPerformanceCheck(const std::string& dir);
     double lastMovePaintMs=0; bool movePreviewPending=false;Vec2 movePreviewPoint;uint32_t movePreviewModifiers=0;
     void patternPerformanceCheck(const std::string& dir);void moveCheck(const std::string& dir);void interopRingCheck(const std::string& dir);
-    bool viewportZoomPending=false;size_t zoomEvents=0,zoomChromeSyncs=0;
+    bool viewportZoomPending=false;size_t zoomEvents=0,zoomPaints=0,zoomChromeSyncs=0;
     void zoomPerformanceCheck(const std::string& file);
     double lastPreMs=0,lastFrameMs=0;
     std::unique_ptr<render::OverlayScene> panOverlay;
@@ -983,7 +986,7 @@ void cdxmlColorCheck(const std::string& dir);
     double panOverlayScale=0,panOverlayDpi=0;
     void render(){
         double tEnter=now();lastMovePaintMs=tEnter;
-        if(viewportZoomPending){viewportZoomPending=false;updateScrollbars();RECT footer={0,height-int(footerHeight()*scale),width,height};InvalidateRect(h,&footer,FALSE);}
+        if(viewportZoomPending){viewportZoomPending=false;KillTimer(canvas,20);++zoomPaints;updateScrollbars();RECT footer={0,height-int(footerHeight()*scale),width,height};InvalidateRect(h,&footer,FALSE);}
         if(pan&&!std::getenv("MOLECULE_STUDIO_PAN_LEGACY"))updateScrollbars();
         if(insertionPreviewPending){insertionPreviewPending=false;if(fastGraphicTool()&&s.activeIndex==insertionPreviewTool){route(interaction::InputKind::PointerMove,MAKELPARAM(int(insertionPreviewPixel.x),int(insertionPreviewPixel.y)));if(down)error(s.gesture(PointerPhase::Move,insertionPreviewPoint,insertionPreviewModifiers));else if(pointerOverCanvas)if(auto tool=dynamic_cast<arrows::ArrowTool*>(s.entries[s.activeIndex].tool.get()))tool->hoverPreview(s,insertionPreviewPoint,insertionPreviewModifiers);}}
         if(patternPreviewPending){patternPreviewPending=false;if(patternPlacing&&patternDragging)updatePatternPreview();}
@@ -1011,7 +1014,7 @@ void cdxmlColorCheck(const std::string& dir);
             }
         }else{panOverlay.reset();transientOverlay=s.overlay();}
         auto& o=stablePan?*panOverlay:transientOverlay;
-        appendElectronMarkerSelection(o);appendProjectionCapture(o);appendArrowBendCapture(o);
+        appendElectronMarkerSelection(o);appendProjectionCapture(o);appendArrowHandleCapture(o);
 #ifdef MOLECULE_STUDIO_DX11
         if(dx11Renderer)dx11Renderer->setPanOverlay(stablePan?&o.scene():nullptr,panOverlayToken);
 #endif
@@ -1592,8 +1595,9 @@ void App::execute(const Button& b){
         if(textEditor.active&&!finishText(true))return;
         auto expanded=studioio::expanded(s.doc,s.selected);std::vector<ObjectRef> refs(expanded.begin(),expanded.end());studio::branch_direction::Plan plan;
         auto result=studio::branch_direction::resolve(s.doc,refs,&plan);
-        if(result.ok())result=s.submit(studio::branch_direction::command(plan),"支链换向");
-        status=result.ok()?"已将支链换到连接键另一侧 · 可撤销":result.message;updateInfo();updateCanvasCursor();invalidate();return;
+        if(result.ok())result=s.submit(studio::branch_direction::command(plan),"换向");
+        status=result.ok()?(plan.alkene==kInvalidObjectId?"已将支链换到连接键另一侧 · 可撤销":
+            "已沿碳碳双键翻转所选一侧 · 可撤销"):result.message;updateInfo();updateCanvasCursor();invalidate();return;
     }
     if(b.cmd=="@copyPng"){
         if(s.selected.empty()){status="请先选择要复制的结构";invalidate();return;}
@@ -1851,7 +1855,7 @@ void appendSelectionContextMenu(HMENU menu,bool structure,bool hasSelection){
     studio_i18n::appendMenu(menu,MF_STRING,9,L"展开官能团 / 化合物");
     if(structure)studio_i18n::appendMenu(menu,MF_STRING,10,L"收起官能团 / 化合物");
     studio_i18n::appendMenu(menu,MF_STRING,11,L"分子式 / 分子量…");
-    if(structure){studio_i18n::appendMenu(menu,MF_STRING,5,L"预测核磁…");studio_i18n::appendMenu(menu,MF_STRING,6,L"结构转命名");studio_i18n::appendMenu(menu,MF_STRING,kContextBranchDirectionId,L"支链换向");}
+    if(structure){studio_i18n::appendMenu(menu,MF_STRING,5,L"预测核磁…");studio_i18n::appendMenu(menu,MF_STRING,6,L"结构转命名");studio_i18n::appendMenu(menu,MF_STRING,kContextBranchDirectionId,L"换向");}
 }
 
 #include "element_palette_actions.hpp"
@@ -1910,18 +1914,15 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
             if(a->textEditor.active&&!a->finishText(true))return 0;
             if(a->editProjectionEndpoint(s.view().toDocument(pixel)))return 0;
         }
-        // Use the same acquisition halo for hover, cursor and mouse-down.
-        // Only the middle grip is broadened; dragging the shaft still moves it.
-        if(!(pointerModifiers&kModControl)){
-            auto bend=a->arrowBendAt(pixel);
-            if(bend!=kInvalidObjectId){arrows::ArrowParams p;bool valid=false;
-                if(arrows::readArrow(s.doc,bend,&p,&valid).ok()&&valid){
-                    bool selection=s.entries[s.activeIndex].owner=="T05";
-                    if(auto preset=arrows::presetById(p.presetId)){
-                        s.selected={ObjectRef(ObjectKind::Arrow,bend)};s.activateCommand(preset->sourceCommand);
-                        a->selectionArrowEdit=selection;
+        // Use the same handle for hover feedback and mouse-down.
+        if(s.entries[s.activeIndex].owner=="T05"&&!(pointerModifiers&kModControl)){
+            auto arrow=a->arrowHandleAt(pixel,nullptr,pointerModifiers);
+            if(arrow!=kInvalidObjectId){arrows::ArrowParams params;bool valid=false;
+                if(arrows::readArrow(s.doc,arrow,&params,&valid).ok()&&valid)
+                    if(auto preset=arrows::presetById(params.presetId)){
+                        s.selected={ObjectRef(ObjectKind::Arrow,arrow)};
+                        if(s.activateCommand(preset->sourceCommand))a->selectionArrowEdit=true;
                     }
-                }
             }
         }
         if(a->beginElectronMarkerDrag(pixel,pointerModifiers))return 0;
@@ -1935,10 +1936,8 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         if(a->textEditor.active){auto hit=s.pick(s.view().toDocument(pixel));if(!a->finishText(true))return 0;if(s.entries[s.activeIndex].owner=="T09"&&hit.kind!=ObjectKind::Text&&hit.kind!=ObjectKind::Atom){SetFocus(h);a->invalidate();return 0;}}
         if(s.entries[s.activeIndex].owner=="T09"){SetFocus(h);a->textPlacing=true;a->textPress=s.view().toDocument(pixel);SetCapture(h);return 0;}
         if(s.entries[s.activeIndex].owner=="T05"&&s.entries[s.activeIndex].command.find("Eraser")==std::string::npos){
-            auto point=s.view().toDocument(pixel);bool handle=false;
-            if(!(pointerModifiers&kModControl))for(auto r:s.selected)if(r.kind==ObjectKind::Arrow){arrows::ArrowParams params;bool ok=false;if(arrows::readArrow(s.doc,r.id,&params,&ok).ok()){for(auto hnd:arrows::arrowHandles(params,s.doc.defaultLineWidth(),arrows::Tessellation()))if(core::length(hnd.point-point)<s.view().deviceRadiusToDocument(6)){auto preset=arrows::presetById(params.presetId);if(preset){s.activateCommand(preset->sourceCommand);a->selectionArrowEdit=handle=true;}break;}}if(handle)break;}
-            if(!handle&&!(pointerModifiers&kModControl)){auto hit=s.pick(point);if(hit.kind==ObjectKind::Arrow){arrows::ArrowParams params;bool valid=false;if(arrows::readArrow(s.doc,hit.id,&params,&valid).ok()&&valid&&!arrows::isMechanismArrow(params)&&!params.virtualBond&&length(point-arrows::arcMidpoint(params.begin,params.end,params.arcSagitta))<=s.view().deviceRadiusToDocument(6)){auto preset=arrows::presetById(params.presetId);if(preset){s.selected={hit};s.activateCommand(preset->sourceCommand);a->selectionArrowEdit=handle=true;}}}}
-            if(!handle&&(pointerModifiers&kModControl)&&(s.pick(point).valid()||studioio::inside(studioio::selectionBounds(s),point)))a->cloneDragging=true;
+            auto point=s.view().toDocument(pixel);
+            if((pointerModifiers&kModControl)&&(s.pick(point).valid()||studioio::inside(studioio::selectionBounds(s),point)))a->cloneDragging=true;
         }
         a->movePreviewPending=false;a->marqueeBackdrop.clear();a->clickHistory=s.history.cursor();a->clickPoint=s.view().toDocument(pixel);a->lastBondClick=false;SetFocus(h);SetCapture(h);a->down=true;a->route(interaction::InputKind::PointerDown,lp);a->error(s.gesture(PointerPhase::Down,s.view().toDocument(pixel),pointerModifiers));
         if(a->cloneDragging){a->clonePress=s.view().toDocument(pixel);a->cloneDelta=Vec2();a->cloneRefs=s.selected;a->cloneSource=std::make_shared<Session>();auto e=studioio::append(s.doc,a->cloneSource->doc,a->cloneRefs,Vec2(),nullptr);if(!e.ok()){a->cloneDragging=false;a->error(e);}else a->cloneSource->refresh();}break;
@@ -1958,7 +1957,7 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         a->updateCanvasCursor();InvalidateRect(h,0,FALSE);return 0;
         }if(a->wrapDragging){a->updateTextWrap(pixel);return 0;}if(a->transformDragging){a->updateSelectionTransform(pixel,pointerModifiers);return 0;}if(a->tableDragPending){a->updateTableDrag(pixel,pointerModifiers);return 0;}a->selectionCursorReset=false;a->pointerOverCanvas=true;{TRACKMOUSEEVENT track={sizeof(track),TME_LEAVE,h,0};TrackMouseEvent(&track);}a->pointerPixel=pixel;if(a->crosshairs)a->invalidate();if(a->cloneDragging){a->cloneDelta=s.view().toDocument(pixel)-a->clonePress;if(pointerModifiers&kModShift){if(std::abs(a->cloneDelta.x)>=std::abs(a->cloneDelta.y))a->cloneDelta.y=0;else a->cloneDelta.x=0;}s.ghost.clear();InvalidateRect(h,nullptr,FALSE);return 0;}if(a->textPlacing){s.ghost.clear();PreviewItem r;r.primitive=PreviewPrimitive::Rect;r.points={a->textPress,s.view().toDocument(pixel)};r.style.colorRGBA=0x999999FF;s.ghost.add(r);a->invalidate();return 0;}{auto old=s.input.hotspot();a->hover.clear();if(a->pan){auto v=s.view();v.center=v.center-(pixel-a->panAt)*v.docPerDevice();a->panAt=pixel;s.setView(v);}else{a->route(interaction::InputKind::PointerMove,lp);if(a->down)a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));if(a->cloneDragging){a->cloneDelta=s.view().toDocument(pixel)-a->clonePress;if(mods()&kModShift){if(std::abs(a->cloneDelta.x)>=std::abs(a->cloneDelta.y))a->cloneDelta.y=0;else a->cloneDelta.x=0;}}}
         auto current=s.input.hotspot();bool changed=old.kind!=current.kind||!(old.object==current.object)||old.point.x!=current.point.x||old.point.y!=current.point.y;
-        bool projectionHot=a->projectionCapture(pixel);changed=changed||projectionHot||a->projectionWasHot;a->projectionWasHot=projectionHot;bool bendHot=a->arrowBendAt(pixel)!=kInvalidObjectId;changed=changed||bendHot||a->arrowBendWasHot;a->arrowBendWasHot=bendHot;a->updateCanvasCursor();a->invalidate(a->pan||a->down||changed);return 0;}
+        bool projectionHot=a->projectionCapture(pixel);changed=changed||projectionHot||a->projectionWasHot;a->projectionWasHot=projectionHot;bool arrowHot=a->arrowHandleAt(pixel,nullptr,pointerModifiers)!=kInvalidObjectId;changed=changed||arrowHot||a->arrowHandleWasHot;a->arrowHandleWasHot=arrowHot;a->updateCanvasCursor();a->invalidate(a->pan||a->down||changed);return 0;}
     case WM_LBUTTONUP:if(a->virtualBondTool){a->virtualBondGesture(PointerPhase::Up,s.view().toDocument(pixel));return 0;}if(a->electronDragAtom!=kInvalidObjectId){a->updateElectronMarkerDrag(pixel,true);return 0;}if(a->down&&a->fastGraphicTool()){a->error(s.gesture(PointerPhase::Move,s.view().toDocument(pixel),pointerModifiers));}a->insertionPreviewPending=false;if(a->patternPlacing){if(a->patternDragging)a->finishPatternPlacement(s.view().toDocument(pixel));return 0;}if(a->wrapDragging){a->finishTextWrap(pixel);return 0;}if(a->transformDragging){a->finishSelectionTransform(pixel,pointerModifiers);return 0;}if(a->tableDragPending){a->finishTableDrag(pixel,pointerModifiers);return 0;}if(a->textPlacing){a->textPlacing=false;ReleaseCapture();s.ghost.clear();auto r=s.pick(a->textPress);double wrap=std::abs(s.view().toDocument(pixel).x-a->textPress.x);if(wrap<s.view().deviceRadiusToDocument(8))wrap=0;if(r.kind==ObjectKind::Text){a->openText(r.id);a->textEditor.pointCaret(pixel);}else{auto endpoint=a->textToolTarget(a->textPress,false);if(endpoint!=kInvalidObjectId)a->openText(kInvalidObjectId,endpoint);else{a->textEditor.begin(kInvalidObjectId,kInvalidObjectId,a->textPress,true,wrap);a->textBackdrop.clear();a->status="文字编辑 · Enter / Esc 保存，Shift+Enter 换行";a->invalidate();}}return 0;}
         if(a->cloneDragging){a->route(interaction::InputKind::PointerUp,lp);a->down=false;a->error(a->finishClone(s.view().toDocument(pixel),pointerModifiers));ReleaseCapture();a->invalidate();return 0;}
         if(a->down){a->route(interaction::InputKind::PointerUp,lp);a->down=false;
@@ -2054,7 +2053,7 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
             else if(choice==14)a->execute(Button("ctxStereo","标注构型","","@stereoLabels"));
             else if(choice==4)a->execute(Button("ctxClean","整理结构","","@clean"));
             else if(choice==7)a->execute(Button("ctxTextTidy","文字整理","","@textTidy"));
-            else if(choice==kContextBranchDirectionId)a->execute(Button("ctxBranchDirection","支链换向","","@branchDirection"));
+            else if(choice==kContextBranchDirectionId)a->execute(Button("ctxBranchDirection","换向","","@branchDirection"));
             else if(choice==12)a->execute(Button("ctxUndoTextTidy","撤销文字整理","","@undoTextTidy"));
             else if(choice==9)a->execute(Button("ctxExpandGroups","展开官能团","","@expandGroups"));
             else if(choice==10)a->execute(Button("ctxCollapseGroups","收起官能团","","@collapseGroups"));
@@ -2071,23 +2070,33 @@ LRESULT CALLBACK canvasProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         return 0;
     }
     case WM_MOUSELEAVE:if(a->virtualBondTool&&!a->down){s.ghost.clear();}if(a->rotationHot){a->rotationHot=false;InvalidateRect(h,0,FALSE);}a->hideNameLinkTip();a->nameLinkTipText.clear();a->pointerOverCanvas=false;a->insertionPreviewPending=false;if(!a->down)if(auto tool=dynamic_cast<arrows::ArrowTool*>(s.entries[s.activeIndex].tool.get()))if(tool->presetId()==49||tool->presetId()==57){s.ghost.clear();s.ghost.mutableHidden().clear();}a->invalidate(false);return 0;
-    case WM_MOUSEWHEEL:{{POINT bandPoint={GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};POINT shellPoint=bandPoint;ScreenToClient(a->h,&shellPoint);float bh=a->tabBandH();if(bh>0&&shellPoint.y/a->scale>=40.f&&shellPoint.y/a->scale<40.f+bh){int delta=GET_WHEEL_DELTA_WPARAM(wp);a->host->scrollBy(delta>0?-60.f:60.f);a->host->layoutTabs(float(a->width)/a->scale);RECT br={0,int(40*a->scale),a->width,int((40+bh)*a->scale)};InvalidateRect(a->h,&br,FALSE);return 0;}}a->cancelTextWrap();a->cancelSelectionTransform();a->cancelTableDrag();if(a->textEditor.active)a->finishText(true);POINT p={GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};ScreenToClient(h,&p);Vec2 pos(p.x,p.y);auto v=s.view();auto anchor=v.toDocument(pos);v.scale=std::max(.02,std::min(80.,v.scale*std::pow(1.15,double(GET_WHEEL_DELTA_WPARAM(wp))/WHEEL_DELTA)));v.center=v.center+anchor-v.toDocument(pos);s.setView(v);
+    case WM_MOUSEWHEEL:{{POINT bandPoint={GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};POINT shellPoint=bandPoint;ScreenToClient(a->h,&shellPoint);float bh=a->tabBandH();if(bh>0&&shellPoint.y/a->scale>=40.f&&shellPoint.y/a->scale<40.f+bh){int delta=GET_WHEEL_DELTA_WPARAM(wp);a->host->scrollBy(delta>0?-60.f:60.f);a->host->layoutTabs(float(a->width)/a->scale);RECT br={0,int(40*a->scale),a->width,int((40+bh)*a->scale)};InvalidateRect(a->h,&br,FALSE);return 0;}}a->cancelTextWrap();a->cancelSelectionTransform();a->cancelTableDrag();if(a->textEditor.active)a->finishText(true);POINT p={GET_X_LPARAM(lp),GET_Y_LPARAM(lp)};ScreenToClient(h,&p);Vec2 pos(p.x,p.y);auto v=s.view();auto anchor=v.toDocument(pos);
+        const double nextScale=std::max(.02,std::min(80.,v.scale*std::pow(1.15,double(GET_WHEEL_DELTA_WPARAM(wp))/WHEEL_DELTA)));
+        ++a->zoomEvents;
+        if(nextScale==v.scale)return 0;
+        v.scale=nextScale;v.center=v.center+anchor-v.toDocument(pos);s.setView(v);
 #ifdef MOLECULE_STUDIO_DX11
         // A wheel gesture is interactive: the renderer may stretch the existing
         // device batch instead of re-tessellating every glyph per notch.  The exact
         // rebuild runs once, 180 ms after the last notch.
         if(a->dx11Renderer)a->dx11Renderer->setInteractive(true);
 #endif
-        ++a->zoomEvents;SetTimer(h,7,180,0);
+        SetTimer(h,7,180,0);
         if(!std::getenv("MOLECULE_STUDIO_ZOOM_LEGACY")){
-            // View-only input: coalesce scrollbars/status to the next painted
-            // frame. Tool/font/formula/cursor syncing waits for gesture end.
-            // Keep every wheel delta (including fractional trackpad deltas).
-            if(!a->viewportZoomPending)InvalidateRect(h,0,FALSE);a->viewportZoomPending=true;return 0;
+            // Commit each anchored zoom immediately, but paint bursts at most once
+            // per display frame so wheel input can keep up with detailed drawings.
+            if(!a->viewportZoomPending){
+                a->viewportZoomPending=true;
+                const double delay=16.0-(App::now()-a->lastMovePaintMs);
+                if(delay<=1.0||!SetTimer(h,20,UINT(std::ceil(delay)),nullptr))InvalidateRect(h,0,FALSE);
+            }
+            return 0;
         }
         ++a->zoomChromeSyncs;
         }break;
-    case WM_TIMER:if(wp==19){a->commitTlcClick();return 0;}if(wp==7){KillTimer(h,7);
+    case WM_TIMER:if(wp==19){a->commitTlcClick();return 0;}
+        if(wp==20){KillTimer(h,20);if(a->viewportZoomPending)InvalidateRect(h,0,FALSE);return 0;}
+        if(wp==7){KillTimer(h,7);KillTimer(h,20);
 #ifdef MOLECULE_STUDIO_DX11
         if(a->dx11Renderer)a->dx11Renderer->setInteractive(false);
 #endif
@@ -2260,7 +2269,7 @@ LRESULT CALLBACK windowProc(HWND h,UINT m,WPARAM wp,LPARAM lp){auto a=(App*)GetW
         }return 0;
     }return DefWindowProcW(h,m,wp,lp);
 }
-void App::screenshot(const std::string& path,bool chrome,bool statusBar){Bitmap bitmap(width,height,PixelFormat32bppARGB);Graphics g(&bitmap);paint(g,chrome,statusBar);g.ResetTransform();if(rc)wglMakeCurrent(dc,rc);auto overlay=s.overlay();appendElectronMarkerSelection(overlay);appendProjectionCapture(overlay);appendArrowBendCapture(overlay);render::RenderStats stats;
+void App::screenshot(const std::string& path,bool chrome,bool statusBar){Bitmap bitmap(width,height,PixelFormat32bppARGB);Graphics g(&bitmap);paint(g,chrome,statusBar);g.ResetTransform();if(rc)wglMakeCurrent(dc,rc);auto overlay=s.overlay();appendElectronMarkerSelection(overlay);appendProjectionCapture(overlay);appendArrowHandleCapture(overlay);render::RenderStats stats;
 #ifdef MOLECULE_STUDIO_DX11
     if(dx11Renderer){dx11Renderer->setCopyPreview(nullptr,Vec2(),0);static const std::vector<dx11::Renderer::RotationTarget> empty;dx11Renderer->setRotationPreview(nullptr,empty,nullptr,0);}
 #endif
@@ -3144,7 +3153,7 @@ static App* createEditorTab(HINSTANCE inst,HWND parent,const std::string& path,b
     App& a=*ap;
     a.tabChild=true;
     a.quitOnDestroy=false;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.4.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.5.0",WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS,0,0,1400,900,parent,0,inst,ap);
     if(!h){delete ap;return nullptr;}
     a.scale=GetDpiForWindow(h)/96.f;
     DragAcceptFiles(h,TRUE);
@@ -3322,7 +3331,7 @@ int WINAPI WinMain(HINSTANCE inst,HINSTANCE,LPSTR,int){apppaths::applyToChildEnv
         return code;
     }
     g_currentApp=&a;
-    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.4.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
+    HWND h=studio_i18n::createWindowEx(0,L"MoleculeStudioShell",L"Molecule Studio 1.0.5.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,&a);
     a.scale=(a.testing||shotMode||perfMode)?1.f:GetDpiForWindow(h)/96.f;{UINT dpi=GetDpiForWindow(h);olepreview::previewDpi()=dpi?dpi:96;}
     SetWindowPos(h,0,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
     studio_i18n::createWindowEx(0,L"MoleculeStudioCanvas",L"",WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS,0,0,100,100,h,0,inst,&a);

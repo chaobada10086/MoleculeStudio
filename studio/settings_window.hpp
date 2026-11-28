@@ -42,7 +42,7 @@ struct StudioSettingsWindow {
     }
     void fillGroups(){auto list=GetDlgItem(hwnd,974);studio_i18n::sendMessage(list,LB_RESETCONTENT,0,0);customgroups::load();for(auto& e:customgroups::entries())studio_i18n::sendMessage(list,LB_ADDSTRING,0,(LPARAM)W(e.name).c_str());if(!customgroups::entries().empty())::SendMessageW(list,LB_SETCURSEL,0,0);updateGroupPreview();}
 
-    enum {kGroups=6,kSkin=9,kCategories=10,kSkinPreset=1011,kSkinHex,kSkinChoose,kSkinReset,kLastControl=kSkinReset};
+    enum {kGroups=6,kSkin=9,kCategories=10,kCurrentVersion=989,kSkinPreset=1011,kSkinHex,kSkinChoose,kSkinReset,kLastControl=kSkinReset};
     studio_ui::SkinSettings skinDraft;
     std::wstring skinPath;
     bool skinDirty=false;
@@ -126,7 +126,23 @@ struct StudioSettingsWindow {
     std::wstring text(int id)const{return AiWindow::controlText(GetDlgItem(hwnd,id));}
     void set(int id,const std::wstring& value){if(id==802)statusSource=value;auto translated=(id==802?studio_i18n::tr(value):value);if(id==926)translated=studio_i18n::tr(translated);if(text(id)!=translated)studio_i18n::setDlgItemText(hwnd,id,translated.c_str());}
     static std::wstring number(double value){wchar_t s[64];swprintf(s,64,L"%.6g",value);return s;}
-    static int group(int id){if(id>=kSkinPreset&&id<=kLastControl)return kSkin;if(id>=1001&&id<=1010)return 0;if(id>=985&&id<=987)return 5;if(id==928||(id>=983&&id<=984))return 8;if(id==980||id==981)return 7;if(id>=970&&id<=974)return 6;if(id==988||id==968)return 5;if(id>=960&&id<=974)return 5;if(id>=950&&id<=953)return 4;if(id>=910&&id<=917)return 0;if(id==927)return 1;if(id>=920&&id<=926)return 1;if(id>=940&&id<=946)return 2;if(id>=930&&id<=932)return 3;return -1;}
+    static std::wstring executableVersion(){
+        wchar_t path[32768]={};
+        const DWORD length=GetModuleFileNameW(nullptr,path,DWORD(sizeof(path)/sizeof(path[0])));
+        if(!length||length>=sizeof(path)/sizeof(path[0]))return {};
+        const DWORD size=GetFileVersionInfoSizeW(path,nullptr);
+        if(!size)return {};
+        std::vector<BYTE> data(size);
+        if(!GetFileVersionInfoW(path,0,size,data.data()))return {};
+        void* info=nullptr;UINT bytes=0;
+        if(!VerQueryValueW(data.data(),L"\\",&info,&bytes)||bytes<sizeof(VS_FIXEDFILEINFO))return {};
+        const auto& version=*static_cast<const VS_FIXEDFILEINFO*>(info);
+        return std::to_wstring(HIWORD(version.dwProductVersionMS))+L"."+
+            std::to_wstring(LOWORD(version.dwProductVersionMS))+L"."+
+            std::to_wstring(HIWORD(version.dwProductVersionLS))+L"."+
+            std::to_wstring(LOWORD(version.dwProductVersionLS));
+    }
+    static int group(int id){if(id>=kSkinPreset&&id<=kLastControl)return kSkin;if(id>=1001&&id<=1010)return 0;if(id>=985&&id<=987)return 5;if(id==928||id==kCurrentVersion||(id>=983&&id<=984))return 8;if(id==980||id==981)return 7;if(id>=970&&id<=974)return 6;if(id==988||id==968)return 5;if(id>=960&&id<=974)return 5;if(id>=950&&id<=953)return 4;if(id>=910&&id<=917)return 0;if(id==927)return 1;if(id>=920&&id<=926)return 1;if(id>=940&&id<=946)return 2;if(id>=930&&id<=932)return 3;return -1;}
     std::vector<DrawingSettings> customStyles;
     DrawingSettings drawingDraft()const{
         DrawingSettings d=*drawing;struct Field{int id;double low,high;double* value;const char* title;};
@@ -302,6 +318,7 @@ struct StudioSettingsWindow {
         // row band as 测试连接 so the page does not get taller and stays inside small windows.
         move(927,right-px(240),px(352),px(240),px(32));
         // Task 10: "更新与关于" page. Only the button can start the downloader.
+        move(kCurrentVersion,x,px(101),content,px(28));
         move(928,x,px(140),px(260),px(36));move(983,x,px(196),content,px(96));move(984,x,px(310),px(460),px(38));
         move(940,x,px(145),px(200),px(230));move(941,x+px(220),px(145),px(144),px(120));
         move(942,x,px(222),px(160),px(32));move(943,x+px(204),px(222),px(160),px(32));
@@ -514,6 +531,11 @@ if(header&&header->idFrom==961&&header->code==LVN_ITEMCHANGED){
         edit(L"https://api.deepseek.com",920);edit(L"",921,ES_PASSWORD);studio_i18n::sendDlgItemMessage(hwnd,921,EM_SETLIMITTEXT,512,0);child(L"BUTTON",L"在这台电脑记住密钥（Windows 加密保存）",922,WS_TABSTOP|BS_AUTOCHECKBOX);
         child(L"COMBOBOX",L"",923,WS_TABSTOP|CBS_DROPDOWN|CBS_AUTOHSCROLL|WS_VSCROLL);studio_i18n::sendDlgItemMessage(hwnd,923,CB_LIMITTEXT,120,0);button(L"获取模型",924);button(L"测试连接",925);child(L"STATIC",L"尚未测试连接",926);
         button(L"另存 AI 绘图 Skill…",927);
+        {
+            const auto version=executableVersion();
+            const auto label=version.empty()?std::wstring(L"Molecule Studio"):L"Molecule Studio "+version;
+            child(L"STATIC",label.c_str(),kCurrentVersion,SS_NOPREFIX);
+        }
         button(L"打开更新下载器…",928);child(L"STATIC",apppaths::packaged()?L"商店版本由 Microsoft Store 自动更新，无需手动下载安装包。":L"更新仅在点击上方按钮时手动启动：本程序不会自动检查更新，也不会自动联网。",983);button(L"另存 AI 绘图 Skill…（无需安装 AI 模组）",984);
         button(L"编辑快捷键…",930);edit(L"",931,ES_MULTILINE|ES_READONLY|WS_VSCROLL);child(L"STATIC",L"支持修改、清除与恢复 默认快捷键。",932);
         child(L"COMBOBOX",L"",940,WS_TABSTOP|CBS_DROPDOWNLIST|WS_VSCROLL);for(auto name:{L"A4",L"A3",L"A5",L"B5 (ISO)",L"US Letter",L"US Legal",L"自定义"})studio_i18n::sendDlgItemMessage(hwnd,940,CB_ADDSTRING,0,(LPARAM)name);

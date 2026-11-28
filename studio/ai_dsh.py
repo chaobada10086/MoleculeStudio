@@ -3,8 +3,8 @@
 The native AI window sets <advanced>1</advanced> when the user enables 高级绘图.
 This module only launches the bundled headless DSH; the assistant bridge keeps the
 canvas tools, validates every returned call and applies the resulting actions in
-one undo transaction. DSH never receives the API key on disk and never writes
-outside its workspace.
+one undo transaction. Each worker receives a private workspace and a temporary
+loopback credential. OS-level enforcement depends on the installed DSH runtime.
 """
 from __future__ import annotations
 
@@ -12,12 +12,16 @@ import json
 import os
 import re
 import subprocess
+import shutil
+import tempfile
+import uuid
+from contextlib import contextmanager
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
 DEFAULT_CORE = BASE / "ai"
 LEGACY_CORE = BASE / "AI 套件" / "dsh_core"
-DEFAULT_WORKSPACE = Path.home() / "Documents" / "MoleculeStudio Workspace"
+
 
 
 def core_dir() -> Path:
@@ -32,24 +36,62 @@ def runtime_paths(core: Path):
     return core / "node" / "node.exe", core / "dsh" / "node_modules" / "@deepseek-ai" / "dsh" / "lib" / "bin.js"
 
 
-def _writable(path: Path) -> bool:
+def _lock_lease(stream):
+    # The OS releases the lease if the native host kills the Python worker.
+    if os.name == "nt":
+        import msvcrt
+        stream.seek(0)
+        msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def _remove_session(root, session):
+    if (session.parent == root and re.fullmatch(r"run-[0-9a-f]{32}", session.name)
+            and session.resolve() == session):
+        shutil.rmtree(session)
+
+
+def _reap_sessions(root):
+    for session in root.glob("run-*"):
+        lease = session / "lease"
+        try:
+            if (not re.fullmatch(r"run-[0-9a-f]{32}", session.name)
+                    or session.resolve() != session or lease.resolve() != lease
+                    or not (session / "work").is_dir()):
+                continue
+            with lease.open("r+b") as stream:
+                _lock_lease(stream)
+            # Each session name has one creator and is never reused.
+            _remove_session(root, session)
+        except OSError:
+            continue
+
+
+@contextmanager
+def task_workspace():
+    parent = Path(os.environ.get("LOCALAPPDATA") or tempfile.gettempdir())
+    root = parent / "MoleculeStudio" / "AI" / "sessions"
+    root.mkdir(parents=True, exist_ok=True)
+    root = root.resolve()
+    _reap_sessions(root)
+    session = root / ("run-" + uuid.uuid4().hex)
+    session.mkdir(mode=0o700)
     try:
-        path.mkdir(parents=True, exist_ok=True)
-        probe = path / ".write-test"
-        probe.write_text("", encoding="utf-8")
-        probe.unlink()
-        return True
-    except OSError:
-        return False
-
-
-def workspace_dir() -> Path:
-    configured = os.environ.get("MOLECULE_STUDIO_WORKSPACE")
-    fallback = Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "MoleculeStudio" / "AI" / "dsh_workspace"
-    for candidate in (Path(configured) if configured else DEFAULT_WORKSPACE, fallback):
-        if _writable(candidate):
-            return candidate
-    return fallback
+        with (session / "lease").open("x+b") as lease:
+            lease.write(b"1")
+            lease.flush()
+            _lock_lease(lease)
+            workspace = session / "work"
+            workspace.mkdir(mode=0o700)
+            yield workspace
+    finally:
+        try:
+            _remove_session(root, session)
+        except OSError:
+            # A scanner or a terminating child may still hold a file open.
+            pass
 
 
 def available() -> bool:
@@ -69,7 +111,7 @@ def _clean(text: str) -> str:
     return re.sub(r"\x1b\[[0-9;?]*[A-Za-z]", "", text or "")
 
 
-def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base_url: str = "", model: str = "") -> str:
+def run_task(task: str, session_token: str, *, workspace: Path, base_url: str, timeout: float = 1800, progress=None, model: str = "") -> str:
     """Run one headless DSH task and return its final message.
 
     MOLECULE_STUDIO_DSH_STUB may point at a text file; it is used by the offline
@@ -81,13 +123,18 @@ def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base
     if not available():
         raise ValueError("高级绘图组件不完整，请修复或重新安装 AI 套件")
     core = core_dir()
-    workspace = workspace_dir()
-    workspace.mkdir(parents=True, exist_ok=True)
     node, binary = runtime_paths(core)
     overlay = core / "overlay.yml"
-    env = os.environ.copy()
-    env["DEEPSEEK_API_KEY"] = api_key
-    env["DSH_HOME"] = str(core / "home")
+    runtime = workspace.parent / "runtime"
+    runtime.mkdir(exist_ok=True)
+    env = {name: os.environ[name] for name in
+           ("SystemRoot", "WINDIR", "COMSPEC", "PATHEXT", "LANG", "LC_ALL", "NUMBER_OF_PROCESSORS")
+           if name in os.environ}
+    for name in ("HOME", "USERPROFILE", "LOCALAPPDATA", "APPDATA", "TEMP", "TMP", "TMPDIR"):
+        env[name] = str(runtime)
+    env["DEEPSEEK_API_KEY"] = session_token
+    env["DSH_HOME"] = str(runtime / "dsh")
+    env["NO_PROXY"] = "127.0.0.1,localhost"
     env["DSH_PERMISSION_MODE"] = "workspace-write"
     env["DSH_TELEMETRY_DISABLED"] = "1"
     if base_url:
@@ -95,7 +142,12 @@ def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base
     if model:
         env["MOLECULE_STUDIO_DSH_MODEL"] = model
     python_dir = BASE / "python"
-    env["PATH"] = (str(python_dir) + ";" if python_dir.is_dir() else "") + str(node.parent) + ";" + env.get("PATH", "")
+    paths = [str(node.parent)]
+    if python_dir.is_dir():
+        paths.append(str(python_dir))
+    if os.name == "nt":
+        paths.append(str(Path(env["SystemRoot"]) / "System32"))
+    env["PATH"] = os.pathsep.join(paths)
     command = [str(node), str(binary), "headless", "--patch", str(overlay), "--", "-"]
     if progress:
         progress("高级绘图：正在规划…")
@@ -115,7 +167,7 @@ def run_task(task: str, api_key: str, timeout: float = 1800, progress=None, base
     except subprocess.TimeoutExpired:
         raise ValueError("高级绘图超过 %d 秒未完成，已终止；请拆分任务后重试" % timeout)
     if result.returncode:
-        detail = _clean(result.stderr or result.stdout).strip()[-1200:]
+        detail = _clean(result.stderr or result.stdout).replace(session_token, "[redacted]").strip()[-1200:]
         raise ValueError("高级绘图执行失败：" + (detail or "未知错误"))
     output = _clean(result.stdout).strip()
     if not output:

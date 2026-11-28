@@ -1,4 +1,4 @@
-"""Local attachment decoding. Host attachments and explicitly requested local paths are supported."""
+"""Local attachment decoding. Only host-selected attachments are accepted."""
 import base64
 import io
 from contextlib import closing
@@ -7,12 +7,11 @@ from pathlib import Path
 PDF_TOOL = {
     "type": "function", "function": {
         "name": "read_pdf_pages",
-        "description": "读取附件或 path 指定的本地 PDF 页面，或本地图片（pages=[1]），返回原图与文字供核对。页码从1开始，每次最多4页。先查看目录定位合成路线和实验步骤，再分批读取相关页；不能仅凭目录猜结构。",
+        "description": "读取本轮附件中的 PDF 页面或图片（pages=[1]），返回原图与文字供核对。页码从1开始，每次最多4页。先查看目录定位合成路线和实验步骤，再分批读取相关页；不能仅凭目录猜结构。",
         "parameters": {"type": "object", "properties": {
-            "attachment": {"type": "integer", "description": "附件编号，与path二选一"},
-            "path": {"type":"string", "description":"本地图片/PDF绝对路径，或相对AI工作区的路径，与attachment二选一"},
+            "attachment": {"type": "integer", "description": "本轮附件编号，从1开始"},
             "pages": {"type": "array", "items": {"type": "integer"}, "minItems": 1, "maxItems": 4}
-        }, "required": ["pages"], "additionalProperties": False}
+        }, "required": ["attachment", "pages"], "additionalProperties": False}
     }
 }
 
@@ -129,8 +128,8 @@ class Attachments:
         self.content.extend(blocks)
 
     def read_pages(self, args):
-        if not isinstance(args,dict) or set(args)-{'attachment','path','pages'} or 'pages' not in args:
-            raise ValueError('需要 pages 及 path 或 attachment')
+        if not isinstance(args,dict) or set(args)-{'attachment','pages'} or 'pages' not in args:
+            raise ValueError('需要 pages 和本轮附件编号 attachment')
         from ai_local_sources import resolve_source
         number,source,_,count=resolve_source(self,{k:v for k,v in args.items() if k!='pages'})
         path=source['path'];pages=args['pages']

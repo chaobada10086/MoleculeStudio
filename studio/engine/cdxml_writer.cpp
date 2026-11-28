@@ -518,6 +518,10 @@ void emitText(Writer& writer, const core::TextRecord& text) {
     // association survives a CDXML round trip.
     {
         const core::ExtensionBag& linkBag = document.extensions(ObjectRef(ObjectKind::Text, text.id));
+        if(auto stored=linkBag.findValue("studio.stereo.owner")){
+            const auto owners=linkRefsToFileIds(writer,namelink::decodeRefs(*stored));
+            if(owners.size()==1)attribute(out,"MoleculeStudioStereoOwner",namelink::encodeRefs(owners));
+        }
         const std::string* digest = linkBag.findValue("studio.nameLink.digest");
         if (digest && !digest->empty()) {
             std::string value = *digest;

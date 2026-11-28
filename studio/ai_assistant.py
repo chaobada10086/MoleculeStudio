@@ -55,10 +55,10 @@ STRUCTURE_RECONSTRUCTION_POLICY = """【依据原图重建结构：先识别、�
 本规则适用于从论文、PDF、截图或图片中复原真实化学结构，也适用于 draw_reaction/draw_scheme 等组合绘图中的每一个结构。
 1. 先检查原结构是否有工具可读取的 OLE/原生可编辑结构、明确可靠的系统命名或 SMILES。有则优先使用对应结构数据，并核对是否确为原图所示化合物；工具不支持提取 OLE 或解析命名时不得声称已经完成。
 2. 只有结构图片、缺少上述可靠结构数据时，必须先从原资料中截取该结构，送入本地 OCSR（图片转结构）识别。不能凭记忆、反应条件、图注、编号或相邻中间体推测完整结构，不能用相似化合物替代。不要先编造中间体 SMILES 再绘制。
-3. OCSR和read_pdf_pages均可直接用path读取任何明确指定的本地图片/PDF（绝对路径或相对AI工作区路径），不要求本轮上传；path与attachment二选一。read_pdf_pages(path=..., pages=[1])也能查看本地图片。PDF 先查看相关页面；多结构页面先用 detect_structure_regions 定位。以单个完整结构为单位使用返回的 crop，保留全部原子、保护基、取代基和楔键，去掉相邻反应箭头、条件及其他结构。自动检测框不完整时，对照页面修正裁剪区域，不要盲目沿用错误框。
+3. OCSR和read_pdf_pages只读取本轮附件，以attachment编号选择。PDF 先查看相关页面；多结构页面先用 detect_structure_regions 定位。以单个完整结构为单位使用返回的 crop，保留全部原子、保护基、取代基和楔键，去掉相邻反应箭头、条件及其他结构。自动检测框不完整时，对照页面修正裁剪区域，不要盲目沿用错误框。
 4. 优先 recognize_regions(stage=false, regions=[...]) 取得候选，先识别而不插入。识别输出必须能提供足够的候选结构内容或预览图，才能与原图核对；原子数、分子式、置信度或“通过质量门”本身不代表结构一致。
 5. 将原图裁剪区域与候选结构/二维重绘预览逐项比对：原子及杂原子、连接关系、键级、环大小和稠合/桥连关系、取代位置、保护基、标签、形式电荷、同位素、实楔/虚楔和 E/Z。原图未指定的立体信息必须保持未指定；不能猜补，也不能为绕过校验而删除原图已有立体信息。
-6. 如有差异，按差异调整裁剪框、分辨率或识别设置后重新识别，或在可用工具支持且原图证据明确时修订候选，再重新生成预览并完整核对。重复“识别→比对→修正→再比对”，直到关键结构信息与原图一致。重识别或修订产生的新候选必须重新核对，不得沿用旧候选的通过结论。
+6. 如有差异，按差异调整裁剪框、分辨率或识别设置后重新识别，或在原图证据明确时用 trace_coordination_structure 按原子和键重绘该结构，按原图保留实楔、虚楔的端点方向，再重新生成预览并完整核对。重复“识别→比对→修正→再比对”，直到关键结构信息与原图一致。重识别或修订产生的新候选必须重新核对，不得沿用旧候选的通过结论。
 7. 只有确认与原图一致后，才将通过核对的候选插入最终画布，或交给 draw_reaction/draw_scheme 排版。若某工具只能识别并暂存，暂存不代表已确认；未通过核对的候选必须在本轮提交前移除，不能随最终动作提交。
 8. 不得编造已经查看过的原图、候选预览、修正动作或比对结论。工具未提供必要的结构/预览/立体信息、图像不清晰，或在当前工具与时间范围内仍有歧义时，保持该结构未插入，明确标出来源页码、结构编号和未确认的位置；不能为了完成数量而硬凑，也不能无进展地无限重试。
 """
@@ -113,7 +113,7 @@ SYSTEM += "\n" + MECHANISM_GUIDE
 
 TOOLS = [
     tool("correct_coordination_candidate", "依据用户原图核对当前 OCSR 候选并提交。只填需要修改的项目，编号从1开始。atom_edits 每项为 '编号 标签 电荷 孤对数'，显式碳写 [C]；bond_edits 每项为 '起点 终点 键级'，方向按供体到受体，键级 1/2/3/dative，删除写 remove。", {"atom_edits":{"type":"array","items":STR},"bond_edits":{"type":"array","items":STR}}, ["atom_edits","bond_edits"]),
-    tool("trace_coordination_structure", "从已查看的配合物原图逐点描绘。当 OCSR 漏掉金属、缩写或配位箭头时按可见证据修正。atoms 逐项写 '符号 x y [形式电荷 [孤对数]]'，显式碳写 [C]。包括隐式碳顶点和缩写，每条 bonds 写 '起点编号 终点编号 键级'。编号从1开始，键级1/2/3/dative，配位键从供体指向受体。保持原图比例，普通键长约30。", {"atoms":{"type":"array","items":STR},"bonds":{"type":"array","items":STR}, **POS}, ["atoms","bonds"]),
+    tool("trace_coordination_structure", "按已查看的文献结构逐个原子描绘有机分子或配合物。atoms 逐项写 '符号 x y [形式电荷 [孤对数]]'，显式碳写 [C]。包括隐式碳顶点和缩写，每条 bonds 写 '起点编号 终点编号 键级 [样式]'。编号从1开始，键级1/2/3/dative，配位键从供体指向受体。单键可附 wedge（实楔）、hash（虚楔）或 bold（粗键）；楔尖在起点。保持原图比例，普通键长约30。", {"atoms":{"type":"array","items":STR},"bonds":{"type":"array","items":STR}, **POS}, ["atoms","bonds"]),
     tool("lookup_compound", "联网查询 PubChem 化合物结构，使用英文名称或 CAS 号。返回 CID、分子式、立体 SMILES、来源。", {"name": STR}, ["name"]),
     tool("draw_compound", "绘制本轮 lookup_compound 已确认的 CID，保留立体化学，可编辑且可撤销。", {"cid": {"type": "integer"}, **POS, **STYLE, **LAYOUT}, ["cid"]),
     tool("draw_smiles", "绘制用户提供的 SMILES 或用户明确请求的假想结构。真实已命名分子应检索数据库。", {"smiles": STR, "keep_explicit_hydrogens":{"type":"boolean","description":"保留输入 SMILES 中单独列出的 [H] 原子，供电子箭头绑定"},
@@ -123,28 +123,25 @@ TOOLS = [
     tool("draw_shape", "绘制基本图形。x,y 为左上角，x2,y2 为右下角；直线则是两端。", {"shape": {"type": "string", "enum": ["line", "rectangle", "ellipse"]}, **POS, "x2": NUM, "y2": NUM, **STYLE}, ["shape", "x", "y", "x2", "y2"]),
     tool("draw_arrow", "绘制箭头。机理箭头优先指定 source 和 target 的原子或键引用；坐标靠近分子时会吸附至端点。", {"style": {"type": "string", "enum": ["forward", "equilibrium", "retrosynthetic", "both", "mechanism"]}, "source":STR,"target":STR, "bend": NUM, "head": NUM, "route": {"type":"boolean"}, "fishhook": {"type":"boolean"}, **POS, "x2": NUM, "y2": NUM, **STYLE}, ["style"]),
     tool("add_text", "添加文字标签，x,y 是文字基线位置。", {"text": STR, **POS, "size": NUM, "color": STR}, ["text", "x", "y"]),
-    tool("recognize_and_draw_structure", "调用本地图片转结构识别附件或path指定的本地图片/PDF选区，将结果暂存为可编辑结构；返回原子、键、置信度及立体校验警告。需要对照原图核对，勿把置信度当正确率。", {
-        "attachment": {"type":"integer", "description":"附件编号，从1开始；与path二选一"},
-        "path": {"type":"string", "description":"LLM明确指定的本地图片/PDF绝对路径，或相对AI工作区路径；与attachment二选一，不限本轮附件"},
+    tool("recognize_and_draw_structure", "调用本地图片转结构识别本轮附件中的图片/PDF选区，将结果暂存为可编辑结构；返回原子、键、置信度及立体校验警告。需要对照原图核对，勿把置信度当正确率。", {
+        "attachment": {"type":"integer", "description":"本轮附件编号，从1开始"},
         "page": {"type":"integer", "description":"PDF 页码，从1开始，图片为1"},
         "crop": {"type":"array", "items":{"type":"number"}, "minItems":4, "maxItems":4,
                  "description":"单个完整结构的 [左,上,宽,高]，均为相对于整页的0–1坐标；省略代表整张图"},
-        **POS, **STYLE}, []),
-    tool("detect_structure_regions", "自动检测附件或path指定的本地PDF页或图片上的候选化学结构区域。返回每个区域的 [左,上,宽,高] 0–1 坐标、像素框、评分、路径数和预览图路径；用于整页/多条合成路线，不需要凭肉眼猜 crop。", {
-        "attachment": {"type":"integer", "description":"附件编号，从1开始；与path二选一"},
-        "path": {"type":"string", "description":"LLM明确指定的本地图片/PDF绝对路径，或相对AI工作区路径；与attachment二选一，不限本轮附件"},
+        **POS, **STYLE}, ["attachment"]),
+    tool("detect_structure_regions", "自动检测本轮附件中的PDF页或图片上的候选化学结构区域。返回每个区域的 [左,上,宽,高] 0–1 坐标、像素框、评分、路径数和预览图路径；用于整页/多条合成路线，不需要凭肉眼猜 crop。", {
+        "attachment": {"type":"integer", "description":"本轮附件编号，从1开始"},
         "page": {"type":"integer", "description":"PDF 页码，从1开始，图片为1"},
-        "min_score": {"type":"number", "minimum":0, "maximum":1}, "max_regions": {"type":"integer", "minimum":1, "maximum":120}}, []),
+        "min_score": {"type":"number", "minimum":0, "maximum":1}, "max_regions": {"type":"integer", "minimum":1, "maximum":120}}, ["attachment"]),
     tool("recognize_regions", "批量识别指定区域或自动检测到的全部结构；默认只把通过本地质量门的结构按网格暂存到画布。regions 省略时先自动检测。返回每个区域的结果、置信度和警告。", {
-        "attachment": {"type":"integer", "description":"附件编号，从1开始；与path二选一"},
-        "path": {"type":"string", "description":"LLM明确指定的本地图片/PDF绝对路径，或相对AI工作区路径；与attachment二选一，不限本轮附件"},
+        "attachment": {"type":"integer", "description":"本轮附件编号，从1开始"},
         "page": {"type":"integer", "description":"PDF 页码，从1开始，图片为1"},
         "regions": {"type":"array", "items": {"type":"array", "items": {"type":"number"},
                     "minItems": 4, "maxItems": 4},
                     "description":"可选；每个 [左,上,宽,高] 为 0–1 相对坐标；省略则自动检测"},
         "stage": {"type":"boolean", "description":"默认 true；只暂存通过质量门的结构，false 时只返回结果"},
         "min_score": {"type":"number", "minimum":0, "maximum":1}, "min_height": {"type":"number", "minimum":0}, "max_regions": {"type":"integer", "minimum":1, "maximum":40},
-        **POS, **STYLE}, []),
+        **POS, **STYLE}, ["attachment"]),
     tool("insert_recognized_structure", "插入用户在“文献结构识别（OCSR）”窗口中确认过的最近一个结构；只读取程序目录内的固定审核记录，不接受任意文件路径。返回 PDF 来源、页码、裁剪区域和审核状态。", {**POS, **STYLE}),
     tool("style_selection", "更改已选中结构的颜色和/或线宽。", STYLE),
     tool("move_selection", "平移已选中对象。dx,dy 是相对偏移（磅）。", {"dx": NUM, "dy": NUM}, ["dx", "dy"]),
@@ -453,8 +450,8 @@ class DrawingTools(EditingTools):
     def set_page_layout(self, args):
         width = number(args, "width_mm", float(self.context.get("page_width_mm", 210)), 25.4, 5080)
         height = number(args, "height_mm", float(self.context.get("page_height_mm", 297)), 25.4, 5080)
-        across = args.get("across", self.context.get("page_across", 1))
-        down = args.get("down", self.context.get("page_down", 1))
+        across = args["across"] if "across" in args else int(self.context.get("page_across", 1))
+        down = args["down"] if "down" in args else int(self.context.get("page_down", 1))
         for label, value in (("across", across), ("down", down)):
             if isinstance(value, bool) or not isinstance(value, (int, float)) or int(value) != value or not 1 <= int(value) <= 20:
                 raise ValueError(label + " 必须是 1–20 的整数")
@@ -640,13 +637,23 @@ class DrawingTools(EditingTools):
                     ET.SubElement(ET.SubElement(n,"t"),"s").text = label
             seen = set()
             for i, entry in enumerate(bonds):
-                start,end,order = str(entry).split()
+                fields = str(entry).split()
+                if len(fields) not in (3, 4):
+                    raise ValueError("键需要起点、终点、键级和可选的单键样式")
+                start, end, order = fields[:3]
+                display = None
+                if len(fields) == 4:
+                    display = {"wedge": "WedgeBegin", "hash": "WedgedHashBegin", "bold": "Bold"}.get(fields[3])
+                    if order != "1" or display is None:
+                        raise ValueError("单键样式应为 wedge、hash 或 bold")
                 a,b = int(start),int(end)
                 pair = tuple(sorted((a,b)))
                 if not 1 <= pair[0] < pair[1] <= len(atoms) or pair in seen or order not in ("1","2","3","dative"):
                     raise ValueError("无效或重复的键")
                 seen.add(pair)
-                ET.SubElement(fragment,"b",id=str(len(atoms)+i+1),B=str(a),E=str(b),Order=order)
+                bond = ET.SubElement(fragment,"b",id=str(len(atoms)+i+1),B=str(a),E=str(b),Order=order)
+                if display:
+                    bond.set("Display", display)
             orient_coordination_bonds(root)
             node = ET.Element("molecule",x=str(number(args,"x",self.molecules*120)),y=str(number(args,"y",0)))
             node.text = ET.tostring(root,encoding="unicode")
@@ -856,7 +863,11 @@ def _advanced_execute(engine, items, limit, progress, attachments=None, deadline
             try:
                 value, blocks = attachments.read_pages(args)
                 from ai_local_sources import save_previews
-                value['preview_images']=save_previews(blocks)
+                if getattr(attachments, "workspace", None) is not None:
+                    value["preview_images"] = save_previews(blocks, attachments.workspace)
+                else:
+                    images = [b for b in blocks if b.get("type") == "image_url"]
+                    attachments.verification_images = (getattr(attachments, "verification_images", []) + images)[-4:]
                 text = "\n".join(str(block.get("text", "")) for block in blocks if isinstance(block, dict) and block.get("type") == "text")
                 results.append({"tool": name, "arguments": args, "ok": True, "result": (json.dumps(value, ensure_ascii=False) + "\n" + text)[:6000]})
             except Exception as exc:
@@ -912,13 +923,13 @@ def _advanced_result(request, engine, plugins, message, executions=(), warnings=
     return result
 
 
-def _stage_attachments(request, ai_dsh):
+def _stage_attachments(request, workspace):
     import re as _re
     import shutil
     import uuid
     from pathlib import Path
     try:
-        target = ai_dsh.workspace_dir() / "molecule_studio_attachments"
+        target = workspace / "molecule_studio_attachments"
         target.mkdir(parents=True, exist_ok=True)
     except Exception:
         return []
@@ -1089,7 +1100,12 @@ def single_structure_upload(request, prompt):
 
 
 def run_advanced(request, progress=lambda message: None):
-    """Plan with DSH, execute locally, then let DSH verify and correct."""
+    from contextlib import ExitStack
+    with ExitStack() as resources:
+        return _run_advanced(request, progress, resources)
+
+
+def _run_advanced(request, progress, resources):
     import ai_dsh
     deadline = time.monotonic() + ADVANCED_TIMEOUT_SECONDS
     def remaining():
@@ -1111,19 +1127,24 @@ def run_advanced(request, progress=lambda message: None):
         except Exception:
             raise ValueError("高级绘图需要具体模型：请先在 AI 设置中选择模型，不要用 auto")
     use_harness = ai_dsh.available() or bool(__import__("os").environ.get("MOLECULE_STUDIO_DSH_STUB"))
-    base_url = ""
-    if use_harness and urllib.parse.urlsplit(endpoint).hostname != "api.deepseek.com":
+    workspace = None
+    adapter = None
+    if use_harness:
         import dsh_proxy
-        try:
-            base_url = dsh_proxy.start_adapter(endpoint, key, model_name).url
-        except Exception as exc:
-            raise ValueError("高级绘图无法启动本地协议适配器：" + str(exc)[:300])
+        workspace = resources.enter_context(ai_dsh.task_workspace())
+        adapter = dsh_proxy.start_adapter(endpoint, key, model_name)
+        resources.callback(adapter.close)
     from ai_attachments import Attachments
     attachments = Attachments(request, progress)
+    attachments.workspace = workspace
+    attachments.verification_images = []
     def plan_turn(task):
         if use_harness:
-            return ai_dsh.run_task(task,key,timeout=remaining(),progress=progress,base_url=base_url,model=model_name)
+            return ai_dsh.run_task(task, adapter.session_token, workspace=workspace, timeout=remaining(),
+                                   progress=progress, base_url=adapter.url, model=model_name)
         payload={"model":model_name,"messages":[attachments.user_message(task)],"stream":False,"max_tokens":8192}
+        if attachments.verification_images:
+            payload["messages"].append({"role":"user", "content":attachments.verification_images})
         reply=request_json(endpoint+"/chat/completions",payload,key,timeout=remaining())
         try:
             content=reply["choices"][0]["message"]["content"]
@@ -1146,7 +1167,7 @@ def run_advanced(request, progress=lambda message: None):
         arrow_guide += "\n" + COPY_GUIDE
     if engine.whole_scheme:
         schema = [tool for tool in schema if tool["name"] in SCHEME_TOOLS]
-    staged = _stage_attachments(request, ai_dsh) if use_harness else []
+    staged = _stage_attachments(request, workspace) if use_harness else []
     attachment_lines = []
     for index, source in enumerate(attachments.sources, 1):
         kind = "PDF" if source["kind"] == "pdf" else "图片"
@@ -1161,8 +1182,8 @@ def run_advanced(request, progress=lambda message: None):
     attachment_text = ""
     if attachment_lines:
         attachment_text = ("附件：\n" + "\n".join(attachment_lines) + "\n"
-            "识别图片/PDF 中的结构时，先调用 detect_structure_regions 定位，再用 recognize_regions(path=本地图片或PDF路径, page=页码, regions=[...], stage=false)，也支持attachment=编号 取得候选；由本地 OCSR 处理，PDF 页码从 1 开始。必须先与原图比对、修正并核实一致，再插入最终结构。"
-            "需要原图或PDF文字时调用 read_pdf_pages(path=本地图片或PDF路径, pages=[...])，也支持attachment=编号。也可以用你的文件/命令工具读取工作区副本。\n\n")
+            "识别图片/PDF 中的结构时，先调用 detect_structure_regions 定位，再用 recognize_regions(attachment=编号, page=页码, regions=[...], stage=false) 取得候选；由本地 OCSR 处理，PDF 页码从 1 开始。必须先与原图比对、修正并核实一致，再插入最终结构。"
+            "需要原图或PDF文字时调用 read_pdf_pages(attachment=编号, pages=[...])。也可以用你的文件/命令工具读取工作区副本。\n\n")
     planning = (
         "[MoleculeStudio 高级绘图 · 规划]\n"
         "本轮由你指挥 MoleculeStudio 的画布工具。你不能直接改画布；"

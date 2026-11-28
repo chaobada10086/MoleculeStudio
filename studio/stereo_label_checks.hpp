@@ -29,6 +29,72 @@ void App::stereoLabelCheck(const std::string& dir){
     require(it!=chemistryQuick.end(),"构型标注 button exists in the chemistry quick group");
     Button stereo=*it;
     require(stereo.label=="构型标注","button label is 构型标注");
+    if(std::getenv("MOLECULE_STUDIO_STEREO_DRAG_CHECK")){
+        for(auto smiles:{"N[C@@H](C)C(=O)O","CC[C@@H](C)O","C/C=C/C","C/C=C\\C"}){
+            build(smiles);execute(stereo);
+            auto texts=s.doc.texts().records();auto text=texts.back();
+            const ObjectRef caption(ObjectKind::Text,text.id);
+            auto raw=s.doc.extensions(caption).findValue("studio.stereo.owner");require(raw!=nullptr,"new label stores an owner");
+            const auto owner=namelink::decodeRefs(*raw).at(0);
+            const bool ez=fullText(s.doc,text.id)=="(E)"||fullText(s.doc,text.id)=="(Z)";
+            require(owner.kind==(ez?ObjectKind::Bond:ObjectKind::Atom),"correct chemical owner type");
+            std::vector<ObjectId> hosts;
+            if(ez){auto bond=s.doc.bonds().alive(owner.id);require(bond&&bond->order==BondOrder::Double,"owner is the double bond");hosts={bond->beginAtom,bond->endAtom};}
+            else{require(s.doc.neighbours(owner.id).size()==3,"owner is the stereocentre");hosts={owner.id};}
+            s.selected.clear();s.activateCommand("chooseSelectionTool_Marquee");s.fit();
+            auto view=s.view();view.scale*=.72;s.setView(view);
+            auto bounds=selection::objectBounds(s.doc,caption);
+            Vec2 grab=(bounds.min+bounds.max)*.5;
+            // Pick actual glyph ink for fonts with large caption ascent/descent.
+            for(const auto& primitive:s.scene.primitives())if(primitive.source==caption&&!primitive.bounds.empty()){
+                auto center=(primitive.bounds.min+primitive.bounds.max)*.5;
+                if(s.pick(center)==caption){grab=center;break;}
+            }
+            require(s.pick(grab)==caption,"test hits caption");
+            auto pos=[&](Vec2 p){auto v=s.view().toDevice(p);return MAKELPARAM(int(std::lround(v.x)),int(std::lround(v.y)));};
+            auto overlay=[&](){render::OverlayScene o;appendElectronMarkerSelection(o);return o.scene().primitives();};
+            auto moved=grab+Vec2(23,12);
+            SendMessageW(canvas,WM_LBUTTONDOWN,MK_LBUTTON,pos(grab));
+            SendMessageW(canvas,WM_MOUSEMOVE,MK_LBUTTON,pos(moved));UpdateWindow(canvas);
+            auto marks=overlay();require(marks.size()==2,"one owner highlight with a halo");
+            const auto& mark=marks[1];
+            require(mark.style.stroke.rgba==0x0078D4FFu&&marks[0].style.stroke.rgba==0xFFFFFFFFu,"blue highlight with a white halo");
+            if(ez){
+                require(mark.points.size()==2&&marks[0].points.size()==2&&length(mark.points[0]-marks[0].points[0])+length(mark.points[1]-marks[0].points[1])<1e-5,"one bar follows the double bond");
+                auto a=s.doc.atoms().alive(hosts[0])->position,b=s.doc.atoms().alive(hosts[1])->position;
+                const auto direction=b-a,segment=mark.points[1]-mark.points[0];
+                require(length(mark.points[0]+mark.points[1]-a-b)<1e-5&&
+                        length(segment-direction*(length(segment)/length(direction)))<1e-5&&
+                        length(segment)>=.69*length(direction)&&length(segment)<=length(direction),
+                        "bar is centered, aligned and confined to the owner bond");
+            }else{
+                const auto body=arrows::mechanismAtomBodyBox(s.doc,*s.doc.atoms().alive(hosts[0]));
+                require(mark.points.size()==49&&length((mark.points[0]+mark.points[24]-body.min-body.max)*.5)<1e-5,"blue ring follows correct atom");
+            }
+            auto token=fullText(s.doc,text.id).substr(1,1);
+            screenshot(dir+"/drag-"+token+".png",false,false);
+            SendMessageW(canvas,WM_LBUTTONUP,0,pos(moved));require(overlay().empty(),"release clears owner feedback");
+            require(length(s.doc.texts().alive(text.id)->position-text.position)>3,"caption moves");
+            s.selected.clear();
+            SendMessageW(canvas,WM_LBUTTONDOWN,MK_LBUTTON,pos(moved));
+            SendMessageW(canvas,WM_MOUSEMOVE,MK_LBUTTON,pos(grab));UpdateWindow(canvas);
+            require(overlay().size()==2,"second drag retains owner");
+            SendMessageW(canvas,WM_KEYDOWN,VK_ESCAPE,0);
+            require(overlay().empty(),"escape clears owner feedback");
+            require(s.save(dir+"/drag-"+token+".cdxml",true).ok(),"save moved label");
+            Session back;require(back.open(dir+"/drag-"+token+".cdxml").ok(),"reopen moved label");
+            auto backText=back.doc.texts().records().front();auto value=back.doc.extensions(ObjectRef(ObjectKind::Text,backText.id)).findValue("studio.stereo.owner");
+            require(value&&namelink::decodeRefs(*value).front().kind==owner.kind,"reopened label resolves to owner");
+            std::vector<ObjectRef> copies;require(studioio::append(s.doc,back.doc,s.all(),Vec2(100,0),&copies).ok(),"copy structure and label");
+            for(auto copy:copies)if(copy.kind==ObjectKind::Text){
+                auto link=back.doc.extensions(copy).findValue("studio.stereo.owner");require(link!=nullptr,"copied owner retained");
+                auto ref=namelink::decodeRefs(*link).front();require(std::find(copies.begin(),copies.end(),ref)!=copies.end(),"copied label follows copied structure");
+            }
+            s.selected.clear();execute(stereo);require(s.doc.stats().aliveTexts==1,"rerunning after drag replaces label");
+        }
+        std::ofstream(dir+"/drag-check.json")<<"{\"passed\":4}";
+        reset();PostQuitMessage(0);return;
+    }
     auto position=size_t(it-chemistryQuick.begin());
     auto image=std::find_if(chemistryQuick.begin(),chemistryQuick.end(),[](const Button& b){return b.cmd=="@textTidy";});
     auto nmr=std::find_if(chemistryQuick.begin(),chemistryQuick.end(),[](const Button& b){return b.cmd=="@nmr";});

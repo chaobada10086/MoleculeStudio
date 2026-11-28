@@ -247,7 +247,7 @@ Error readTextRuns(ReaderContext& ctx, const XMLElement* element, double default
     const char* const allowed[] = { "id", "p", "BoundingBox", "Justification",
                                     "LineHeight", "LineStarts", "CaptionLineHeight",
                                     "TextStrikethrough", "MoleculeStudioTextWidth",
-                                    "MoleculeStudioNameLink" };
+                                    "MoleculeStudioNameLink", "MoleculeStudioStereoOwner" };
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i)
         table.allow(allowed[i]);
     Error r = applyAttributeGate(ctx, element, table, ref, scopeObject);
@@ -600,6 +600,7 @@ void sourceAppearance(ReaderContext& ctx,const XMLElement* element,ObjectRef ref
         for(const char* key:{"Justification","LabelJustification","LabelAlignment","RotationAngle","LineHeight","LineStarts","Visible"})if(auto v=t->Attribute(key))bag.set(std::string("studio.text.")+key,v);
     }
     if(std::string(element->Name()?element->Name():"")=="t")if(const char* link=element->Attribute("MoleculeStudioNameLink"))bag.set("studio.nameLink.raw",link);
+    if(ref.kind==ObjectKind::Text)if(auto owner=element->Attribute("MoleculeStudioStereoOwner"))bag.set("studio.stereo.raw",owner);
     const std::string name=element->Name();if(!element->Attribute("MoleculeStudioPath")&&(name=="graphic"||name=="curve"||name=="embeddedobject")){tinyxml2::XMLPrinter out;element->Accept(&out);bag.set("studio.cdxml.graphic",out.CStr());}
 }
 
@@ -1901,6 +1902,15 @@ static void resolveNameLinks(core::Document& document) {
         if (!text.isAlive()) continue;
         const core::ObjectRef textRef(core::ObjectKind::Text, text.id);
         const core::ExtensionBag& bag = document.extensions(textRef);
+        if(auto owner=bag.findValue("studio.stereo.raw")){
+            const auto refs=namelink::decodeRefs(*owner);
+            if(refs.size()==1){
+                auto it=bySourceId.find(int(refs.front().id));
+                if(it!=bySourceId.end()&&it->second.kind==refs.front().kind)
+                    document.extensions(textRef).set("studio.stereo.owner",namelink::encodeRefs({it->second}));
+            }
+            document.extensions(textRef).erase("studio.stereo.raw");
+        }
         const std::string* raw = bag.findValue("studio.nameLink.raw");
         if (!raw) continue;
         const size_t separator = raw->find(';');

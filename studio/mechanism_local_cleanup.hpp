@@ -150,8 +150,205 @@ inline bool regularizeCarbeneTriangles(Document& doc,const Document& source,cons
         changed|=length(a-doc.atoms().alive(added[0])->position)>1e-7||length(b-doc.atoms().alive(added[1])->position)>1e-7;doc.setAtomPosition(added[0],a);doc.setAtomPosition(added[1],b);
     }return changed;
 }
+// Generated label clearance can leave an arm nearly collinear with a new C=C.
+// Refine terminal substituents around the fixed double-bond axis.
+inline bool regularizeNewAlkenes(Document& doc,const Document& source,const std::vector<ObjectRef>& made){
+    std::set<ObjectId> generated;
+    for(auto ref:made)if(ref.kind==ObjectKind::Atom&&doc.atoms().alive(ref.id))generated.insert(ref.id);
+    if(generated.size()>200)return false;
+    bool changed=false;
+    for(auto ref:made){
+        if(ref.kind!=ObjectKind::Bond)continue;
+        const auto* alkene=doc.bonds().alive(ref.id);
+        if(!alkene||alkene->order!=BondOrder::Double||alkene->semantics!=BondSemantics::Normal||
+            mechanism::step_detail::hasStereoMark(*alkene))continue;
+        const auto* a=doc.atoms().alive(alkene->beginAtom);
+        const auto* b=doc.atoms().alive(alkene->endAtom);
+        if(!a||!b||!generated.count(a->id)||!generated.count(b->id)||
+            a->element!=6||b->element!=6||a->semantics.charge||b->semantics.charge||
+            a->semantics.radical||b->semantics.radical)continue;
+        const auto oldA=studio_mechanism_products::sourceAtom(doc,a->id);
+        const auto oldB=studio_mechanism_products::sourceAtom(doc,b->id);
+        const auto* old=source.bonds().alive(source.bondBetween(oldA,oldB));
+        if(old&&old->order==BondOrder::Double)continue;
+        for(auto pivot:{alkene->beginAtom,alkene->endAtom}){
+            const auto opposite=pivot==alkene->beginAtom?alkene->endAtom:alkene->beginAtom;
+            const Vec2 origin=doc.atoms().alive(pivot)->position;
+            const Vec2 axis=doc.atoms().alive(opposite)->position-origin;
+            const double span=length(axis);
+            if(span<1e-8)continue;
+            const Vec2 direction=axis*(1/span);
+            std::vector<ObjectId> arms;
+            bool terminal=true;
+            for(auto bid:doc.incidentBonds(pivot)){
+                if(bid==ref.id)continue;
+                const auto* bond=doc.bonds().alive(bid);
+                const auto neighbor=bond->beginAtom==pivot?bond->endAtom:bond->beginAtom;
+                if(bond->order!=BondOrder::Single||mechanism::step_detail::hasStereoMark(*bond)||
+                    !generated.count(neighbor)||doc.incidentBonds(neighbor).size()!=1){terminal=false;break;}
+                arms.push_back(neighbor);
+            }
+            if(!terminal||arms.empty()||arms.size()>2)continue;
+            std::vector<Vec2> rays;
+            size_t anchor=0;
+            double lateral=0;
+            bool needsCleanup=false;
+            for(auto id:arms){
+                const auto ray=doc.atoms().alive(id)->position-origin;
+                const double lengthRay=length(ray);
+                if(lengthRay<1e-8)break;
+                const auto unit=ray*(1/lengthRay);
+                const double side=mechanism::step_detail::cross(direction,unit);
+                if(std::abs(side)>std::abs(lateral)){anchor=rays.size();lateral=side;}
+                needsCleanup|=std::abs(dot(direction,unit)+.5)>.04;
+                rays.push_back(ray);
+            }
+            if(rays.size()!=arms.size()||!needsCleanup)continue;
+            Scope local;
+            local.movable.insert(arms.begin(),arms.end());
+            local.atoms.insert(pivot);
+            std::vector<ObjectId> part{pivot};
+            for(size_t i=0;i<part.size();++i)for(auto bid:doc.incidentBonds(part[i])){
+                const auto* bond=doc.bonds().alive(bid);
+                const auto neighbor=bond->beginAtom==part[i]?bond->endAtom:bond->beginAtom;
+                if(generated.count(neighbor)&&local.atoms.insert(neighbor).second)part.push_back(neighbor);
+            }
+            const auto before=quality(doc,local);
+            double bestCrowd=before.crowd,bestMotion=std::numeric_limits<double>::infinity();
+            std::vector<Vec2> winner;
+            for(double side:{-1.,1.}){
+                const double anchorSide=anchor==0?side:-side;
+                if(std::abs(lateral)>.15&&anchorSide*lateral<0)continue;
+                Document trial=doc;
+                std::vector<Vec2> points;
+                double motion=0;
+                for(size_t i=0;i<arms.size();++i){
+                    const auto ray=mechanism::step_detail::rotate(direction,side*(i==0?1.:-1.)*2.09439510239319549)*length(rays[i]);
+                    points.push_back(origin+ray);
+                    trial.setAtomPosition(arms[i],points.back());
+                    motion+=lengthSq(ray-rays[i]);
+                }
+                const double crowd=quality(trial,local).crowd;
+                if(crowd>before.crowd+1e-6||crowd>bestCrowd+1e-6||
+                    (std::abs(crowd-bestCrowd)<=1e-6&&motion>=bestMotion))continue;
+                bestCrowd=crowd;bestMotion=motion;winner=std::move(points);
+            }
+            for(size_t i=0;i<winner.size();++i){
+                doc.setAtomPosition(arms[i],winner[i]);
+                auto& bag=doc.extensions(ObjectRef(ObjectKind::Atom,arms[i]));
+                bag.erase("studio.atom.z");bag.erase("pst.attr.xyz");
+                changed=true;
+            }
+        }
+    }
+    return changed;
+}
+// A copied C–O bond can inherit a small tilt. Use the final ring frame for
+// carbonyls and phenolic oxygens, including their explicitly drawn hydrogen.
+inline bool alignRingOxygens(Document& doc,const std::vector<ObjectRef>& made){
+    using namespace mechanism::step_detail;
+    Scope local;
+    for(auto ref:made)if(ref.kind==ObjectKind::Atom&&doc.atoms().alive(ref.id)&&
+        !static_cast<const Document&>(doc).extensions(ref).findValue(studio_mechanism_products::arrowSideKey))
+        local.atoms.insert(ref.id);
+    if(local.atoms.size()>200)return false;
+    std::vector<Edge> edges;
+    for(const auto& bond:doc.bonds().records())if(bond.isAlive()&&
+        local.atoms.count(bond.beginAtom)&&local.atoms.count(bond.endAtom)&&
+        (bond.semantics==BondSemantics::Normal||bond.semantics==BondSemantics::Aromatic))
+        edges.push_back(edge(bond.beginAtom,bond.endAtom));
+    const RingLayoutGraph graph(edges);
+    bool changed=false;
+    for(const auto& entry:graph.neighbors){
+        const auto id=entry.first;
+        const auto* oxygen=doc.atoms().alive(id);
+        if(oxygen->element!=8||oxygen->semantics.nodeType!=uint8_t(NodeType::Element)||
+            oxygen->semantics.radical||oxygen->semantics.charge>0||entry.second.size()>2||
+            doc.incidentBonds(id).size()!=entry.second.size())continue;
+        ObjectId carbon=kInvalidObjectId,hydrogen=kInvalidObjectId;
+        for(auto neighbor:entry.second){
+            const auto* atom=doc.atoms().alive(neighbor);
+            const auto* bond=doc.bonds().alive(doc.bondBetween(id,neighbor));
+            if(hasStereoMark(*bond))continue;
+            if(atom->element==6)carbon=neighbor;
+            if(atom->element==1&&bond->order==BondOrder::Single&&doc.incidentBonds(neighbor).size()==1)hydrogen=neighbor;
+        }
+        if(carbon==kInvalidObjectId||(entry.second.size()==2&&hydrogen==kInvalidObjectId))continue;
+        const auto* attachment=doc.bonds().alive(doc.bondBetween(id,carbon));
+        const bool carbonyl=attachment->order==BondOrder::Double&&hydrogen==kInvalidObjectId;
+        if(!carbonyl&&attachment->order!=BondOrder::Single)continue;
+        const auto* center=doc.atoms().alive(carbon);
+        const auto& neighbors=graph.neighbors.at(carbon);
+        if(center->semantics.nodeType!=uint8_t(NodeType::Element)||neighbors.size()!=3||
+            doc.incidentBonds(carbon).size()!=3)continue;
+        const auto pivot=center->position;
+        const auto old=oxygen->position-pivot;
+        const double oldLength=length(old);
+        if(oldLength<1e-8)continue;
+        std::vector<ObjectId> ring;
+        bool sp2=carbonyl||center->semantics.aromatic,alignedToPi=false;
+        Vec2 outward;
+        for(auto neighbor:neighbors)if(neighbor!=id){
+            const auto* bond=doc.bonds().alive(doc.bondBetween(carbon,neighbor));
+            const auto arm=doc.atoms().alive(neighbor)->position-pivot;
+            const double armLength=length(arm);
+            if(armLength<1e-8||hasStereoMark(*bond))break;
+            sp2|=bond->order==BondOrder::Double||bond->order==BondOrder::Aromatic||bond->semantics==BondSemantics::Aromatic;
+            // The trigonal layout can already have placed this arm exactly
+            // 120 degrees from a double bond in an irregular ring.
+            alignedToPi|=bond->order==BondOrder::Double&&std::abs(dot(old,arm)/(oldLength*armLength)+.5)<1e-6;
+            outward=outward-arm*(1/armLength);
+            ring.push_back(neighbor);
+        }
+        if(!sp2||alignedToPi||ring.size()!=2||length(outward)<1e-8||graph.path(ring[0],ring[1],{carbon}).empty())continue;
+        const auto turn=std::atan2(cross(old,outward),dot(old,outward));
+        if(std::abs(turn)<1e-7)continue;
+        local.movable={id};
+        if(hydrogen!=kInvalidObjectId)local.movable.insert(hydrogen);
+        Document candidate=doc;
+        for(auto moved:local.movable)
+            candidate.setAtomPosition(moved,pivot+rotate(doc.atoms().alive(moved)->position-pivot,turn));
+        if(quality(candidate,local).crowd>quality(doc,local).crowd+1e-6)continue;
+        for(auto moved:local.movable)
+            doc.setAtomPosition(moved,candidate.atoms().alive(moved)->position);
+        changed=true;
+    }
+    return changed;
+}
+inline Report cleanBranches(HWND owner,Document& doc,const Document& source,const std::vector<ObjectRef>& made){
+    Report result;result.changed=regularizeSmallProducts(doc,source,made);
+    result.changed=regularizeCarbeneTriangles(doc,source,made)||result.changed;
+    result.changed=regularizeNewAlkenes(doc,source,made)||result.changed;
+    auto local=scope(doc,source,made);
+    result.changed=straightenIsocyanates(doc,local.movable)||result.changed;
+    result.movable=local.movable.size();
+    if(local.movable.empty())return result;
+    auto q=quality(doc,local);
+    result.detail="shape="+std::to_string(q.shape)+" crowd="+std::to_string(q.crowd);
+    if(q.crowd<1e-6&&q.shape<.2){result.changed=packFragments(doc,local)||result.changed;return result;}
+    Request input;
+    if(!request(doc,local,input)){result.detail+=" request mapping failed";return result;}
+    result.attempted=true;
+    std::string output,reason;
+    bool applied=false;
+    if(chemservice::run(owner,input.xml,"text/xml","text/xml","clean",&output)){
+        applied=apply(doc,input,output,&reason);
+        result.detail+=" "+reason;
+    }else{
+        result.cancelled=output=="已取消化学服务";
+        result.detail=output;
+        if(result.cancelled)return result;
+    }
+    if(!applied){
+        applied=rebuildNewCycles(doc,local);
+        applied=relax(doc,local)||applied;
+    }
+    result.changed=packFragments(doc,local)||applied||result.changed;
+    return result;
+}
 inline Report run(HWND owner,Document& doc,const Document& source,const std::vector<ObjectRef>& made){
-    Report result;result.changed=regularizeSmallProducts(doc,source,made);result.changed=regularizeCarbeneTriangles(doc,source,made)||result.changed;auto local=scope(doc,source,made);straightenIsocyanates(doc,local.movable);result.movable=local.movable.size();if(local.movable.empty())return result;auto q=quality(doc,local);result.detail="shape="+std::to_string(q.shape)+" crowd="+std::to_string(q.crowd);if(q.crowd<1e-6&&q.shape<.2){result.changed=packFragments(doc,local)||result.changed;return result;}Request input;if(!request(doc,local,input)){result.detail+=" request mapping failed";return result;}
-    result.attempted=true;std::string output;if(!chemservice::run(owner,input.xml,"text/xml","text/xml","clean",&output)){result.cancelled=output=="已取消化学服务";result.detail=output;if(!result.cancelled){result.changed=rebuildNewCycles(doc,local);result.changed=relax(doc,local)||result.changed;result.changed=packFragments(doc,local)||result.changed;}return result;}std::string reason;result.changed=apply(doc,input,output,&reason);if(!result.changed){result.changed=rebuildNewCycles(doc,local);result.changed=relax(doc,local)||result.changed;}result.changed=packFragments(doc,local)||result.changed;result.detail+=" "+reason;return result;
+    auto result=cleanBranches(owner,doc,source,made);
+    if(!result.cancelled)result.changed=alignRingOxygens(doc,made)||result.changed;
+    return result;
 }
 }

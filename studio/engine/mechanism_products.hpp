@@ -6,6 +6,7 @@
 #include <functional>
 namespace studio_mechanism_products {
 using namespace r62::mechanism;
+constexpr const char* arrowSideKey="studio.mechanism.arrow-side";
 inline Error cloneStage(const Document& source,const std::vector<ObjectRef>& selected,Document& prepared,std::vector<ObjectRef>& made){
     std::set<ObjectId> ids;
     for(auto ref:selected)if(ref.kind==ObjectKind::Atom&&source.atoms().alive(ref.id))ids.insert(ref.id);
@@ -23,12 +24,12 @@ inline Error cloneStage(const Document& source,const std::vector<ObjectRef>& sel
     }
     for(const auto& bond:source.bonds().records())if(bond.isAlive()&&ids.count(bond.beginAtom)&&ids.count(bond.endAtom))refs.emplace_back(ObjectKind::Bond,bond.id);
     prepared=source;
-    auto e=studioio::append(source,prepared,refs,Vec2(right-left+120,0),&made);if(!e.ok())return e;
+    const auto arrow=nextStepReactionArrow(source,right,(top+bottom)*.5);
+    auto e=studioio::append(source,prepared,refs,Vec2(arrow.end.x+20-left,0),&made);if(!e.ok())return e;
     std::vector<ObjectId> products;
     for(auto ref:made)if(ref.kind==ObjectKind::Atom)products.push_back(ref.id);
     std::sort(products.begin(),products.end());size_t i=0;
     for(auto id:ids)prepared.extensions(ObjectRef(ObjectKind::Atom,products.at(i++))).set("studio.mechanism.source.atom",std::to_string(id));
-    auto arrow=arrows::resolvePreset(8,Vec2(right+18,(top+bottom)*.5),Vec2(right+100,(top+bottom)*.5),source.defaultLineWidth());
     ObjectId aid;e=arrows::addArrow(prepared,arrow,source.defaultLineWidth(),&aid);
     if(e.ok())made.emplace_back(ObjectKind::Arrow,aid);return e;
 }
@@ -388,6 +389,7 @@ inline Error finish(Document& doc,const Document& source,std::vector<ObjectRef>&
         std::set<std::string> captionRows(above.begin(),above.end());
         const double bottom=middle.y-size*(above.empty()?1.0:2.8+1.6*(captionRows.size()-1));
         double top=bottom-height;
+        std::set<ObjectId> markedAtoms;
         for(size_t i=0;i<aboveFragments.size();++i){
             auto box=boxes[i];const double rowBottom=top+box.max.y-box.min.y;
             const double x=middle.x-(prefixWidth+box.max.x-box.min.x)*.5;
@@ -395,9 +397,20 @@ inline Error finish(Document& doc,const Document& source,std::vector<ObjectRef>&
             ObjectId lossSign;auto signResult=doc.addText(Vec2(x,rowBottom-(box.max.y-box.min.y)*.5+size*.32),size,"\xE2\x88\x92",&lossSign);
             if(!signResult.ok())return signResult;
             doc.extensions(ObjectRef(ObjectKind::Text,lossSign)).set("studio.mechanism.loss-sign","1");
-            made.emplace_back(ObjectKind::Text,lossSign);
-            for(auto id:aboveFragments[i]){auto e=doc.setAtomPosition(id,doc.atoms().alive(id)->position+delta);if(!e.ok())return e;}
+            auto signRef=ObjectRef(ObjectKind::Text,lossSign);
+            doc.extensions(signRef).set(arrowSideKey,"1");
+            made.push_back(signRef);
+            for(auto id:aboveFragments[i]){
+                auto e=doc.setAtomPosition(id,doc.atoms().alive(id)->position+delta);if(!e.ok())return e;
+                doc.extensions(ObjectRef(ObjectKind::Atom,id)).set(arrowSideKey,"1");
+                markedAtoms.insert(id);
+            }
             top=rowBottom+gap;
+        }
+        for(auto ref:made)if(ref.kind==ObjectKind::Bond){
+            const auto* bond=doc.bonds().alive(ref.id);
+            if(bond&&markedAtoms.count(bond->beginAtom)&&markedAtoms.count(bond->endAtom))
+                doc.extensions(ref).set(arrowSideKey,"1");
         }
     }
     if(arrowId!=kInvalidObjectId&&(!above.empty()||!below.empty())){
@@ -427,7 +440,10 @@ inline Error finish(Document& doc,const Document& source,std::vector<ObjectRef>&
                 }
                 addRun(base,kFormula);e=doc.setTextRuns(id,runs);
             }
-            if(!e.ok())return e;made.emplace_back(ObjectKind::Text,id);
+            if(!e.ok())return e;
+            auto ref=ObjectRef(ObjectKind::Text,id);
+            doc.extensions(ref).set(arrowSideKey,"1");
+            made.push_back(ref);
             }return Error();
         };
         auto e=caption(above,middle.y-size*.9,true);if(!e.ok())return e;

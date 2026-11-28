@@ -11,6 +11,7 @@ Security: the server binds to loopback only, holds the API key in memory, never
 logs request bodies, and dies with the bridge process.
 """
 import json
+import secrets
 import threading
 import urllib.error
 import urllib.request
@@ -22,9 +23,15 @@ _CATALOG_MODELS = {"deepseek-flash", "deepseek-chat", "deepseek-reasoner",
                    "deepseek-v4-flash", "deepseek-v4-pro", "deepseek-coder"}
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 class _Adapter:
     def __init__(self, endpoint, key, model, session_header):
         self.endpoint = endpoint.rstrip("/")
+        self.session_token = secrets.token_urlsafe(32)
         self.key = key
         self.model = model
         self.session_header = session_header
@@ -33,6 +40,13 @@ class _Adapter:
         self.thread = None
         self.upstream_calls = 0
         self.last_error = ""
+
+    def close(self):
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
+            self.thread.join()
+            self.server = None
 
     # -- upstream transport -------------------------------------------------
 
@@ -54,7 +68,7 @@ class _Adapter:
                                              data=data, headers=self._headers(accept))
             self.upstream_calls += 1
             try:
-                return urllib.request.build_opener().open(request, timeout=timeout)
+                return urllib.request.build_opener(_NoRedirect()).open(request, timeout=timeout)
             except urllib.error.HTTPError as exc:
                 detail = exc.read().decode("utf-8", "replace")[:400]
                 self.last_error = "HTTP %d: %s" % (exc.code, detail)
@@ -304,8 +318,6 @@ class _Adapter:
         return {"input_tokens": input_tokens, "output_tokens": output_tokens}
 
 
-_ADAPTER = None
-_ADAPTER_LOCK = threading.Lock()
 
 
 class _Handler(BaseHTTPRequestHandler):
@@ -337,7 +349,15 @@ class _Handler(BaseHTTPRequestHandler):
         self._error(404, "this adapter only serves the Anthropic Messages API")
 
     def do_POST(self):
-        adapter = _ADAPTER
+        adapter = self.server.adapter
+        credential = self.headers.get("x-api-key", "")
+        scheme, _, value = self.headers.get("Authorization", "").partition(" ")
+        bearer = value if scheme.lower() == "bearer" else ""
+        if not any(secrets.compare_digest(value.encode("utf-8"), adapter.session_token.encode("ascii"))
+                   for value in (credential, bearer)):
+            self.close_connection = True
+            self._error(401, "unauthorized")
+            return
         try:
             length = int(self.headers.get("Content-Length") or 0)
         except ValueError:
@@ -350,9 +370,6 @@ class _Handler(BaseHTTPRequestHandler):
             request = json.loads(raw)
         except ValueError:
             self._error(400, "request body is not valid JSON")
-            return
-        if adapter is None:
-            self._error(503, "adapter not started")
             return
         path = self.path.split("?")[0].rstrip("/")
         if path.endswith("/messages/count_tokens"):
@@ -420,34 +437,13 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 def start_adapter(endpoint, key, model, session_header="moleculestudio-dsh"):
-    """Start (or reuse) the loopback adapter and return it."""
-    global _ADAPTER
-    with _ADAPTER_LOCK:
-        if _ADAPTER is not None and _ADAPTER.server is not None:
-            return _ADAPTER
-        adapter = _Adapter(endpoint, key, model, session_header)
-        server = None
-        last_error = None
-        for _ in range(3):
-            try:
-                server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
-                break
-            except OSError as exc:
-                last_error = exc
-        if server is None:
-            raise OSError("无法为高级绘图启动本地适配器（绑定 127.0.0.1 失败：" + ((getattr(last_error, "strerror", "") or str(last_error))) + "）") from None
-        adapter.server = server
-        adapter.server.daemon_threads = True
-        adapter.url = "http://127.0.0.1:%d" % adapter.server.server_address[1]
-        adapter.thread = threading.Thread(target=adapter.server.serve_forever,
-                                          kwargs={"poll_interval": 0.5}, daemon=True)
-        adapter.thread.start()
-        _ADAPTER = adapter
-        return adapter
-
-
-def adapter_status():
-    if _ADAPTER is None or _ADAPTER.server is None:
-        return {"running": False}
-    return {"running": True, "url": _ADAPTER.url, "upstream_calls": _ADAPTER.upstream_calls,
-            "last_error": _ADAPTER.last_error[:200]}
+    """Start a loopback adapter scoped to one drawing request."""
+    adapter = _Adapter(endpoint, key, model, session_header)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+    server.adapter = adapter
+    adapter.server = server
+    adapter.url = "http://127.0.0.1:%d" % server.server_address[1]
+    adapter.thread = threading.Thread(target=server.serve_forever,
+                                      kwargs={"poll_interval": 0.1}, daemon=True)
+    adapter.thread.start()
+    return adapter

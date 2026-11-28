@@ -808,6 +808,8 @@ def stereo_labels(source):
     Chem.AssignStereochemistry(mol, cleanIt=True, force=True)
     from rdkit.Chem import rdCIPLabeler
     rdCIPLabeler.AssignCIPLabels(mol)
+    original = {int(e.get('id')): int(e.get('MoleculeStudioStereoOriginal'))
+                for e in root.iter() if e.tag in ('n','b') and e.get('MoleculeStudioStereoOriginal') is not None}
     points = {}
     for node in root.iter('n'):
         if node.get('id') and node.get('p'):
@@ -851,7 +853,7 @@ def stereo_labels(source):
             else: direction = (1.0, 0.0)
         point = _place_label(direction, points[node_id], bond_length * .9, atoms, segments, boxes, node_id, outward_only=bool(own_rings))
         boxes.append(point)
-        records.append('atom\t%d\t%s\t%.4f\t%.4f' % (node_id, label, point[0], point[1]))
+        records.append('atom\t%d\t%s\t%.4f\t%.4f' % (node_id, label, point[0], point[1]) + ('\t%d' % original[node_id] if node_id in original else ''))
     for info in Chem.FindPotentialStereo(mol):
         if info.type != Chem.StereoType.Bond_Double: continue
         if info.specified != Chem.StereoSpecified.Specified:
@@ -872,7 +874,7 @@ def stereo_labels(source):
             direction = (by - ay, ax - bx)
         point = _place_label(direction, middle, bond_length * .5, atoms, segments, boxes, outward_only=bool(own_rings))
         boxes.append(point)
-        records.append('bond\t%d\t%s\t%.4f\t%.4f' % (bond_id, label, point[0], point[1]))
+        records.append('bond\t%d\t%s\t%.4f\t%.4f' % (bond_id, label, point[0], point[1]) + ('\t%d' % original[bond_id] if bond_id in original else ''))
     records.extend(projection_records)
     records.append('skipped\t%d' % skipped)
     return '\n'.join(records) + '\n'

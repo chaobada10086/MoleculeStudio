@@ -193,7 +193,7 @@ inline Box selectionBounds(integration::Session& s){
     owner=&s;document=s.doc.id();serial=s.serial;selection=s.selected;cached=b;return b;
 }
 inline bool inside(const Box& b,Vec2 p,double pad=0){return !b.empty()&&p.x>=b.min.x-pad&&p.x<=b.max.x+pad&&p.y>=b.min.y-pad&&p.y<=b.max.y+pad;}
-inline Error append(const Document& src,Document& dst,const std::vector<ObjectRef>& refs,Vec2 delta,std::vector<ObjectRef>* inserted){
+inline Error append(const Document& src,Document& dst,const std::vector<ObjectRef>& refs,Vec2 delta,std::vector<ObjectRef>* inserted,std::map<ObjectRef,ObjectRef>* mapping=nullptr){
     auto chosen=expanded(src,refs,true);
     std::map<ObjectRef,ObjectRef> map;Error error;
     auto add=[&](ObjectRef old,ObjectId id,Error e){if(!e.ok()){error=e;return;}ObjectRef fresh(old.kind,id);map[old]=fresh;if(inserted)inserted->push_back(fresh);
@@ -206,7 +206,7 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
             v.key=="pst.attr.MoleculeStudioLiteralLabel"||v.key=="pst.attr.MoleculeStudioLonePairColor"||v.key=="pst.attr.MoleculeStudioLonePairPositions"||
             v.key=="pst.attr.MoleculeStudioChargeCircle"||v.key=="pst.attr.BoldWidth"||v.key=="pst.attr.IgnoreWarnings"||v.key=="pst.attr.InterpretChemically"||v.key=="pst.attr.Visible"||v.key=="pst.attr.ElementList"||v.key=="pst.attr.GenericNickname"||
             v.key=="pst.attr.GenericList"||v.key=="pst.attr.SubstituentsUpTo"||v.key=="pst.attr.SubstituentsExactly"||
-            v.key=="pst.attr.UnsaturatedBonds"||v.key=="pst.attr.RingBondCount")&&!namelink::isLinkKey(v.key))dst.extensions(fresh).set(v.key,v.value);
+            v.key=="pst.attr.UnsaturatedBonds"||v.key=="pst.attr.RingBondCount")&&!namelink::isLinkKey(v.key)&&v.key!="studio.stereo.owner")dst.extensions(fresh).set(v.key,v.value);
         if(old.kind==ObjectKind::Bond&&!dst.extensions(fresh).findValue("studio.graphics.width")){
             double width=src.defaultLineWidth();if(auto v=src.extensions(old).findValue("pst.attr.LineWidth"))width=std::atof(v->c_str());
             if(std::isfinite(width)&&width>0)dst.extensions(fresh).set("studio.graphics.width",std::to_string(width));
@@ -252,6 +252,15 @@ inline Error append(const Document& src,Document& dst,const std::vector<ObjectRe
         auto e=arrows::writeArrow(dst,entry.second.id,current,dst.defaultLineWidth());if(!e.ok())return e;
     }
     for(auto r:chosen)if(r.kind==ObjectKind::Group){auto a=src.groups().alive(r.id);if(!a)continue;auto c=*a;c.sourceId=0;c.members.clear();for(auto m:a->members){auto it=map.find(m);if(it!=map.end())c.members.push_back(it->second);}ObjectId id;auto e=dst.addGroup(c,&id);add(r,id,e);}
+    for(const auto& entry:map)if(entry.first.kind==ObjectKind::Text){
+        const auto* raw=src.extensions(entry.first).findValue("studio.stereo.owner");
+        if(!raw)continue;
+        const auto owners=namelink::decodeRefs(*raw);
+        if(owners.size()!=1)continue;
+        const auto found=map.find(owners.front());
+        if(found!=map.end())dst.extensions(entry.second).set("studio.stereo.owner",namelink::encodeRefs({found->second}));
+    }
+    if(mapping)mapping->swap(map);
     return error;
 }
 inline UINT nativeFormat(){return RegisterClipboardFormatW(L"MoleculeStudio.DocumentSelection.v2");}

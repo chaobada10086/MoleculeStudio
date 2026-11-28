@@ -32,7 +32,7 @@
     },
     {
       "name": "trace_coordination_structure",
-      "description": "从已查看的配合物原图逐点描绘。当 OCSR 漏掉金属、缩写或配位箭头时按可见证据修正。atoms 逐项写 '符号 x y [形式电荷 [孤对数]]'，显式碳写 [C]。包括隐式碳顶点和缩写，每条 bonds 写 '起点编号 终点编号 键级'。编号从1开始，键级1/2/3/dative，配位键从供体指向受体。保持原图比例，普通键长约30。",
+      "description": "按已查看的文献结构逐个原子描绘有机分子或配合物。atoms 逐项写 '符号 x y [形式电荷 [孤对数]]'，显式碳写 [C]。包括隐式碳顶点和缩写，每条 bonds 写 '起点编号 终点编号 键级 [样式]'。编号从1开始，键级1/2/3/dative，配位键从供体指向受体。单键可附 wedge（实楔）、hash（虚楔）或 bold（粗键）；楔尖在起点。保持原图比例，普通键长约30。",
       "parameters": {
         "type": "object",
         "properties": {
@@ -352,17 +352,13 @@
     },
     {
       "name": "recognize_and_draw_structure",
-      "description": "调用本地图片转结构识别附件或path指定的本地图片/PDF选区，将结果暂存为可编辑结构；返回原子、键、置信度及立体校验警告。需要对照原图核对，勿把置信度当正确率。",
+      "description": "调用本地图片转结构识别本轮附件中的图片/PDF选区，将结果暂存为可编辑结构；返回原子、键、置信度及立体校验警告。需要对照原图核对，勿把置信度当正确率。",
       "parameters": {
         "type": "object",
         "properties": {
           "attachment": {
             "type": "integer",
-            "description": "附件编号，从1开始；与path二选一"
-          },
-          "path": {
-            "type": "string",
-            "description": "LLM明确指定的本地图片/PDF绝对路径，或相对AI工作区路径；与attachment二选一，不限本轮附件"
+            "description": "本轮附件编号，从1开始"
           },
           "page": {
             "type": "integer",
@@ -392,23 +388,21 @@
             "description": "线宽（磅），0.1–12；省略沿用当前值"
           }
         },
-        "required": [],
+        "required": [
+          "attachment"
+        ],
         "additionalProperties": false
       }
     },
     {
       "name": "detect_structure_regions",
-      "description": "自动检测附件或path指定的本地PDF页或图片上的候选化学结构区域。返回每个区域的 [左,上,宽,高] 0–1 坐标、像素框、评分、路径数和预览图路径；用于整页/多条合成路线，不需要凭肉眼猜 crop。",
+      "description": "自动检测本轮附件中的PDF页或图片上的候选化学结构区域。返回每个区域的 [左,上,宽,高] 0–1 坐标、像素框、评分、路径数和预览图路径；用于整页/多条合成路线，不需要凭肉眼猜 crop。",
       "parameters": {
         "type": "object",
         "properties": {
           "attachment": {
             "type": "integer",
-            "description": "附件编号，从1开始；与path二选一"
-          },
-          "path": {
-            "type": "string",
-            "description": "LLM明确指定的本地图片/PDF绝对路径，或相对AI工作区路径；与attachment二选一，不限本轮附件"
+            "description": "本轮附件编号，从1开始"
           },
           "page": {
             "type": "integer",
@@ -425,7 +419,9 @@
             "maximum": 120
           }
         },
-        "required": [],
+        "required": [
+          "attachment"
+        ],
         "additionalProperties": false
       }
     },
@@ -437,11 +433,7 @@
         "properties": {
           "attachment": {
             "type": "integer",
-            "description": "附件编号，从1开始；与path二选一"
-          },
-          "path": {
-            "type": "string",
-            "description": "LLM明确指定的本地图片/PDF绝对路径，或相对AI工作区路径；与attachment二选一，不限本轮附件"
+            "description": "本轮附件编号，从1开始"
           },
           "page": {
             "type": "integer",
@@ -492,7 +484,9 @@
             "description": "线宽（磅），0.1–12；省略沿用当前值"
           }
         },
-        "required": [],
+        "required": [
+          "attachment"
+        ],
         "additionalProperties": false
       }
     },

@@ -691,6 +691,12 @@ struct StepIdentity {
     }
 };
 
+inline arrows::ArrowParams nextStepReactionArrow(const Document& doc,double reactantRight,double y){
+    const Vec2 begin(reactantRight+18,y);
+    const Vec2 end(begin.x+2.0*doc.defaultBondLength(),y);
+    return arrows::resolvePreset(8,begin,end,doc.defaultLineWidth());
+}
+
 // Caller wraps this operation in one command/transaction. All chemical validation
 // precedes mutation; the command provides rollback for allocation/storage errors.
 // Only source components are copied. Original structures and arrows are untouched.
@@ -1452,7 +1458,8 @@ inline Error generateNextStep(Document& doc,const std::vector<ElectronMove>& mov
     for(const auto& p:doc.paths().records())if(p.isAlive()){double low=1e100,high=-1e100,last=-1e100;for(auto pt:p.points){low=std::min(low,pt.y);high=std::max(high,pt.y);last=std::max(last,pt.x);}if(overlapsRow(low-4,high+4))right=std::max(right,last+12);}
     double minX=1e100,minY=1e100,maxY=-1e100;
     for(auto p:positions){minX=std::min(minX,p.second.x);minY=std::min(minY,p.second.y);maxY=std::max(maxY,p.second.y);}
-    double corridor=std::max(90.,unit*3.5);Vec2 shift(right+corridor-minX,(top+bottom-minY-maxY)*.5);
+    const auto arrow=nextStepReactionArrow(doc,right,(top+bottom)*.5);
+    Vec2 shift(arrow.end.x+20-minX,(top+bottom-minY-maxY)*.5);
     std::map<ObjectId,ObjectId> copied;
     // Preserve only appearance extensions, never old ids, source snapshots,
     // named-structure links, or charge/hydrogen text overrides.
@@ -1530,7 +1537,7 @@ inline Error generateNextStep(Document& doc,const std::vector<ElectronMove>& mov
         }
         if(count)doc.extensions(ObjectRef(ObjectKind::Atom,fresh)).set(lonePairKey(),std::to_string(count));
     }
-    auto arrow=arrows::resolvePreset(8,Vec2(right+18,(top+bottom)*.5),Vec2(right+corridor-20,(top+bottom)*.5),doc.defaultLineWidth());ObjectId aid;auto err=arrows::addArrow(doc,arrow,doc.defaultLineWidth(),&aid);if(!err.ok())return err;if(created)created->push_back(ObjectRef(ObjectKind::Arrow,aid));
+    ObjectId aid;auto err=arrows::addArrow(doc,arrow,doc.defaultLineWidth(),&aid);if(!err.ok())return err;if(created)created->push_back(ObjectRef(ObjectKind::Arrow,aid));
     return Error();
 }
 } }

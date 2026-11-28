@@ -616,6 +616,15 @@ void App::mechanismStepCheck(const std::string& dir){
     auto before=s.doc.digest();s.selected=s.all();generateMechanismStep();
     require(s.doc.stats().aliveAtoms==16&&s.doc.stats().aliveBonds==13,"one step adds eight atoms and seven product bonds");
     {auto page=studioio::Page::get(s.doc);auto bounds=selection::selectionBounds(s.doc,s.selected);require(page.valid()&&!bounds.empty()&&bounds.min.x>=page.x&&bounds.min.y>=page.y&&bounds.max.x<=page.x+page.width*page.across&&bounds.max.y<=page.y+page.height*page.down,"generated product fits expanded document pages");}
+    int nextStepArrows=0;
+    for(auto ref:s.selected)if(ref.kind==ObjectKind::Arrow){
+        arrows::ArrowParams reaction;bool valid=false;
+        require(arrows::readArrow(s.doc,ref.id,&reaction,&valid).ok()&&valid&&!reaction.mechanism&&
+                std::abs(length(reaction.end-reaction.begin)-2*s.doc.defaultBondLength())<1e-8,
+                "generated reaction arrow is two default bond lengths");
+        ++nextStepArrows;
+    }
+    require(nextStepArrows==1,"exactly one connector in the generated step");
     std::vector<ObjectId> product;
     for(const auto& a:s.doc.atoms().records())if(a.isAlive()&&a.id>atom.back())product.push_back(a.id);
     require(product.size()==8,"product atom count");

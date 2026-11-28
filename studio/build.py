@@ -105,7 +105,7 @@ obj=out/'studio.o'; source=studio/'studio.cpp'
 result=subprocess.run([compiler]+studio_flags+['-Wall','-Wextra','-Wno-misleading-indentation','-c',str(source),'-o',str(obj)],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace')
 (out/'build.log').write_text(result.stdout,encoding='utf-8')
 if result.returncode:raise RuntimeError(result.stdout)
-libs=['-lopengl32','-lglu32','-lgdiplus','-lgdi32','-luser32','-lcomdlg32','-lcomctl32','-lshell32','-lole32','-loleaut32','-luuid','-limm32','-lcrypt32']
+libs=['-lopengl32','-lglu32','-lgdiplus','-lgdi32','-luser32','-lcomdlg32','-lcomctl32','-lshell32','-lole32','-loleaut32','-luuid','-limm32','-lcrypt32','-lversion']
 if dx11:libs+=['-ld3d11','-ldxgi','-ld3dcompiler']
 resource=out/'app-resource.o'
 subprocess.run([str(Path(compiler).with_name('windres.exe')),'-i','app.rc','-o',str(resource),'-O','coff'],cwd=studio,check=True)

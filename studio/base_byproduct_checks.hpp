@@ -1,10 +1,22 @@
 #pragma once
 static void checkBaseByproduct(App& app,const std::string& dir,const char* font=nullptr,double size=10){
-    auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(std::string("BH layout: ")+why);};
+    auto require=[](bool ok,const std::string& why){if(!ok)throw std::runtime_error("BH layout: "+why);};
     auto& s=app.s;s.cancel();s.doc=Document();s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());
     if(font){s.doc.setDefaultFont(font);s.doc.setDefaultTextSize(size);s.doc.documentExtensions().set("studio.style.LabelFontName",font);s.doc.documentExtensions().set("studio.style.LabelSize",std::to_string(size));}
-    ObjectId base,h,o,c,oh;s.doc.addAtom(Vec2(20,20),6,&base);require(mechanism::setGenericRole(s.doc,base,"base").ok(),"generic base");
-    s.doc.addAtom(Vec2(80,40),1,&h);s.doc.addAtom(Vec2(100,55),8,&o);s.doc.addAtom(Vec2(100,85),6,&c);s.doc.addBond(h,o,&oh);s.doc.addBond(o,c,nullptr);
+    s.doc.setDefaultBondLength(30);
+    studioio::Page page;
+    page.x=0;
+    page.store(s.doc);
+    ObjectId base,h,o,oh;
+    s.doc.addAtom(Vec2(35,10),6,&base);require(mechanism::setGenericRole(s.doc,base,"base").ok(),"generic base");
+    s.doc.addAtom(Vec2(126,40),1,&h);s.doc.addAtom(Vec2(99,55),8,&o);s.doc.addBond(h,o,&oh);
+    std::array<ObjectId,6> ring;
+    for(size_t i=0;i<ring.size();++i)s.doc.addAtom(Vec2(100,115)+direction(90+60.*i)*30,6,&ring[i]);
+    for(size_t i=0;i<ring.size();++i){
+        ObjectId edge;s.doc.addBond(ring[i],ring[(i+1)%ring.size()],&edge);
+        if(i%2==0)s.doc.setBondOrder(edge,BondOrder::Double);
+    }
+    s.doc.addBond(o,ring[0],nullptr);
     for(auto move:std::vector<mechanism::ElectronMove>{{ObjectRef(ObjectKind::Atom,base),ObjectRef(ObjectKind::Atom,h)},{ObjectRef(ObjectKind::Bond,oh),ObjectRef(ObjectKind::Atom,o)}}){
         Vec2 from,to;arrows::mechanismAnchorPoint(s.doc,move.source,&from);arrows::mechanismAnchorPoint(s.doc,move.target,&to);
         auto arrow=arrows::resolvePreset(49,from,to,.6);arrow.mechanism=true;arrow.electronSource=move.source;arrow.electronTarget=move.target;
@@ -14,7 +26,7 @@ static void checkBaseByproduct(App& app,const std::string& dir,const char* font=
     ObjectId b2=kInvalidObjectId,h2=kInvalidObjectId,o2=kInvalidObjectId;arrows::ArrowParams reaction;bool found=false;
     for(auto ref:s.selected){if(ref.kind==ObjectKind::Atom){auto original=studio_mechanism_products::sourceAtom(s.doc,ref.id);if(original==base)b2=ref.id;if(original==h)h2=ref.id;if(original==o)o2=ref.id;}
         if(ref.kind==ObjectKind::Arrow)arrows::readArrow(s.doc,ref.id,&reaction,&found);}
-    require(b2!=kInvalidObjectId&&h2!=kInvalidObjectId&&o2!=kInvalidObjectId&&found,"generated product roles");
+    require(b2!=kInvalidObjectId&&h2!=kInvalidObjectId&&o2!=kInvalidObjectId&&found,"generated product roles: "+app.status);
     auto bPos=s.doc.atoms().alive(b2)->position,hPos=s.doc.atoms().alive(h2)->position;
     require(s.doc.bondBetween(b2,h2)!=kInvalidObjectId&&s.doc.bondBetween(o2,h2)==kInvalidObjectId,"H transfers to B");
     require(s.doc.atoms().alive(b2)->semantics.charge==0&&s.doc.atoms().alive(o2)->semantics.charge==-1,"charge preserved");
@@ -23,6 +35,21 @@ static void checkBaseByproduct(App& app,const std::string& dir,const char* font=
     const auto center=(bPos+hPos)*.5;
     require(std::max(bPos.y,hPos.y)<reaction.begin.y-s.doc.defaultTextSize()*.8&&center.x>reaction.begin.x&&center.x<reaction.end.x,"entire BH above arrow");
     require(s.doc.atoms().alive(o2)->position.x>reaction.end.x,"main product on right");
+    std::map<ObjectId,ObjectId> copies;
+    for(auto ref:s.selected)if(ref.kind==ObjectKind::Atom)
+        copies.emplace(studio_mechanism_products::sourceAtom(s.doc,ref.id),ref.id);
+    const double ringOffsetX=s.doc.atoms().alive(copies.at(ring[0]))->position.x-s.doc.atoms().alive(ring[0])->position.x;
+    for(auto id:ring){
+        const auto offset=s.doc.atoms().alive(copies.at(id))->position-s.doc.atoms().alive(id)->position;
+        require(length(offset-Vec2(ringOffsetX,0))<1e-7,"phenoxide ring is level with the source ring");
+    }
+    const auto generatedO=s.doc.atoms().alive(o2)->position;
+    const auto ipso=s.doc.atoms().alive(copies.at(ring[0]))->position;
+    require(std::abs(generatedO.x-ipso.x)<1e-7&&generatedO.y<ipso.y,"phenoxide oxygen lies on the ring bisector");
+    const auto productBottom=s.doc.atoms().alive(copies.at(ring[3]))->position.y;
+    const auto rowCenter=(generatedO.y+productBottom)*.5;
+    require(std::abs(reaction.begin.y-rowCenter)<1e-7&&std::abs(reaction.end.y-rowCenter)<1e-7,
+            "reaction arrow follows the phenol skeleton center");
     ObjectId sign=kInvalidObjectId;for(auto ref:s.selected)if(ref.kind==ObjectKind::Text&&s.doc.plainText(ref.id)=="\xE2\x88\x92")sign=ref.id;
     require(sign!=kInvalidObjectId,"BH loss has a separate minus sign");
     auto signPos=s.doc.texts().alive(sign)->position;
@@ -32,7 +59,7 @@ static void checkBaseByproduct(App& app,const std::string& dir,const char* font=
     for(const auto& primitive:s.scene.primitives())require(primitive.source!=hiddenBond,"no visible bond stroke in BH condition");
     auto after=s.doc.digest();require(s.undo().ok()&&s.doc.digest()==before,"one undo restores source");require(s.undo(true).ok()&&s.doc.digest()==after,"redo restores layout");
     require(s.save(dir+"/bh-above-arrow.cdxml",true).ok(),"save example");Session reopened;require(reopened.open(dir+"/bh-above-arrow.cdxml").ok(),"reopen example");bool signSaved=false;for(auto ref:reopened.all())if(ref.kind==ObjectKind::Text&&reopened.doc.plainText(ref.id)=="\xE2\x88\x92")signSaved=true;require(signSaved,"loss minus survives CDXML");std::string exported;require(studioio::exportXml(s.doc,&exported).ok()&&exported.find("Visible=\"no\"")!=std::string::npos,"compact condition bond hidden in ChemDraw export");s.selected.clear();s.fit();app.invalidate();app.screenshot(dir+"/bh-above-arrow.png");
-    std::ofstream(dir+"/bh-above-arrow-checks.json")<<"{\"minus_prefix\":true,\"above_arrow\":true,\"editable_bh_bond\":true,\"charge\":true,\"main_product_right\":true,\"undo_redo\":true}";
+    std::ofstream(dir+"/bh-above-arrow-checks.json")<<"{\"minus_prefix\":true,\"above_arrow\":true,\"editable_bh_bond\":true,\"charge\":true,\"main_product_right\":true,\"ring_alignment\":true,\"arrow_centered\":true,\"undo_redo\":true}";
 }
 
 static void checkMultilineByproducts(App& app,const std::string& dir){

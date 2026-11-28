@@ -199,9 +199,8 @@ void App::appendElectronMarkerSelection(render::OverlayScene& overlay) const{
         add(&primitive.style.strokeWidth,sizeof(primitive.style.strokeWidth));add(&primitive.style.stroke.rgba,sizeof(primitive.style.stroke.rgba));
         primitive.version=hash;primitive.source=ObjectRef();overlay.add(primitive);
     };
-    if(electronDragAtom!=kInvalidObjectId&&electronDragText==kInvalidObjectId){
-        if(electronDragSite!=2&&electronDragSite!=3&&electronDragSite!=4)return;
-        const auto* atom=s.doc.atoms().alive(electronDragAtom);if(!atom)return;
+    auto markAtom=[&](ObjectId id){
+        const auto* atom=s.doc.atoms().alive(id);if(!atom)return;
         // Follow the captured owner throughout the drag, even when the pointer
         // passes over a neighbouring atom. Use the attachment-element glyph so
         // condensed OH/HO and Ph3P highlight O/P rather than the whole label.
@@ -219,7 +218,41 @@ void App::appendElectronMarkerSelection(render::OverlayScene& overlay) const{
         ring.bounds=Box(center-Vec2(pad,pad),center+Vec2(pad,pad));ring.style.fill.enabled=false;
         ring.style.stroke=render::Paint(0xFFFFFFFFu,true);ring.style.strokeWidth=s.view().deviceRadiusToDocument(7.);append(ring);
         ring.z=5;ring.style.stroke=render::Paint(0x0078D4FFu,true);ring.style.strokeWidth=s.view().deviceRadiusToDocument(3.5);append(ring);
+    };
+    if(electronDragAtom!=kInvalidObjectId&&electronDragText==kInvalidObjectId){
+        if(electronDragSite==2||electronDragSite==3||electronDragSite==4)markAtom(electronDragAtom);
         return;
+    }
+    if(down&&s.objectDragActive()&&!cloneDragging&&s.selected.size()==1&&s.selected.front().kind==ObjectKind::Text){
+        const auto* stored=s.doc.extensions(s.selected.front()).findValue("studio.stereo.owner");
+        if(stored){
+            const auto refs=namelink::decodeRefs(*stored);
+            if(refs.size()==1){
+                const auto owner=refs.front();
+                if(owner.kind==ObjectKind::Atom)markAtom(owner.id);
+                if(owner.kind==ObjectKind::Bond)if(auto bond=s.doc.bonds().alive(owner.id)){
+                    const auto* begin=s.doc.atoms().alive(bond->beginAtom);
+                    const auto* end=s.doc.atoms().alive(bond->endAtom);
+                    if(!begin||!end)return;
+                    const Vec2 axis=end->position-begin->position;
+                    const double span=length(axis);
+                    if(span<1e-8)return;
+                    const Vec2 inset=axis*std::min(.15,s.view().deviceRadiusToDocument(4.)/span);
+                    const auto from=begin->position+inset,to=end->position-inset;
+                    const double halo=s.view().deviceRadiusToDocument(7.);
+                    render::Primitive bar;bar.kind=render::PrimKind::Polyline;
+                    bar.layer=render::LayerId(render::layers::kSelection);bar.z=4;
+                    bar.points={from,to};bar.bounds=Box(from,from);bar.bounds.add(to);
+                    const Vec2 pad(halo*.5,halo*.5);
+                    bar.bounds.min=bar.bounds.min-pad;bar.bounds.max=bar.bounds.max+pad;
+                    bar.style.fill.enabled=false;
+                    bar.style.stroke=render::Paint(0xFFFFFFFFu,true);bar.style.strokeWidth=halo;append(bar);
+                    bar.z=5;bar.style.stroke=render::Paint(0x0078D4FFu,true);
+                    bar.style.strokeWidth=s.view().deviceRadiusToDocument(3.5);append(bar);
+                }
+            }
+            return;
+        }
     }
     if(!electronMarkerSelected())return;
     const auto& hit=selectedElectronMarker;

@@ -1,4 +1,4 @@
-#include "next/arrows_curves/tools.hpp"
+#include "arrow_handle_hit.hpp"
 #include "mechanism_layout.hpp"
 #include "mechanism_electrons.hpp"
 #include "free_arc.hpp"
@@ -337,21 +337,38 @@ core::Invalidation ArrowTool::activate(core::ToolHost& host) {
     return core::kInvalidateSelection;
 }
 
-size_t ArrowTool::pickHandle(const std::vector<Handle>& handles, const core::Vec2& pointer,
-                             double deviceRadius, const core::ViewTransform& view) const {
-    const double radius = view.deviceRadiusToDocument(deviceRadius);
+size_t pickSelectedArrowHandle(const std::vector<Handle>& handles, core::Vec2 pointer,
+                               double deviceRadius, const core::ViewTransform& view) {
+    const double outer = view.deviceRadiusToDocument(std::max(deviceRadius, 14.0 * view.dpiScale));
+    const double middle = view.deviceRadiusToDocument(std::max(deviceRadius, 12.0 * view.dpiScale));
     size_t best = handles.size();
-    double bestDistance = view.deviceRadiusToDocument(std::max(deviceRadius,12.0*view.dpiScale));
+    double bestDistance = outer;
     for (size_t i = 0; i < handles.size(); ++i) {
-        const double d = dist(handles[i].point, pointer);
-        // Strictly inside the radius, deliberately: a press exactly ON the capture
-        // ring is a boundary case, and treating it as a grab makes "click the arrow
-        // body to reverse it" [GUIDE p110] impossible at that exact distance. The
-        // tie also picks the SMALLEST distance, so handle order never decides.
-        const double capture = handles[i].kind==HandleKind::Middle ? view.deviceRadiusToDocument(std::max(deviceRadius,12.0*view.dpiScale)) : radius;
-        if (d < capture && d < bestDistance) { bestDistance = d; best = i; }
+        const double distance = dist(handles[i].point, pointer);
+        const double radius = handles[i].kind == HandleKind::Middle ? middle : outer;
+        if (distance < radius && distance < bestDistance) {
+            bestDistance = distance;
+            best = i;
+        }
     }
     return best;
+}
+
+bool mechanismGlyphTakesPriority(const core::Document& doc, core::Vec2 point,
+                                 const core::ViewTransform& view, double deviceRadius,
+                                 uint32_t presetId, uint32_t modifiers, const Handle* handle) {
+    if ((presetId != 49 && presetId != 57) || altReleasesConstraints(modifiers)) return false;
+    uint8_t visual = 0;
+    core::Vec2 contact;
+    const auto ref = pointerMechanismAnchor(doc, point, view, deviceRadius, &visual, &contact);
+    if (!explicitMechanismStart(doc, ref, visual, point, contact, view)) return false;
+    const bool exactHandle = handle && dist(handle->point, point) <= view.deviceRadiusToDocument(2);
+    return !exactHandle || mechanismInkStart(doc, ref, visual, point, contact);
+}
+
+size_t ArrowTool::pickHandle(const std::vector<Handle>& handles, const core::Vec2& pointer,
+                             double deviceRadius, const core::ViewTransform& view) const {
+    return pickSelectedArrowHandle(handles, pointer, deviceRadius, view);
 }
 
 void ArrowTool::hoverPreview(core::ToolHost& host,core::Vec2 point,uint32_t modifiers){
@@ -412,15 +429,11 @@ core::CommandResult ArrowTool::beginGesture(core::ToolHost& host,
             const std::vector<Handle> handles = arrowHandles(params, lineWidth, tess);
             const size_t hitIndex = pickHandle(handles, pointer.position,
                                                host.snapRadiusDevice(), host.view());
-            bool explicitGlyphStart=false;
-            if((presetId_==49||presetId_==57)&&!altReleasesConstraints(pointer.modifiers)){
-                uint8_t visual=0;core::Vec2 contact;auto ref=pointerMechanismAnchor(doc,pointer.position,host.view(),host.snapRadiusDevice(),&visual,&contact);
-                explicitGlyphStart=explicitMechanismStart(doc,ref,visual,pointer.position,contact,host.view());
-                // An exact handle grab remains an edit. A broad handle hit
-                // must not steal a deliberate press on a nearby charge glyph.
-                if(hitIndex<handles.size()&&dist(handles[hitIndex].point,pointer.position)<=host.view().deviceRadiusToDocument(2)&&!mechanismInkStart(doc,ref,visual,pointer.position,contact))explicitGlyphStart=false;
-            }
-            if (hitIndex < handles.size()&&!explicitGlyphStart&&(presetId_!=58||handles[hitIndex].kind==HandleKind::Middle||dist(handles[hitIndex].point,pointer.position)<=host.view().deviceRadiusToDocument(2))) {
+            const bool explicitGlyphStart = mechanismGlyphTakesPriority(
+                doc, pointer.position, host.view(), host.snapRadiusDevice(), presetId_, pointer.modifiers,
+                hitIndex < handles.size() ? &handles[hitIndex] : nullptr);
+            if (hitIndex < handles.size() && !explicitGlyphStart) {
+                state_.pressPoint = handles[hitIndex].point;
                 state_.target = candidate;
                 state_.grabbed = handles[hitIndex].kind;
                 state_.handleIndex = hitIndex;
@@ -538,14 +551,17 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
         // read, so the gesture still behaves.
         if (state_.pending.begin == state_.pending.end && haveBase) p = base;
 
+        // Keep a grab at the edge of the halo from shifting the handle under the pointer.
+        const core::Vec2 editPoint = p.mechanism ? pointer.position
+            : state_.pressPoint + (pointer.position - state_.rawPressPoint);
         switch (state_.grabbed) {
         case HandleKind::Begin:
-            p.begin = altReleasesConstraints(pointer.modifiers)?pointer.position:mechanismSnap(doc,pointer.position,host.view().deviceRadiusToDocument(host.snapRadiusDevice()));
-            if(p.mechanism){p.sourceVisualAnchor=0;p.electronSource=altReleasesConstraints(pointer.modifiers)?core::ObjectRef():pointerMechanismAnchor(doc,pointer.position,host.view(),host.snapRadiusDevice(),&p.sourceVisualAnchor,&p.begin);}
+            p.begin = altReleasesConstraints(pointer.modifiers)?editPoint:mechanismSnap(doc,editPoint,host.view().deviceRadiusToDocument(host.snapRadiusDevice()));
+            if(p.mechanism){p.sourceVisualAnchor=0;p.electronSource=altReleasesConstraints(pointer.modifiers)?core::ObjectRef():pointerMechanismAnchor(doc,editPoint,host.view(),host.snapRadiusDevice(),&p.sourceVisualAnchor,&p.begin);}
             break;
         case HandleKind::End:
-            p.end = altReleasesConstraints(pointer.modifiers)?pointer.position:mechanismSnap(doc,pointer.position,host.view().deviceRadiusToDocument(host.snapRadiusDevice()));
-            if(p.mechanism){p.targetVisualAnchor=0;p.electronTarget=altReleasesConstraints(pointer.modifiers)?core::ObjectRef():pointerMechanismAnchor(doc,pointer.position,host.view(),host.snapRadiusDevice(),&p.targetVisualAnchor,&p.end);if(p.targetVisualAnchor<2)mechanismAnchorPoint(doc,p.electronTarget,&p.end);}
+            p.end = altReleasesConstraints(pointer.modifiers)?editPoint:mechanismSnap(doc,editPoint,host.view().deviceRadiusToDocument(host.snapRadiusDevice()));
+            if(p.mechanism){p.targetVisualAnchor=0;p.electronTarget=altReleasesConstraints(pointer.modifiers)?core::ObjectRef():pointerMechanismAnchor(doc,editPoint,host.view(),host.snapRadiusDevice(),&p.targetVisualAnchor,&p.end);if(p.targetVisualAnchor<2)mechanismAnchorPoint(doc,p.electronTarget,&p.end);}
             break;
         case HandleKind::Middle:
             // Drag the middle to create or change the arc [GUIDE p109]. The inverse
@@ -581,7 +597,7 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
                 if(p.route.size()>1){auto pts=routedPoints(p);u=p.head.atEnd?pts.back()-pts[pts.size()-2]:pts[1]-pts[0];double length=core::length(u);if(length>1e-9)u=u*(1/length);}
                 const core::Vec2 n(-u.y, u.x);
                 const core::Vec2 tip = p.head.atEnd ? p.end : p.begin;
-                const core::Vec2 rel(pointer.position.x - tip.x, pointer.position.y - tip.y);
+                const core::Vec2 rel(editPoint.x - tip.x, editPoint.y - tip.y);
                 const double w = std::fabs(rel.x * n.x + rel.y * n.y);
                 const double ratio = (state_.pending.head.width > 1e-9)
                     ? state_.pending.head.length / state_.pending.head.width : 1.3;
@@ -591,7 +607,7 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
             break;
         }
         case HandleKind::SplitA: {
-            if(p.shafts==ShaftCount::Two){auto d=p.end-p.begin;double dd=d.x*d.x+d.y*d.y;if(dd>1e-9){auto rel=pointer.position-p.begin;double fraction=clampd(1-(rel.x*d.x+rel.y*d.y)/dd,.15/.85,1.);p.splitRatio=fraction/(1+fraction);}break;}
+            if(p.shafts==ShaftCount::Two){auto d=p.end-p.begin;double dd=d.x*d.x+d.y*d.y;if(dd>1e-9){auto rel=editPoint-p.begin;double fraction=clampd(1-(rel.x*d.x+rel.y*d.y)/dd,.15/.85,1.);p.splitRatio=fraction/(1+fraction);}break;}
             // [GUIDE p112] "To change the length of one arrow, hold down the Alt key.
             // Two new adjustment handles appear. When adjusting one arrow of an
             // equilibrium arrow, the arrow cannot be extended beyond its original
@@ -600,8 +616,8 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
             const double chord = std::sqrt(d.x * d.x + d.y * d.y);
             if (chord > 1e-9) {
                 const core::Vec2 u(d.x / chord, d.y / chord);
-                const core::Vec2 rel(pointer.position.x - p.begin.x,
-                                     pointer.position.y - p.begin.y);
+                const core::Vec2 rel(editPoint.x - p.begin.x,
+                                     editPoint.y - p.begin.y);
                 const double t = clampd((rel.x * u.x + rel.y * u.y) / chord, 0.15, 0.85);
                 // The half may not grow past its ORIGINAL length.
                 p.splitRatio = clampd(t, 0.15, std::max(0.15, p.originalSplitRatio));
@@ -609,13 +625,13 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
             break;
         }
         case HandleKind::SplitB: {
-            if(p.shafts==ShaftCount::Two){auto d=p.end-p.begin;double dd=d.x*d.x+d.y*d.y;if(dd>1e-9){auto rel=pointer.position-p.begin;double fraction=clampd((rel.x*d.x+rel.y*d.y)/dd,.15/.85,1.);p.splitRatio=1/(1+fraction);}break;}
+            if(p.shafts==ShaftCount::Two){auto d=p.end-p.begin;double dd=d.x*d.x+d.y*d.y;if(dd>1e-9){auto rel=editPoint-p.begin;double fraction=clampd((rel.x*d.x+rel.y*d.y)/dd,.15/.85,1.);p.splitRatio=1/(1+fraction);}break;}
             const core::Vec2 d(p.end.x - p.begin.x, p.end.y - p.begin.y);
             const double chord = std::sqrt(d.x * d.x + d.y * d.y);
             if (chord > 1e-9) {
                 const core::Vec2 u(d.x / chord, d.y / chord);
-                const core::Vec2 rel(pointer.position.x - p.end.x,
-                                     pointer.position.y - p.end.y);
+                const core::Vec2 rel(editPoint.x - p.end.x,
+                                     editPoint.y - p.end.y);
                 const double t = clampd(-(rel.x * u.x + rel.y * u.y) / chord, 0.15, 0.85);
                 p.splitRatio = clampd(1.0 - t, 0.15, 0.85);
             }
@@ -631,9 +647,9 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
         // Applied to the free endpoint only, never to a handle drag.
         if (state_.grabbed == HandleKind::End) {
             const bool release = altReleasesConstraints(pointer.modifiers);
-            if (host.fixedAngles() && !release && p.end == pointer.position && p.family != ArrowFamily::Arc) {
+            if (host.fixedAngles() && !release && p.end == editPoint && p.family != ArrowFamily::Arc) {
                 double lenOut = 0.0;
-                const core::Vec2 dir = snapDirection(p.begin, pointer.position,
+                const core::Vec2 dir = snapDirection(p.begin, editPoint,
                                                      host.angleStepDegrees(),
                                                      host.fixedAngles(),
                                                      0.0,
@@ -650,7 +666,7 @@ core::CommandResult ArrowTool::updateGesture(core::ToolHost& host,
         if(p.mechanism&&state_.grabbed==HandleKind::Middle)orientAutomaticFishhook(p);
         if(!isMechanismArrow(p)&&(state_.grabbed==HandleKind::Begin||state_.grabbed==HandleKind::End)&&p.family==ArrowFamily::Arc){
             state_.joinBegin=state_.joinEnd=core::kInvalidObjectId;
-            if(!altReleasesConstraints(pointer.modifiers)){auto snap=arcJunction(doc,pointer.position,host.view().deviceRadiusToDocument(host.snapRadiusDevice()),state_.target);if(snap.valid()){if(state_.grabbed==HandleKind::Begin){junctionCurve(p,snap,ArcJunction());state_.joinBegin=snap.arrow;}else{junctionCurve(p,ArcJunction(),snap);state_.joinEnd=snap.arrow;}}}
+            if(!altReleasesConstraints(pointer.modifiers)){auto snap=arcJunction(doc,editPoint,host.view().deviceRadiusToDocument(host.snapRadiusDevice()),state_.target);if(snap.valid()){if(state_.grabbed==HandleKind::Begin){junctionCurve(p,snap,ArcJunction());state_.joinBegin=snap.arrow;}else{junctionCurve(p,ArcJunction(),snap);state_.joinEnd=snap.arrow;}}}
         }
         state_.pending = p;
     } else if(presetId_==58){

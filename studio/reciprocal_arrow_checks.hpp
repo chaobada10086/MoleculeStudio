@@ -30,13 +30,25 @@ static void checkReciprocalArrows(App& app,const std::string& dir){
     Document fallback;std::vector<mechanism::ElectronMove> fallbackMoves;std::vector<ObjectRef> fallbackProducts;
     auto fallbackResult=studio_drawn_step::prepare(s.doc,s.all(),directed,fallback,fallbackMoves,fallbackProducts);
     require(fallbackResult.ok()&&fallbackMoves.size()==directed.size(),"direct-edit fallback uses one directed transfer per expanded input");
+    studioio::Page narrow=studioio::Page::get(s.doc);
+    narrow.width=337;narrow.x=0;narrow.across=1;narrow.store(s.doc);
     s.refresh();s.selected=s.all();auto sourceDigest=s.doc.digest();app.generateMechanismStep();require(s.doc.digest()!=sourceDigest,"merged carbonyl pair participates in addition-elimination generation");
     std::map<ObjectId,ObjectId> products;for(auto ref:s.selected)if(ref.kind==ObjectKind::Atom)products[studio_mechanism_products::sourceAtom(s.doc,ref.id)]=ref.id;
     require(products.count(c)&&products.count(o)&&products.count(nu)&&products.count(n),"all participants generated");
     require(s.doc.bonds().alive(s.doc.bondBetween(products[c],products[o]))->order==BondOrder::Double&&s.doc.bondBetween(products[c],products[nu])!=kInvalidObjectId&&s.doc.bondBetween(products[c],products[n])==kInvalidObjectId,"two-way pair preserves carbonyl while substitution forms and cleaves the requested bonds");
     require(s.doc.atoms().alive(products[nu])->semantics.charge==1&&s.doc.atoms().alive(products[n])->semantics.charge==-1,"substitution charges preserved");
-    auto page=studioio::Page::get(s.doc);auto generatedBounds=selection::selectionBounds(s.doc,s.selected);
-    require(page.across==1&&generatedBounds.min.x<0&&generatedBounds.min.y>120,"right edge wraps the generated step to a lower left row without adding columns");
+    auto page=studioio::Page::get(s.doc);
+    std::vector<ObjectRef> productAtoms;
+    for(auto entry:products)productAtoms.emplace_back(ObjectKind::Atom,entry.second);
+    const auto productBounds=studio_mechanism_page_flow::InkBounds(s.doc).bounds(productAtoms);
+    require(page.across==1&&productBounds.min.x>=24-1e-6&&productBounds.min.x<42&&productBounds.min.y>120,
+            "right edge wraps product structures to the lower left without adding columns");
+    bool connectorEarlier=false;
+    for(auto ref:s.selected)if(ref.kind==ObjectKind::Arrow){
+        arrows::ArrowParams connector;bool ok=false;arrows::readArrow(s.doc,ref.id,&connector,&ok);
+        connectorEarlier=ok&&!connector.mechanism&&connector.begin.x>240&&connector.begin.y<productBounds.min.y;
+    }
+    require(connectorEarlier,"generated reaction arrow remains on the previous row");
     require(s.save(dir+"/reciprocal-substitution.cdxml",true).ok(),"save substitution example");s.selected.clear();s.fit();app.invalidate();app.screenshot(dir+"/reciprocal-substitution.png");
     std::ofstream(dir+"/reciprocal-arrow-checks.json")<<"{\"release_merge\":true,\"first_route_preserved\":true,\"two_heads\":true,\"undo_redo\":true,\"cdxml\":true}";
 }

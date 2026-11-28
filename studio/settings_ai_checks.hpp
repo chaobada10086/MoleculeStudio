@@ -18,6 +18,18 @@ struct ClipboardFixture {
 };
 void App::settingsAiCheck(const std::string& dir){
     auto require=[](bool ok,const char* why){if(!ok)throw std::runtime_error(why);};
+    if(std::getenv("MOLECULE_STUDIO_UPDATE_VERSION_CHECK")){
+        showSettings(8);
+        auto& sw=settingsWindow;
+        const auto control=GetDlgItem(sw.hwnd,StudioSettingsWindow::kCurrentVersion);
+        require(IsWindowVisible(control),"version is visible on Updates and About");
+        const auto label=sw.text(StudioSettingsWindow::kCurrentVersion);
+        require(label.find(L"Molecule Studio ")==0&&label.size()>16,"application version is populated");
+        sw.select(0);require(!IsWindowVisible(control),"version is hidden on other settings pages");
+        sw.select(8);require(IsWindowVisible(control),"version is visible after returning to Updates and About");
+        std::ofstream(dir+"/settings-version.txt")<<U(label)<<"\n";
+        s.dirty=false;PostMessageW(h,WM_CLOSE,0,0);return;
+    }
     if(std::getenv("MOLECULE_STUDIO_COMPLETION_FORMAT_CHECK")){
         showSettings(5);auto& sw=settingsWindow;auto edit=GetDlgItem(sw.hwnd,962);
         require(IsWindowVisible(GetDlgItem(sw.hwnd,985)),"format controls visible");

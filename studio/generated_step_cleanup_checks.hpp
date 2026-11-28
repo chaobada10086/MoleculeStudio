@@ -14,6 +14,64 @@ static void checkMechanismLocalCleanup(App& app,const std::string& dir){
     auto healthy=studio_local_cleanup::run(app.h,d,d,made);require(!healthy.attempted&&!healthy.changed,"unchanged healthy component skipped");
     // Stereo centres and the neighbours that encode their projection are fixed.
     auto stereo=initial;auto edge=stereo.bondBetween(n,tail);stereo.setBondDisplay(edge,BondDisplay::Wedge);stereo.setBondStereo(edge,BondStereo::Up);auto guarded=studio_local_cleanup::scope(stereo,source,made);require(!guarded.movable.count(n)&&!guarded.movable.count(tail)&&!guarded.movable.count(c),"wedge neighborhood locked");
+    {
+        // Reproduce the malformed exocyclic alkene after loss of chloride.
+        Document product;product.setDefaultBondLength(30);
+        std::vector<ObjectRef> generated;
+        auto atom=[&](Vec2 p,int element){ObjectId id;product.addAtom(p,element,&id);const ObjectRef ref(ObjectKind::Atom,id);
+            product.extensions(ref).set("studio.mechanism.source.atom",std::to_string(id));generated.push_back(ref);return id;};
+        auto bond=[&](ObjectId a,ObjectId b,BondOrder order=BondOrder::Single){ObjectId id;product.addBond(a,b,&id);
+            product.setBondOrder(id,order);generated.emplace_back(ObjectKind::Bond,id);return id;};
+        const auto alpha=atom({125,100},6),ipso=atom({110,74},6),farTop=atom({80,74},6),
+            farCarbon=atom({65,100},6),farBottom=atom({80,126},6),nearBottom=atom({110,126},6),oxygen=atom({124,48},8);
+        bond(alpha,ipso);bond(ipso,farTop);bond(farTop,farCarbon,BondOrder::Double);bond(farCarbon,farBottom);
+        bond(farBottom,nearBottom,BondOrder::Double);bond(nearBottom,alpha);bond(ipso,oxygen,BondOrder::Double);
+        const auto distal=atom({155,100},6),hydrogen=atom({170,74},1),chloro=atom({185,100},17);
+        const auto alkene=bond(alpha,distal,BondOrder::Double);
+        bond(distal,hydrogen);bond(distal,chloro);
+        Document precursor=product;precursor.setBondOrder(alkene,BondOrder::Single);
+        const auto damaged=product;
+        const auto cleaned=studio_local_cleanup::run(app.h,product,precursor,generated);
+        require(cleaned.changed,"clean up the formerly locked new alkene");
+        const auto pivot=product.atoms().alive(distal)->position;
+        auto ray=[&](ObjectId id){return product.atoms().alive(id)->position-pivot;};
+        auto trigonal=[&](ObjectId a,ObjectId b){return std::abs(dot(ray(a),ray(b))/length(ray(a))/length(ray(b))+.5)<1e-7;};
+        require(trigonal(alpha,hydrogen)&&trigonal(alpha,chloro)&&trigonal(hydrogen,chloro),"all three angles at the alkene end are 120 degrees");
+        require(product.atoms().alive(hydrogen)->position.y<pivot.y&&product.atoms().alive(chloro)->position.y>pivot.y,"preserve the defined side of the hydrogen");
+        for(auto id:{alpha,ipso,farTop,farCarbon,farBottom,nearBottom,distal})
+            require(product.atoms().alive(id)->position==damaged.atoms().alive(id)->position,"ring and double-bond axis stay fixed");
+        auto position=[&](const Document& doc,ObjectId id){return doc.atoms().alive(id)->position;};
+        const auto ca=position(product,alpha)-position(product,ipso);
+        const auto cf=position(product,farTop)-position(product,ipso);
+        const auto outward=ca*(-1/length(ca))+cf*(-1/length(cf));
+        auto followsBisector=[&](Vec2 axis){return dot(axis,outward)>0&&
+            std::abs(mechanism::step_detail::cross(axis,outward))<1e-7;};
+        require(followsBisector(position(product,oxygen)-position(product,ipso)),"ring carbonyl follows the outward bisector");
+        auto settledAlkene=product.digest();
+        require(!studio_local_cleanup::run(app.h,product,precursor,generated).changed&&product.digest()==settledAlkene,"new alkene cleanup is stable");
+        auto established=damaged;
+        established.setAtomPosition(oxygen,product.atoms().alive(oxygen)->position);
+        auto establishedDigest=established.digest();
+        require(!studio_local_cleanup::run(app.h,established,damaged,generated).changed&&established.digest()==establishedDigest,"existing alkene stays protected");
+        Document phenol=damaged;
+        phenol.setBondOrder(phenol.bondBetween(ipso,oxygen),BondOrder::Single);
+        phenol.setBondOrder(phenol.bondBetween(ipso,alpha),BondOrder::Double);
+        phenol.setBondOrder(alkene,BondOrder::Single);
+        ObjectId hydroxylH,oh;
+        phenol.addAtom({109,24},1,&hydroxylH);phenol.addBond(oxygen,hydroxylH,&oh);
+        const ObjectRef hydroxylRef(ObjectKind::Atom,hydroxylH);
+        phenol.extensions(hydroxylRef).set("studio.mechanism.source.atom",std::to_string(hydroxylH));
+        auto phenolRefs=generated;
+        phenolRefs.push_back(hydroxylRef);phenolRefs.emplace_back(ObjectKind::Bond,oh);
+        const auto tilted=phenol;
+        require(studio_local_cleanup::run(app.h,phenol,tilted,phenolRefs).changed,"align explicit phenolic OH");
+        const auto phenolicAxis=position(phenol,oxygen)-position(phenol,ipso);
+        const auto oldAxis=position(tilted,oxygen)-position(tilted,ipso);
+        const auto ohRay=position(phenol,hydroxylH)-position(phenol,oxygen);
+        const auto oldOH=position(tilted,hydroxylH)-position(tilted,oxygen);
+        require(followsBisector(phenolicAxis)&&std::abs(length(ohRay)-length(oldOH))<1e-7&&
+                std::abs(dot(phenolicAxis,ohRay)-dot(oldAxis,oldOH))<1e-7,"explicit O–H follows the C–O rotation");
+    }
     const auto path=dir+"/user-hydrazine-input.r62doc";bool actual=false;
     if(GetFileAttributesW(W(path).c_str())!=INVALID_FILE_ATTRIBUTES){
         Session user;require(user.open(path).ok(),"load actual hydrazine source");auto& s=app.s;s.cancel();s.doc=user.doc;s.history.clear();s.selected.clear();s.input.bindDocument(s.doc.id());

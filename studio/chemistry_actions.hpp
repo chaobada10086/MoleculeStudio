@@ -67,7 +67,10 @@ bool App::prepareStereoLabels(std::string* output){
     for(auto ref:s.selected){auto top=s.topLevelRef(ref);if(top.kind==ObjectKind::Group)selected.insert(top);}
     for(const auto& g:s.doc.groups().records())if(g.isAlive()&&isProjectionGroupName(g.label)&&(s.selected.empty()||selected.count(ObjectRef(ObjectKind::Group,g.id))))refs.emplace_back(ObjectKind::Group,g.id);
     if(refs.empty()){*output="请先选择包含完整取代基的投影或分子结构";return false;}
-    Session subset;auto e=studioio::append(s.doc,subset.doc,refs,Vec2(),nullptr);if(!e.ok()){*output=e.message;return false;}
+    Session subset;std::map<ObjectRef,ObjectRef> mapping;
+    auto e=studioio::append(s.doc,subset.doc,refs,Vec2(),nullptr,&mapping);if(!e.ok()){*output=e.message;return false;}
+    for(const auto& pair:mapping)if(pair.first.kind==ObjectKind::Atom||pair.first.kind==ObjectKind::Bond)
+        subset.doc.extensions(pair.second).set("pst.attr.MoleculeStudioStereoOriginal",std::to_string(pair.first.id));
     std::ostringstream xml;e=persistence::writeCdxml(subset.doc,xml);if(!e.ok()){*output=e.message;return false;}
     if(xml.str()!=stereoCacheInput){stereoCacheInput=xml.str();stereoCacheOk=chemservice::run(h,stereoCacheInput,"text/xml","text/x-moleculestudio-stereo","stereolabels",&stereoCacheOutput);}
     *output=stereoCacheOutput;return stereoCacheOk;
@@ -141,7 +144,7 @@ bool App::chemistryAction(const std::string& op,int){
         std::string output;
         status="正在标注构型…（Esc 取消）";invalidate(false);UpdateWindow(h);
         if(!prepareStereoLabels(&output)){status=output;invalidate();return true;}
-        struct StereoLabel{bool bond;std::string text;Vec2 center;ObjectId group=kInvalidObjectId;};
+        struct StereoLabel{ObjectRef owner;bool bond;std::string text;Vec2 center;ObjectId group=kInvalidObjectId;};
         std::vector<StereoLabel> labels;int skipped=0;
         std::istringstream stream(output);std::string line;
         while(std::getline(stream,line)){
@@ -150,12 +153,14 @@ bool App::chemistryAction(const std::string& op,int){
             for(size_t i=0;i<=line.size();++i)if(i==line.size()||line[i]=='\t'){parts.push_back(line.substr(from,i-from));from=i+1;}
             if(parts.size()==2&&parts[0]=="skipped"){skipped=std::atoi(parts[1].c_str());continue;}
             if(parts.size()<5||(parts[0]!="atom"&&parts[0]!="bond"&&parts[0]!="projection"))continue;
-            // The ids come from the subset CDXML (append() clears source ids), so
-            // they only identify the centre inside the service; the label is
-            // placed by coordinates, which are the document's own.
+            // The service reports the original document owner separately from the subset file ID.
             StereoLabel label;label.bond=parts[0]=="bond";label.text=parts[2];
             label.center=Vec2(std::atof(parts[3].c_str()),std::atof(parts[4].c_str()));
             if(!label.center.finite())continue;
+            if(parts[0]!="projection"&&parts.size()>5){
+                ObjectRef owner(label.bond?ObjectKind::Bond:ObjectKind::Atom,ObjectId(std::stoul(parts[5])));
+                if(namelink::aliveRef(s.doc,owner))label.owner=owner;
+            }
             if(parts[0]=="projection"&&parts.size()>=7){Vec2 origin(std::atof(parts[5].c_str()),std::atof(parts[6].c_str()));double best=1e100;for(const auto& g:s.doc.groups().records())if(g.isAlive()&&isProjectionGroupName(g.label)){auto b=selection::objectBounds(s.doc,ObjectRef(ObjectKind::Group,g.id));if(!studioio::inside(b,origin,s.doc.defaultBondLength()))continue;double score=length((b.min+b.max)*.5-origin);if(score<best){best=score;label.group=g.id;}}}
             labels.push_back(label);
         }
@@ -164,7 +169,13 @@ bool App::chemistryAction(const std::string& op,int){
         error(s.submit(Command("构型标注",kInvalidateAppearance|kInvalidateGeometry,[labels,size](CommandContext& c){
             std::vector<ObjectId> previous;
             for(auto& t:c.document.texts().records())if(t.isAlive()){
-                if(c.document.extensions(ObjectRef(ObjectKind::Text,t.id)).findValue("studio.stereo.label")){bool matches=false;for(const auto& label:labels){Vec2 old=t.position+Vec2(size*.9,size*.525);if(length(old-label.center)<9)matches=true;if(label.group!=kInvalidObjectId){auto g=c.document.groups().alive(label.group);if(g&&std::find(g->members.begin(),g->members.end(),ObjectRef(ObjectKind::Text,t.id))!=g->members.end())matches=true;}}if(matches){previous.push_back(t.id);continue;}}
+                const auto& bag=static_cast<const Document&>(c.document).extensions(ObjectRef(ObjectKind::Text,t.id));
+                if(auto owner=bag.findValue("studio.stereo.owner")){
+                    const auto linked=namelink::decodeRefs(*owner);
+                    if(linked.size()==1)for(const auto& label:labels)if(label.owner==linked.front()){previous.push_back(t.id);break;}
+                    continue;
+                }
+                if(bag.findValue("studio.stereo.label")){bool matches=false;for(const auto& label:labels){Vec2 old=t.position+Vec2(size*.9,size*.525);if(length(old-label.center)<9)matches=true;if(label.group!=kInvalidObjectId){auto g=c.document.groups().alive(label.group);if(g&&std::find(g->members.begin(),g->members.end(),ObjectRef(ObjectKind::Text,t.id))!=g->members.end())matches=true;}}if(matches){previous.push_back(t.id);continue;}}
                 // A reopened document loses the extension marker, so a plain
                 // "(R)" caption standing exactly where this run wants to write
                 // is treated as this command's own label and recycled.
@@ -185,6 +196,7 @@ bool App::chemistryAction(const std::string& op,int){
                 TextFormat format;format.fontName=c.document.defaultFont();format.size=size;
                 e=c.document.setTextFormat(id,format);if(!e.ok())return CommandResult::fail(e.code,e.message);
                 auto ref=ObjectRef(ObjectKind::Text,id);c.document.extensions(ref).set("studio.stereo.label",label.bond?"bond":"atom");c.document.extensions(ref).set("pst.attr.InterpretChemically","no");
+                if(label.owner.valid())c.document.extensions(ref).set("studio.stereo.owner",namelink::encodeRefs({label.owner}));
                 if(label.group!=kInvalidObjectId){auto g=c.document.groups().mutableGet(label.group);g->members.push_back(ref);c.document.noteTouchedGroup(label.group);}
             }
             return CommandResult::success();

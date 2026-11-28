@@ -93,6 +93,8 @@ App::StepPlan App::planMechanismStep(const Document& doc,const std::vector<Objec
     const auto localCleanup=studio_local_cleanup::run(h,*prepared,doc,preparedProducts);
     if(testing)std::ofstream(testOut+"/local-cleanup-progress.txt",std::ios::app)<<"movable="<<localCleanup.movable<<" attempted="<<localCleanup.attempted<<" changed="<<localCleanup.changed<<" "<<localCleanup.detail<<"\n";
     if(localCleanup.cancelled){throw std::runtime_error("已取消生成下一步，原结构保持不变");}
+    auto aligned=studio_mechanism_page_flow::alignStep(*prepared,doc,preparedProducts);
+    if(!aligned.ok())throw std::runtime_error(aligned.message);
     auto sourceRefs=scene;std::vector<ObjectRef> participants;
     for(auto id:inputIds)participants.emplace_back(ObjectKind::Arrow,id);
     for(const auto& move:moves){participants.push_back(move.source);participants.push_back(move.target);}
@@ -115,6 +117,8 @@ App::StepPlan App::planMechanismStep(const Document& doc,const std::vector<Objec
             if(!e.ok())return CommandResult::fail(e.code,e.message);
             auto flow=studio_mechanism_page_flow::place(c.document,*created,sourceRefs,participants,wrapped.get());
             if(!flow.ok())return CommandResult::fail(flow.code,flow.message);
+            for(auto ref:*created)if(static_cast<const Document&>(c.document).extensions(ref).findValue(studio_mechanism_products::arrowSideKey))
+                c.document.extensions(ref).erase(studio_mechanism_products::arrowSideKey);
             return CommandResult::success();
         });
     plan.detail=std::to_string(moves.size())+" 次电子转移）；原结构保留，可继续编辑或撤销。";
