@@ -263,6 +263,63 @@ def update_shared_ocsr_guide(app):
         guide.write_bytes(raw)
 
 
+def trim_core_source_archives(stage):
+    """Omit only reviewed Core source archives for the known runtime payload."""
+    import tarfile
+    import zipfile
+
+    app = stage / 'App'
+    legal = app / 'legal' / 'Core'
+    sources = legal / 'third-party-sources'
+    manifest_path = legal / 'SOURCE_FILES.json'
+    reviewed = {
+        'opencv-5.0.0-source.tar.gz': '5d97bddd4c5d2895dddafe6aff211b9fc1add564887263b7c062f2699660bf1d',
+        'opsin-2.9.0.tar.gz': 'b0a50fda9d8e9b8ba3355007d5a5543baf84df0eb6a0f2811302524584967c83',
+    }
+    reviewed_cv2 = '7c741b580e317f0e4b20a0b23fa5289d8b93af26f06177a661be7bfdc7dc175f'
+    cv2_binaries = list(app.rglob('cv2.pyd'))
+    if not cv2_binaries or any(sha256_file(p) != reviewed_cv2 for p in cv2_binaries):
+        raise SystemExit('源码精简中止：随包的 OpenCV 二进制与已核对的 4.5.5.64 版本不同')
+    if not (app / 'chemistry_runtime' / 'OPSIN-LICENSE.txt').is_file():
+        raise SystemExit('源码精简中止：缺少随包的 OPSIN 许可证')
+    with zipfile.ZipFile(app / 'chemistry_runtime' / 'opsin.jar') as jar:
+        properties = jar.read('META-INF/maven/uk.ac.cam.ch.opsin/opsin-core/pom.properties')
+        if b'version=2.9.0' not in properties.splitlines():
+            raise SystemExit('源码精简中止：OPSIN 版本与已核对的 2.9.0 版本不同')
+
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8-sig'))
+    selected = [row for row in manifest if row['file'] in reviewed]
+    if len(selected) != len(reviewed) or {row['file'] for row in selected} != reviewed.keys():
+        raise SystemExit('源码精简中止：Core 对应源码清单与预期不符')
+    for row in selected:
+        archive = sources / row['file']
+        if row['sha256'] != reviewed[row['file']] or sha256_file(archive) != row['sha256']:
+            raise SystemExit('源码精简中止：待移除归档的校验值不符：' + row['file'])
+
+    # Preserve the parent Maven recipe for the shipped OPSIN JAR, including its shade setup.
+    with tarfile.open(sources / 'opsin-2.9.0.tar.gz', 'r:gz') as archive:
+        root_pom = next(member for member in archive.getmembers()
+                        if member.isfile() and member.name.split('/')[1:] == ['pom.xml'])
+        with archive.extractfile(root_pom) as stream:
+            pom = stream.read()
+    recipes = legal / 'build-recipes'
+    recipes.mkdir(exist_ok=True)
+    (recipes / 'opsin-2.9.0-parent-pom.xml').write_bytes(pom)
+
+    for filename in reviewed:
+        (sources / filename).unlink()
+    remaining = [row for row in manifest if row['file'] not in reviewed]
+    manifest_path.write_text(json.dumps(remaining, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    note = legal / 'CURRENT_DISTRIBUTION.txt'
+    with note.open('a', encoding='utf-8') as file:
+        file.write('\nThis MSIX omits the MIT-licensed OPSIN 2.9.0 project source archive; the OPSIN '
+                   'license, Maven recipe and corresponding source archives for its bundled '
+                   'dependencies remain available in the package. The historical OpenCV 5.0.0 '
+                   'archive was omitted because this MSIX ships OpenCV Headless 4.5.5.64. '
+                   'See SOURCE_FILES.json for the current archive list.\n')
+    return list(reviewed)
+
+
 def build_assets(icon_path, assets_dir):
     if Image is None:
         raise SystemExit('需要 Pillow 才能生成图标：pip install pillow')
@@ -382,6 +439,7 @@ def main(argv=None):
     parser.add_argument('--icon', type=Path, default=DEFAULT_ICON, help='生成商店图标的源 PNG')
     parser.add_argument('--app-exe', type=Path, help='用已验证的新版主程序替换 Core 中的主程序')
     parser.add_argument('--share-ocsr-python', action='store_true', help='合并完整安装包中内容相同的 Core 和 OCSR Python 解释器，需要新版主程序与脚本')
+    parser.add_argument('--trim-reviewed-sources', action='store_true', help='仅移除已核对的 Core 源码归档，保留许可、构建资料及对应源码')
     parser.add_argument('--stage-dir', type=Path, help='使用空目录并保留中间文件，便于检查内容')
     parser.add_argument('--allow-overlay', action='store_true', help='允许组件之间同名文件内容不同（默认报错）')
     parser.add_argument('--dry-run', action='store_true', help='只暂存、生成清单和图标，不调用 makeappx')
@@ -436,6 +494,8 @@ def main(argv=None):
             shutil.copy2(args.app_exe, exe)
         if args.share_ocsr_python:
             summary['shared_ocsr_python'] = share_ocsr_interpreter(stage, args.app_exe)
+        if args.trim_reviewed_sources:
+            summary['removed_source_archives'] = trim_core_source_archives(stage)
         summary['backend_ini'] = normalize_backend_ini(stage)
         if (stage / 'App' / 'MoleculeStudio-OnlineSetup.exe').exists():
             raise SystemExit('商店包不应包含更新下载器，检查排除规则')

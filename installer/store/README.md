@@ -43,3 +43,5 @@ chemistry_backend.ini 改成相对 Python 路径、生成 25 张商店图标。
 打包时会过滤已知的 PyTorch 扩展开发文件与 AI 回归脚本。第三方许可证和对应源码归档随包提供。需要复用旧版组件 ZIP 并替换主程序时，用 `--app-exe` 指向已验证的目标版本主程序。`--stage-dir` 接受空目录并保留暂存内容。
 
 完整版可加 `--share-ocsr-python`，逐文件校验 Core 和 OCSR 的 CPython 基础运行时一致后合并解释器。该选项需要用 `--app-exe` 指向支持共享解释器的新版构建，构建目录内应有配套的 OCSR Python 启动脚本。OCSR 的识别依赖、模型、第三方许可仍随包提供。
+
+`--trim-reviewed-sources` 仅适用于已核对的 Core 运行时。它校验归档和二进制后移除 OPSIN 2.9.0 的 MIT 源码归档及历史 OpenCV 5.0.0 归档，更新包内源码清单，并保留许可证、OPSIN Maven 构建资料以及依赖组件的对应源码。独立组件 ZIP 保留原有源码清单。
