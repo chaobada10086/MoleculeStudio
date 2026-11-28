@@ -35,6 +35,9 @@ _CANDIDATES = [_RUNTIME / "python" / "cpython-3.10-windows-x86_64-none"]
 _CANDIDATES += sorted((_RUNTIME / "python").glob("cpython-3.10*-windows-x86_64-none"))
 PY = next((path / "python.exe" for path in _CANDIDATES if (path / "python.exe").is_file()),
           _RUNTIME / "venv" / "Scripts" / "python.exe")
+SHARED_PYTHON = (_RUNTIME / "use-core-python").is_file()
+if SHARED_PYTHON:
+    PY = ROOT / "chemistry_python" / "python.exe"
 SITE = _RUNTIME / "venv" / "Lib" / "site-packages"
 SERVICE = ROOT / "ocsr_service.py"
 MODELS = _RUNTIME / "models"
@@ -48,13 +51,15 @@ class OCSR:
     def __init__(self, device="cpu", verbose=False):
         CACHE.mkdir(parents=True, exist_ok=True)
         RECORDS.mkdir(parents=True, exist_ok=True)
+        flags = ["-S"] if SHARED_PYTHON else []
         cmd = [
-            str(PY), str(SERVICE), "--serve",
+            str(PY), *flags, str(SERVICE), "--serve",
             "--models", str(MODELS), "--cache", str(CACHE), "--records", str(RECORDS),
             "--device", device,
         ]
         env = os.environ.copy()
-        env["PYTHONPATH"] = str(SITE)
+        site_dirs = [SITE, _RUNTIME / "python-support"] if SHARED_PYTHON else [SITE]
+        env["PYTHONPATH"] = os.pathsep.join(map(str, site_dirs))
         env["PYTHONNOUSERSITE"] = "1"
         env.pop("PYTHONHOME", None)
         self.proc = subprocess.Popen(

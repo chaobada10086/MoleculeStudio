@@ -82,3 +82,5 @@ Thumbs.db
 /studio/tools/photosensitizer_fetch_failures.json
 /studio/tools/reagent_fetch_failures.json
 /studio/tools/template_expansion_failures.json
+/studio/reagent_geometry_audit.json
+/studio/tools/generation_report.json

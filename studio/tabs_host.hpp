@@ -449,7 +449,7 @@ struct TabHost {
             RegisterClassW(&wc);
             registered=true;
         }
-        hwnd=studio_i18n::createWindowEx(0,L"MoleculeStudioTabs",L"Molecule Studio 1.0.3.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,this);
+        hwnd=studio_i18n::createWindowEx(0,L"MoleculeStudioTabs",L"Molecule Studio 1.0.4.0",WS_OVERLAPPEDWINDOW|WS_CLIPCHILDREN,CW_USEDEFAULT,CW_USEDEFAULT,1560,950,0,0,inst,this);
         scale=GetDpiForWindow(hwnd)/96.f;
         DragAcceptFiles(hwnd,TRUE);
     }

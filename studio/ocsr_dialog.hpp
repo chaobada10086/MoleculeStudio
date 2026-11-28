@@ -48,7 +48,7 @@ public:
     bool start(const std::wstring& python, const std::wstring& script,
                const std::wstring& models, const std::wstring& cache,
                const std::wstring& records, const std::wstring& sitePackages,
-               std::wstring& error) {
+               bool sharedPython, std::wstring& error) {
         stop();
         SECURITY_ATTRIBUTES sa{};
         sa.nLength = sizeof(sa);
@@ -86,7 +86,8 @@ public:
             WriteFile(errorLog, header.data(), DWORD(header.size()), &ignored, nullptr);
         }
 
-        std::wstring command = L"\"" + python + L"\" \"" + script + L"\" --serve --models \"" +
+        std::wstring command = L"\"" + python + L"\"" + (sharedPython ? L" -S" : L"") +
+                               L" \"" + script + L"\" --serve --models \"" +
                                models + L"\" --cache \"" + cache + L"\" --records \"" + records + L"\"";
         STARTUPINFOW si{};
         si.cb = sizeof(si);
@@ -378,6 +379,7 @@ private:
     std::wstring runtimeDir;
     std::wstring pythonPath;
     std::wstring sitePackages;
+    bool sharedPython = false;
     std::wstring scriptPath;
     std::wstring modelsDir;
     std::wstring cacheDir;
@@ -503,10 +505,16 @@ private:
         DWORD length = GetEnvironmentVariableW(L"MOLECULE_STUDIO_OCSR_RUNTIME", overrideDir, 32768);
         runtimeDir = (length && length < 32768) ? std::wstring(overrideDir, length)
                                                                 : appDir + L"\\ocsr_runtime";
-        pythonPath = runtimeDir + L"\\venv\\Scripts\\python.exe";
-        std::wstring basePython = runtimeDir + L"\\python\\cpython-3.10-windows-x86_64-none\\python.exe";
-        if (GetFileAttributesW(basePython.c_str()) != INVALID_FILE_ATTRIBUTES) pythonPath = basePython;
+        sharedPython = GetFileAttributesW((runtimeDir + L"\\use-core-python").c_str()) != INVALID_FILE_ATTRIBUTES;
         sitePackages = runtimeDir + L"\\venv\\Lib\\site-packages";
+        if (sharedPython) {
+            pythonPath = appDir + L"\\chemistry_python\\python.exe";
+            sitePackages += L";" + runtimeDir + L"\\python-support";
+        } else {
+            pythonPath = runtimeDir + L"\\venv\\Scripts\\python.exe";
+            std::wstring basePython = runtimeDir + L"\\python\\cpython-3.10-windows-x86_64-none\\python.exe";
+            if (GetFileAttributesW(basePython.c_str()) != INVALID_FILE_ATTRIBUTES) pythonPath = basePython;
+        }
         scriptPath = appDir + L"\\ocsr_service.py";
         modelsDir = runtimeDir + L"\\models";
         // OpenCV (inside MolScribe) cannot read image files under non-ASCII paths on
@@ -718,7 +726,7 @@ private:
         }
         runTask(TaskResult::Service, L"正在启动本地识别服务…", [this]() {
             std::wstring error;
-            if (!client.start(pythonPath, scriptPath, modelsDir, cacheDir, recordsDir, sitePackages, error))
+            if (!client.start(pythonPath, scriptPath, modelsDir, cacheDir, recordsDir, sitePackages, sharedPython, error))
                 throw std::runtime_error(U(error));
             return client.request("<request id=\"1\" op=\"status\"/>", 180000);
         });

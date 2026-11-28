@@ -47,7 +47,7 @@ def _validate_crop(value, label='crop'):
     return [float(x), float(y), float(w), float(h)]
 
 
-def prepare_runtime(runtime):
+def prepare_runtime(runtime, app_dir=None):
     """Return the bundled base interpreter and its site-packages directory.
 
     The old package shipped a uv venv whose pyvenv.cfg carried the packaging
@@ -57,6 +57,8 @@ def prepare_runtime(runtime):
     """
     candidates = [runtime / 'python' / 'cpython-3.10-windows-x86_64-none']
     candidates += sorted((runtime / 'python').glob('cpython-3.10*-windows-x86_64-none'))
+    if (runtime / 'use-core-python').is_file():
+        candidates = [(app_dir or runtime.parent) / 'chemistry_python']
     base = next((path.resolve() for path in candidates
                  if (path/'python.exe').is_file() and (path/'Lib/encodings/__init__.py').is_file()), None)
     if base is None:
@@ -84,7 +86,7 @@ def service_session(base):
         installed = Path(local) / 'Programs' / 'MoleculeStudio' / 'ocsr_runtime'
         if installed.is_dir():
             runtime = installed
-    try: python, site = prepare_runtime(runtime)
+    try: python, site = prepare_runtime(runtime, base)
     except (OSError, ValueError) as exc:
         raise OcsrServiceError('本地识别运行时初始化失败：' + str(exc), None, 'service_startup') from None
     script = base / 'ocsr_service.py'
@@ -92,12 +94,16 @@ def service_session(base):
         raise ValueError('本地图片转结构组件不可用，请检查 ocsr_runtime')
     state = state_dir(base)
     cache, records = state / 'OCSRCache', state / 'recognition_records'
-    command = [str(python), '-X', 'utf8', '-u', str(script), '--serve', '--models', str(runtime / 'models'),
+    shared = (runtime / 'use-core-python').is_file()
+    # Skip Core's site-packages when using its interpreter for OCSR.
+    python_flags = ['-S'] if shared else []
+    command = [str(python), *python_flags, '-X', 'utf8', '-u', str(script), '--serve', '--models', str(runtime / 'models'),
                '--cache', str(cache), '--records', str(records)]
     flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
     env = os.environ.copy()
     for key in ('PYTHONHOME', 'PYTHONPATH', 'PYTHONSTARTUP'): env.pop(key, None)
-    env['PYTHONPATH'] = str(site)
+    site_dirs = [site, runtime / 'python-support'] if shared else [site]
+    env['PYTHONPATH'] = os.pathsep.join(map(str, site_dirs))
     env['PYTHONNOUSERSITE'] = '1'
     stderr = tempfile.TemporaryFile(mode='w+b')
     try:

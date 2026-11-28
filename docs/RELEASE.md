@@ -18,11 +18,11 @@ GitHub 自动生成的 Source code (zip/tar.gz) 属于平台源码下载，不�
 | 组件 | 目录 | 内容 | 依赖 |
 | --- | --- | --- | --- |
 | Core | `staging/Core/MoleculeStudio/` | 主程序、基础绘图、化学/核磁/三维运行时、内置 AI 绘图 Skill、手动更新下载器 | 无 |
-| AIBasic | `staging/AIBasic/MoleculeStudio/` | AI 助手、检索、对话画图；除 `ai_plugins/` 外的全部 AI 文件 | Core |
-| AIAdvanced | `staging/AIAdvanced/MoleculeStudio/` | 仅 `ai_plugins/**` 高级绘图插件 | AIBasic |
+| AIBasic | `staging/AIBasic/MoleculeStudio/` | AI 助手、检索、对话画图和使用说明 | Core |
+| AIAdvanced | `staging/AIAdvanced/MoleculeStudio/` | 高级绘图插件、DSH 运行时、启动脚本及随附的许可和源码 | AIBasic |
 | OCSR | `staging/OCSR/MoleculeStudio/` | 图片/PDF 转结构、本地模型与运行时 | Core |
 
-规则：每个 ZIP 只保留一个 `MoleculeStudio/` 根目录；四包版本字符串一致；AI 高级包只允许 `MoleculeStudio/ai_plugins/**`；AI 基础包不得包含 `ai_plugins`（由 `tools/split_ai_package.py` 从旧 AI 包拆分）；每个包内重新生成 `MANIFEST-<组件>.json`。
+规则：每个 ZIP 只保留一个 `MoleculeStudio/` 根目录；四包版本字符串一致；AI 高级包允许 `ai/**`、`ai_plugins/**`、`ai_dsh.py`、`dsh_proxy.py` 和 `legal/AI/**`。AI 基础包排除 DSH 运行时、插件及启动脚本；每个包内重新生成 `MANIFEST-<组件>.json`。
 
 ## 打包维护
 
@@ -30,14 +30,14 @@ GitHub 自动生成的 Source code (zip/tar.gz) 属于平台源码下载，不�
 ```
 staging/Core/MoleculeStudio/**
 staging/AIBasic/MoleculeStudio/**
-staging/AIAdvanced/MoleculeStudio/ai_plugins/**
+staging/AIAdvanced/MoleculeStudio/**
 staging/OCSR/MoleculeStudio/**
 ```
 不要把已使用的安装目录直接作为 staging。运行：
 ```powershell
 python tools/package_release.py --staging ../staging --output ../releases --version 0.95-20261108
 ```
-脚本扫描敏感/运行文件、逐文件计算 SHA-256、生成四个 ZIP 并验证每个 ZIP 的 CRC，输出四包校验清单到 releases 的上一级。源码仓库不提交 staging、模型或运行时。
+脚本扫描敏感/运行文件、逐文件计算 SHA-256、生成四个 ZIP 并验证每个 ZIP 的 CRC，输出四包校验清单到 releases 的上一级。脚本会过滤 PyTorch 扩展开发文件和 AI 回归脚本，并随交付组件保留第三方许可证及对应源码。源码仓库不提交 staging、模型或运行时。
 
 从旧三组件 AI 包拆分：
 ```powershell

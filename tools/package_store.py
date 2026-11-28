@@ -4,7 +4,7 @@ Input  : the four release ZIPs produced by tools/package_release.py (Core / AIBa
          AIAdvanced / OCSR) for one version.
 Output : a single x64 .msix (and optionally a signed copy for sideload testing).
 
-The Store package is not the portable package. It differs in exactly four ways:
+The Store package differs from the portable package in these ways:
   * the manual update downloader (MoleculeStudio-OnlineSetup.exe) is removed, because a
     Store app may not install its own copy outside the Store (policy 10.2.2);
   * per-user state (interface.ini, drawing.ini, shortcuts.ini, custom_groups.xml,
@@ -12,6 +12,7 @@ The Store package is not the portable package. It differs in exactly four ways:
     read-only at runtime, so the app keeps that data in %LOCALAPPDATA%\\MoleculeStudio;
   * chemistry_backend.ini is forced to a relative interpreter path, because the absolute
     path recorded by studio/build.py does not exist on the user's machine;
+  * known build-only PyTorch files and local regression outputs are omitted;
   * AppxManifest.xml is rendered from installer/store/AppxManifest.xml with the identity
     values taken from Partner Center, and the icons are generated from the project icon.
 
@@ -27,6 +28,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+from runtime_payload import development_file
 
 try:
     from PIL import Image
@@ -100,7 +103,7 @@ def excluded(rel):
         return True
     if any(name.endswith(suffix) for suffix in EXCLUDE_SUFFIX):
         return True
-    return False
+    return development_file(parts)
 
 
 def find_archive(release, kind):
@@ -191,6 +194,73 @@ def normalize_backend_ini(stage):
         return None
     ini.write_bytes((newline.join(lines) + newline).encode(encoding))
     return notes
+
+
+def share_ocsr_interpreter(stage, app_exe):
+    """Remove an identical OCSR CPython base while keeping its package search isolated."""
+    app = (stage / 'App').resolve()
+    runtime = app / 'ocsr_runtime'
+    python_tree = runtime / 'python'
+    base = python_tree / 'cpython-3.10-windows-x86_64-none'
+    core = app / 'chemistry_python'
+    base_site = base / 'Lib' / 'site-packages'
+    support = runtime / 'python-support'
+    required = ('python.exe', 'python310.dll', 'Lib/encodings/__init__.py')
+    if (not base_site.is_dir() or not (runtime / 'venv/Lib/site-packages').is_dir()
+            or not all((base / name).is_file() for name in required)
+            or sorted(python_tree.iterdir()) != [base]):
+        raise SystemExit('无法合并 OCSR Python：运行时布局与预期不符')
+
+    count = 0
+    removed_bytes = 0
+    for source in base.rglob('*'):
+        if not source.is_file() or source.is_relative_to(base_site):
+            continue
+        rel = source.relative_to(base)
+        target = core / rel
+        size = source.stat().st_size
+        if not target.is_file() or size != target.stat().st_size or sha256_file(source) != sha256_file(target):
+            raise SystemExit('无法合并 OCSR Python：与 Core 的文件不同：' + str(rel))
+        count += 1
+        removed_bytes += size
+
+    build_dir = app_exe.resolve().parent
+    scripts = ('ai_ocsr_bridge.py', 'ocsr_client.py')
+    if not all((build_dir / name).is_file() for name in scripts):
+        raise SystemExit('合并 OCSR Python 需要主程序同目录下的最新 OCSR 启动脚本')
+    # Keep even the smaller base site-packages, including their original metadata.
+    base_site.rename(support)
+    shutil.rmtree(python_tree)
+    (runtime / 'use-core-python').touch()
+    for name in scripts:
+        if (app / name).is_file():
+            shutil.copy2(build_dir / name, app / name)
+
+    old_python = rb'ocsr_runtime\python\cpython-3.10-windows-x86_64-none\python.exe"'
+    new_python = rb'chemistry_python\python.exe" -S'
+    old_site = rb'ocsr_runtime\venv\Lib\site-packages"'
+    new_site = rb'ocsr_runtime\venv\Lib\site-packages;%ROOT%ocsr_runtime\python-support"'
+    for launcher in app.glob('*.cmd'):
+        raw = launcher.read_bytes()
+        if old_python in raw:
+            if old_site not in raw:
+                raise SystemExit('无法更新 OCSR 命令行启动脚本：' + launcher.name)
+            launcher.write_bytes(raw.replace(old_python, new_python).replace(old_site, new_site))
+    update_shared_ocsr_guide(app)
+    return {'duplicate_files': count, 'bytes_removed': removed_bytes}
+
+
+def update_shared_ocsr_guide(app):
+    guide = app / '调用说明.md'
+    if guide.is_file():
+        raw = guide.read_bytes()
+        raw = raw.replace(rb'.\ocsr_runtime\python\cpython-3.10-windows-x86_64-none\python.exe ',
+                          rb'.\chemistry_python\python.exe -S ')
+        raw = raw.replace(rb'$PWD\ocsr_runtime\venv\Lib\site-packages"',
+                          rb'$PWD\ocsr_runtime\venv\Lib\site-packages;$PWD\ocsr_runtime\python-support"')
+        raw = raw.replace('│  ├─ python\\              # 内嵌 CPython 3.10（可移动）'.encode(),
+                          '│  ├─ python-support\\     # OCSR 基础依赖，解释器位于 chemistry_python\\'.encode())
+        guide.write_bytes(raw)
 
 
 def build_assets(icon_path, assets_dir):
@@ -310,7 +380,9 @@ def main(argv=None):
     parser.add_argument('--components', default=','.join(COMPONENTS), help='参与打包的组件，默认全部四个')
     parser.add_argument('--makeappx', help='makeappx.exe 路径，默认自动查找 Windows SDK')
     parser.add_argument('--icon', type=Path, default=DEFAULT_ICON, help='生成商店图标的源 PNG')
-    parser.add_argument('--stage-dir', type=Path, help='保留中间目录，便于检查内容')
+    parser.add_argument('--app-exe', type=Path, help='用已验证的新版主程序替换 Core 中的主程序')
+    parser.add_argument('--share-ocsr-python', action='store_true', help='合并完整安装包中内容相同的 Core 和 OCSR Python 解释器，需要新版主程序与脚本')
+    parser.add_argument('--stage-dir', type=Path, help='使用空目录并保留中间文件，便于检查内容')
     parser.add_argument('--allow-overlay', action='store_true', help='允许组件之间同名文件内容不同（默认报错）')
     parser.add_argument('--dry-run', action='store_true', help='只暂存、生成清单和图标，不调用 makeappx')
     parser.add_argument('--sign-pfx', type=Path, help='仅用于本地侧载测试：用 PFX 给 MSIX 签名')
@@ -331,11 +403,15 @@ def main(argv=None):
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temp = None
+    if args.share_ocsr_python and (not args.app_exe or 'OCSR' not in kinds or 'Core' not in kinds):
+        raise SystemExit('--share-ocsr-python 需要 --app-exe、Core 和 OCSR')
+    if args.app_exe and not args.app_exe.is_file():
+        raise SystemExit('找不到新版主程序：' + str(args.app_exe))
     if args.stage_dir:
         stage = args.stage_dir.resolve()
-        if stage.exists():
-            shutil.rmtree(stage)
-        stage.mkdir(parents=True)
+        stage.mkdir(parents=True, exist_ok=True)
+        if any(stage.iterdir()):
+            raise SystemExit('暂存目录必须为空：' + str(stage))
     else:
         temp = tempfile.mkdtemp(prefix='molecule-store-')
         stage = Path(temp)
@@ -356,6 +432,10 @@ def main(argv=None):
         if not exe.exists():
             raise SystemExit('暂存目录里没有 App\\MoleculeStudio.exe，请检查 Core 组件包')
 
+        if args.app_exe:
+            shutil.copy2(args.app_exe, exe)
+        if args.share_ocsr_python:
+            summary['shared_ocsr_python'] = share_ocsr_interpreter(stage, args.app_exe)
         summary['backend_ini'] = normalize_backend_ini(stage)
         if (stage / 'App' / 'MoleculeStudio-OnlineSetup.exe').exists():
             raise SystemExit('商店包不应包含更新下载器，检查排除规则')

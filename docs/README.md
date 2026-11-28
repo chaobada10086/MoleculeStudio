@@ -19,17 +19,11 @@
 | [COMMON_COMPOUNDS.md](COMMON_COMPOUNDS.md) | 常用化合物目录（构建脚本引用） |
 | [DEPENDENCY_INVENTORY-*.json](DEPENDENCY_INVENTORY-Core.json) | 三个组件包的依赖清单 |
 
-## 交接文档
-
-| 文件 | 用途 |
-| --- | --- |
-| [handoff/r62.md](handoff/r62.md) | 当前交接（桌面版 r62，含启动与回退路径） |
-
 ## 归档
 
-[archive/](archive/) 保存 2026-11 的旧交接（r10/r12/r16）、20261108 版发布说明与正文、依赖/OCSR/性能审计、以及已被后续版本取代的修复记录。归档文件里的路径与结论可能已经过期。
+[archive/](archive/) 保存 2026-11 的20261108 版发布说明与正文、依赖/OCSR/性能审计、以及已被后续版本取代的修复记录。归档文件里的路径与结论可能已经过期。
 
 ## 仓库约定
 
-- `work/` 是本机临时工作区（测试产物、一次性补丁脚本、r*-backup 快照、构建日志），已在 `.gitignore` 中排除，不进入版本库；本机文件仍然保留，可随时从磁盘取用。
+- `work/` 是本机临时工作区（测试产物、一次性补丁脚本、r*-backup 快照、构建日志），已在 `.gitignore` 中排除。可重建的中间文件可定期清理。
 - 发布产物的源码在 `studio/` 与 `engine/`；`out/`、`dist/`、`licenses/`（第三方许可文本除外）都不入库。

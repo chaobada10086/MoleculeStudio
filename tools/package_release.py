@@ -4,13 +4,14 @@ Staging layout (never package a live installation):
 
     staging/Core/MoleculeStudio/**
     staging/AIBasic/MoleculeStudio/**
-    staging/AIAdvanced/MoleculeStudio/ai/** + ai_plugins/** + ai_dsh.py/dsh_proxy.py
+    staging/AIAdvanced/MoleculeStudio/ai/** + ai_plugins/** + ai_dsh.py/dsh_proxy.py + legal/AI/**
     staging/OCSR/MoleculeStudio/**
 
 Rules:
   * every ZIP keeps the single MoleculeStudio/ root and the same version string
-  * AIAdvanced may only contain MoleculeStudio/ai/**, MoleculeStudio/ai_plugins/**, ai_dsh.py and dsh_proxy.py (plus its manifest)
+  * AIAdvanced contains the DSH runtime, its launchers, drawing plugins and their legal/AI/** materials
   * AIBasic must not contain MoleculeStudio/ai/**, ai_plugins/** or the DSH launchers (use tools/split_ai_package.py)
+  * known build-only PyTorch files and AI regression scripts are omitted
   * each package gets its own MANIFEST-<Component>.json regenerated from the files
   * sensitive/private file scan and per-file SHA-256 are unchanged
   * every output ZIP is re-opened and its CRC checked before reporting
@@ -22,6 +23,7 @@ import hashlib
 import json
 import zipfile
 from audit_release import audit
+from runtime_payload import development_file
 
 COMPONENTS = ('Core', 'AIBasic', 'AIAdvanced', 'OCSR')
 SUFFIX = {
@@ -44,15 +46,18 @@ def digest(p):
 
 
 def validate_layout(base, kind):
-    if kind == 'AIAdvanced':
-        stray = [p.relative_to(base).as_posix() for p in base.rglob('*')
-                 if p.is_file() and not (p.relative_to(base).as_posix().startswith('ai_plugins/') or p.relative_to(base).as_posix().startswith('ai/') or p.relative_to(base).as_posix() in ('ai_dsh.py', 'dsh_proxy.py'))]
-        if stray:
-            raise RuntimeError('AIAdvanced staging contains files outside DSH/plugin scope: ' + repr(stray[:5]))
-    if kind == 'AIBasic':
-        stray = [p.relative_to(base).as_posix() for p in base.rglob('*')
-                 if p.is_file() and (p.relative_to(base).as_posix().startswith('ai_plugins/') or p.relative_to(base).as_posix().startswith('ai/') or p.relative_to(base).as_posix() in ('ai_dsh.py', 'dsh_proxy.py'))]
-        if stray:
+    if kind not in ('AIAdvanced', 'AIBasic'):
+        return
+    advanced_dirs = ('ai/', 'ai_plugins/')
+    advanced_launchers = {'ai_dsh.py', 'dsh_proxy.py'}
+    for path in base.rglob('*'):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(base).as_posix()
+        advanced = rel.startswith(advanced_dirs) or rel in advanced_launchers
+        if kind == 'AIAdvanced' and not (advanced or rel.startswith('legal/AI/') or rel == 'MANIFEST-AIAdvanced.json'):
+            raise RuntimeError('AIAdvanced staging contains a file outside DSH/plugin scope: ' + rel)
+        if kind == 'AIBasic' and advanced:
             raise RuntimeError('AIBasic staging contains DSH/plugin files; split the AI package first')
 
 
@@ -64,7 +69,8 @@ def package(staging, out, version, kind):
     if result['findings']:
         raise RuntimeError(json.dumps(result))
     validate_layout(base, kind)
-    files = sorted(p for p in base.rglob('*') if p.is_file() and p.name != 'MANIFEST-' + kind + '.json')
+    files = sorted(p for p in base.rglob('*') if p.is_file() and p.name != 'MANIFEST-' + kind + '.json'
+                   and not development_file(p.relative_to(base).parts))
     manifest = {
         'version': version,
         'package': kind,

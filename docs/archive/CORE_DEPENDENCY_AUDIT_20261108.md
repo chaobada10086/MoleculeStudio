@@ -25,7 +25,7 @@
 
 ## 证据
 
-- 扫描范围：C:\\Users\\ChaobaDa\\AppData\\Local\\Programs\\MoleculeStudio。
+- 扫描范围：%LOCALAPPDATA%\Programs\MoleculeStudio。
 - 方法：按文件大小分组，对 ≥512 KB 文件计算 SHA-256；统计完全重复组与可回收字节数。
 - 明细：out\\dup-scan.json（构建产物目录，不提交）。
 

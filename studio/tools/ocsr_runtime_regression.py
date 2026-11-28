@@ -33,6 +33,22 @@ class OcsrRuntime(unittest.TestCase):
             self.assertEqual(site, runtime/'venv/Lib/site-packages')
             self.assertEqual(cfg.read_bytes(),original)
 
+    def test_shared_runtime_uses_core_and_preserves_ocsr_site(self):
+        with tempfile.TemporaryDirectory() as directory:
+            app = Path(directory)
+            runtime, _ = self.make_runtime(app)
+            (runtime/'use-core-python').touch()
+            core = app/'chemistry_python'
+            (core/'Lib/encodings').mkdir(parents=True)
+            (core/'python.exe').touch()
+            (core/'Lib/encodings/__init__.py').touch()
+            python, site = bridge.prepare_runtime(runtime, app)
+            self.assertEqual(python, core/'python.exe')
+            self.assertEqual(site, runtime/'venv/Lib/site-packages')
+            (core/'python.exe').unlink()
+            with self.assertRaisesRegex(ValueError, 'encodings'):
+                bridge.prepare_runtime(runtime, app)
+
     def test_missing_stdlib_has_explicit_error(self):
         with tempfile.TemporaryDirectory() as directory:
             runtime, base = self.make_runtime(Path(directory)); (base/'Lib/encodings/__init__.py').unlink()
